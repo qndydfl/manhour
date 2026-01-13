@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>배정 결과</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body { font-family: "Pretendard", sans-serif; }
+
+        #modalInputGrid input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            outline: none;
+            padding: 5px;
+        }
+        #modalInputGrid input:focus {
+            background-color: #e8f0fe; /* 포커스 시 연한 파랑 */
+            font-weight: bold;
+        }
+        
+        /* 결과 테이블 색상 (부트스트랩 컬러 활용 가능하지만 커스텀 유지) */
+        .res-direct { background-color: #f0fff4 !important; color: #006400; } /* 직비: 연두 */
+        .res-indirect { background-color: #fff5f5 !important; color: #c53030; } /* 간비: 연한 빨강 */
+    </style>
+</head>
+<body class="p-4 bg-light">
+
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-house-door-fill"></i> 홈
+                </a>
+                <h2 class="mb-0 fw-bold">📊 {{ session.name }} 결과</h2>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'edit_session' session.id %}" class="btn btn-outline-dark btn-sm d-flex align-items-center">
+                    ⚙️ 설정/명단
+                </a>
+                
+                <a href="{% url 'manage_items' session.id %}" class="btn btn-outline-primary btn-sm fw-bold d-flex align-items-center">
+                    🛠️ 일감 관리
+                </a>
+
+                <button type="button" class="btn btn-success btn-sm fw-bold d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    📥 엑셀 등록
+                </button>
+
+                <a href="{% url 'manual_input' session.id %}" class="btn btn-primary">
+                    ⏱️ 작업 시간 일괄 입력
+                </a>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-3">
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary fw-bold px-4">
+                    ⚡ 자동 배정 실행하기
+                </button>
+            </form>
+
+            <form action="{% url 'finish_session' session.id %}" method="POST" 
+                onsubmit="return confirm('작업을 완료하시겠습니까?\n\n이 세션은 [기록 보관소]로 이동되며,\n{{ session.name }} 방은 다시 사용할 수 있게 됩니다.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success fw-bold px-4">
+                    ✅ 작업 완료 (퇴실)
+                </button>
+            </form>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-sm mb-5">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0 text-center align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>기번</th>
+                                <th>WO</th>
+                                <th>OP</th>
+                                <th>설명</th>
+                                <th>총 시간</th>
+                                <th style="width: 40%;">배정 결과 (이름 : 시간)</th>
+                                <th>관리</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr {% if item.is_manual %}class="table-info"{% endif %}> 
+                                <td class="fw-bold">{{ item.gibun_input }}</td>
+                                {% comment %} <td><span class="badge bg-info text-dark">{{ item.model_type }}</span></td> {% endcomment %}
+                                <td>{{ item.work_order }}</td>
+                                <td>{{ item.op }}</td>
+                                <td class="text-start">{{ item.description }}</td>
+                                <td class="fw-bold text-primary">{{ item.work_mh }}</td>
+                                <td class="text-start">
+                                    {% for assign in item.assignments.all %}
+                                        <span class="badge bg-secondary me-1">
+                                            {{ assign.worker.name }} ({{ assign.allocated_mh }})
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-muted small">아직 배정 안됨</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'edit_item' item.id %}" class="btn btn-sm btn-outline-secondary">
+                                        ✏️ 수정
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-secondary mb-5">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person-gear me-2"></i>작업자별 근무 한도 설정</h5>
+                <small>각 작업자의 최대 근무 시간을 수정하고 [저장]을 누르세요.</small>
+            </div>
+            
+            <div class="card-body bg-light">
+                <form action="{% url 'update_limits' session.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for worker in workers %}
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="card h-100 text-center {% if worker.used_mh > worker.limit_mh %}border-danger{% endif %}">
+                                <div class="card-body p-2">
+                                    <div class="fw-bold mb-1 text-truncate">{{ worker.name }}</div>
+                                    <div class="h3 mb-2 text-primary">{{ worker.used_mh }}</div>
+                                    <div class="d-flex align-items-center justify-content-center gap-1 text-muted small">
+                                        <span>/ Max</span>
+                                        <input type="number" step="0.5" name="limit_{{ worker.id }}" 
+                                            class="form-control form-control-sm text-center fw-bold p-0" 
+                                            style="width: 50px; height: 24px;"
+                                            value="{{ worker.limit_mh }}">
+                                    </div>
+                                </div>
+                                {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}" 
+                                        role="progressbar" style="width: {{ ratio }}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-dark btn-sm fw-bold">
+                            💾 한도(Max Time) 저장하기
+                        </button>
+                    </div>                        
+                </form>
+            </div>
+        </div>
+    </div>    
+    
+    </div> <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold" id="uploadModalLabel">📊 엑셀 데이터 일괄 등록</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'upload_data' pk=session.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="excelFile" class="form-label fw-bold">파일 선택 (.xlsx, .xls)</label>
+                            <input type="file" class="form-control" id="excelFile" name="file" accept=".xlsx, .xls" required>
+                        </div>
+
+                        <div class="alert alert-light border small">
+                            <strong>※ 엑셀 컬럼 순서 (첫 줄 헤더 포함):</strong><br>
+                            <span class="badge bg-secondary">기종</span>
+                            <span class="badge bg-secondary">WO</span>
+                            <span class="badge bg-secondary">OP</span>
+                            <span class="badge bg-secondary">설명</span>
+                            <span class="badge bg-secondary">M/H</span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success fw-bold">🚀 데이터 업로드 및 저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+    <script>
+        // --- 설정 및 변수 ---
+        const CONFIG = {   
+            limitMH: 8.0,      
+            currentWO: "",  // 동적으로 변경됨
+            currentOP: "",  // 동적으로 변경됨
+            currentItemId: "" // DB 저장용 ID
+        };
+
+        // [변경점 1] 모달 객체 관리 변수
+        let manningModal = null;
+
+        // 시간 변환 유틸
+        function timeToMin(str) {
+            if(!str || str.length !== 4) return 0;
+            return (parseInt(str.substr(0,2))*60) + parseInt(str.substr(2,2));
+        }
+        function minToTimeStr(min) {
+            let h = Math.floor(min / 60);
+            let m = min % 60;
+            return String(h).padStart(2,'0') + ":" + String(m).padStart(2,'0');
+        }        
+
+        // [변경점 2] 결과 테이블 행 추가 (M/H 컬럼 제거됨)
+        function appendResultRow(wo, op, indirectCode, sMin, eMin, cssClass) {
+            const resultBody = document.getElementById("modalResultBody");
+            const tr = document.createElement("tr");
+            tr.className = cssClass; 
+            
+            // 시간 계산은 로직상 필요할 수 있으나 화면엔 안 뿌림
+            // let timeStr = ((eMin - sMin)/60).toFixed(1); 
+            
+            // <td>${timeStr}</td> 제거됨
+            tr.innerHTML = `
+                <td>${wo}</td>
+                <td>${op}</td>
+                <td>${indirectCode}</td>
+                <td>${minToTimeStr(sMin)}</td>
+                <td>${minToTimeStr(eMin)}</td>
+            `;
+            resultBody.appendChild(tr);
+        }
+
+        function applyToMain() {
+            // 여기에 실제 서버 전송 로직 구현
+            // 예: CONFIG.currentItemId 와 계산된 데이터를 함께 보냄
+            alert(`[${CONFIG.currentWO}] 데이터 적용 완료! (ID: ${CONFIG.currentItemId})`);
+            closeModal();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>작업 시간 일괄 입력</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body { font-family: "Pretendard", sans-serif; background: #f8f9fa; }
+        
+        /* 입력창 스타일 */
+        .input-row input { text-align: center; border: none; background: transparent; width: 100%; outline: none; }
+        .input-row input:focus { background: #e8f0fe; font-weight: bold; }
+        
+        /* 결과 테이블 색상 */
+        .res-direct { background-color: #d1e7dd; color: #0f5132; } 
+        .res-indirect { background-color: #f8d7da; color: #842029; }
+        
+        /* 왼쪽 큐 테이블 스타일 */
+        .queue-row { font-size: 0.85rem; }
+        .queue-row.completed { background-color: #e9ecef; color: #adb5bd; text-decoration: line-through; }
+        .queue-row.active { background-color: #e7f1ff; font-weight: bold; }
+    </style>
+</head>
+<body class="p-3">
+
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <h4>⏱️ 작업 시간 일괄 입력</h4>
+            <div>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">뒤로 가기</a>
+                <button class="btn btn-success btn-sm fw-bold" onclick="app.saveData()">💾 저장 하기</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-secondary text-white text-center py-2">
+                        <h6 class="mb-0">📋 남은 일감 (Queue)</h6>
+                    </div>
+                    <div class="card-body p-0" style="overflow-y: auto; max-height: 70vh;">
+                        <table class="table table-sm table-bordered text-center mb-0 align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>WO</th>
+                                    <th>OP</th>
+                                    <th>M/H</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queueListArea">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">🕒 시간 입력</h6>
+                        <button class="btn btn-sm btn-outline-dark" onclick="app.addInputRow()">+ 행 추가</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered text-center mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="25%">Start</th><th width="25%">Code (간비)</th>
+                                    <th width="25%">End</th><th width="10%">Del</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inputArea"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center mb-4">
+                    <button class="btn btn-primary fw-bold px-4" onclick="app.calculate()">
+                        👇 자동 매핑 실행 (WO, OP 배정)
+                    </button>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">📊 최종 결과</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered table-hover text-center mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>WO</th>
+                                    <th>OP</th>
+                                    <th>Type</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultArea">
+                                <tr><td colspan="5" class="text-muted py-4">대기중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        // CSRF 토큰 가져오는 헬퍼 함수 (Django 보안 필수)
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        class AutoManningSystem {
+            
+            constructor(items) {
+                // 원본 데이터 보존
+                this.originalItems = JSON.parse(JSON.stringify(items));
+                this.originalItems = JSON.parse(JSON.stringify(items));
+                this.currentItems = JSON.parse(JSON.stringify(items));
+                
+                this.dom = {
+                    queueList: document.getElementById('queueListArea'), // 왼쪽 큐 (tbody)
+                    inputTbody: document.getElementById('inputArea'),    // 입력창 (tbody)
+                    resultTbody: document.getElementById('resultArea')   // 결과창 (tbody)
+                };
+
+                this.renderQueue();
+                
+                // 기본 5줄 생성
+                for (let i = 0; i < 5; i++) {
+                    this.addInputRow();
+                }
+            }
+
+            // [왼쪽] 남은 일감 표시 (WO | OP | M/H)
+            renderQueue() {
+                this.dom.queueList.innerHTML = "";
+                this.currentItems.forEach(item => {
+                    const isDone = item.remainMH <= 0.01;
+                    const tr = document.createElement('tr');
+                    tr.className = `queue-row ${isDone ? 'completed' : ''}`;
+                    
+                    // 실제 데이터(WO, OP)를 보여줌
+                    tr.innerHTML = `
+                        <td><small class="text-muted">${item.model}</small><br>${item.wo}</td>
+                        <td>${item.op}</td>
+                        <td>${item.remainMH.toFixed(1)}</td>
+                    `;
+                    this.dom.queueList.appendChild(tr);
+                });
+            }
+
+            // [오른쪽 상단] 입력 행 추가 (숫자 4자리 제한)
+            addInputRow() {
+                const tr = document.createElement('tr');
+                tr.className = "input-row";
+                const numberOnlyScript = "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)";
+
+                tr.innerHTML = `
+                    <td class="p-0"><input type="text" class="start-time" maxlength="4" oninput="${numberOnlyScript}"></td>
+                    <td class="p-0"><input type="text" class="indirect-code" maxlength="4" oninput="${numberOnlyScript}"></td>
+                    <td class="p-0"><input type="text" class="end-time" maxlength="4" oninput="${numberOnlyScript}"></td>
+                    <td class="p-1"><button class="btn btn-close btn-sm" onclick="this.closest('tr').remove()" tabindex="-1"></button></td>
+                `;
+                this.dom.inputTbody.appendChild(tr);
+            }
+
+            // ★ [핵심] 계산 및 자동 배정 로직
+            calculate() {
+                // 1. 계산 전 상태 초기화 (다시 처음부터 계산)
+                this.currentItems = JSON.parse(JSON.stringify(this.originalItems));
+                this.dom.resultTbody.innerHTML = "";
+                
+                const rows = this.dom.inputTbody.querySelectorAll("tr");
+                let itemIndex = 0; // 큐에서 꺼낼 순서 포인터
+
+                rows.forEach(row => {
+                    const startStr = row.querySelector(".start-time").value;
+                    const endStr = row.querySelector(".end-time").value;
+                    const code = row.querySelector(".indirect-code").value.trim();
+
+                    if (!startStr || !endStr) return;
+
+                    let startMin = this.timeToMin(startStr);
+                    let endMin = this.timeToMin(endStr);
+                    if (endMin <= startMin) return;
+
+                    // === A. 간비 모드 (Code 입력됨) ===
+                    if (code !== "") {
+                        // ID는 null, Code는 전달
+                        this.appendResultRow(null, "", "", `간비 (${code})`, sMin, endMin, "res-indirect", code);
+                    } 
+                    // === B. 직비 모드 (Code 공란 -> 자동 배정) ===
+                    else {
+                        let slotDuration = endMin - startMin; 
+                        let currentStart = startMin;
+
+                        // 시간이 남았고 & 일감이 남아있으면 루프
+                        while (slotDuration > 0 && itemIndex < this.currentItems.length) {
+                            let item = this.currentItems[itemIndex];
+                            
+                            // 이미 끝난 일감은 패스
+                            if (item.remainMH <= 0.01) {
+                                itemIndex++;
+                                continue;
+                            }
+
+                            // 배정할 시간 계산
+                            let allocateMin = Math.min(slotDuration, item.remainMH * 60);
+                            let currentEnd = currentStart + allocateMin;
+
+                            // ★ [정답 부분] 큐에서 꺼낸 item.wo와 item.op를 결과에 넣습니다.
+                            // 세 번째 인자(type)는 "직비"라고 표시하거나 비워둘 수 있습니다.
+                            this.appendResultRow(item.id, item.wo, item.op, "직비", currentStart, currentEnd, "res-direct", null);
+
+                            // 잔여 시간 차감
+                            item.remainMH -= (allocateMin / 60);
+                            slotDuration -= allocateMin;
+                            currentStart = currentEnd;
+
+                            // 일감 완료 시 다음 일감으로
+                            if (item.remainMH <= 0.01) {
+                                item.remainMH = 0;
+                                itemIndex++;
+                            }
+                        }
+
+                        // 남은 시간 (대기)
+                        if (slotDuration > 0) {
+                            this.appendResultRow("", "", "대기", currentStart, currentStart + slotDuration, "table-light");
+                        }
+                    }
+                });
+                
+                // 큐 상태 업데이트 (줄어든 시간 반영)
+                this.renderQueue();
+            }
+
+            // ★ [수정] appendResultRow: ID와 Code를 dataset에 저장
+            appendResultRow(itemId, wo, op, typeText, sMin, eMin, cssClass, indirectCode) {
+                const tr = document.createElement("tr");
+                tr.className = cssClass;
+                
+                // ★ 서버 전송용 중요 데이터 숨기기
+                if (itemId) tr.dataset.itemId = itemId;       // 직비일 때 ID
+                if (indirectCode) tr.dataset.code = indirectCode; // 간비일 때 코드
+                tr.dataset.start = sMin;
+                tr.dataset.end = eMin;
+                tr.dataset.type = indirectCode ? "INDIRECT" : (itemId ? "DIRECT" : "IDLE");
+
+                const safeWO = wo ? wo : "&nbsp;";
+                const safeOP = op ? op : "&nbsp;";
+                const safeType = indirectCode ? indirectCode : "&nbsp;"; // 간비코드 자리에 표시
+
+                tr.innerHTML = `
+                    <td>${safeWO}</td>
+                    <td>${safeOP}</td>
+                    <td>${safeType}</td>
+                    <td>${this.minToTimeStr(sMin)}</td>
+                    <td>${this.minToTimeStr(eMin)}</td>
+                `;
+                this.dom.resultTbody.appendChild(tr);
+            }
+
+            // ★ [추가] 실제 서버 전송 로직
+            saveData() {
+                const rows = this.dom.resultTbody.querySelectorAll("tr");
+                if (rows.length === 0) {
+                    alert("저장할 데이터가 없습니다.");
+                    return;
+                }
+
+                const payload = [];
+                rows.forEach(tr => {
+                    // dataset에서 데이터 추출
+                    const type = tr.dataset.type;
+                    if (type === "IDLE") return; // 대기 시간은 저장 안 함 (필요시 수정)
+
+                    payload.push({
+                        item_id: tr.dataset.itemId || null, // 직비 ID
+                        code: tr.dataset.code || null,      // 간비 코드
+                        start_min: parseInt(tr.dataset.start),
+                        end_min: parseInt(tr.dataset.end),
+                        type: type
+                    });
+                });
+
+                // 서버로 전송 (AJAX)
+                // URL 끝에 현재 session ID가 들어가야 함 (HTML에서 변수로 받아야 함)
+                const url = "{% url 'save_manual_input' session.id %}"; 
+
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ assignments: payload })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert("✅ 성공적으로 저장되었습니다!");
+                        // 저장 후 메인 페이지로 이동 or 새로고침
+                        window.location.href = "{% url 'result_view' session.id %}"; 
+                    } else {
+                        alert("저장 실패: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("서버 통신 중 오류가 발생했습니다.");
+                });
+            }
+        }
+
+        // 초기화 부분
+        const SERVER_DATA = {{ items_json|safe }};
+        const app = new AutoManningSystem(SERVER_DATA);
+    </script>
+
+</body>
+</html>

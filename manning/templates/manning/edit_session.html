@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>세션 설정 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5" style="max-width: 800px;">
+        <div class="card shadow">
+            <div class="card-header bg-info text-dark">
+                <h4 class="mb-0">⚙️ 세션 전체 수정</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">세션 이름</label>
+                        <input type="text" name="session_name" class="form-control" value="{{ session.name }}" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">👷 작업자 명단 (수정/추가/삭제)</label>
+                        <div class="alert alert-warning py-2 small">
+                            ※ 이름을 지우면 그 사람의 배정 기록도 함께 삭제됩니다.<br>
+                            ※ 이름을 수정하면 기존 사람은 삭제되고 새 사람이 추가됩니다.
+                        </div>
+                        <textarea name="worker_names" class="form-control" rows="5">{{ worker_names_str }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-info w-100 fw-bold">수정 완료 💾</button>
+                        <a href="{% url 'result_view' session.id %}" class="btn btn-secondary w-100">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
