@@ -1,171 +1,284 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>작업 세션 시작</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="text-end mb-3">
-        <a href="{% url 'history' %}" class="btn btn-link text-decoration-none fw-bold">
-            📜 지난 기록 보기
-        </a>
-    </div>
+    <head>
+        <meta charset="UTF-8" />
+        <title>작업 세션 시작</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+    </head>
+    <body class="bg-light">
+        <div class="text-end mb-3">
+            <a
+                href="{% url 'history' %}"
+                class="btn btn-link text-decoration-none fw-bold"
+            >
+                📜 지난 기록 보기
+            </a>
+        </div>
 
-    <div class="container mt-5" style="max-width: 800px;">
-        <div class="card shadow">
-            <div class="card-header bg-success text-white">
-                <h4 class="mb-0">✈️ 오늘의 작업 시작하기</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">1️⃣ 세션 선택 (오늘 사용할 작업 공간)</label>
-                        
-                        <input type="hidden" name="session_name" id="selected_session" required>
-                        
-                        <div class="row g-2">
-                            {% for slot in slots %}
-                            <div class="col-6 col-md-3">
-                                <button type="button" 
-                                        class="btn w-100 py-3 fw-bold session-btn
-                                        {% if slot.is_taken %}btn-secondary disabled{% else %}btn-outline-primary{% endif %}"
+        <div class="container mt-5" style="max-width: 800px">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">✈️ 오늘의 작업 시작하기</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"
+                                >1️⃣ 세션 선택 (오늘 사용할 작업 공간)</label
+                            >
+
+                            <input
+                                type="hidden"
+                                name="session_name"
+                                id="selected_session"
+                                required
+                            />
+
+                            <div class="row g-2">
+                                {% for slot in slots %}
+                                <div class="col-6 col-md-3">
+                                    <button
+                                        type="button"
+                                        class="btn w-100 py-3 fw-bold session-btn {% if slot.is_taken %}btn-secondary disabled{% else %}btn-outline-primary{% endif %}"
                                         onclick="selectSession('{{ slot.name }}', this)"
-                                        {% if slot.is_taken %}disabled{% endif %}>
-                                    
-                                    {{ slot.name }}
-                                    {% if slot.is_taken %}
-                                        <br><span class="badge bg-dark small">사용 중</span>
-                                    {% else %}
-                                        <br><span class="badge bg-success small">가능</span>
-                                    {% endif %}
-                                </button>
+                                        {%
+                                        if
+                                        slot.is_taken
+                                        %}disabled{%
+                                        endif
+                                        %}
+                                    >
+                                        {{ slot.name }} {% if slot.is_taken %}
+                                        <br /><span class="badge bg-dark small"
+                                            >사용 중</span
+                                        >
+                                        {% else %}
+                                        <br /><span
+                                            class="badge bg-success small"
+                                            >가능</span
+                                        >
+                                        {% endif %}
+                                    </button>
+                                </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
+                            <div class="form-text mt-2" id="selection_msg">
+                                작업할 세션을 클릭하세요.
+                            </div>
                         </div>
-                        <div class="form-text mt-2" id="selection_msg">작업할 세션을 클릭하세요.</div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">2️⃣ 작업자 명단</label>
-                            <textarea name="worker_names" class="form-control" rows="5" placeholder="김철수, 이영희 (엔터로 구분)" required></textarea>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">3️⃣ 항공기 기번</label>
-                            <div id="gibunContainer" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
-                            <input type="text" id="gibunInput" style="border: none; outline: none; background: transparent; min-width: 100px; flex-grow: 1;" placeholder="기번 입력 후 엔터 (예: HL7777)">
-                        </div>
-                        <div class="form-text">여러 대일 경우 엔터(Enter) 또는 스페이스바로 구분하세요.</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold"
+                                    >2️⃣ 작업자 명단</label
+                                >
+                                <textarea
+                                    name="worker_names"
+                                    class="form-control"
+                                    rows="5"
+                                    placeholder="김철수, 이영희 (엔터로 구분)"
+                                    required
+                                ></textarea>
+                            </div>
 
-                        <input type="hidden" name="gibun_input" id="realGibunField">
-                        </div>
-                    </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold"
+                                    >3️⃣ 항공기 기번</label
+                                >
+                                <div
+                                    id="gibunContainer"
+                                    class="form-control d-flex flex-wrap gap-2 align-items-center"
+                                    style="min-height: 45px; cursor: text"
+                                >
+                                    <input
+                                        type="text"
+                                        id="gibunInput"
+                                        style="
+                                            border: none;
+                                            outline: none;
+                                            background: transparent;
+                                            min-width: 100px;
+                                            flex-grow: 1;
+                                        "
+                                        placeholder="기번 입력 후 엔터 (예: HL7777)"
+                                    />
+                                </div>
+                                <div class="form-text">
+                                    여러 대일 경우 엔터(Enter) 또는 스페이스바로
+                                    구분하세요.
+                                </div>
 
-                    <button type="submit" class="btn btn-success w-100 py-3 fw-bold fs-5" id="submitBtn" disabled>
-                        🚀 작업 시작하기
-                    </button>
-                </form>
+                                <input
+                                    type="hidden"
+                                    name="gibun_input"
+                                    id="realGibunField"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button
+                                type="submit"
+                                class="btn btn-success flex-fill py-3 fw-bold fs-5"
+                                id="submitBtn"
+                                disabled
+                            >
+                                🚀 작업 시작하기
+                            </button>
+                            <button
+                                type="button"
+                                id="cancelBtn"
+                                class="btn btn-outline-secondary py-3 fw-bold"
+                                onclick="resetForm()"
+                            >
+                                ❌ 취소
+                            </button>
+                            <a
+                                href="{% url 'home' %}"
+                                class="btn btn-light py-3 fw-bold"
+                                >🏠 홈으로 이동</a
+                            >
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        function selectSession(name, btnElement) {
-            // 1. 숨겨진 칸에 이름 넣기
-            document.getElementById('selected_session').value = name;
-            
-            // 2. 모든 버튼의 스타일 초기화
-            document.querySelectorAll('.session-btn').forEach(btn => {
-                if (!btn.disabled) {
-                    btn.classList.remove('btn-primary', 'text-white');
-                    btn.classList.add('btn-outline-primary');
+        <script>
+            function selectSession(name, btnElement) {
+                // 1. 숨겨진 칸에 이름 넣기
+                document.getElementById("selected_session").value = name;
+
+                // 2. 모든 버튼의 스타일 초기화
+                document.querySelectorAll(".session-btn").forEach((btn) => {
+                    if (!btn.disabled) {
+                        btn.classList.remove("btn-primary", "text-white");
+                        btn.classList.add("btn-outline-primary");
+                    }
+                });
+
+                // 3. 선택한 버튼만 색칠하기
+                btnElement.classList.remove("btn-outline-primary");
+                btnElement.classList.add("btn-primary", "text-white");
+
+                // 4. 메시지 및 시작 버튼 활성화
+                document.getElementById("selection_msg").innerText =
+                    "✅ 선택됨: " + name;
+                document
+                    .getElementById("selection_msg")
+                    .classList.add("text-primary", "fw-bold");
+                document.getElementById("submitBtn").disabled = false;
+            }
+
+            const gibunContainer = document.getElementById("gibunContainer");
+            const gibunInput = document.getElementById("gibunInput");
+            const realGibunField = document.getElementById("realGibunField");
+
+            let gibunList = []; // 기번들을 담을 배열
+
+            // 1. 컨테이너 아무데나 클릭해도 입력창에 포커스
+            gibunContainer.addEventListener("click", () => gibunInput.focus());
+
+            // 2. 키 입력 감지 (엔터, 스페이스, 쉼표)
+            gibunInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === "," || e.key === " ") {
+                    e.preventDefault(); // 폼 전송 막기
+                    addGibun(this.value);
+                    this.value = ""; // 입력창 비우기
+                }
+                // 백스페이스로 마지막 태그 삭제
+                if (
+                    e.key === "Backspace" &&
+                    this.value === "" &&
+                    gibunList.length > 0
+                ) {
+                    removeGibun(gibunList.length - 1);
                 }
             });
 
-            // 3. 선택한 버튼만 색칠하기
-            btnElement.classList.remove('btn-outline-primary');
-            btnElement.classList.add('btn-primary', 'text-white');
+            // 3. 기번 추가 함수
+            function addGibun(text) {
+                // 공백 제거 및 대문자 변환
+                const cleanText = text.trim().toUpperCase();
 
-            // 4. 메시지 및 시작 버튼 활성화
-            document.getElementById('selection_msg').innerText = "✅ 선택됨: " + name;
-            document.getElementById('selection_msg').classList.add('text-primary', 'fw-bold');
-            document.getElementById('submitBtn').disabled = false;
-        }
-    
-        const gibunContainer = document.getElementById('gibunContainer');
-        const gibunInput = document.getElementById('gibunInput');
-        const realGibunField = document.getElementById('realGibunField');
-        
-        let gibunList = []; // 기번들을 담을 배열
+                // 빈 값이나 이미 있는 값은 제외
+                if (cleanText === "" || gibunList.includes(cleanText)) return;
 
-        // 1. 컨테이너 아무데나 클릭해도 입력창에 포커스
-        gibunContainer.addEventListener('click', () => gibunInput.focus());
-
-        // 2. 키 입력 감지 (엔터, 스페이스, 쉼표)
-        gibunInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
-                e.preventDefault(); // 폼 전송 막기
-                addGibun(this.value);
-                this.value = ''; // 입력창 비우기
+                gibunList.push(cleanText);
+                updateRealField();
+                renderTags();
             }
-            // 백스페이스로 마지막 태그 삭제
-            if (e.key === 'Backspace' && this.value === '' && gibunList.length > 0) {
-                removeGibun(gibunList.length - 1);
+
+            // 4. 기번 삭제 함수
+            function removeGibun(index) {
+                gibunList.splice(index, 1);
+                updateRealField();
+                renderTags();
             }
-        });
 
-        // 3. 기번 추가 함수
-        function addGibun(text) {
-            // 공백 제거 및 대문자 변환
-            const cleanText = text.trim().toUpperCase();
-            
-            // 빈 값이나 이미 있는 값은 제외
-            if (cleanText === '' || gibunList.includes(cleanText)) return;
+            // 5. 화면 그리기 (태그 렌더링)
+            function renderTags() {
+                // 기존 태그들 지우고 (input은 남김)
+                const currentTags = gibunContainer.querySelectorAll(".badge");
+                currentTags.forEach((tag) => tag.remove());
 
-            gibunList.push(cleanText);
-            updateRealField();
-            renderTags();
-        }
-
-        // 4. 기번 삭제 함수
-        function removeGibun(index) {
-            gibunList.splice(index, 1);
-            updateRealField();
-            renderTags();
-        }
-
-        // 5. 화면 그리기 (태그 렌더링)
-        function renderTags() {
-            // 기존 태그들 지우고 (input은 남김)
-            const currentTags = gibunContainer.querySelectorAll('.badge');
-            currentTags.forEach(tag => tag.remove());
-
-            // 배열 기반으로 다시 그림
-            gibunList.forEach((gibun, index) => {
-                const badge = document.createElement('span');
-                badge.className = 'badge bg-primary d-flex align-items-center';
-                badge.style.fontSize = '0.9rem';
-                badge.style.padding = '8px 12px';
-                badge.innerHTML = `
+                // 배열 기반으로 다시 그림
+                gibunList.forEach((gibun, index) => {
+                    const badge = document.createElement("span");
+                    badge.className =
+                        "badge bg-primary d-flex align-items-center";
+                    badge.style.fontSize = "0.9rem";
+                    badge.style.padding = "8px 12px";
+                    badge.innerHTML = `
                     ${gibun}
                     <i class="bi bi-x ms-2" style="cursor: pointer;" onclick="removeGibun(${index})"></i>
                 `;
-                // input 앞에 삽입
-                gibunContainer.insertBefore(badge, gibunInput);
-            });
-        }
+                    // input 앞에 삽입
+                    gibunContainer.insertBefore(badge, gibunInput);
+                });
+            }
 
-        // 6. 숨겨진 input에 값 업데이트 (서버 전송용)
-        function updateRealField() {
-            // 배열을 콤마(,)로 연결해서 문자열로 만듦
-            realGibunField.value = gibunList.join(',');
-        }
-    </script>
-</body>
+            // 6. 숨겨진 input에 값 업데이트 (서버 전송용)
+            function updateRealField() {
+                // 배열을 콤마(,)로 연결해서 문자열로 만듦
+                realGibunField.value = gibunList.join(",");
+            }
+
+            // 7. 폼 리셋/취소 처리
+            function resetForm() {
+                // 선택 상태 초기화
+                document.getElementById("selected_session").value = "";
+                document.getElementById("selection_msg").innerText =
+                    "작업할 세션을 클릭하세요.";
+                document
+                    .getElementById("selection_msg")
+                    .classList.remove("text-primary", "fw-bold");
+                document.getElementById("submitBtn").disabled = true;
+
+                // 버튼 스타일 원복
+                document.querySelectorAll(".session-btn").forEach((btn) => {
+                    if (!btn.disabled) {
+                        btn.classList.remove("btn-primary", "text-white");
+                        btn.classList.add("btn-outline-primary");
+                    }
+                });
+
+                // 작업자 목록 및 기번 초기화
+                const workerArea = document.querySelector(
+                    'textarea[name="worker_names"]'
+                );
+                if (workerArea) workerArea.value = "";
+                gibunList = [];
+                renderTags();
+                updateRealField();
+            }
+        </script>
+    </body>
 </html>

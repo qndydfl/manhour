@@ -38,41 +38,34 @@
                 <h2 class="mb-0 fw-bold">📊 {{ session.name }} 결과</h2>
             </div>
 
-            <div class="d-flex gap-2">
-                <a href="{% url 'edit_session' session.id %}" class="btn btn-outline-dark btn-sm d-flex align-items-center">
-                    ⚙️ 설정/명단
-                </a>
-                
-                <a href="{% url 'manage_items' session.id %}" class="btn btn-outline-primary btn-sm fw-bold d-flex align-items-center">
-                    🛠️ 일감 관리
-                </a>
+            <div class="d-flex justify-content-end gap-2 mb-0">
+                <div class="d-flex gap-2">
+                    <a href="{% url 'edit_all' session.id %}" class="btn btn-outline-primary btn-sm fw-bold d-flex align-items-center">
+                        ✏️ 일괄 수정하기
+                    </a>
 
-                <button type="button" class="btn btn-success btn-sm fw-bold d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                    📥 엑셀 등록
-                </button>
+                    <a href="{% url 'manual_input' session.id %}" class="btn btn-primary">
+                        ⏱️ 작업 시간 입력
+                    </a>
+                    <a href="{% url 'assigned_summary' session.id %}" class="btn btn-outline-info btn-sm">
+                        📋 입력한 시간 보기
+                    </a>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        ⚡ 자동 배정 실행하기
+                    </button>
+                </form>
 
-                <a href="{% url 'manual_input' session.id %}" class="btn btn-primary">
-                    ⏱️ 작업 시간 일괄 입력
-                </a>
+                <form id="finishForm" action="{% url 'finish_session' session.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-success fw-bold px-4" data-bs-toggle="modal" data-bs-target="#finishModal">
+                        ✅ 작업 완료 (퇴실)
+                    </button>
+                </form>
             </div>
-        </div>
-
-        <div class="d-flex justify-content-end gap-2 mb-3">
-            <form method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary fw-bold px-4">
-                    ⚡ 자동 배정 실행하기
-                </button>
-            </form>
-
-            <form action="{% url 'finish_session' session.id %}" method="POST" 
-                onsubmit="return confirm('작업을 완료하시겠습니까?\n\n이 세션은 [기록 보관소]로 이동되며,\n{{ session.name }} 방은 다시 사용할 수 있게 됩니다.');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success fw-bold px-4">
-                    ✅ 작업 완료 (퇴실)
-                </button>
-            </form>
-        </div>
+        </div>        
 
         {% if messages %}
             {% for message in messages %}
@@ -83,51 +76,16 @@
             {% endfor %}
         {% endif %}
 
-        <div class="card shadow-sm mb-5">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover mb-0 text-center align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>기번</th>
-                                <th>WO</th>
-                                <th>OP</th>
-                                <th>설명</th>
-                                <th>총 시간</th>
-                                <th style="width: 40%;">배정 결과 (이름 : 시간)</th>
-                                <th>관리</th> 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in items %}
-                            <tr {% if item.is_manual %}class="table-info"{% endif %}> 
-                                <td class="fw-bold">{{ item.gibun_input }}</td>
-                                {% comment %} <td><span class="badge bg-info text-dark">{{ item.model_type }}</span></td> {% endcomment %}
-                                <td>{{ item.work_order }}</td>
-                                <td>{{ item.op }}</td>
-                                <td class="text-start">{{ item.description }}</td>
-                                <td class="fw-bold text-primary">{{ item.work_mh }}</td>
-                                <td class="text-start">
-                                    {% for assign in item.assignments.all %}
-                                        <span class="badge bg-secondary me-1">
-                                            {{ assign.worker.name }} ({{ assign.allocated_mh }})
-                                        </span>
-                                    {% empty %}
-                                        <span class="text-muted small">아직 배정 안됨</span>
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'edit_item' item.id %}" class="btn btn-sm btn-outline-secondary">
-                                        ✏️ 수정
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+        {# Undo 표시: 세션에 last_deleted_items가 있고 현재 세션과 동일하면 실행취소 버튼 표시 #}
+        {% if request.session.last_deleted_items and request.session.last_deleted_items.0.session_id == session.id %}
+            <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                <div>최근에 삭제된 항목이 있습니다.</div>
+                <form method="POST" action="{% url 'undo_delete' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-dark">실행취소(Undo)</button>
+                </form>
             </div>
-        </div>
+        {% endif %}
 
         <div class="card shadow-sm border-secondary mb-5">
             <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
@@ -170,6 +128,54 @@
                 </form>
             </div>
         </div>
+
+        <div class="card shadow-sm mb-5">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0 text-center align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>기번</th>
+                                <th>WO</th>
+                                <th>OP</th>
+                                <th>설명</th>
+                                <th>총 시간</th>
+                                <th style="width: 40%;">배정 결과 (이름 : 시간)</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr {% if item.is_manual %}class="table-info"{% endif %}> 
+                                <td class="fw-bold">{{ item.gibun_input }}</td>
+                                {% comment %} <td><span class="badge bg-info text-dark">{{ item.model_type }}</span></td> {% endcomment %}
+                                <td>{{ item.work_order }}</td>
+                                <td>{{ item.op }}</td>
+                                <td class="text-start">{{ item.description }}</td>
+                                <td class="fw-bold text-primary">{{ item.work_mh }}</td>
+                                <td class="text-start">
+                                    {% for assign in item.assignments.all %}
+                                        {% if not filter_worker or assign.worker.name == filter_worker %}
+                                            <span class="badge bg-secondary me-1">
+                                                {{ assign.worker.name }} ({{ assign.allocated_mh }})
+                                            </span>
+                                        {% endif %}
+                                    {% empty %}
+                                        <span class="text-muted small">아직 배정 안됨</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'edit_item' item.id %}" class="btn btn-sm btn-outline-secondary">
+                                        ✏️ 수정
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>        
     </div>    
     
     </div> <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
@@ -205,6 +211,26 @@
             </div>
         </div>
     </div>
+    
+        <!-- Finish Session Confirmation Modal -->
+        <div class="modal fade" id="finishModal" tabindex="-1" aria-labelledby="finishModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title fw-bold" id="finishModalLabel">작업 완료 확인</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>작업을 완료하시겠습니까?</p>
+                        <p class="small text-muted">이 세션은 <strong>기록 보관소</strong>로 이동되며, <strong>{{ session.name }}</strong> 방은 다시 사용 가능 상태가 됩니다.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                        <button type="button" class="btn btn-danger" id="confirmFinishBtn">작업 완료 (퇴실)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         
@@ -257,6 +283,17 @@
             alert(`[${CONFIG.currentWO}] 데이터 적용 완료! (ID: ${CONFIG.currentItemId})`);
             closeModal();
         }
+        
+        // finish modal submit handler
+        document.addEventListener('DOMContentLoaded', function(){
+            const btn = document.getElementById('confirmFinishBtn');
+            if(btn){
+                btn.addEventListener('click', function(){
+                    const form = document.getElementById('finishForm');
+                    if(form) form.submit();
+                });
+            }
+        });
     </script>
 </body>
 </html>

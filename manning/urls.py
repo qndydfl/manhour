@@ -14,7 +14,13 @@ urlpatterns = [
     path('finish_session/<int:session_id>/', views.FinishSessionView.as_view(), name='finish_session'),
     path('history/', views.HistoryView.as_view(), name='history'),
     path('session/<int:session_id>/manual-input/', views.ManualInputView.as_view(), name='manual_input'),
+    path('select_session/<str:name>/', views.SelectSessionView.as_view(), name='select_session'),
+    path('edit_all/<int:session_id>/', views.EditAllView.as_view(), name='edit_all'),
     # ★ 저장용 URL 추가
     path('session/<int:session_id>/save-manual/', views.SaveManualInputView.as_view(), name='save_manual_input'),
     path('session/<int:pk>/upload/', views.UploadDataView.as_view(), name='upload_data'),
+    path('session/<int:pk>/paste-input/', views.PasteInputView.as_view(), name='paste_input'),
+    path('undo_delete/', views.UndoDeleteView.as_view(), name='undo_delete'),
+    path('session/<int:session_id>/assigned-summary/', views.AssignedSummaryView.as_view(), name='assigned_summary'),
+    path('session/<int:session_id>/assigned/<int:worker_id>/', views.AssignedDetailView.as_view(), name='assigned_detail'),
 ]
