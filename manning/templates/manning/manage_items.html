@@ -2,76 +2,169 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>일감 전체 관리</title>
+    <title>일감 분리 관리</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        .delete-checkbox { transform: scale(1.5); cursor: pointer; }
+        body { font-family: "Pretendard", sans-serif; }
+        
+        .table input[type="text"], 
+        .table input[type="number"], 
+        .table textarea {
+            width: 100%;
+            border: 1px solid #ced4da;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background-color: #fff;
+        }
+
+        .table textarea {
+            height: 32px !important;
+            min-height: 32px;
+            resize: none;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .table input:focus, 
+        .table textarea:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .delete-checkbox { transform: scale(1.3); cursor: pointer; }
     </style>
 </head>
 <body class="bg-light p-4">
     <div class="container-fluid">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">🛠️ 일감 전체 수정 & 추가</h4>
-                <span class="badge bg-light text-dark">{{ session.name }}</span>
+        
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-0">⚙️ 직비(Direct) 및 한도 관리</h2>
+                <small class="text-muted">{{ session.name }}</small>
             </div>
-            
-            <div class="card-body">
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ formset.management_form }}
-
-                    <div class="alert alert-info py-2">
-                        <ul>
-                            <li><strong>수정:</strong> 내용을 고치고 저장하면 됩니다.</li>
-                            <li><strong>추가:</strong> 아래쪽 빈 칸에 내용을 적으면 새로 추가됩니다.</li>
-                            <li><strong>삭제:</strong> 맨 오른쪽 <span class="text-danger fw-bold">삭제</span> 체크박스를 켜면 삭제됩니다.</li>
-                        </ul>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle text-center">
-                            <thead class="table-secondary">
-                                <tr>
-                                    <th width="10%">기번</th>
-                                    <th width="15%">WO</th>
-                                    <th width="10%">OP</th>
-                                    <th>설명</th>
-                                    <th width="10%">시간(MH)</th>
-                                    <th width="20%" class="text-primary">배정 결과 (수동입력)</th>
-                                    <th width="5%" class="text-danger">삭제</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for form in formset %}
-                                    {% for hidden in form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
-                                    <tr>
-                                        <td>{{ form.gibun_input }}</td>
-                                        <td>{{ form.work_order }}</td>
-                                        <td>{{ form.op }}</td>
-                                        <td>{{ form.description }}</td>
-                                        <td>{{ form.work_mh }}</td>
-                                        <td>{{ form.assigned_text }}</td>
-                                        <td>
-                                            {% if form.instance.pk %}
-                                                {{ form.DELETE }}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-3">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">전체 저장하기 💾</button>
-                        <a href="{% url 'result_view' session.id %}" class="btn btn-secondary btn-lg w-100">취소</a>
-                    </div>
-                </form>
-            </div>
+            <a href="{% url 'result_view' session.id %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> 결과화면으로
+            </a>
         </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card shadow-sm mb-4 sticky-top" style="top: 20px; z-index: 100;">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0"><i class="bi bi-person-gear"></i> 근무 한도</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">형식: "이름:시간"</label>
+                                <textarea name="worker_limits" class="form-control font-monospace" rows="15">{{ worker_names_str }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="bi bi-tools me-2"></i>직비 (Direct)</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ direct_formset.management_form }}
+                            <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+                                <table class="table table-bordered align-middle text-center mb-0">
+                                    <thead class="table-light sticky-top" style="top: 0;">
+                                        <tr>
+                                            <th width="5%">삭제</th>
+                                            <th width="10%">기종</th>
+                                            <th width="15%">WO <span class="text-danger">*</span></th>
+                                            <th width="10%">OP</th>
+                                            <th>설명</th>
+                                            <th width="10%">M/H</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for form in direct_formset %}
+                                            {{ form.id }} 
+                                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+                                            
+                                            <tr class="{% if form.instance.pk %}bg-white{% else %}table-warning{% endif %}">
+                                                <td>
+                                                    <div style="display:none;">{{ form.DELETE }}</div>
+                                                    <input type="checkbox" class="form-check-input delete-trigger" onchange="toggleDelete(this)">
+                                                </td>
+                                                <td>{{ form.model_type }}</td>
+                                                <td>
+                                                    <div class="{% if form.work_order.errors %}border border-danger{% endif %}">
+                                                        {{ form.work_order }}
+                                                    </div>
+                                                </td>
+                                                <td>{{ form.op }}</td>
+                                                <td>{{ form.description }}</td>
+                                                <td>{{ form.work_mh }}</td>
+                                            </tr>
+                                            {% if form.errors %}
+                                            <tr>
+                                                <td colspan="6" class="bg-danger bg-opacity-10 text-danger small text-start p-1">
+                                                    🚨 {{ form.errors }}
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    </div>
+            </div>
+
+            <nav class="navbar fixed-bottom navbar-light bg-light border-top shadow-lg py-3">
+                <div class="container-fluid justify-content-end gap-2">
+                    <span class="text-muted small me-auto ms-3">
+                        * <strong>직비</strong>와 <strong>근무 한도</strong>가 저장됩니다. (간비는 개별 관리)
+                    </span>
+                    <a href="{% url 'result_view' session.id %}" class="btn btn-secondary px-4">취소</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5">
+                        💾 저장하기
+                    </button>
+                </div>
+            </nav>
+        </form>
+
     </div>
+    <div style="height: 80px;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDelete(checkbox) {
+            const row = checkbox.closest('tr');
+            const realDeleteInput = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            if (realDeleteInput) {
+                realDeleteInput.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    row.classList.add('table-danger');
+                    row.querySelectorAll('input').forEach(i => i.style.textDecoration = 'line-through');
+                } else {
+                    row.classList.remove('table-danger');
+                    row.querySelectorAll('input').forEach(i => i.style.textDecoration = 'none');
+                }
+            }
+        }
+    </script>
 </body>
 </html>

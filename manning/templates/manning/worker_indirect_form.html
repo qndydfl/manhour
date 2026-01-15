@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background-color: #fff; font-size: 0.9rem; }
+        /* 입력창 디자인 미세 조정 */
+        .table td { vertical-align: middle; }
+    </style>
+</head>
+<body class="p-3">
+    <form method="POST">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        
+        <table class="table table-sm table-bordered align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th width="8%">삭제</th>
+                    <th width="18%">시작 (HHMM)</th> <th>간비 내용</th>
+                    <th width="18%">종료 (HHMM)</th> <th width="15%">시간 (M/H)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+                    
+                    <tr>
+                        <td>
+                            {% if form.instance.pk %}
+                                <input type="checkbox" name="{{ form.prefix }}-DELETE" class="form-check-input">
+                            {% else %}
+                                <span class="badge bg-light text-secondary border">신규</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ form.start_time }}</td>
+
+                        <td>{{ form.description }}</td>
+
+                        <td>{{ form.end_time }}</td>
+
+                        <td>{{ form.work_mh }}</td>
+                    </tr>
+                    
+                    {% if form.errors %}
+                    <tr>
+                        <td colspan="5" class="text-danger text-start small bg-danger bg-opacity-10 p-1">
+                            {{ form.errors }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="d-grid gap-2 mt-3">
+            <button type="submit" class="btn btn-primary btn-sm fw-bold">💾 저장하기</button>
+        </div>
+    </form>
+</body>
+</html>

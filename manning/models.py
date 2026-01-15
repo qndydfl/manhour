@@ -44,9 +44,9 @@ class WorkItem(models.Model):
     task_master = models.ForeignKey(TaskMaster, on_delete=models.SET_NULL, null=True, blank=True)
     
     # 실제 화면에 보일 내용들
-    gibun_input = models.CharField(max_length=50, blank=True) # 입력한 기번
+    gibun_input = models.CharField(max_length=50, blank=True, null=True) # 입력한 기번
     work_order = models.CharField(max_length=100)
-    op = models.CharField(max_length=50)
+    op = models.CharField(max_length=50, blank=True, null=True)
     description = models.TextField()
     work_mh = models.FloatField(default=0.0) # 이 작업에 필요한 총 시간
 
@@ -65,6 +65,10 @@ class Assignment(models.Model):
     worker = models.ForeignKey(Worker, related_name='assignments', on_delete=models.CASCADE)
     # 몇 시간(allocated_mh)을 가져갔는지
     allocated_mh = models.FloatField(default=0.0)
+    # 수동 입력 시 기록되는 시작/종료 분 단위와 코드 (선택적)
+    start_min = models.IntegerField(null=True, blank=True)
+    end_min = models.IntegerField(null=True, blank=True)
+    code = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"{self.worker.name} -> {self.allocated_mh}시간"

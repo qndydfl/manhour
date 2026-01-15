@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Personal Schedule</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        />
+        <link
+            rel="stylesheet"
+            as="style"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
+        <style>
+            body {
+                font-family: "Pretendard", sans-serif;
+                background-color: #f5f5f7;
+                padding: 20px;
+            }
+            .widget-card {
+                background: white;
+                border-radius: 18px;
+                padding: 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+                text-align: center;
+            }
+            .table-card {
+                background: white;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+                margin-top: 20px;
+            }
+
+            /* 오전 배지 스타일 */
+            .badge-morning {
+                background-color: rgba(255, 204, 0, 0.15);
+                color: #b45309;
+                border: 1px solid rgba(255, 204, 0, 0.5);
+                border-radius: 100px;
+                padding: 3px 8px;
+                font-size: 0.7rem;
+                font-weight: 700;
+            }
+
+            /* 전체 선택 가능하게 */
+            .table-card table {
+                user-select: text;
+            }
+            .table-card td, .table-card th {
+                user-select: text;
+            }
+
+            border: 1px solid rgba(255, 204, 0, 0.5);
+            border-radius: 100px;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+            /* 전체 선택 가능하게 */
+            .table-card table {
+                user-select: text;
+            }
+            .table-card td,
+            .table-card th {
+                user-select: text;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container" style="max-width: 800px">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a
+                    href="{% url 'assigned_summary' session.id %}"
+                    class="btn btn-secondary btn-sm rounded-pill px-3"
+                >
+                    <i class="bi bi-arrow-left"></i> 이전 페이지
+                </a>
+                <h5 class="fw-bold mb-0">📅 {{ worker_name }}님의 시간표</h5>
+                <div></div>
+            </div>
+
+            {% if schedule %}
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="widget-card">
+                        <div class="small text-muted mb-1">총 할당 시간</div>
+                        <div class="fs-4 fw-bold text-primary">
+                            {{ total_mh }} M/H
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="widget-card">
+                        <div class="small text-muted mb-1">작업 건수</div>
+                        <div class="fs-4 fw-bold">{{ task_count }} 건</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table
+                        class="table table-hover align-middle mb-0 text-center"
+                    >
+                        <thead class="table-light">
+                            <tr>
+                                <th width="20%">WO</th>
+                                <th width="10%">OP</th>
+                                <th width="20%">간비</th>
+                                <th width="25%">Start</th>
+                                <th width="25%">End</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in schedule %}
+                            <tr>
+                                <td class="fw-semibold">
+                                    {% if item.wo != '간비' %}{{ item.wo }}{% else %}&nbsp;{% endif %}
+                                </td>
+                                <td>
+                                    {% if item.op %}{{ item.op }}{% else %}&nbsp;{% endif %}
+                                </td>
+                                <td class="fw-bold text-primary">
+                                    {% if item.desc %}{{ item.desc }}{% else %}&nbsp;{% endif %}
+                                </td>
+                                <td class="fw-bold">
+                                    {{ item.start_str }} 
+                                    {% if item.start_min and item.start_min < 1200 %}
+                                    <span class="badge-morning ms-2">오전</span>
+                                    {% endif %}
+                                </td>
+                                <td class="fw-bold text-secondary">
+                                    {{ item.end_str }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center mt-5">
+                <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
+                배정된 작업 데이터가 없습니다.
+            </div>
+            {% endif %}
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            // get csrf token from cookie
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function timeToMinutes(t) {
+                if (!t) return null;
+                // expecting HH:MM
+                const parts = t.split(':');
+                if (parts.length < 2) return null;
+                const h = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
+                return h * 60 + m;
+            }
+
+            document.getElementById('btn-save-manual')?.addEventListener('click', function() {
+                const wo = document.getElementById('input-wo').value.trim();
+                const op = document.getElementById('input-op').value.trim();
+                const start = document.getElementById('input-start').value;
+                const end = document.getElementById('input-end').value;
+                const code = document.getElementById('input-code').value.trim();
+
+                const start_min = timeToMinutes(start);
+                const end_min = timeToMinutes(end);
+
+                if (start_min === null || end_min === null) {
+                    alert('Start와 End 시간을 올바르게 입력하세요.');
+                    return;
+                }
+                if (!wo) {
+                    alert('WO를 입력하세요.');
+                    return;
+                }
+
+                const payload = {
+                    assignments: [{
+                        type: 'DIRECT',
+                        wo: wo,
+                        op: op,
+                        start_min: start_min,
+                        end_min: end_min,
+                        code: code,
+                        worker_id: {{ worker_id|default:'null' }}
+                    }]
+                };
+
+                fetch("{% url 'save_manual_input' session.id %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(payload)
+                }).then(r => r.json()).then(data => {
+                    if (data.status === 'success') {
+                        alert('저장되었습니다.');
+                        window.location.reload();
+                    } else {
+                        alert('저장 중 오류: ' + (data.message || JSON.stringify(data)));
+                    }
+                }).catch(err => {
+                    alert('네트워크 오류: ' + err);
+                });
+            });
+        </script>
+    </body>
+</html>

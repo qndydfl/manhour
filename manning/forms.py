@@ -21,3 +21,72 @@ class WorkItemForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 1, 'placeholder': '설명'}),
             'work_mh': forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'step': '0.1', 'style': 'width: 80px;'}),
         }
+
+
+class WorkerForm(forms.Form):
+    worker_names = forms.CharField(widget=forms.Textarea)
+
+
+class PasteDataForm(forms.Form):
+    excel_data = forms.CharField(widget=forms.Textarea)
+
+
+class EditAllForm(forms.ModelForm):
+    class Meta:
+        model = WorkItem
+        fields = '__all__'
+
+
+class DirectWorkItemForm(forms.ModelForm):
+    class Meta:
+        model = WorkItem
+        fields = ['gibun_input', 'model_type', 'work_order', 'op', 'description', 'work_mh']
+        widgets = {
+            'gibun_input': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '기번'}),
+            'model_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '기종'}),
+            'work_order': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'WO'}),
+            'op': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'OP'}),
+            'description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '작업 내용'}),
+            'work_mh': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+        }
+
+
+class IndirectWorkItemForm(forms.ModelForm):
+    class Meta:
+        model = WorkItem
+        fields = ['description', 'work_mh']
+
+
+class WorkerIndirectForm(forms.ModelForm):
+    start_time = forms.CharField(
+        required=False, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-sm text-center', 
+            'placeholder': '0900', 
+            'maxlength': '4'
+        })
+    )
+    end_time = forms.CharField(
+        required=False, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-sm text-center', 
+            'placeholder': '1200', 
+            'maxlength': '4'
+        })
+    )
+
+    class Meta:
+        model = WorkItem
+        fields = ['description', 'work_mh']
+        widgets = {
+            'description': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm', 
+                'placeholder': '간비 내용'
+            }),
+            'work_mh': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm text-center', 
+                'step': '0.1'
+            })
+        }
+
+        
