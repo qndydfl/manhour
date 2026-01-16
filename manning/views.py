@@ -48,7 +48,7 @@ class SimpleLoginRequiredMixin:
 class SimpleLoginView(View):
     def get(self, request):
         if request.session.get('is_authenticated'):
-            return redirect('home')
+            return redirect('index')
         return render(request, 'manning/login.html')
 
     def post(self, request):
@@ -58,13 +58,13 @@ class SimpleLoginView(View):
         if password == settings.SIMPLE_PASSWORD_ADMIN:
             request.session['is_authenticated'] = True
             request.session['user_role'] = 'admin'
-            return redirect('home')
+            return redirect('index')
             
         # 2. 일반 사용자 비밀번호 확인 (조회 권한만 있음)
         elif password == settings.SIMPLE_PASSWORD_USER:
             request.session['is_authenticated'] = True
             request.session['user_role'] = 'user'
-            return redirect('home')
+            return redirect('index')
             
         else:
             messages.error(request, "비밀번호가 올바르지 않습니다.")
@@ -79,7 +79,7 @@ class SimpleLogoutView(View):
         return redirect('login')
     
 
-class HomeView(SimpleLoginRequiredMixin, View):
+class indexView(SimpleLoginRequiredMixin, View):
     def get(self, request):
         today = timezone.now().date()
         
@@ -146,7 +146,7 @@ class HomeView(SimpleLoginRequiredMixin, View):
             'history_count': history_count
         }
         
-        return render(request, 'manning/home.html', context)
+        return render(request, 'manning/index.html', context)
 
 
 class SelectSessionView(SimpleLoginRequiredMixin, View):
@@ -695,8 +695,8 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
 
         if saved_count > 0:
             messages.success(request, f"✅ 총 {saved_count}건의 마스터 데이터가 등록되었습니다.")
-            # [수정] 저장이 잘 되었으면 'home'으로 이동
-            return redirect('home')
+            # [수정] 저장이 잘 되었으면 'index'으로 이동
+            return redirect('index')
         else:
             messages.warning(request, "저장된 데이터가 없습니다. 형식을 확인해주세요.")
             # 실패했으면 다시 시도할 수 있게 현재 페이지 유지
@@ -709,7 +709,7 @@ class UndoDeleteView(SimpleLoginRequiredMixin, View):
         last_list = request.session.get('last_deleted_items')
         if not last_list:
             messages.error(request, "복원할 삭제 항목이 없습니다.")
-            return redirect('home')
+            return redirect('index')
 
         # all items belong to same session (we stored session_id per item)
         session_id = last_list[0].get('session_id')
@@ -780,7 +780,7 @@ class FinishSessionView(SimpleLoginRequiredMixin, View):
         session.save()
         
         messages.success(request, f"✅ {session.name} 작업이 완료되었습니다. 기록 보관소로 이동합니다.")
-        return redirect('home')
+        return redirect('index')
 
 class HistoryView(View):
     def get(self, request):
@@ -986,7 +986,7 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
         # 3. 데이터가 없으면? 경고 메시지 띄우고 바로 홈으로 이동 (에러 방지)
         if not raw_data:
             messages.warning(request, "입력된 데이터가 없어서 홈으로 돌아갑니다.")
-            return redirect('home')
+            return redirect('index')
 
         new_items = []
         lines = raw_data.strip().split('\n')
@@ -1051,7 +1051,7 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
             messages.warning(request, "저장할 유효한 데이터가 없습니다.")
 
         # ★★★ [핵심] 모든 처리가 끝나면 무조건 홈으로 이동 ★★★
-        return redirect('home')
+        return redirect('index')
     
 
 class AssignedSummaryView(SimpleLoginRequiredMixin, View):
@@ -1609,7 +1609,7 @@ class ResetSessionView(SimpleLoginRequiredMixin, View):
         
         if request.session.get('user_role') != 'admin':
             messages.error(request, "관리자 권한이 필요합니다.")
-            return redirect('home')
+            return redirect('index')
         
         # 1. 세션 찾기
         session = get_object_or_404(WorkSession, id=session_id)
@@ -1621,7 +1621,7 @@ class ResetSessionView(SimpleLoginRequiredMixin, View):
         
         # 3. 메시지 및 리다이렉트
         messages.success(request, f"'{session.name}' 세션이 종료되어 슬롯이 초기화되었습니다.")
-        return redirect('home')
+        return redirect('index')
     
 
 class ResetAllSessionsView(SimpleLoginRequiredMixin, View):
@@ -1635,5 +1635,5 @@ class ResetAllSessionsView(SimpleLoginRequiredMixin, View):
         else:
             messages.info(request, "현재 활성화된 세션이 없습니다.")
             
-        return redirect('home')
+        return redirect('index')
     

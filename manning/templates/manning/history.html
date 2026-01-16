@@ -27,10 +27,12 @@
     <body class="bg-light p-4">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <a href="{% url 'home' %}" class="btn btn-secondary">
-                    홈
-                </a>
-                <form action="{% url 'clear_history' %}" method="POST" onsubmit="return confirm('⚠️ 정말로 모든 작업 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');">
+                <a href="{% url 'index' %}" class="btn btn-secondary"> 홈 </a>
+                <form
+                    action="{% url 'clear_history' %}"
+                    method="POST"
+                    onsubmit="return confirm('⚠️ 정말로 모든 작업 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');"
+                >
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-danger fw-bold">
                         <i class="bi bi-trash-fill"></i> 기록 초기화
@@ -38,15 +40,28 @@
                 </form>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold"><i class="bi bi-clock-history"></i> 작업 이력 (History)</h4>
-                
+                <h4 class="fw-bold">
+                    <i class="bi bi-clock-history"></i> 작업 이력 (History)
+                </h4>
+
                 <div class="d-flex gap-2">
                     <form method="GET" class="d-flex">
-                        <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="기번, 이름, 세션명..." value="{{ request.GET.q|default:'' }}">
-                        <button type="submit" class="btn btn-sm btn-outline-primary">검색</button>
-                    </form>                    
-                </div>                
-            </div>            
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control form-control-sm me-2"
+                            placeholder="기번, 이름, 세션명..."
+                            value="{{ request.GET.q|default:'' }}"
+                        />
+                        <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-primary"
+                        >
+                            검색
+                        </button>
+                    </form>
+                </div>
+            </div>
 
             <div class="card shadow-sm">
                 <div class="list-group list-group-flush">
@@ -58,7 +73,8 @@
                             <div class="d-flex align-items-center gap-2">
                                 <h5 class="mb-0">{{ session.name }}</h5>
                                 <span class="badge bg-secondary"
-                                    >{{ session.created_at|date:"m월 d일 H:i" }}</span
+                                    >{{ session.created_at|date:"m월 d일 H:i"
+                                    }}</span
                                 >
                             </div>
                             <small class="text-muted">

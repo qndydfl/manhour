@@ -6,7 +6,7 @@ urlpatterns = [
     path('login/', views.SimpleLoginView.as_view(), name='login'),
     path('logout/', views.SimpleLogoutView.as_view(), name='logout'),
 
-    path('', views.HomeView.as_view(), name='home'),
+    path('', views.indexView.as_view(), name='index'),
     path('history/', views.HistoryView.as_view(), name='history'),
     
     # 세션 관련

@@ -52,7 +52,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="d-flex align-items-center gap-3">
                     <a
-                        href="{% url 'home' %}"
+                        href="{% url 'index' %}"
                         class="btn btn-outline-secondary btn-sm"
                     >
                         <i class="bi bi-house-door-fill"></i> 홈
@@ -174,7 +174,8 @@
                                             />
                                         </div>
                                     </div>
-                                    {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
+                                    {% widthratio worker.used_mh worker.limit_mh
+                                    100 as ratio %}
                                     <div class="progress" style="height: 4px">
                                         <div
                                             class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}"
@@ -238,9 +239,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in items %} {% if item.work_order != '간비' %}
+                                {% for item in items %} {% if item.work_order !=
+                                '간비' %}
                                 <tr
-                                    {% if item.is_manual %}class="table-info"{% endif %}
+                                    {%
+                                    if
+                                    item.is_manual
+                                    %}class="table-info"
+                                    {%
+                                    endif
+                                    %}
                                 >
                                     <td class="fw-bold">
                                         {{ item.gibun_input }}
@@ -257,7 +265,9 @@
                                     <td class="text-start">
                                         {% for assign in item.assignments.all %}
                                         <span class="badge bg-secondary me-1">
-                                            {{ assign.worker.name }} ({{ assign.allocated_mh|floatformat:2 }})
+                                            {{ assign.worker.name }} ({{
+                                            assign.allocated_mh|floatformat:2
+                                            }})
                                         </span>
                                         {% empty %}
                                         <span class="text-muted small"
@@ -389,7 +399,8 @@
                                     -- 작업자를 선택하세요 --
                                 </option>
                                 <option value="all">모두</option>
-                                {% for worker in workers %} {% if worker.name != '간비' %}
+                                {% for worker in workers %} {% if worker.name !=
+                                '간비' %}
                                 <option value="{{ worker.id }}">
                                     {{ worker.name }}
                                 </option>
@@ -542,12 +553,15 @@
             // 1. [작업 완료/퇴실] 버튼 클릭 시 처리
             // -----------------------------------------------------------
             document.addEventListener("DOMContentLoaded", function () {
-                const confirmBtn = document.getElementById("confirm-finish-btn");
+                const confirmBtn =
+                    document.getElementById("confirm-finish-btn");
                 if (confirmBtn) {
                     confirmBtn.addEventListener("click", function () {
                         // [핵심] 퇴실 시 로컬스토리지에 저장된 임시 입력 데이터를 싹 지웁니다.
                         try {
-                            localStorage.removeItem(`manning_time_input_{{ session.id }}`);
+                            localStorage.removeItem(
+                                `manning_time_input_{{ session.id }}`
+                            );
                         } catch (e) {}
 
                         // 폼 제출 (서버로 종료 신호 전송)
@@ -576,18 +590,22 @@
                     const data = JSON.parse(savedData);
                     const tbody = document.getElementById("time-input-rows");
                     const rows = tbody.querySelectorAll(".time-input-row");
-                    
+
                     // 저장된 값 칸에 채워넣기
                     data.rows.forEach((rowData, idx) => {
                         if (idx < rows.length) {
                             const row = rows[idx];
-                            row.querySelector(".start-time").value = rowData.start || "";
-                            row.querySelector(".code").value = rowData.code || "";
-                            row.querySelector(".end-time").value = rowData.end || "";
+                            row.querySelector(".start-time").value =
+                                rowData.start || "";
+                            row.querySelector(".code").value =
+                                rowData.code || "";
+                            row.querySelector(".end-time").value =
+                                rowData.end || "";
                         }
                     });
 
-                    const workerSelect = document.getElementById("worker-select");
+                    const workerSelect =
+                        document.getElementById("worker-select");
                     if (data.worker_id) {
                         workerSelect.value = data.worker_id;
                     }
@@ -600,11 +618,15 @@
             function setupAutoSave() {
                 const tbody = document.getElementById("time-input-rows");
                 tbody.addEventListener("input", saveToLocalStorage);
-                document.getElementById("worker-select").addEventListener("change", saveToLocalStorage);
+                document
+                    .getElementById("worker-select")
+                    .addEventListener("change", saveToLocalStorage);
             }
 
             function saveToLocalStorage() {
-                const rows = document.querySelectorAll("#time-input-rows .time-input-row");
+                const rows = document.querySelectorAll(
+                    "#time-input-rows .time-input-row"
+                );
                 const rowData = [];
                 rows.forEach((row) => {
                     rowData.push({
@@ -632,8 +654,13 @@
                     const cookies = document.cookie.split(";");
                     for (let i = 0; i < cookies.length; i++) {
                         const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === name + "=") {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        if (
+                            cookie.substring(0, name.length + 1) ===
+                            name + "="
+                        ) {
+                            cookieValue = decodeURIComponent(
+                                cookie.substring(name.length + 1)
+                            );
                             break;
                         }
                     }
@@ -648,113 +675,130 @@
                 return h * 60 + m;
             }
 
-            document.getElementById("save-times-btn").addEventListener("click", function () {
-                const workerId = document.getElementById("worker-select").value;
-                if (!workerId) {
-                    alert("작업자를 선택하세요.");
-                    return;
-                }
-
-                const rows = document.querySelectorAll("#time-input-rows .time-input-row");
-                const assignments = [];
-                let isValid = true;
-
-                rows.forEach((row, idx) => {
-                    const startStr = row.querySelector(".start-time").value.trim();
-                    const code = row.querySelector(".code").value.trim();
-                    const endStr = row.querySelector(".end-time").value.trim();
-
-                    if (!startStr && !endStr && !code) return; // 빈 줄 패스
-
-                    if (!startStr || !endStr) {
-                        alert(`${idx + 1}번 행: 시작/종료 시간은 필수입니다.`);
-                        isValid = false;
+            document
+                .getElementById("save-times-btn")
+                .addEventListener("click", function () {
+                    const workerId =
+                        document.getElementById("worker-select").value;
+                    if (!workerId) {
+                        alert("작업자를 선택하세요.");
                         return;
                     }
 
-                    const startMin = timeToMinutes(startStr);
-                    const endMin = timeToMinutes(endStr);
+                    const rows = document.querySelectorAll(
+                        "#time-input-rows .time-input-row"
+                    );
+                    const assignments = [];
+                    let isValid = true;
 
-                    if (startMin === null || endMin === null) {
-                        alert(`${idx + 1}번 행: 시간 형식 오류 (예: 0900)`);
-                        isValid = false;
-                        return;
-                    }
+                    rows.forEach((row, idx) => {
+                        const startStr = row
+                            .querySelector(".start-time")
+                            .value.trim();
+                        const code = row.querySelector(".code").value.trim();
+                        const endStr = row
+                            .querySelector(".end-time")
+                            .value.trim();
 
-                    // "모두" 선택 시 처리
-                    if (workerId === "all") {
-                        const options = document.querySelectorAll("#worker-select option");
-                        options.forEach((opt) => {
-                            if (opt.value && opt.value !== "all") {
-                                assignments.push({
-                                    type: "INDIRECT",
-                                    start_min: startMin,
-                                    end_min: endMin,
-                                    code: code,
-                                    worker_id: parseInt(opt.value),
-                                });
-                            }
-                        });
-                    } else {
-                        assignments.push({
-                            type: "INDIRECT",
-                            start_min: startMin,
-                            end_min: endMin,
-                            code: code,
-                            worker_id: parseInt(workerId),
-                        });
-                    }
-                });
+                        if (!startStr && !endStr && !code) return; // 빈 줄 패스
 
-                if (!isValid) return;
-
-                // 서버 전송
-                fetch("{% url 'save_manual_input' session.id %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCookie("csrftoken"),
-                    },
-                    body: JSON.stringify({ assignments: assignments }),
-                })
-                    .then((r) => r.json())
-                    .then((data) => {
-                        if (data.status === "success") {
-                            // [수정] 요청하신 메시지로 변경
-                            alert("저장이 정상적으로 처리 되었습니다.");
-                            
-                            // 저장 성공 시 임시 데이터 삭제
-                            localStorage.removeItem(STORAGE_KEY);
-                            
-                            // 새로고침
-                            window.location.reload();
-                        } else {
-                            alert("저장 실패: " + (data.message || "오류"));
+                        if (!startStr || !endStr) {
+                            alert(
+                                `${idx + 1}번 행: 시작/종료 시간은 필수입니다.`
+                            );
+                            isValid = false;
+                            return;
                         }
-                    })
-                    .catch((err) => {
-                        alert("네트워크 오류: " + err);
+
+                        const startMin = timeToMinutes(startStr);
+                        const endMin = timeToMinutes(endStr);
+
+                        if (startMin === null || endMin === null) {
+                            alert(`${idx + 1}번 행: 시간 형식 오류 (예: 0900)`);
+                            isValid = false;
+                            return;
+                        }
+
+                        // "모두" 선택 시 처리
+                        if (workerId === "all") {
+                            const options = document.querySelectorAll(
+                                "#worker-select option"
+                            );
+                            options.forEach((opt) => {
+                                if (opt.value && opt.value !== "all") {
+                                    assignments.push({
+                                        type: "INDIRECT",
+                                        start_min: startMin,
+                                        end_min: endMin,
+                                        code: code,
+                                        worker_id: parseInt(opt.value),
+                                    });
+                                }
+                            });
+                        } else {
+                            assignments.push({
+                                type: "INDIRECT",
+                                start_min: startMin,
+                                end_min: endMin,
+                                code: code,
+                                worker_id: parseInt(workerId),
+                            });
+                        }
                     });
-            });
+
+                    if (!isValid) return;
+
+                    // 서버 전송
+                    fetch("{% url 'save_manual_input' session.id %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ assignments: assignments }),
+                    })
+                        .then((r) => r.json())
+                        .then((data) => {
+                            if (data.status === "success") {
+                                // [수정] 요청하신 메시지로 변경
+                                alert("저장이 정상적으로 처리 되었습니다.");
+
+                                // 저장 성공 시 임시 데이터 삭제
+                                localStorage.removeItem(STORAGE_KEY);
+
+                                // 새로고침
+                                window.location.reload();
+                            } else {
+                                alert("저장 실패: " + (data.message || "오류"));
+                            }
+                        })
+                        .catch((err) => {
+                            alert("네트워크 오류: " + err);
+                        });
+                });
 
             // -----------------------------------------------------------
             // 4. 행 추가/삭제 기능
             // -----------------------------------------------------------
-            document.getElementById("add-row-btn").addEventListener("click", function () {
-                const tbody = document.getElementById("time-input-rows");
-                const newRow = document.createElement("tr");
-                newRow.className = "time-input-row";
-                newRow.innerHTML = `
+            document
+                .getElementById("add-row-btn")
+                .addEventListener("click", function () {
+                    const tbody = document.getElementById("time-input-rows");
+                    const newRow = document.createElement("tr");
+                    newRow.className = "time-input-row";
+                    newRow.innerHTML = `
                     <td><input type="text" class="form-control form-control-sm start-time" placeholder="0800" maxlength="4"></td>
                     <td><input type="text" class="form-control form-control-sm code" placeholder="코드"></td>
                     <td><input type="text" class="form-control form-control-sm end-time" placeholder="1000" maxlength="4"></td>
                     <td><button type="button" class="btn btn-sm btn-danger delete-row" onclick="deleteRow(this)">✕</button></td>
                 `;
-                tbody.appendChild(newRow);
-            });
+                    tbody.appendChild(newRow);
+                });
 
             window.deleteRow = function (btn) {
-                const rows = document.querySelectorAll("#time-input-rows .time-input-row");
+                const rows = document.querySelectorAll(
+                    "#time-input-rows .time-input-row"
+                );
                 if (rows.length > 1) {
                     btn.closest("tr").remove();
                     saveToLocalStorage(); // 삭제 후 상태 저장
