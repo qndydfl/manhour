@@ -26,8 +26,18 @@
     </head>
     <body class="bg-light p-4">
         <div class="container">
+            <div class="d-flex justify-content-start align-items-center mb-3">
+                <a href="{% url 'index' %}" class="btn btn-secondary"> 
+                    <i class="bi bi-house-fill"></i> 홈으로 
+                </a>
+            </div>
+
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <a href="{% url 'index' %}" class="btn btn-secondary"> 홈 </a>
+                <h4 class="fw-bold">
+                    <i class="bi bi-clock-history"></i> 작업 이력 (History)
+                </h4>
+                
+                {% if request.session.user_role == 'admin' %}
                 <form
                     action="{% url 'clear_history' %}"
                     method="POST"
@@ -38,28 +48,28 @@
                         <i class="bi bi-trash-fill"></i> 기록 초기화
                     </button>
                 </form>
+                {% endif %}
             </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold">
-                    <i class="bi bi-clock-history"></i> 작업 이력 (History)
-                </h4>
 
-                <div class="d-flex gap-2">
-                    <form method="GET" class="d-flex">
-                        <input
-                            type="text"
-                            name="q"
-                            class="form-control form-control-sm me-2"
-                            placeholder="기번, 이름, 세션명..."
-                            value="{{ request.GET.q|default:'' }}"
-                        />
-                        <button
-                            type="submit"
-                            class="btn btn-sm btn-outline-primary"
-                        >
-                            검색
-                        </button>
-                    </form>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="row gx-2 gy-2 w-100">
+                    <div class="col">
+                        <form method="GET" class="d-flex">
+                            <input
+                                type="text"
+                                name="q"
+                                class="form-control form-control-sm me-2"
+                                placeholder="기번, 이름, 세션명..."
+                                value="{{ request.GET.q|default:'' }}"
+                            />
+                            <button
+                                type="submit"
+                                class="btn btn-sm btn-outline-primary w-25"
+                            >
+                                검색
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -73,8 +83,7 @@
                             <div class="d-flex align-items-center gap-2">
                                 <h5 class="mb-0">{{ session.name }}</h5>
                                 <span class="badge bg-secondary"
-                                    >{{ session.created_at|date:"m월 d일 H:i"
-                                    }}</span
+                                    >{{ session.created_at|date:"m월 d일 H:i" }}</span
                                 >
                             </div>
                             <small class="text-muted">

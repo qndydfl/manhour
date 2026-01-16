@@ -48,7 +48,7 @@
         </style>
     </head>
     <body class="p-4 bg-light">
-        <div class="container-fluid">
+        <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="d-flex align-items-center gap-3">
                     <a
@@ -129,11 +129,10 @@
                     class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
                 >
                     <h5 class="mb-0">
-                        <i class="bi bi-person-gear me-2"></i>작업자별 근무 한도
-                        설정
+                        <i class="bi bi-person-gear me-2"></i>작업자 현황
                     </h5>
                     <small
-                        >각 작업자의 최대 근무 시간을 수정하고 [저장]을
+                        >최대 근무 시간을 수정 후 [저장]을
                         누르세요.</small
                     >
                 </div>
@@ -174,8 +173,7 @@
                                             />
                                         </div>
                                     </div>
-                                    {% widthratio worker.used_mh worker.limit_mh
-                                    100 as ratio %}
+                                    {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
                                     <div class="progress" style="height: 4px">
                                         <div
                                             class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}"
@@ -214,7 +212,7 @@
                         href="{% url 'assigned_summary' session.id %}"
                         class="btn btn-info btn-sm"
                     >
-                        📅 시간표 보기
+                        📅 작업 시간별 보기
                     </a>
                 </div>
             </div>
@@ -239,16 +237,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in items %} {% if item.work_order !=
-                                '간비' %}
+                                {% for item in items %} {% if item.work_order != '간비' %}
                                 <tr
-                                    {%
-                                    if
-                                    item.is_manual
-                                    %}class="table-info"
-                                    {%
-                                    endif
-                                    %}
+                                    {% if item.is_manual %}class="table-info"{% endif %}
                                 >
                                     <td class="fw-bold">
                                         {{ item.gibun_input }}
@@ -265,9 +256,7 @@
                                     <td class="text-start">
                                         {% for assign in item.assignments.all %}
                                         <span class="badge bg-secondary me-1">
-                                            {{ assign.worker.name }} ({{
-                                            assign.allocated_mh|floatformat:2
-                                            }})
+                                            {{ assign.worker.name }} ({{ assign.allocated_mh|floatformat:2 }})
                                         </span>
                                         {% empty %}
                                         <span class="text-muted small"
@@ -367,6 +356,7 @@
             tabindex="-1"
             aria-labelledby="timeInputModalLabel"
             aria-hidden="true"
+            data-bs-backdrop="static"
         >
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -399,8 +389,7 @@
                                     -- 작업자를 선택하세요 --
                                 </option>
                                 <option value="all">모두</option>
-                                {% for worker in workers %} {% if worker.name !=
-                                '간비' %}
+                                {% for worker in workers %} {% if worker.name != '간비' %}
                                 <option value="{{ worker.id }}">
                                     {{ worker.name }}
                                 </option>
@@ -498,11 +487,12 @@
             tabindex="-1"
             aria-labelledby="finishModalLabel"
             aria-hidden="true"
+            data-bs-backdrop="static"
         >
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-sm">
                     <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title fw-bold" id="finishModalLabel">
+                        <h5 class="modal-title fw-bold" id="#finishModalLabel">
                             ✅ 작업 완료 확인
                         </h5>
                         <button

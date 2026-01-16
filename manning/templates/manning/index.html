@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A-Check Manning System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -183,12 +184,26 @@
                     <div class="card-body d-flex flex-column justify-content-center p-4">
                         <h5 class="opacity-75 mb-1">{{ today|date:"Y년 m월 d일 (D)" }}</h5>
                         <h2 class="fw-bold mb-0">오늘의 작업 현황 ✈️</h2>
-                        <p class="mt-2 mb-0 opacity-75">                            
-                            현재 <strong class="text-warning display-6 fw-bold mx-1">{{ active_count }}</strong>개의 공간이 가동 중입니다.
-                            <br />
-                            <small class="text-light-opacity-75">(전체 활성 세션: <strong class="text-light fw-bold">
-                                {{ total_active_sessions }}</strong>)</small>
-                        </p>
+                        
+                        <div class="mt-3">
+                            {% if active_count > 0 %}
+                                <p class="mb-0 fs-5 opacity-90">
+                                    현재 <strong class="text-warning display-4 fw-bold mx-1">{{ active_count }}</strong>곳 가동 중
+                                </p>
+                                <small class="text-white-50 mt-1 d-block">
+                                    총 8개 작업 공간 중 사용률
+                                </small>
+                                <div class="progress mt-2 bg-white bg-opacity-25" style="height: 6px;">
+                                    {% widthratio active_count 8 100 as percent %}
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ percent }}%"></div>
+                                </div>
+                            {% else %}
+                                <p class="mb-0 fs-5 opacity-75 mt-2">
+                                    현재 가동 중인 작업이 없습니다.
+                                </p>
+                                <small class="text-white-50">새로운 세션을 시작해보세요!</small>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -221,18 +236,17 @@
                 </div>
             </div>
         </div>
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold mb-3 text-secondary">
                 <i class="bi bi-grid-fill me-1"></i> 작업 공간 모니터링
             </h5>
 
             {% if request.session.user_role == 'admin' and active_count > 0 %}
-                {% if active_count > 0 %}
                 <button class="btn btn-outline-danger btn-sm fw-bold" 
                         data-bs-toggle="modal" data-bs-target="#resetAllModal">
                     <i class="bi bi-trash3-fill me-1"></i> 모두 초기화
                 </button>
-                {% endif %}
             {% endif %}
         </div>
         
