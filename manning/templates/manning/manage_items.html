@@ -2,152 +2,277 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>일감 분리 관리</title>
+    <title>통합 데이터 관리 - {{ session.name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
-        body { font-family: "Pretendard", sans-serif; }
+        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
+        .table td { vertical-align: middle; }
         
         .table input[type="text"], 
-        .table input[type="number"], 
+        .table input[type="number"],
         .table textarea {
-            width: 100%;
-            border: 1px solid #ced4da;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            background-color: #fff;
+            width: 100%; border: 1px solid transparent; padding: 4px 8px;
+            background-color: transparent; text-align: center;
+            border-radius: 4px; font-size: 0.9rem;
         }
-
-        .table textarea {
-            height: 32px !important;
-            min-height: 32px;
-            resize: none;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .table input:focus, 
-        .table textarea:focus {
-            border-color: #86b7fe;
-            outline: 0;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .delete-checkbox { transform: scale(1.3); cursor: pointer; }
+        .table textarea { height: 32px !important; min-height: 32px; resize: none; overflow: hidden; white-space: nowrap; text-align: left; }
+        .table input:focus, .table textarea:focus { border-color: #86b7fe; background-color: #fff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+        
+        .paste-area { font-family: 'Pretendard', sans-serif; font-size: 0.9rem; border: 2px solid #dee2e6; min-height: 150px; background-color: #fff; }
+        .paste-area:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
+        .sticky-section { position: sticky; top: 1rem; z-index: 10; }
+        
+        .gibun-header { background-color: #e7f1ff !important; font-weight: bold; color: #0d6efd; text-align: left; padding-left: 20px !important; }
     </style>
 </head>
-<body class="bg-light p-4">
+<body class="p-3">
     <div class="container-fluid">
         
-        <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-0">⚙️ 직비(Direct) 및 한도 관리</h2>
-                <small class="text-muted">{{ session.name }}</small>
+                <h4 class="fw-bold mb-1"><i class="bi bi-gear-wide-connected"></i> 통합 데이터 관리</h4>
+                <p class="text-muted small mb-0">세션: <strong>{{ session.name }}</strong></p>
             </div>
-            <a href="{% url 'result_view' session.id %}" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left"></i> 결과화면으로
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'result_view' session.id %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 결과화면으로
+                </a>
+                <button type="submit" form="manage-form" class="btn btn-primary fw-bold">
+                    <i class="bi bi-save-fill"></i> 전체 저장 및 재배정
+                </button>
+            </div>
         </div>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                    {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
         {% endif %}
 
-        <form method="POST">
-            {% csrf_token %}
-            
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="card shadow-sm mb-4 sticky-top" style="top: 20px; z-index: 100;">
-                        <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0"><i class="bi bi-person-gear"></i> 근무 한도</h6>
+        <div class="card shadow-sm mb-4 border-primary">
+            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clipboard-plus me-2"></i>데이터 등록</span>
+                
+                <button type="button" class="btn btn-light btn-sm fw-bold text-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    <i class="bi bi-plus-lg"></i> 하나씩 추가하기
+                </button>
+            </div>
+            <div class="card-body bg-light">
+                <form action="{% url 'add_items_direct' session.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-12 mb-2">
+                            <textarea name="raw_data" class="form-control paste-area" 
+                                placeholder="[엑셀 붙여넣기] 예시:&#10;HL7777  WO123456  OP01  타이어 점검  1.5"></textarea>
                         </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label small text-muted">형식: "이름:시간"</label>
-                                <textarea name="worker_limits" class="form-control font-monospace" rows="15">{{ worker_names_str }}</textarea>
-                            </div>
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-primary fw-bold px-4">
+                                <i class="bi bi-upload me-1"></i> 엑셀 데이터 추가
+                            </button>
                         </div>
                     </div>
-                </div>
+                </form>
+            </div>
+        </div>
 
-                <div class="col-md-9">
-                    <div class="card shadow mb-4">
-                        <div class="card-header bg-dark text-white">
-                            <h5 class="mb-0"><i class="bi bi-tools me-2"></i>직비 (Direct)</h5>
+        <hr class="my-4 text-muted opacity-25">
+
+        <form method="POST" id="manage-form">
+            {% csrf_token %}
+            {{ formset.management_form }}
+
+            <div class="row g-4">
+                
+                <div class="col-md-3">
+                    
+                    <div class="card shadow-sm mb-3 sticky-section" style="z-index: 20;">
+                        <div class="card-header bg-secondary text-white fw-bold">
+                            <i class="bi bi-person-gear me-2"></i> 근무 한도 설정
                         </div>
-                        <div class="card-body">
-                            {{ direct_formset.management_form }}
-                            <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
-                                <table class="table table-bordered align-middle text-center mb-0">
-                                    <thead class="table-light sticky-top" style="top: 0;">
+                        <div class="card-body d-flex flex-column">
+                            <div class="alert alert-light border small text-muted mb-2 p-2">
+                                <code>이름:시간</code> (예: 홍길동:9)
+                            </div>
+                            <textarea name="worker_limits" class="form-control font-monospace" 
+                                      style="height: 200px; resize: none;">{{ worker_names_str }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-warning sticky-section" style="top: 360px; z-index: 10;">
+                        <div class="card-header bg-warning bg-opacity-25 text-dark fw-bold">
+                            <i class="bi bi-sort-numeric-down me-2"></i> 기종 우선순위
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="alert alert-light border-0 small text-muted mb-0 p-2 text-center">
+                                <i class="bi bi-info-circle"></i> 숫자가 작을수록 먼저 배정됩니다.
+                            </div>
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                <table class="table table-sm table-hover mb-0 align-middle">
+                                    <thead class="table-light text-center">
                                         <tr>
-                                            <th width="5%">삭제</th>
-                                            <th width="10%">기종</th>
-                                            <th width="15%">WO <span class="text-danger">*</span></th>
-                                            <th width="10%">OP</th>
-                                            <th>설명</th>
-                                            <th width="10%">M/H</th>
+                                            <th>기번</th>
+                                            <th width="80">순위</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for form in direct_formset %}
-                                            {{ form.id }} 
-                                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
-                                            
-                                            <tr class="{% if form.instance.pk %}bg-white{% else %}table-warning{% endif %}">
-                                                <td>
-                                                    <div style="display:none;">{{ form.DELETE }}</div>
-                                                    <input type="checkbox" class="form-check-input delete-trigger" onchange="toggleDelete(this)">
-                                                </td>
-                                                <td>{{ form.model_type }}</td>
-                                                <td>
-                                                    <div class="{% if form.work_order.errors %}border border-danger{% endif %}">
-                                                        {{ form.work_order }}
-                                                    </div>
-                                                </td>
-                                                <td>{{ form.op }}</td>
-                                                <td>{{ form.description }}</td>
-                                                <td>{{ form.work_mh }}</td>
-                                            </tr>
-                                            {% if form.errors %}
-                                            <tr>
-                                                <td colspan="6" class="bg-danger bg-opacity-10 text-danger small text-start p-1">
-                                                    🚨 {{ form.errors }}
-                                                </td>
-                                            </tr>
-                                            {% endif %}
+                                        {% for p in gibun_priorities %}
+                                        <tr>
+                                            <td class="fw-bold text-center text-primary">{{ p.gibun }}</td>
+                                            <td>
+                                                <input type="number" name="prio_{{ p.id }}" value="{{ p.order }}" 
+                                                       class="form-control form-control-sm text-center fw-bold"
+                                                       min="1">
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-muted small py-3">
+                                                등록된 데이터가 없습니다.
+                                            </td>
+                                        </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
-            </div>
 
-            <nav class="navbar fixed-bottom navbar-light bg-light border-top shadow-lg py-3">
+                </div>
+
+                <div class="col-md-9">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="fw-bold text-secondary mb-0">
+                            <i class="bi bi-list-check me-1"></i> 등록된 데이터 목록
+                        </h5>
+                        <span class="badge bg-light text-secondary border">
+                            총 {{ formset|length }}건
+                        </span>
+                    </div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height: 75vh; overflow-y: auto;">
+                                <table class="table table-hover table-bordered mb-0 align-middle text-center">
+                                    <thead class="table-light sticky-top" style="z-index: 10;">
+                                        <tr>
+                                            <th width="50" class="text-danger"><i class="bi bi-trash"></i></th>
+                                            <th width="100">기번</th>
+                                            <th>Work Order</th>
+                                            <th width="50">OP</th>
+                                            <th>작업 내용</th>
+                                            <th width="70">M/H</th>
+                                            <th width="200" class="bg-primary bg-opacity-10 text-primary">배정 (이름 입력)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        {% for form in formset %}
+                                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+
+                                            {% ifchanged form.instance.gibun_input %}
+                                            <tr>
+                                                <td colspan="7" class="gibun-header border-bottom">
+                                                    <i class="bi bi-airplane-fill me-2"></i>
+                                                    {{ form.instance.gibun_input|default:"기번 없음" }}
+                                                </td>
+                                            </tr>
+                                            {% endifchanged %}
+                                            
+                                            <tr class="{% if form.errors %}table-danger{% endif %} align-middle">
+                                                <td>
+                                                    {% if form.instance.pk %}
+                                                        <div class="form-check d-flex justify-content-center">
+                                                            <div style="display:none;">{{ form.DELETE }}</div>
+                                                            <input type="checkbox" class="form-check-input delete-trigger" onchange="toggleDelete(this)">
+                                                        </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="p-0 text-muted opacity-50">{{ form.gibun_input }}</td>
+                                                <td class="p-0">{{ form.work_order }}</td>
+                                                <td class="p-0">{{ form.op }}</td>
+                                                <td class="p-0">{{ form.description }}</td>
+                                                <td class="p-0">{{ form.work_mh }}</td>
+                                                <td class="p-1">
+                                                    {{ form.assigned_worker_name }}
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="7" class="py-5 text-muted text-center">
+                                                    데이터가 없습니다.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div> </div> <nav class="navbar fixed-bottom navbar-light bg-light border-top shadow-lg py-2">
                 <div class="container-fluid justify-content-end gap-2">
-                    <span class="text-muted small me-auto ms-3">
-                        * <strong>직비</strong>와 <strong>근무 한도</strong>가 저장됩니다. (간비는 개별 관리)
+                    <span class="text-muted small me-auto ms-3 d-none d-md-inline">
+                        <i class="bi bi-info-circle-fill"></i> 이름을 직접 입력하고 저장하면 고정 배정됩니다.
                     </span>
                     <a href="{% url 'result_view' session.id %}" class="btn btn-secondary px-4">취소</a>
                     <button type="submit" class="btn btn-primary fw-bold px-5">
-                        💾 저장하기
+                        <i class="bi bi-check-lg me-1"></i> 저장 및 재배정
                     </button>
                 </div>
             </nav>
-        </form>
+            <div style="height: 60px;"></div>
 
+        </form>
     </div>
-    <div style="height: 80px;"></div>
+
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="addItemModalLabel">➕ 데이터 하나씩 추가</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'add_single_item' session.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">기번 <span class="text-danger">*</span></label>
+                            <input type="text" name="gibun" class="form-control" placeholder="예: HL7777" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-8">
+                                <label class="form-label fw-bold">Work Order <span class="text-danger">*</span></label>
+                                <input type="text" name="wo" class="form-control" placeholder="예: WO123456" required>
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label fw-bold">OP</label>
+                                <input type="text" name="op" class="form-control" placeholder="예: 01">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">작업 내용</label>
+                            <input type="text" name="description" class="form-control" placeholder="작업 설명 입력">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-bold">시간 (M/H)</label>
+                                <input type="number" step="0.1" name="mh" class="form-control" value="0.0">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">작업자 지정 (선택)</label>
+                                <input type="text" name="worker_name" class="form-control" placeholder="이름 입력 시 즉시 배정">
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary fw-bold">추가 및 배정</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -157,11 +282,11 @@
             if (realDeleteInput) {
                 realDeleteInput.checked = checkbox.checked;
                 if (checkbox.checked) {
-                    row.classList.add('table-danger');
-                    row.querySelectorAll('input').forEach(i => i.style.textDecoration = 'line-through');
+                    row.classList.add('table-danger', 'text-decoration-line-through', 'text-muted');
+                    row.querySelectorAll('input:not(.delete-trigger), textarea').forEach(i => i.style.pointerEvents = 'none');
                 } else {
-                    row.classList.remove('table-danger');
-                    row.querySelectorAll('input').forEach(i => i.style.textDecoration = 'none');
+                    row.classList.remove('table-danger', 'text-decoration-line-through', 'text-muted');
+                    row.querySelectorAll('input:not(.delete-trigger), textarea').forEach(i => i.style.pointerEvents = 'auto');
                 }
             }
         }

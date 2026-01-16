@@ -1,5 +1,5 @@
 from django import forms
-from .models import WorkItem
+from .models import WorkItem, Worker
 
 
 class WorkItemForm(forms.ModelForm):
@@ -89,4 +89,26 @@ class WorkerIndirectForm(forms.ModelForm):
             })
         }
 
+
+class ManageItemForm(forms.ModelForm):
+    # [수정] 드롭다운 대신 '텍스트 입력창'으로 변경
+    assigned_worker_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-sm text-center fw-bold text-primary', 
+            'style': 'font-size: 0.85rem; background-color: #f8f9fa;',
+            'placeholder': '이름 입력'
+        })
+    )
+
+    class Meta:
+        model = WorkItem
+        fields = ['gibun_input', 'work_order', 'op', 'description', 'work_mh']
         
+        widgets = {
+            'gibun_input': forms.TextInput(attrs={'class': 'form-control form-control-sm text-center'}),
+            'work_order': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
+            'op': forms.TextInput(attrs={'class': 'form-control form-control-sm text-center'}),
+            'description': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
+            'work_mh': forms.NumberInput(attrs={'class': 'form-control form-control-sm text-center', 'step': '0.1'}),
+        }

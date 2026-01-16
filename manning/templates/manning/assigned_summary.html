@@ -47,6 +47,44 @@
                     >
                 </div>
             </div>
+
+            {% if common_schedule %}
+            <div class="card shadow-sm border-warning mb-4">
+                <div class="card-header bg-warning bg-opacity-25 text-dark fw-bold">
+                    <i class="bi bi-calendar-check me-2"></i>고정/간비 일정 현황 (전체 요약)
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0 text-center align-middle">
+                            <thead class="table-light text-muted small">
+                                <tr>
+                                    <th width="20%">시간</th>
+                                    <th>내용 (코드)</th>
+                                    <th width="25%">대상</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sch in common_schedule %}
+                                <tr {% if sch.is_all %}class="table-warning"{% endif %}>
+                                    <td class="fw-bold text-dark">
+                                        {{ sch.start }} ~ {{ sch.end }}
+                                    </td>
+                                    <td class="fw-bold text-primary">
+                                        {{ sch.code }}
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ sch.badge_class }} rounded-pill">
+                                            {{ sch.target }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             
             <div class="row g-3">
                 {% for w in workers_schedule %}

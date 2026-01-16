@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from re import S
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,14 +24,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(ypmf6_cgmn!h-$1_g$qz!7lhnu9+#v!5165eiy^7+3^$ym1i&'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
 
+# 관리자 및 일반 사용자 비밀번호 도출 방지
+SIMPLE_PASSWORD_ADMIN = os.getenv('SIMPLE_PASSWORD_ADMIN')
+SIMPLE_PASSWORD_USER = os.getenv('SIMPLE_PASSWORD_USER')
+
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -117,3 +126,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# 세션 설정
+SESSION_COOKIE_AGE = 1800  # 30분 (초 단위)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 브라우저 닫으면 세션 종료

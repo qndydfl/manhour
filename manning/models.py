@@ -29,6 +29,7 @@ class Worker(models.Model):
     session = models.ForeignKey(WorkSession, on_delete=models.CASCADE) 
     name = models.CharField(max_length=50) # 이름
     limit_mh = models.FloatField(default=9.0) # 최대 근무 시간 (한도)
+    max_mh = models.FloatField(default=9.0)
     used_mh = models.FloatField(default=0.0)  # 지금까지 배정받은 시간
 
     def __str__(self):
@@ -72,4 +73,18 @@ class Assignment(models.Model):
 
     def __str__(self):
         return f"{self.worker.name} -> {self.allocated_mh}시간"
+
+
+# 6. 기번 우선순위 설정 (특정 기번을 우선 배정하기 위해)
+class GibunPriority(models.Model):
+    session = models.ForeignKey(WorkSession, on_delete=models.CASCADE)
+    gibun = models.CharField(max_length=50) # 기번 이름 (예: HL7777)
+    order = models.PositiveIntegerField(default=1) # 우선순위 (1이 가장 높음)
+
+    class Meta:
+        ordering = ['order', 'gibun'] # 순서대로 정렬
+        unique_together = ('session', 'gibun') # 중복 방지
+
+    def __str__(self):
+        return f"{self.gibun} ({self.order})"
     

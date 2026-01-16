@@ -36,7 +36,7 @@
                 font-weight: bold;
             }
 
-            /* 결과 테이블 색상 (부트스트랩 컬러 활용 가능하지만 커스텀 유지) */
+            /* 결과 테이블 색상 */
             .res-direct {
                 background-color: #f0fff4 !important;
                 color: #006400;
@@ -155,7 +155,7 @@
                                             {{ worker.name }}
                                         </div>
                                         <div class="h3 mb-2 text-primary">
-                                            {{ worker.used_mh }}
+                                            {{ worker.used_mh|floatformat:2 }}
                                         </div>
                                         <div
                                             class="d-flex align-items-center justify-content-center gap-1 text-muted small"
@@ -198,7 +198,6 @@
                 </div>
             </div>
 
-            <!-- 작업 시간 입력 섹션 -->
             <div class="mb-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">📋 작업 내역</h5>
                 <div class="d-flex gap-2">
@@ -241,13 +240,7 @@
                             <tbody>
                                 {% for item in items %} {% if item.work_order != '간비' %}
                                 <tr
-                                    {%
-                                    if
-                                    item.is_manual
-                                    %}class="table-info"
-                                    {%
-                                    endif
-                                    %}
+                                    {% if item.is_manual %}class="table-info"{% endif %}
                                 >
                                     <td class="fw-bold">
                                         {{ item.gibun_input }}
@@ -264,7 +257,7 @@
                                     <td class="text-start">
                                         {% for assign in item.assignments.all %}
                                         <span class="badge bg-secondary me-1">
-                                            {{ assign.worker.name }} ({{ assign.allocated_mh }})
+                                            {{ assign.worker.name }} ({{ assign.allocated_mh|floatformat:2 }})
                                         </span>
                                         {% empty %}
                                         <span class="text-muted small"
@@ -358,7 +351,6 @@
             </div>
         </div>
 
-        <!-- 작업 시간 입력 모달 -->
         <div
             class="modal fade"
             id="timeInputModal"
@@ -489,7 +481,6 @@
             </div>
         </div>
 
-        <!-- Finish confirmation modal (custom styled) -->
         <div
             class="modal fade"
             id="finishModal"
@@ -547,37 +538,36 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            // Finish modal: submit the finish form when user confirms
+            // -----------------------------------------------------------
+            // 1. [작업 완료/퇴실] 버튼 클릭 시 처리
+            // -----------------------------------------------------------
             document.addEventListener("DOMContentLoaded", function () {
-                const confirmBtn =
-                    document.getElementById("confirm-finish-btn");
+                const confirmBtn = document.getElementById("confirm-finish-btn");
                 if (confirmBtn) {
                     confirmBtn.addEventListener("click", function () {
-                        // remove localStorage key for this session
+                        // [핵심] 퇴실 시 로컬스토리지에 저장된 임시 입력 데이터를 싹 지웁니다.
                         try {
-                            localStorage.removeItem(
-                                `manning_time_input_{{ session.id }}`
-                            );
+                            localStorage.removeItem(`manning_time_input_{{ session.id }}`);
                         } catch (e) {}
-                        // submit the hidden form
+
+                        // 폼 제출 (서버로 종료 신호 전송)
                         const form = document.getElementById("finish-form");
                         if (form) form.submit();
                     });
                 }
             });
 
-            // localStorage 키
+            // -----------------------------------------------------------
+            // 2. [작업 시간 입력] 모달 관련 로직
+            // -----------------------------------------------------------
             const STORAGE_KEY = `manning_time_input_{{ session.id }}`;
-
-            // 모달 요소
             const timeInputModal = document.getElementById("timeInputModal");
 
-            // 모달 열릴 때 데이터 로드
+            // 모달 열릴 때: 로컬스토리지 데이터 불러오기
             timeInputModal.addEventListener("show.bs.modal", function () {
                 loadInputData();
             });
 
-            // localStorage에서 데이터 로드
             function loadInputData() {
                 const savedData = localStorage.getItem(STORAGE_KEY);
                 if (!savedData) return;
@@ -585,47 +575,36 @@
                 try {
                     const data = JSON.parse(savedData);
                     const tbody = document.getElementById("time-input-rows");
-
-                    // 기존 행들의 입력값 복원
                     const rows = tbody.querySelectorAll(".time-input-row");
+                    
+                    // 저장된 값 칸에 채워넣기
                     data.rows.forEach((rowData, idx) => {
                         if (idx < rows.length) {
                             const row = rows[idx];
-                            row.querySelector(".start-time").value =
-                                rowData.start || "";
-                            row.querySelector(".code").value =
-                                rowData.code || "";
-                            row.querySelector(".end-time").value =
-                                rowData.end || "";
+                            row.querySelector(".start-time").value = rowData.start || "";
+                            row.querySelector(".code").value = rowData.code || "";
+                            row.querySelector(".end-time").value = rowData.end || "";
                         }
                     });
 
-                    // 작업자 선택 복원
-                    const workerSelect =
-                        document.getElementById("worker-select");
+                    const workerSelect = document.getElementById("worker-select");
                     if (data.worker_id) {
                         workerSelect.value = data.worker_id;
                     }
                 } catch (e) {
-                    console.error("Failed to load input data:", e);
+                    console.error("데이터 로드 실패:", e);
                 }
             }
 
-            // 입력 필드 변화 시 자동 저장
+            // 입력할 때마다 자동 저장 (LocalStorage)
             function setupAutoSave() {
                 const tbody = document.getElementById("time-input-rows");
-                tbody.addEventListener("change", saveInputData);
-                tbody.addEventListener("input", saveInputData);
-
-                const workerSelect = document.getElementById("worker-select");
-                workerSelect.addEventListener("change", saveInputData);
+                tbody.addEventListener("input", saveToLocalStorage);
+                document.getElementById("worker-select").addEventListener("change", saveToLocalStorage);
             }
 
-            // localStorage에 데이터 저장
-            function saveInputData() {
-                const rows = document.querySelectorAll(
-                    "#time-input-rows .time-input-row"
-                );
+            function saveToLocalStorage() {
+                const rows = document.querySelectorAll("#time-input-rows .time-input-row");
                 const rowData = [];
                 rows.forEach((row) => {
                     rowData.push({
@@ -634,33 +613,27 @@
                         end: row.querySelector(".end-time").value,
                     });
                 });
-
                 const workerSelect = document.getElementById("worker-select");
                 const data = {
                     worker_id: workerSelect.value,
                     rows: rowData,
                 };
-
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             }
 
-            // 페이지 로드 시 자동저장 설정
             setupAutoSave();
 
-            // CSRF 토큰 가져오기
+            // -----------------------------------------------------------
+            // 3. [저장하기] 버튼 클릭 (서버 전송)
+            // -----------------------------------------------------------
             function getCookie(name) {
                 let cookieValue = null;
                 if (document.cookie && document.cookie !== "") {
                     const cookies = document.cookie.split(";");
                     for (let i = 0; i < cookies.length; i++) {
                         const cookie = cookies[i].trim();
-                        if (
-                            cookie.substring(0, name.length + 1) ===
-                            name + "="
-                        ) {
-                            cookieValue = decodeURIComponent(
-                                cookie.substring(name.length + 1)
-                            );
+                        if (cookie.substring(0, name.length + 1) === name + "=") {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                             break;
                         }
                     }
@@ -668,7 +641,6 @@
                 return cookieValue;
             }
 
-            // 시간 문자열(HHMM)을 분으로 변환
             function timeToMinutes(timeStr) {
                 if (!timeStr || timeStr.length !== 4) return null;
                 const h = parseInt(timeStr.substr(0, 2), 10);
@@ -676,174 +648,120 @@
                 return h * 60 + m;
             }
 
-            // 행 추가
-            document
-                .getElementById("add-row-btn")
-                .addEventListener("click", function () {
-                    const tbody = document.getElementById("time-input-rows");
-                    const newRow = document.createElement("tr");
-                    newRow.className = "time-input-row";
-                    newRow.innerHTML = `
-                <td><input type="text" class="form-control form-control-sm start-time" placeholder="0800" maxlength="4"></td>
-                <td><input type="text" class="form-control form-control-sm code" placeholder="코드"></td>
-                <td><input type="text" class="form-control form-control-sm end-time" placeholder="1000" maxlength="4"></td>
-                <td><button type="button" class="btn btn-sm btn-danger delete-row" onclick="deleteRow(this)">✕</button></td>
-            `;
-                    tbody.appendChild(newRow);
-                });
-
-            // 행 삭제
-            function deleteRow(btn) {
-                const rows = document.querySelectorAll(
-                    "#time-input-rows .time-input-row"
-                );
-                if (rows.length > 1) {
-                    btn.closest("tr").remove();
-                } else {
-                    alert("최소한 1개의 행이 필요합니다.");
+            document.getElementById("save-times-btn").addEventListener("click", function () {
+                const workerId = document.getElementById("worker-select").value;
+                if (!workerId) {
+                    alert("작업자를 선택하세요.");
+                    return;
                 }
-            }
 
-            // 저장
-            document
-                .getElementById("save-times-btn")
-                .addEventListener("click", function () {
-                    const workerId =
-                        document.getElementById("worker-select").value;
-                    if (!workerId) {
-                        alert("작업자를 선택하세요.");
+                const rows = document.querySelectorAll("#time-input-rows .time-input-row");
+                const assignments = [];
+                let isValid = true;
+
+                rows.forEach((row, idx) => {
+                    const startStr = row.querySelector(".start-time").value.trim();
+                    const code = row.querySelector(".code").value.trim();
+                    const endStr = row.querySelector(".end-time").value.trim();
+
+                    if (!startStr && !endStr && !code) return; // 빈 줄 패스
+
+                    if (!startStr || !endStr) {
+                        alert(`${idx + 1}번 행: 시작/종료 시간은 필수입니다.`);
+                        isValid = false;
                         return;
                     }
 
-                    const rows = document.querySelectorAll(
-                        "#time-input-rows .time-input-row"
-                    );
-                    const assignments = [];
+                    const startMin = timeToMinutes(startStr);
+                    const endMin = timeToMinutes(endStr);
 
-                    let isValid = true;
-                    rows.forEach((row, idx) => {
-                        const startStr = row
-                            .querySelector(".start-time")
-                            .value.trim();
-                        const code = row.querySelector(".code").value.trim();
-                        const endStr = row
-                            .querySelector(".end-time")
-                            .value.trim();
+                    if (startMin === null || endMin === null) {
+                        alert(`${idx + 1}번 행: 시간 형식 오류 (예: 0900)`);
+                        isValid = false;
+                        return;
+                    }
 
-                        // 입력된 행만 처리 (빈 행 제외)
-                        if (!startStr && !endStr && !code) {
-                            return;
-                        }
-
-                        // 유효성 검사
-                        if (!startStr || !endStr) {
-                            alert(
-                                `${
-                                    idx + 1
-                                }번 행: 시작시간과 종료시간은 필수입니다.`
-                            );
-                            isValid = false;
-                            return;
-                        }
-
-                        const startMin = timeToMinutes(startStr);
-                        const endMin = timeToMinutes(endStr);
-
-                        if (startMin === null || endMin === null) {
-                            alert(
-                                `${
-                                    idx + 1
-                                }번 행: 시간 형식이 잘못되었습니다. (HHMM 형식으로 입력하세요)`
-                            );
-                            isValid = false;
-                            return;
-                        }
-
-                        // "모두" 선택 시 모든 workers에게 할당
-                        if (workerId === "all") {
-                            const workerElements = document.querySelectorAll(
-                                "#worker-select option"
-                            );
-                            workerElements.forEach((option) => {
-                                if (
-                                    option.value &&
-                                    option.value !== "all" &&
-                                    option.text !== "간비"
-                                ) {
-                                    assignments.push({
-                                        type: "INDIRECT",
-                                        start_min: startMin,
-                                        end_min: endMin,
-                                        code: code,
-                                        worker_id: parseInt(option.value),
-                                    });
-                                }
-                            });
-                        } else {
-                            assignments.push({
-                                type: "INDIRECT",
-                                start_min: startMin,
-                                end_min: endMin,
-                                code: code,
-                                worker_id: parseInt(workerId),
-                            });
-                        }
-                    });
-
-                    if (!isValid) return;
-
-                    const payload = {
-                        assignments: assignments,
-                    };
-
-                    fetch("{% url 'save_manual_input' session.id %}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": getCookie("csrftoken"),
-                        },
-                        body: JSON.stringify(payload),
-                    })
-                        .then((r) => r.json())
-                        .then((data) => {
-                            if (data.status === "success") {
-                                showAlert("저장되었습니다.", "success");
-                                // 저장 성공 시 localStorage 초기화
-                                localStorage.removeItem(STORAGE_KEY);
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            } else {
-                                showAlert(
-                                    "저장 실패: " +
-                                        (data.message || "알 수 없는 오류"),
-                                    "danger"
-                                );
+                    // "모두" 선택 시 처리
+                    if (workerId === "all") {
+                        const options = document.querySelectorAll("#worker-select option");
+                        options.forEach((opt) => {
+                            if (opt.value && opt.value !== "all") {
+                                assignments.push({
+                                    type: "INDIRECT",
+                                    start_min: startMin,
+                                    end_min: endMin,
+                                    code: code,
+                                    worker_id: parseInt(opt.value),
+                                });
                             }
-                        })
-                        .catch((err) => {
-                            showAlert("네트워크 오류: " + err, "danger");
                         });
+                    } else {
+                        assignments.push({
+                            type: "INDIRECT",
+                            start_min: startMin,
+                            end_min: endMin,
+                            code: code,
+                            worker_id: parseInt(workerId),
+                        });
+                    }
                 });
 
-            // 알림 메시지
-            function showAlert(message, type = "success") {
-                const alertContainer =
-                    document.getElementById("alert-container");
-                const alertDiv = document.createElement("div");
-                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-                alertDiv.setAttribute("role", "alert");
-                alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-                alertContainer.appendChild(alertDiv);
+                if (!isValid) return;
 
-                // 3초 후 자동 닫기
-                setTimeout(() => {
-                    alertDiv.remove();
-                }, 3000);
-            }
+                // 서버 전송
+                fetch("{% url 'save_manual_input' session.id %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"),
+                    },
+                    body: JSON.stringify({ assignments: assignments }),
+                })
+                    .then((r) => r.json())
+                    .then((data) => {
+                        if (data.status === "success") {
+                            // [수정] 요청하신 메시지로 변경
+                            alert("저장이 정상적으로 처리 되었습니다.");
+                            
+                            // 저장 성공 시 임시 데이터 삭제
+                            localStorage.removeItem(STORAGE_KEY);
+                            
+                            // 새로고침
+                            window.location.reload();
+                        } else {
+                            alert("저장 실패: " + (data.message || "오류"));
+                        }
+                    })
+                    .catch((err) => {
+                        alert("네트워크 오류: " + err);
+                    });
+            });
+
+            // -----------------------------------------------------------
+            // 4. 행 추가/삭제 기능
+            // -----------------------------------------------------------
+            document.getElementById("add-row-btn").addEventListener("click", function () {
+                const tbody = document.getElementById("time-input-rows");
+                const newRow = document.createElement("tr");
+                newRow.className = "time-input-row";
+                newRow.innerHTML = `
+                    <td><input type="text" class="form-control form-control-sm start-time" placeholder="0800" maxlength="4"></td>
+                    <td><input type="text" class="form-control form-control-sm code" placeholder="코드"></td>
+                    <td><input type="text" class="form-control form-control-sm end-time" placeholder="1000" maxlength="4"></td>
+                    <td><button type="button" class="btn btn-sm btn-danger delete-row" onclick="deleteRow(this)">✕</button></td>
+                `;
+                tbody.appendChild(newRow);
+            });
+
+            window.deleteRow = function (btn) {
+                const rows = document.querySelectorAll("#time-input-rows .time-input-row");
+                if (rows.length > 1) {
+                    btn.closest("tr").remove();
+                    saveToLocalStorage(); // 삭제 후 상태 저장
+                } else {
+                    alert("최소 1개의 행이 필요합니다.");
+                }
+            };
         </script>
     </body>
 </html>

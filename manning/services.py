@@ -73,10 +73,15 @@ def run_auto_assign(session_id):
     service.run()
 
 def refresh_worker_totals(session):
-    """단순 집계 갱신 헬퍼 함수"""
+    """
+    작업자의 누적 시간(used_mh)을 갱신하는 함수.
+    [수정] '간비'를 제외하고 순수 '직비' 시간만 합산하여 저장합니다.
+    """
     workers = session.worker_set.all()
     for w in workers:
-        # [수정됨] assignment_set -> assignments
-        total = w.assignments.aggregate(Sum('allocated_mh'))['allocated_mh__sum']
+        # exclude(work_item__work_order='간비') 조건을 추가하여 간비를 합계에서 뺍니다.
+        total = w.assignments.exclude(work_item__work_order='간비') \
+            .aggregate(Sum('allocated_mh'))['allocated_mh__sum']
+        
         w.used_mh = round(total or 0.0, 2)
         w.save()
