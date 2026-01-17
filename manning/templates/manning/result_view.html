@@ -660,8 +660,22 @@
 
             function timeToMinutes(timeStr) {
                 if (!timeStr || timeStr.length !== 4) return null;
+                
                 const h = parseInt(timeStr.substr(0, 2), 10);
                 const m = parseInt(timeStr.substr(2, 2), 10);
+
+                // [수정] 2400 (자정) 허용 -> 1440분
+                if (h === 24 && m === 0) {
+                    return 1440; 
+                }
+
+                // [수정] 0~23시 정상 입력 확인 (24시 이상 입력은 백엔드 로직이 아닌 여기서 1차로 막거나 허용해야 함)
+                // 만약 사용자가 '2500'(새벽 1시)으로 입력하는 습관이 있다면 h > 23 제한을 풀어야 합니다.
+                // 여기서는 일반적인 시계(00~23) 입력을 기준으로 하고, 종료 시간이 작으면 다음날로 인식하게 합니다.
+                if (h < 0 || h > 23 || m < 0 || m > 59) {
+                    return null; 
+                }
+
                 return h * 60 + m;
             }
 

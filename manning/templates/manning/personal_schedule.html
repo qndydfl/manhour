@@ -24,7 +24,7 @@
                 background-color: #f5f5f7;
                 padding: 20px;
             }
-            .widget-card {
+            {% comment %} .widget-card {
                 background: white;
                 border-radius: 18px;
                 padding: 16px;
@@ -57,13 +57,13 @@
             .table-card td, .table-card th {
                 user-select: text;
             }
-
+            body {
             border: 1px solid rgba(255, 204, 0, 0.5);
             border-radius: 100px;
             padding: 3px 8px;
             font-size: 0.7rem;
             font-weight: 700;
-        }
+            }
             /* 전체 선택 가능하게 */
             .table-card table {
                 user-select: text;
@@ -71,7 +71,7 @@
             .table-card td,
             .table-card th {
                 user-select: text;
-            }
+            } {% endcomment %}
         </style>
     </head>
     <body>

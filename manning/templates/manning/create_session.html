@@ -25,16 +25,23 @@
         </style>
     </head>
     <body class="bg-light">
-        <div class="text-end mb-3">
-            <a
-                href="{% url 'history' %}"
-                class="btn btn-link text-decoration-none fw-bold"
-            >
-                📜 지난 기록 보기
-            </a>
+        
+        <div class="container mt-4 mb-3" style="max-width: 800px">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'index' %}" class="btn btn-secondary">
+                    <i class="bi bi-house-fill"></i> 홈으로
+                </a>
+                
+                <a
+                    href="{% url 'history' %}"
+                    class="btn btn-outline-secondary fw-bold"
+                >
+                    📜 지난 기록 보기
+                </a>
+            </div>
         </div>
 
-        <div class="container mt-5" style="max-width: 800px">
+        <div class="container" style="max-width: 800px">
             <div class="card shadow">
                 <div class="card-header bg-success text-white">
                     <h4 class="mb-0">✈️ 오늘의 작업 시작하기</h4>
@@ -90,7 +97,6 @@
                                 <div id="selection_msg">
                                     작업할 세션을 클릭하세요.
                                 </div>
-                                <!-- 선택된 세션은 메시지 영역에서 보여줍니다 (별도 요소 제거) -->
                             </div>
                         </div>
 
@@ -143,15 +149,15 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 align-items-center mt-3">
                             <div
                                 id="form_requirements"
                                 class="form-text text-danger me-2"
-                                style="min-width: 280px"
+                                style="min-width: 200px"
                             >
-                                요건을 모두 채워야 '작업 시작하기'가
-                                활성화됩니다.
+                                요건을 모두 채워야 시작 버튼이 활성화됩니다.
                             </div>
+                            
                             <button
                                 type="submit"
                                 class="btn btn-success flex-fill py-3 fw-bold fs-5"
@@ -160,19 +166,6 @@
                             >
                                 🚀 작업 시작하기
                             </button>
-                            <button
-                                type="button"
-                                id="cancelBtn"
-                                class="btn btn-outline-secondary py-3 fw-bold"
-                                onclick="resetForm()"
-                            >
-                                ❌ 취소
-                            </button>
-                            <a
-                                href="{% url 'index' %}"
-                                class="btn btn-light py-3 fw-bold"
-                                >🏠 홈으로 이동</a
-                            >
                         </div>
                     </form>
                 </div>
@@ -293,7 +286,7 @@
                 checkFormValidity();
             }
 
-            // 7. 폼 리셋/취소 처리
+            // 7. 폼 리셋/취소 처리 (버튼은 삭제했지만 함수는 유지)
             function resetForm() {
                 // 선택 상태 초기화
                 document.getElementById("selected_session").value = "";
@@ -442,6 +435,5 @@
                 }
             });
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
