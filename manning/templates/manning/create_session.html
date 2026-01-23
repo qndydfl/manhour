@@ -1,37 +1,234 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>작업 세션 시작</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        />
-        <link
-            rel="stylesheet"
-            as="style"
-            crossorigin
-            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-        <style>
-            body {
-                font-family: "Pretendard", sans-serif;
+{% extends "manning/base/base.html" %}
+{% load static %}
+
+<title>{% block title %}작업 세션 시작{% endblock title %}</title>
+
+<script defer src="{% static 'js/create_session.js' %}"></script>
+
+
+{% block js %}
+{% comment %} <script>
+    const CHECK_GIBUN_URL = "{% url 'check_gibun' %}";
+    // // ----------------------------------------------------------------
+    // // 1. 세션 선택 로직 (기존과 동일)
+    // // ----------------------------------------------------------------
+    function selectSession(name, btnElement) {
+        document.getElementById("selected_session").value = name;
+        document.querySelectorAll(".session-btn").forEach((btn) => {
+            if (!btn.disabled) {
+                btn.classList.remove("btn-primary", "text-white");
+                btn.classList.add("btn-outline-primary");
             }
-        </style>
-    </head>
-    <body class="bg-light">
-        
-        <div class="container mt-4 mb-3" style="max-width: 800px">
+        });
+        btnElement.classList.remove("btn-outline-primary");
+        btnElement.classList.add("btn-primary", "text-white");
+        const msgEl = document.getElementById("selection_msg");
+        msgEl.innerText = "✅ 선택됨: " + name;
+        msgEl.classList.add("text-primary", "fw-bold");
+        checkFormValidity();
+    }
+
+    // // ----------------------------------------------------------------
+    // // 2. 기번 태그 입력 로직 (중복 입력 방지 추가)
+    // // ----------------------------------------------------------------
+    const gibunContainer = document.getElementById("gibunContainer");
+    const gibunInput = document.getElementById("gibunInput");
+    const realGibunField = document.getElementById("realGibunField");
+    const gibunWarning = document.getElementById("gibunWarning");
+
+    let gibunList = [];
+    let isProcessing = false; // [핵심] 중복 실행 방지 플래그
+
+    // 컨테이너 클릭 시 입력창 포커스
+    gibunContainer.addEventListener("click", (e) => {
+        if (e.target === gibunContainer || e.target === gibunInput) {
+            gibunInput.focus();
+        }
+    });
+
+    // 키보드 입력 이벤트
+    gibunInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === "," || e.key === " ") {
+            e.preventDefault();
+            e.stopPropagation();
+            // 처리 중이 아닐 때만 실행
+            if (!isProcessing) {
+                addGibun(this.value);
+            }
+        }
+        if (
+            e.key === "Backspace" &&
+            this.value === "" &&
+            gibunList.length > 0
+        ) {
+            removeGibun(gibunList.length - 1);
+        }
+    });
+
+    // 포커스 잃었을 때 저장
+    gibunInput.addEventListener("blur", function () {
+        // 값이 있고, 현재 처리 중이 아닐 때만 실행
+        if (this.value.trim() && !isProcessing) {
+            addGibun(this.value);
+        }
+    });
+
+    // [수정됨] 기번 추가 및 서버 검증 함수
+    async function addGibun(text) {
+        if (isProcessing) return; // 이미 실행 중이면 중단
+
+        let cleanText = text.replace(/,/g, "").trim().toUpperCase();
+        if (!cleanText) return;
+
+        // 숫자만 입력 시 HL 붙이기
+        if (/^\d+$/.test(cleanText)) {
+            cleanText = "HL" + cleanText;
+        }
+
+        // 1. 클라이언트단 중복 체크
+        if (gibunList.includes(cleanText)) {
+            gibunInput.value = ""; // 이미 있으면 입력창만 비움
+            // 필요 시: alert("이미 입력된 기번입니다.");
+            return;
+        }
+
+        // 2. 서버 검증 시작 (Lock)
+        isProcessing = true;
+        gibunInput.disabled = true; // 입력창 잠금
+
+        try {
+            const response = await fetch(`${CHECK_GIBUN_URL}?gibun=${cleanText}`);
+            const data = await response.json();
+
+            if (data.exists) {
+                // A. 등록된 기번 -> 리스트 추가
+                if (!gibunList.includes(cleanText)) {
+                    // 이중 체크
+                    gibunList.push(cleanText);
+                    updateRealField();
+                    renderTags();
+                }
+
+                if (gibunWarning) gibunWarning.style.display = "none";
+                gibunInput.value = ""; // 성공 시 입력창 비우기
+            } else {
+                // B. 등록되지 않음 -> 경고
+                if (gibunWarning) {
+                    gibunWarning.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill"></i> '${cleanText}'는 등록되지 않은 기번입니다. 
+                        홈페이지에서 데이터 등록 확인해주세요.
+                    `;
+                    gibunWarning.style.display = "block";
+                    setTimeout(() => {
+                        gibunWarning.style.display = "none";
+                    }, 3000);
+                }
+                gibunInput.focus();
+            }
+        } catch (error) {
+            console.error("검증 실패:", error);
+            alert("서버 통신 오류가 발생했습니다.");
+        } finally {
+            // 3. 처리 완료 (Unlock)
+            isProcessing = false;
+            gibunInput.disabled = false;
+            gibunInput.focus(); // 다시 입력할 수 있게 포커스
+        }
+    }
+
+    function removeGibun(index) {
+        gibunList.splice(index, 1);
+        updateRealField();
+        renderTags();
+    }
+
+    function renderTags() {
+        // 기존 배지 삭제 (입력창인 gibunInput은 건드리지 않음)
+        const currentTags = gibunContainer.querySelectorAll(".badge");
+        currentTags.forEach((tag) => tag.remove());
+
+        // 리스트 다시 그리기
+        gibunList.forEach((gibun, index) => {
+            const badge = document.createElement("span");
+            badge.className =
+                "badge bg-primary d-flex align-items-center me-1 mb-1";
+            badge.style.fontSize = "0.9rem";
+            badge.style.padding = "8px 12px";
+            badge.innerHTML = `
+                ${gibun}
+                <i class="bi bi-x ms-2" style="cursor: pointer;" onclick="removeGibun(${index})"></i>
+            `;
+            // 입력창 앞에 태그 삽입
+            gibunContainer.insertBefore(badge, gibunInput);
+        });
+    }
+
+    function updateRealField() {
+        realGibunField.value = gibunList.join(",");
+        checkFormValidity();
+    }
+
+    // ----------------------------------------------------------------
+    // 3. 폼 유효성 검사 (기존과 동일)
+    // ----------------------------------------------------------------
+    function checkFormValidity() {
+        const sessionInput = document.querySelector(
+            'input[name="session_name"]',
+        );
+        const sessionVal = sessionInput
+            ? sessionInput.value.trim()
+            : "";
+        const gibunFilled = gibunList.length > 0;
+
+        const submitBtn = document.getElementById("submitBtn");
+        const req = document.getElementById("form_requirements");
+
+        let missing = [];
+        if (!sessionVal) missing.push("세션 이름");
+        if (!gibunFilled) missing.push("기번 입력");
+
+        if (sessionVal && gibunFilled) {
+            submitBtn.disabled = false;
+            if (req) {
+                req.innerText = "";
+                req.classList.remove("text-danger");
+            }
+        } else {
+            submitBtn.disabled = true;
+            if (req) {
+                req.innerText =
+                    "필수: " + missing.join(" · ") + " 입력 필요";
+                req.classList.add("text-danger");
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const sessionInput = document.querySelector(
+            'input[name="session_name"]',
+        );
+        if (sessionInput) {
+            sessionInput.addEventListener("input", checkFormValidity);
+        }
+        checkFormValidity();
+    });
+
+
+    </script> {% endcomment %}
+    <script>
+        const CHECK_GIBUN_URL = "{% url 'check_gibun' %}";
+    </script>
+    <script defer src="{% static 'js/create_session.js' %}"></script>
+{% endblock js %}
+
+
+{% block main %}
+    <div class="container mt-4 mb-3" style="max-width: 800px">
             <div class="d-flex justify-content-between align-items-center">
                 <a href="{% url 'index' %}" class="btn btn-secondary">
                     <i class="bi bi-house-fill"></i> 홈으로
                 </a>
-                
+
                 <a
                     href="{% url 'history' %}"
                     class="btn btn-outline-secondary fw-bold"
@@ -50,17 +247,64 @@
                     <form method="POST">
                         {% csrf_token %}
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">1️⃣세션 이름</label>
+                            <input
+                                type="text"
+                                name="session_name"
+                                class="form-control"
+                                value="{{ slot }}"
+                                required
+                            />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">2️⃣근무 형태</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="shift_type"
+                                        id="shiftDay"
+                                        value="DAY"
+                                        {% if session.shift_type == "DAY" %}checked{% endif %} />
+                                    <label
+                                        class="form-check-label"
+                                        for="shiftDay"
+                                    >
+                                        ☀️ 주간 (08:00 ~ 20:00)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="shift_type"
+                                        id="shiftNight"
+                                        value="NIGHT"
+                                        {% if session.shift_type == "NIGHT" %}checked{% endif %} />
+                                    <label
+                                        class="form-check-label"
+                                        for="shiftNight"
+                                    >
+                                        🌙 야간 (20:00 ~ 익일 08:00)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
-                            <label class="form-label fw-bold"
-                                >1️⃣ 세션 선택 (오늘 사용할 작업 공간)
+                            {% comment %} <label class="form-label fw-bold"
+                                >3️⃣ 세션 선택 (오늘 사용할 작업 공간)
                             </label>
 
                             <input
                                 type="hidden"
-                                name="session_name"
+                                name="session_label"
                                 id="selected_session"
                                 required
-                            />
+                            /> {% endcomment %}
 
                             <div id="session_button_row" class="row g-2">
                                 {% for slot in slots %}
@@ -69,12 +313,7 @@
                                         type="button"
                                         class="btn w-100 py-3 fw-bold session-btn {% if slot.is_taken %}btn-secondary disabled{% else %}btn-outline-primary{% endif %}"
                                         onclick="selectSession('{{ slot.name }}', this)"
-                                        {%
-                                        if
-                                        slot.is_taken
-                                        %}disabled{%
-                                        endif
-                                        %}
+                                        {% if slot.is_taken %}disabled{% endif %}
                                     >
                                         {{ slot.name }} {% if slot.is_taken %}
                                         <br /><span class="badge bg-dark small"
@@ -90,20 +329,20 @@
                                 </div>
                                 {% endfor %}
                             </div>
-                            <div
+                            {% comment %} <div
                                 class="form-text mt-2 d-flex align-items-center"
                                 id="selection_msg_wrap"
                             >
                                 <div id="selection_msg">
                                     작업할 세션을 클릭하세요.
                                 </div>
-                            </div>
+                            </div> {% endcomment %}
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold"
-                                    >2️⃣ 작업자 명단</label
+                                    >3️⃣작업자 명단</label
                                 >
                                 <textarea
                                     name="worker_names"
@@ -141,6 +380,15 @@
                                     구분하세요.
                                 </div>
 
+                                <div
+                                    id="gibunWarning"
+                                    class="alert alert-warning mt-2 py-2 px-3"
+                                    style="display: none"
+                                >
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    등록되지 않은 기번입니다.
+                                </div>
+
                                 <input
                                     type="hidden"
                                     name="gibun_input"
@@ -157,7 +405,7 @@
                             >
                                 요건을 모두 채워야 시작 버튼이 활성화됩니다.
                             </div>
-                            
+
                             <button
                                 type="submit"
                                 class="btn btn-success flex-fill py-3 fw-bold fs-5"
@@ -171,269 +419,7 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock main %}
 
-        <script>
-            function selectSession(name, btnElement) {
-                // 1. 숨겨진 칸에 이름 넣기
-                document.getElementById("selected_session").value = name;
-
-                // 2. 모든 버튼의 스타일 초기화
-                document.querySelectorAll(".session-btn").forEach((btn) => {
-                    if (!btn.disabled) {
-                        btn.classList.remove("btn-primary", "text-white");
-                        btn.classList.add("btn-outline-primary");
-                    }
-                });
-
-                // 3. 선택한 버튼만 색칠하기
-                btnElement.classList.remove("btn-outline-primary");
-                btnElement.classList.add("btn-primary", "text-white");
-
-                // 4. 메시지 및 시작 버튼 활성화
-                document.getElementById("selection_msg").innerText =
-                    "✅ 선택됨: " + name;
-                document
-                    .getElementById("selection_msg")
-                    .classList.add("text-primary", "fw-bold");
-                document.getElementById("submitBtn").disabled = false;
-                checkFormValidity();
-            }
-
-            const gibunContainer = document.getElementById("gibunContainer");
-            const gibunInput = document.getElementById("gibunInput");
-            const realGibunField = document.getElementById("realGibunField");
-
-            let gibunList = []; // 기번들을 담을 배열
-
-            // 1. 컨테이너 아무데나 클릭해도 입력창에 포커스
-            gibunContainer.addEventListener("click", () => gibunInput.focus());
-
-            // 2. 키 입력 감지 (엔터, 스페이스, 쉼표)
-            gibunInput.addEventListener("keydown", function (e) {
-                if (e.key === "Enter" || e.key === "," || e.key === " ") {
-                    e.preventDefault(); // 폼 전송 막기
-                    addGibun(this.value);
-                    this.value = ""; // 입력창 비우기
-                }
-                // 백스페이스로 마지막 태그 삭제
-                if (
-                    e.key === "Backspace" &&
-                    this.value === "" &&
-                    gibunList.length > 0
-                ) {
-                    removeGibun(gibunList.length - 1);
-                }
-            });
-
-            // 3. 기번 추가 함수 (정규화 포함)
-            function addGibun(text) {
-                let cleanText = text.trim().toUpperCase();
-                if (!cleanText) return;
-
-                // 숫자만 있으면 앞에 HL 붙이기
-                if (/^\d+$/.test(cleanText)) {
-                    cleanText = "HL" + cleanText;
-                }
-
-                // 중복 체크
-                if (gibunList.includes(cleanText)) {
-                    // Optional: show a message to the user
-                    return;
-                }
-
-                gibunList.push(cleanText);
-                updateRealField();
-                renderTags();
-                checkFormValidity();
-            }
-
-            // 4. 기번 삭제 함수
-            function removeGibun(index) {
-                gibunList.splice(index, 1);
-                updateRealField();
-                renderTags();
-                checkFormValidity();
-            }
-
-            // 5. 화면 그리기 (태그 렌더링)
-            function renderTags() {
-                // 기존 태그들 지우고 (input은 남김)
-                const currentTags = gibunContainer.querySelectorAll(".badge");
-                currentTags.forEach((tag) => tag.remove());
-
-                // 배열 기반으로 다시 그림
-                gibunList.forEach((gibun, index) => {
-                    const badge = document.createElement("span");
-                    badge.className =
-                        "badge bg-primary d-flex align-items-center";
-                    badge.style.fontSize = "0.9rem";
-                    badge.style.padding = "8px 12px";
-                    badge.innerHTML = `
-                    ${gibun}
-                    <i class="bi bi-x ms-2" style="cursor: pointer;" onclick="removeGibun(${index})"></i>
-                `;
-                    // input 앞에 삽입
-                    gibunContainer.insertBefore(badge, gibunInput);
-                });
-            }
-
-            // 6. 숨겨진 input에 값 업데이트 (서버 전송용)
-            function updateRealField() {
-                // 배열을 콤마(,)로 연결해서 문자열로 만듦
-                realGibunField.value = gibunList.join(",");
-                checkFormValidity();
-            }
-
-            // 7. 폼 리셋/취소 처리 (버튼은 삭제했지만 함수는 유지)
-            function resetForm() {
-                // 선택 상태 초기화
-                document.getElementById("selected_session").value = "";
-                document.getElementById("selection_msg").innerText =
-                    "작업할 세션을 클릭하세요.";
-                document
-                    .getElementById("selection_msg")
-                    .classList.remove("text-primary", "fw-bold");
-                document.getElementById("submitBtn").disabled = true;
-
-                // 버튼 스타일 원복
-                document.querySelectorAll(".session-btn").forEach((btn) => {
-                    if (!btn.disabled) {
-                        btn.classList.remove("btn-primary", "text-white");
-                        btn.classList.add("btn-outline-primary");
-                    }
-                });
-
-                // 작업자 목록 및 기번 초기화
-                const workerArea = document.querySelector(
-                    'textarea[name="worker_names"]'
-                );
-                if (workerArea) workerArea.value = "";
-                gibunList = [];
-                renderTags();
-                updateRealField();
-                checkFormValidity();
-            }
-
-            // 8. 폼 유효성 검사: 세션 선택, 작업자 명단, 기번 입력이 모두 있으면 제출 버튼 활성화
-            function checkFormValidity() {
-                const sessionSelected =
-                    document.getElementById("selected_session").value.trim() !==
-                    "";
-                const workerArea = document.querySelector(
-                    'textarea[name="worker_names"]'
-                );
-                const workersFilled =
-                    workerArea && workerArea.value.trim() !== "";
-                const gibunFilled = gibunList.length > 0;
-
-                const submitBtn = document.getElementById("submitBtn");
-                const req = document.getElementById("form_requirements");
-                let missing = [];
-                if (!sessionSelected) missing.push("세션 선택");
-                if (!workersFilled) missing.push("작업자 명단");
-                if (!gibunFilled) missing.push("기번 입력");
-
-                if (missing.length === 0) {
-                    submitBtn.disabled = false;
-                    if (req) {
-                        req.innerText = "";
-                        req.classList.remove("text-danger");
-                    }
-                } else {
-                    submitBtn.disabled = true;
-                    if (req) {
-                        req.innerText =
-                            "필수: " + missing.join(" · ") + " 입력 필요";
-                        req.classList.add("text-danger");
-                    }
-                }
-            }
-
-            // 9. 페이지 로드 시 URL 쿼리에서 slot 파라미터가 있으면 자동 선택
-            document.addEventListener("DOMContentLoaded", function () {
-                // pre-check validity
-                checkFormValidity();
-
-                // worker textarea input should update validity dynamically
-                const workerArea = document.querySelector(
-                    'textarea[name="worker_names"]'
-                );
-                if (workerArea) {
-                    workerArea.addEventListener("input", checkFormValidity);
-                }
-
-                // also watch gibun input's blur to update (in case user pastes and tabs out)
-                if (gibunInput) {
-                    gibunInput.addEventListener("blur", function () {
-                        const v = this.value.trim();
-                        if (v) {
-                            addGibun(v);
-                            this.value = "";
-                        }
-                        checkFormValidity();
-                    });
-                }
-
-                const params = new URLSearchParams(window.location.search);
-                const slot = params.get("slot");
-                if (slot) {
-                    // find session button matching slot name
-                    const buttons = document.querySelectorAll(".session-btn");
-                    let found = false;
-                    for (const btn of buttons) {
-                        // Check onclick attribute or text content
-                        const onclick = btn.getAttribute("onclick") || "";
-                        if (
-                            onclick.includes("'" + slot + "'") ||
-                            btn.textContent.trim().startsWith(slot)
-                        ) {
-                            if (!btn.disabled) {
-                                // call selectSession with the element
-                                selectSession(slot, btn);
-                                // make session read-only: hide the buttons and show plain text
-                                const row =
-                                    document.getElementById(
-                                        "session_button_row"
-                                    );
-                                const selectionMsg =
-                                    document.getElementById("selection_msg");
-                                if (row && selectionMsg) {
-                                    row.style.display = "none";
-                                    selectionMsg.innerText =
-                                        "✅ 선택됨: " + slot;
-                                    selectionMsg.classList.add(
-                                        "text-primary",
-                                        "fw-bold"
-                                    );
-                                }
-                                found = true;
-                            }
-                            break;
-                        }
-                    }
-                    // Fallback: if no matching button found, still set hidden field and show read-only
-                    if (!found) {
-                        const row =
-                            document.getElementById("session_button_row");
-                        const selectionMsg =
-                            document.getElementById("selection_msg");
-                        const hidden =
-                            document.getElementById("selected_session");
-                        if (hidden) hidden.value = slot;
-                        if (row && selectionMsg) {
-                            row.style.display = "none";
-                            selectionMsg.innerText = "✅ 선택됨: " + slot;
-                            selectionMsg.classList.add(
-                                "text-primary",
-                                "fw-bold"
-                            );
-                        }
-                        checkFormValidity();
-                    }
-                }
-            });
-        </script>
-    </body>
-</html>

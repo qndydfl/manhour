@@ -1,170 +1,154 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8" />
-        <title>개별 작업 수정</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        />
-        <link
-            rel="stylesheet"
-            as="style"
-            crossorigin
-            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-        <style>
-            body {
-                font-family: "Pretendard", sans-serif;
-                background-color: #f8f9fa;
-            }
-            .card {
-                border: none;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            }
-        </style>
-    </head>
-    <body class="p-4">
-        <div class="container" style="max-width: 600px">
-            <div class="mb-4">
-                <a
-                    href="{% url 'result_view' item.session.id %}"
-                    class="btn btn-outline-secondary btn-sm mb-3"
-                >
-                    <i class="bi bi-arrow-left"></i> 목록으로 돌아가기
-                </a>
-                <h4 class="fw-bold">✏️ 작업 상세 수정</h4>
-                <p class="text-muted small">
-                    이 작업의 정보와 배정 인원을 수정합니다.
-                </p>
-            </div>
+{% extends "manning/base/base.html" %}
+{% load static %}
 
-            <div class="card">
-                <div class="card-body p-4">
-                    <form method="POST">
-                        {% csrf_token %}
+<title>{% block title %}A-Check Manning System{% endblock title %}</title>
+<style>
+    body {
+        font-family: "Pretendard", sans-serif;
+        background-color: #f8f9fa;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+</style>
 
-                        <h6 class="fw-bold mb-3 text-primary">📋 기본 정보</h6>
-                        <div class="row g-2 mb-3">
-                            <div class="col-4">
-                                <label class="form-label small">기종</label>
-                                <input
-                                    type="text"
-                                    name="model_type"
-                                    class="form-control"
-                                    value="{{ item.model_type }}"
-                                    required
-                                />
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label small"
-                                    >WO (Work Order)
-                                    <span class="text-danger">*</span></label
-                                >
-                                <input
-                                    type="text"
-                                    name="work_order"
-                                    class="form-control fw-bold"
-                                    value="{{ item.work_order }}"
-                                    required
-                                />
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label small">OP</label>
-                                <input
-                                    type="text"
-                                    name="op"
-                                    class="form-control"
-                                    value="{{ item.op }}"
-                                />
-                            </div>
-                        </div>
+{% block main %}
+    <div class="container" style="max-width: 600px">
+        <div class="mb-4">
+            <a
+                href="{% url 'result_view' item.session.id %}"
+                class="btn btn-outline-secondary btn-sm mb-3"
+            >
+                <i class="bi bi-arrow-left"></i> 목록으로 돌아가기
+            </a>
+            <h4 class="fw-bold">✏️ 작업 상세 수정</h4>
+            <p class="text-muted small">
+                이 작업의 정보와 배정 인원을 수정합니다.
+            </p>
+        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label small"
-                                >작업 설명 (Description)</label
-                            >
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <h6 class="fw-bold mb-3 text-primary">📋 기본 정보</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label small">기종</label>
                             <input
                                 type="text"
-                                name="description"
+                                name="model_type"
                                 class="form-control"
-                                value="{{ item.description }}"
-                            />
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label small"
-                                >총 소요 시간 (M/H)
-                                <span class="text-danger">*</span></label
-                            >
-                            <input
-                                type="number"
-                                step="0.1"
-                                name="work_mh"
-                                class="form-control form-control-lg fw-bold text-primary"
-                                value="{{ item.work_mh }}"
+                                value="{{ item.model_type }}"
                                 required
                             />
                         </div>
-
-                        <hr class="my-4" />
-
-                        <h6 class="fw-bold mb-3 text-success">
-                            👷 작업자 배정 (선택 사항)
-                        </h6>
-                        <div class="alert alert-light border small text-muted">
-                            <i class="bi bi-info-circle me-1"></i>
-                            작업자를 체크하면
-                            <strong>수동으로 고정</strong>됩니다.<br />
-                            체크하지 않으면 <strong>자동 배정</strong> 대상이
-                            됩니다.
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            {% for worker in all_workers %}
-                            <div
-                                class="form-check form-check-inline border rounded px-3 py-2 bg-white"
+                        <div class="col-4">
+                            <label class="form-label small"
+                                >WO (Work Order)
+                                <span class="text-danger">*</span></label
                             >
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="worker_ids"
-                                    value="{{ worker.id }}"
-                                    id="w_{{ worker.id }}"
-                                    {%
-                                    if
-                                    worker.id
-                                    in
-                                    assigned_ids
-                                    %}checked{%
-                                    endif
-                                    %}
-                                />
-                                <label
-                                    class="form-check-label fw-bold"
-                                    for="w_{{ worker.id }}"
-                                >
-                                    {{ worker.name }}
-                                </label>
-                            </div>
-                            {% endfor %}
+                            <input
+                                type="text"
+                                name="work_order"
+                                class="form-control fw-bold"
+                                value="{{ item.work_order }}"
+                                required
+                            />
                         </div>
+                        <div class="col-4">
+                            <label class="form-label small">OP</label>
+                            <input
+                                type="text"
+                                name="op"
+                                class="form-control"
+                                value="{{ item.op }}"
+                            />
+                        </div>
+                    </div>
 
-                        <div class="d-grid gap-2">
-                            <button
-                                type="submit"
-                                class="btn btn-primary btn-lg fw-bold"
+                    <div class="mb-3">
+                        <label class="form-label small"
+                            >작업 설명 (Description)</label
+                        >
+                        <input
+                            type="text"
+                            name="description"
+                            class="form-control"
+                            value="{{ item.description }}"
+                        />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small"
+                            >총 소요 시간 (M/H)
+                            <span class="text-danger">*</span></label
+                        >
+                        <input
+                            type="number"
+                            step="0.1"
+                            name="work_mh"
+                            class="form-control form-control-lg fw-bold text-primary"
+                            value="{{ item.work_mh }}"
+                            required
+                        />
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <h6 class="fw-bold mb-3 text-success">
+                        👷 작업자 배정 (선택 사항)
+                    </h6>
+                    <div class="alert alert-light border small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        작업자를 체크하면
+                        <strong>수동으로 고정</strong>됩니다.<br />
+                        체크하지 않으면 <strong>자동 배정</strong> 대상이
+                        됩니다.
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        {% for worker in all_workers %}
+                        <div
+                            class="form-check form-check-inline border rounded px-3 py-2 bg-white"
+                        >
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="worker_ids"
+                                value="{{ worker.id }}"
+                                id="w_{{ worker.id }}"
+                                {%
+                                if
+                                worker.id
+                                in
+                                assigned_ids
+                                %}checked{%
+                                endif
+                                %}
+                            />
+                            <label
+                                class="form-check-label fw-bold"
+                                for="w_{{ worker.id }}"
                             >
-                                수정 완료 및 저장
-                            </button>
+                                {{ worker.name }}
+                            </label>
                         </div>
-                    </form>
-                </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-lg fw-bold"
+                        >
+                            수정 완료 및 저장
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </body>
-</html>
+    </div>
+{% endblock main %}

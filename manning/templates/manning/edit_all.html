@@ -1,234 +1,198 @@
+{% extends "manning/base/base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>일괄 수정 - {{ session.name }}</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        />
-        <link
-            rel="stylesheet"
-            as="style"
-            crossorigin
-            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-        <style>
-            body {
-                font-family: "Pretendard", sans-serif;
-            }
-        </style>
-    </head>
-    <body class="bg-light p-4">
-        <div class="container" style="max-width: 1100px">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>✏️ 일괄 수정 - {{ session.name }}</h3>
-                <div>
-                    <a
-                        href="{% url 'result_view' session.id %}"
-                        class="btn btn-outline-secondary"
-                        >결과로 돌아가기</a
-                    >
-                    <a href="{% url 'index' %}" class="btn btn-light">홈</a>
+<title>{% block title %}일괄 수정 - {{ session.name }}{% endblock title %}</title>
+
+{% block js %}<script defer src="{% static 'js/edit_all.js' %}"></script>{% endblock js %}
+
+{% block main %}
+    <div class="container" style="max-width: 1100px">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>✏️ 일괄 수정 - {{ session.name }}</h3>
+            <div>
+                <a
+                    href="{% url 'result_view' session.id %}"
+                    class="btn btn-outline-secondary"
+                    >결과로 돌아가기</a
+                >
+                <a href="{% url 'index' %}" class="btn btn-light">홈</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">세션 정보 및 작업자 명단</div>
+                    <div class="card-body">
+                        <form
+                            action="{% url 'edit_session' session.id %}"
+                            method="POST"
+                        >
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <label class="form-label">세션 이름</label>
+                                <input
+                                    type="text"
+                                    name="session_name"
+                                    class="form-control"
+                                    value="{{ session.name }}"
+                                />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label"
+                                    >작업자 명단 (줄바꿈으로 구분)</label
+                                >
+                                <textarea
+                                    name="worker_names"
+                                    class="form-control"
+                                    rows="5"
+                                >
+                                {{ worker_names_str }}
+                                </textarea>
+                            </div>
+                            <div class="text-end">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    세션 정보 저장
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header">
+                        데이터 붙여넣기 (한 번에 다수 등록)
+                    </div>
+                    <div class="card-body">
+                        <form
+                            method="POST"
+                            action="{% url 'paste_input' pk=session.id %}"
+                        >
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <textarea
+                                    name="excel_data"
+                                    class="form-control"
+                                    rows="6"
+                                    placeholder="여기에 붙여넣기"
+                                ></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button
+                                    type="submit"
+                                    class="btn btn-success"
+                                >
+                                    저장하기
+                                </button>
+                                <a
+                                    href="#"
+                                    class="btn btn-outline-secondary"
+                                    onclick="
+                                        this.closest('form').reset();
+                                        return false;
+                                    "
+                                    >초기화</a
+                                >
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header">엑셀 업로드</div>
+                    <div class="card-body">
+                        <form
+                            method="POST"
+                            action="{% url 'upload_data' pk=session.id %}"
+                            enctype="multipart/form-data"
+                        >
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <input
+                                    type="file"
+                                    name="file"
+                                    accept=".xlsx,.xls"
+                                    required
+                                />
+                            </div>
+                            <button class="btn btn-success">업로드</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-3">
-                        <div class="card-header">세션 정보 및 작업자 명단</div>
-                        <div class="card-body">
-                            <form
-                                action="{% url 'edit_session' session.id %}"
-                                method="POST"
-                            >
-                                {% csrf_token %}
-                                <div class="mb-2">
-                                    <label class="form-label">세션 이름</label>
-                                    <input
-                                        type="text"
-                                        name="session_name"
-                                        class="form-control"
-                                        value="{{ session.name }}"
-                                    />
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label"
-                                        >작업자 명단 (줄바꿈으로 구분)</label
-                                    >
-                                    <textarea
-                                        name="worker_names"
-                                        class="form-control"
-                                        rows="5"
-                                    >
-                                    {{ worker_names_str }}
-                                    </textarea>
-                                </div>
-                                <div class="text-end">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-primary"
-                                    >
-                                        세션 정보 저장
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        일감 관리 (추가/수정/삭제)
                     </div>
+                    <div class="card-body">
+                        <form
+                            method="POST"
+                            action="{% url 'edit_all' session.id %}"
+                        >
+                            {% csrf_token %}
+                            <div class="table-responsive">
+                                {{ formset.management_form }}
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>기종</th>
+                                            <th>WO</th>
+                                            <th>OP</th>
+                                            <th>설명</th>
+                                            <th>MH</th>
+                                            <th>삭제</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for form in formset %}
+                                        <tr>
+                                            {{ form.id }}
+                                            <td>{{ form.model_type }}</td>
+                                            <td>{{ form.work_order }}</td>
+                                            <td>{{ form.op }}</td>
+                                            <td>{{ form.description }}</td>
+                                            <td>{{ form.work_mh }}</td>
+                                            <td>{{ form.DELETE }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
 
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            데이터 붙여넣기 (한 번에 다수 등록)
-                        </div>
-                        <div class="card-body">
-                            <form
-                                method="POST"
-                                action="{% url 'paste_input' pk=session.id %}"
+                            <input
+                                type="hidden"
+                                name="action"
+                                id="formAction"
+                                value="save"
+                            />
+                            <div
+                                class="text-end d-flex gap-2 justify-content-end"
                             >
-                                {% csrf_token %}
-                                <div class="mb-2">
-                                    <textarea
-                                        name="excel_data"
-                                        class="form-control"
-                                        rows="6"
-                                        placeholder="여기에 붙여넣기"
-                                    ></textarea>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-success"
-                                    >
-                                        저장하기
-                                    </button>
-                                    <a
-                                        href="#"
-                                        class="btn btn-outline-secondary"
-                                        onclick="this.closest('form').reset();return false;"
-                                        >초기화</a
-                                    >
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="card-header">엑셀 업로드</div>
-                        <div class="card-body">
-                            <form
-                                method="POST"
-                                action="{% url 'upload_data' pk=session.id %}"
-                                enctype="multipart/form-data"
-                            >
-                                {% csrf_token %}
-                                <div class="mb-2">
-                                    <input
-                                        type="file"
-                                        name="file"
-                                        accept=".xlsx,.xls"
-                                        required
-                                    />
-                                </div>
-                                <button class="btn btn-success">업로드</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            일감 관리 (추가/수정/삭제)
-                        </div>
-                        <div class="card-body">
-                            <form
-                                method="POST"
-                                action="{% url 'edit_all' session.id %}"
-                            >
-                                {% csrf_token %}
-                                <div class="table-responsive">
-                                    {{ formset.management_form }}
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>기종</th>
-                                                <th>WO</th>
-                                                <th>OP</th>
-                                                <th>설명</th>
-                                                <th>MH</th>
-                                                <th>삭제</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for form in formset %}
-                                            <tr>
-                                                {{ form.id }}
-                                                <td>{{ form.model_type }}</td>
-                                                <td>{{ form.work_order }}</td>
-                                                <td>{{ form.op }}</td>
-                                                <td>{{ form.description }}</td>
-                                                <td>{{ form.work_mh }}</td>
-                                                <td>{{ form.DELETE }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <input
-                                    type="hidden"
-                                    name="action"
-                                    id="formAction"
-                                    value="save"
-                                />
-                                <div
-                                    class="text-end d-flex gap-2 justify-content-end"
+                                <button
+                                    type="button"
+                                    class="btn btn-danger"
+                                    id="deleteSelectedBtn"
                                 >
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger"
-                                        id="deleteSelectedBtn"
-                                    >
-                                        선택 항목 삭제
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary"
-                                        id="saveAllBtn"
-                                    >
-                                        저장
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                                    선택 항목 삭제
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    id="saveAllBtn"
+                                >
+                                    저장
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            document
-                .getElementById("saveAllBtn")
-                .addEventListener("click", function () {
-                    document.getElementById("formAction").value = "save";
-                    this.closest("form").submit();
-                });
-
-            document
-                .getElementById("deleteSelectedBtn")
-                .addEventListener("click", function () {
-                    if (!confirm("선택된 항목을 삭제하시겠습니까?")) return;
-                    document.getElementById("formAction").value = "delete";
-                    this.closest("form").submit();
-                });
-        </script>
-    </body>
-</html>
+{% endblock main %}

@@ -1,0 +1,122 @@
+body {
+    font-family: "Pretendard", sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* 슬롯 카드 스타일 */
+.slot-card {
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    position: relative; /* 초기화 버튼 위치 잡기용 */
+}
+.slot-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.stat-card {
+    border-radius: 15px;
+    border: none;
+}
+
+/* --- 아날로그 시계 스타일 시작 --- */
+.clock-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    border: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.clock-face {
+    width: 120px;
+    height: 120px;
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 시계 바늘 공통 */
+.hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.hour-hand {
+    width: 4px;
+    height: 35px;
+    background: white;
+    margin-left: -2px;
+}
+
+.min-hand {
+    width: 3px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
+    margin-left: -1.5px;
+}
+
+.sec-hand {
+    width: 2px;
+    height: 52px;
+    background: #ff6b6b;
+    margin-left: -1px;
+    z-index: 11;
+}
+
+.center-dot {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 12;
+}
+
+.date-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.day-text {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+/* --- 아날로그 시계 스타일 끝 --- */
+
+/* 초기화 버튼 스타일 (카드 우측 상단) */
+.btn-reset-slot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 20; /* 카드 클릭보다 위에 오도록 */
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+.btn-reset-slot:hover {
+    opacity: 1;
+    background-color: #dc3545;
+    color: white;
+}

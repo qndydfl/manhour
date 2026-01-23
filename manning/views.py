@@ -4,8 +4,9 @@ import traceback
 from django import forms
 import pandas as pd
 from django.db import transaction
-from django.db.models import Q, Sum, Count, Max
-from django.forms import modelformset_factory
+from django.db import models as django_models
+from django.db.models import Q, Sum, Count, Max, F, Case, When, Value, IntegerField
+from django.forms import IntegerField, modelformset_factory
 from django.http import JsonResponse 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -14,19 +15,23 @@ from django.views import View
 from django.views.generic import DetailView
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.views.generic.edit import UpdateView, CreateView
 
 from config import settings
 from manning.utils import ScheduleCalculator, format_min_to_time, get_adjusted_min
 from .models import WorkSession, Worker, WorkItem, Assignment, TaskMaster, GibunPriority
 from .forms import ManageItemForm, WorkItemForm, DirectWorkItemForm, WorkerIndirectForm
-from .services import run_auto_assign, refresh_worker_totals
+from .services import AutoAssignService, ScheduleSyncService, run_auto_assign, refresh_worker_totals, run_sync_schedule
 from .models import Assignment, TaskMaster, WorkSession, Worker, WorkItem
 from .models import WorkSession as ManningSession
 
 from django.views.decorators.clickjacking import xframe_options_sameorigin 
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from manning import models
+from .planner import Planner 
+import traceback
 
 
 # -----------------------------------------------------------
@@ -43,7 +48,7 @@ class SimpleLoginRequiredMixin:
         return super().dispatch(request, *args, **kwargs)
 
 # -----------------------------------------------------------
-# 2. 로그인 뷰 (Class-Based View)
+# 2. 로그인 뷰 (Class-indexd View)
 # -----------------------------------------------------------
 class SimpleLoginView(View):
     def get(self, request):
@@ -71,7 +76,7 @@ class SimpleLoginView(View):
             return render(request, 'manning/login.html')
 
 # -----------------------------------------------------------
-# 3. 로그아웃 뷰 (Class-Based View)
+# 3. 로그아웃 뷰 (Class-indexd View)
 # -----------------------------------------------------------
 class SimpleLogoutView(View):
     def get(self, request):
@@ -79,19 +84,128 @@ class SimpleLogoutView(View):
         return redirect('login')
     
 
-class indexView(SimpleLoginRequiredMixin, View):
-    def get(self, request):
-        today = timezone.now().date()
+# class indexView(SimpleLoginRequiredMixin, View):
+#     model = WorkSession
+#     template_name = 'manning/index.html'
+#     context_object_name = 'sessions'
+
+#     def get_queryset(self):
+#         """
+#         DB에서 세션 목록을 가져올 때, 작업자 수와 일감 수를 미리 계산(annotate)하여
+#         성능을 최적화합니다.
+#         """
+#         # 1. 기본 쿼리셋: 모든 세션 (혹은 is_active=True만 보고 싶다면 filter 추가)
+#         queryset = WorkSession.objects.all()
         
+#         # 2. 최적화: 작업자 수 & 일감 수(간비 제외) 미리 계산
+#         queryset = queryset.annotate(
+#             worker_count=Count('worker', distinct=True),
+#             item_count=Count('workitem', filter=~Q(workitem__work_order='간비'), distinct=True)
+#         )
+        
+#         # 3. 정렬: 최신 날짜 우선, 그 다음 최신 생성 우선
+#         return queryset.order_by('-date', '-id')
+
+#     def get_context_data(self, **kwargs):
+#         """
+#         템플릿에 추가로 넘겨줄 데이터 (오늘 날짜, 지난 통계 등)
+#         """
+#         context = super().get_context_data(**kwargs)
+        
+#         # 오늘 날짜
+#         context['today'] = timezone.now().date()
+        
+#         # (옵션) 과거 통계: 지난 7일간 종료된 세션 수
+#         cutoff = timezone.now() - timedelta(days=7)
+#         context['history_count'] = WorkSession.objects.filter( created_at__gte=cutoff ).count()
+        
+#         return context
+
+#     def get(self, request):
+#         today = timezone.now().date()      
+        
+#         # 1. 활성 세션 가져오기 (최적화: 작업자 수와 일감 수를 미리 계산)
+#         # order_by('-created_at'): 최신 세션이 리스트 앞쪽으로 오게 함
+#         active_sessions = WorkSession.objects.filter(is_active=True).annotate(
+#             worker_count=Count('worker', distinct=True),
+#             # 간비가 아닌 일감의 개수만 카운트
+#             item_count=Count('workitem', filter=~Q(workitem__work_order='간비'), distinct=True)
+#         ).order_by('-created_at')
+
+#         # 2. 이름별 중복 처리 및 매핑 (딕셔너리 구성)
+#         active_map = {}
+#         name_counts = {}
+
+#         for s in active_sessions:
+#             # 이름 카운트 (중복 확인용)
+#             name_counts[s.name] = name_counts.get(s.name, 0) + 1
+            
+#             # 매핑 로직:
+#             # 1. 아직 맵에 없으면 넣는다.
+#             # 2. 이미 있어도, 지금 것이 일감(item_count)이 더 많다면 교체한다. (데이터가 있는 방 우선)
+#             if s.name not in active_map:
+#                 active_map[s.name] = s
+#             else:
+#                 current_stored = active_map[s.name]
+#                 if s.item_count > current_stored.item_count:
+#                     active_map[s.name] = s
+
+#         # 3. 1번~8번 방 슬롯 생성
+#         dashboard_slots = []
+#         for i in range(1, 9):
+#             name = f"Session {i}"
+            
+#             if name in active_map:
+#                 session_obj = active_map[name]
+                
+#                 dashboard_slots.append({
+#                     'name': name,
+#                     'status': 'active',
+#                     'session_id': session_obj.id,
+#                     # 중복된 이름이 있었다면 UI에 표시(옵션)
+#                     'multiple': name_counts.get(name, 0) > 1,
+#                     # 이미 annotate로 계산했으므로 .count() 호출 불필요
+#                     'info': f"작업자 {session_obj.worker_count}명 / 일감 {session_obj.item_count}개"
+#                 })
+#             else:
+#                 dashboard_slots.append({
+#                     'name': name,
+#                     'status': 'empty',
+#                     'session_id': None,
+#                     'info': '대기 중'
+#                 })
+
+#         # 4. 과거 통계 (지난 7일간 종료된 세션)
+#         cutoff = timezone.now() - timedelta(days=7)
+#         history_count = WorkSession.objects.filter(is_active=False, created_at__gte=cutoff).count()
+
+#         context = {
+#             'today': today,
+#             'dashboard_slots': dashboard_slots,
+#             'active_count': len(active_map), # 실제 화면에 표시된 활성 방 개수
+#             'total_active_sessions': active_sessions.count(), # (중복 포함) DB상 켜져있는 총 개수
+#             'history_count': history_count
+#         }
+        
+#         return render(request, 'manning/index.html', context)
+
+
+class IndexView(SimpleLoginRequiredMixin, View):
+    def get(self, request):
+        today = timezone.now()
+        
+        # ---------------------------------------------------------
         # 1. 활성 세션 가져오기 (최적화: 작업자 수와 일감 수를 미리 계산)
-        # order_by('-created_at'): 최신 세션이 리스트 앞쪽으로 오게 함
+        # ---------------------------------------------------------
         active_sessions = WorkSession.objects.filter(is_active=True).annotate(
             worker_count=Count('worker', distinct=True),
-            # 간비가 아닌 일감의 개수만 카운트
+            # '간비'가 아닌 실제 일감의 개수만 카운트
             item_count=Count('workitem', filter=~Q(workitem__work_order='간비'), distinct=True)
         ).order_by('-created_at')
 
+        # ---------------------------------------------------------
         # 2. 이름별 중복 처리 및 매핑 (딕셔너리 구성)
+        # ---------------------------------------------------------
         active_map = {}
         name_counts = {}
 
@@ -101,7 +215,7 @@ class indexView(SimpleLoginRequiredMixin, View):
             
             # 매핑 로직:
             # 1. 아직 맵에 없으면 넣는다.
-            # 2. 이미 있어도, 지금 것이 일감(item_count)이 더 많다면 교체한다. (데이터가 있는 방 우선)
+            # 2. 이미 있어도, 지금 것이 일감(item_count)이 더 많다면 교체한다. (데이터가 많은 방 우선 표시)
             if s.name not in active_map:
                 active_map[s.name] = s
             else:
@@ -109,45 +223,56 @@ class indexView(SimpleLoginRequiredMixin, View):
                 if s.item_count > current_stored.item_count:
                     active_map[s.name] = s
 
-        # 3. 1번~8번 방 슬롯 생성
+        # ---------------------------------------------------------
+        # 3. 1번~8번 방 슬롯(Dashboard Slots) 생성
+        # ---------------------------------------------------------
+        active_list = list(active_sessions) # 예: [세션A, 세션B]
         dashboard_slots = []
         for i in range(1, 9):
-            name = f"Session {i}"
+            slot_name = f"Session {i}"
             
-            if name in active_map:
-                session_obj = active_map[name]
+            # if name in active_map:
+            #     session_obj = active_map[name]
+            if i <= len(active_list):
+                session_obj = active_list[i-1] # 0번 인덱스부터 가져옴
                 
                 dashboard_slots.append({
-                    'name': name,
-                    'status': 'active',
-                    'session_id': session_obj.id,
-                    # 중복된 이름이 있었다면 UI에 표시(옵션)
-                    'multiple': name_counts.get(name, 0) > 1,
-                    # 이미 annotate로 계산했으므로 .count() 호출 불필요
-                    'info': f"작업자 {session_obj.worker_count}명 / 일감 {session_obj.item_count}개"
+                    'name': slot_name,                  # 슬롯 이름
+                    'session_name': session_obj.name, # 화면 표시 이름
+                    'status': 'active',            # [중요] 상태: active
+                    'session_id': session_obj.id,  # 링크 이동용 ID
+                    'shift_type': session_obj.shift_type, # [필수] 주간/야간 배지용
+                    'info': f"작업자 {session_obj.worker_count}명 / Work Order {session_obj.item_count}개",
+                    # 'multiple': name_counts.get(name, 0) > 1 # 중복 여부
+                    'multiple': name_counts.get(session_obj.name, 0) > 1 # 중복 여부
                 })
             else:
                 dashboard_slots.append({
-                    'name': name,
-                    'status': 'empty',
+                    'name': slot_name,
+                    'status': 'empty',             # [중요] 상태: empty
                     'session_id': None,
                     'info': '대기 중'
                 })
 
+        # ---------------------------------------------------------
         # 4. 과거 통계 (지난 7일간 종료된 세션)
+        # ---------------------------------------------------------
         cutoff = timezone.now() - timedelta(days=7)
         history_count = WorkSession.objects.filter(is_active=False, created_at__gte=cutoff).count()
 
+        # ---------------------------------------------------------
+        # 5. 템플릿 렌더링
+        # ---------------------------------------------------------
         context = {
             'today': today,
-            'dashboard_slots': dashboard_slots,
-            'active_count': len(active_map), # 실제 화면에 표시된 활성 방 개수
-            'total_active_sessions': active_sessions.count(), # (중복 포함) DB상 켜져있는 총 개수
+            'dashboard_slots': dashboard_slots,           # [핵심] HTML 반복문에 사용
+            'active_count': len(active_map),              # 실제 화면에 표시된 활성 방 개수
+            'total_active_sessions': active_sessions.count(), 
             'history_count': history_count
         }
         
         return render(request, 'manning/index.html', context)
-
+    
 
 class SelectSessionView(SimpleLoginRequiredMixin, View):
     def get(self, request, name):
@@ -161,89 +286,169 @@ class SelectSessionView(SimpleLoginRequiredMixin, View):
         return render(request, 'manning/select_session.html', {'sessions': sessions, 'slot_name': name})
 
 
-class CreateSessionView(SimpleLoginRequiredMixin, View):
-    def get(self, request):
-        # 파라미터로 slot이 넘어오면 템플릿에 전달 (자동 선택용)
-        slot = request.GET.get('slot', '')
-        return render(request, 'manning/create_session.html', {'slot': slot})
+# class CreateSessionView(SimpleLoginRequiredMixin, View):
+#     def get(self, request):
+#         slot_name = request.GET.get('slot', '')
+#         return render(request, 'manning/create_session.html', {'slot': slot_name})
 
-    def post(self, request):
-        session_name = request.POST.get('session_name') or 'Session'
-        worker_names = request.POST.get('worker_names', '')
-        # HTML의 hidden input에서 기번 리스트 가져오기
-        gibun_input = request.POST.get('gibun_input', '') 
+#     def post(self, request):
+#         session_name = request.POST.get('session_name')
+#         worker_names = request.POST.get('worker_names', '')
+#         gibun_input = request.POST.get('gibun_input', '')
+#         shift_type = request.POST.get('shift_type', 'DAY') 
 
-        # 1. 세션 이름 중복 처리 (Session A (1), Session A (2)...)
-        base_name = session_name
-        new_name = base_name
-        i = 1
-        while WorkSession.objects.filter(name=new_name, is_active=True).exists():
-            new_name = f"{base_name} ({i})"
-            i += 1
+#         # [안전장치] 만약 이름이 비어있으면 기본값 부여
+#         if not session_name:
+#             session_name = "Session (이름 없음)"
 
-        # 2. 세션 생성
-        with transaction.atomic():
-            session = WorkSession.objects.create(name=new_name)
-            
-            # ---------------------------------------------------------
-            # [수정] 3. 작업자 생성 (콤마와 엔터 모두 처리)
-            # ---------------------------------------------------------
-            # (1) 쉼표(,)를 모두 줄바꿈(\n)으로 바꿉니다.
-            # (2) \r 제거 (윈도우 줄바꿈 대응)
-            normalized_workers = worker_names.replace(',', '\n').replace('\r', '')
-            
-            # (3) 줄바꿈을 기준으로 나누고, 앞뒤 공백을 제거합니다.
-            names = [n.strip() for n in normalized_workers.split('\n') if n.strip()]
-            
-            # (4) 중복 이름 제거
-            names = list(set(names))
-            
-            # (5) 각각 저장합니다.
-            for name in names:
-                # 필요하다면 limit_mh 기본값을 여기서 설정 (예: limit_mh=8.0)
-                Worker.objects.create(session=session, name=name)
-            # ---------------------------------------------------------
+#         # 1. 세션 이름 중복 처리
+#         index_name = session_name
+#         new_name = index_name
+#         i = 1
+#         while WorkSession.objects.filter(name=new_name, is_active=True).exists():
+#             new_name = f"{index_name} ({i})"
+#             i += 1
 
-            # 4. [핵심] 입력된 기번으로 일감(WorkItem) 생성
-            if gibun_input:
-                # 콤마로 구분된 기번들을 리스트로 변환 (예: "HL7777,HL8200")
-                gibuns = [g.strip() for g in gibun_input.split(',') if g.strip()]
+#         # 2. 세션 생성 및 데이터 처리
+#         with transaction.atomic():
+#             session = WorkSession.objects.create(
+#                 name=new_name,
+#                 shift_type=shift_type 
+#             )
+            
+#             # 3. 작업자 생성
+#             normalized_workers = worker_names.replace(',', '\n').replace('\r', '')
+#             names = [n.strip() for n in normalized_workers.split('\n') if n.strip()]
+#             # 이름 중복 제거
+#             names = list(set(names))
+            
+#             for name in names:
+#                 Worker.objects.create(session=session, name=name)
+
+#             # 4. 일감 및 기번 우선순위 생성
+#             if gibun_input:
+#                 raw_gibuns = [g.strip() for g in gibun_input.split(',') if g.strip()]
+#                 # [핵심] 기번 중복 제거 (set 사용)
+#                 unique_gibuns = list(set(raw_gibuns))
                 
-                created_count = 0
-                for gibun in gibuns:
-                    # 해당 기번(또는 기종)과 일치하는 마스터 데이터 찾기
+#                 for gibun in unique_gibuns:
+#                     # 4-1. 기번 우선순위 테이블 생성 (필수!)
+#                     GibunPriority.objects.get_or_create(session=session, gibun=gibun)
+
+#                     # 4-2. 일감(WorkItem) 생성
+#                     # (TaskMaster가 있으면 가져오고, 없으면 빈 껍데기 생성)
+#                     masters = TaskMaster.objects.filter(gibun_code=gibun)
+#                     if masters.exists():
+#                         for tm in masters:
+#                             WorkItem.objects.create(
+#                                 session=session,
+#                                 task_master=tm,
+#                                 gibun_input=gibun,
+#                                 model_type=tm.gibun_code, # 혹은 gibun
+#                                 work_order=tm.work_order,
+#                                 op=tm.op,
+#                                 description=tm.description,
+#                                 work_mh=tm.default_mh
+#                             )
+#                     else:
+#                         # 마스터 데이터가 없을 때 기본 일감 하나 생성
+#                         WorkItem.objects.create(
+#                             session=session,
+#                             gibun_input=gibun,
+#                             model_type=gibun,
+#                             work_order="정보 없음",
+#                             description="마스터 데이터가 없습니다.",
+#                             work_mh=0.0
+#                         )
+
+#         messages.success(request, f"세션이 생성되었습니다. ({session.get_shift_type_display()})")
+#         return redirect('result_view', session_id=session.id)  
+    
+class CreateSessionView(SimpleLoginRequiredMixin, View):
+    # GET 함수는 아까 수정해주신 그대로 유지 (이름만 전달)
+    def get(self, request):
+        # 1. URL에서 값 가져오기 (로그에 찍힌 'Session 4'를 가져옴)
+        slot_name = request.GET.get('slot', '') 
+        
+        # 2. HTML로 보내기 (중요: 키 이름을 'slot'으로 지정)
+        context = {'slot': slot_name} 
+        return render(request, 'manning/create_session.html', context)
+
+    # [수정] POST 함수: 입력한 이름을 그대로 저장하는 로직
+    def post(self, request):
+        # 1. HTML 입력값 가져오기
+        # create_session.html의 <input name="session_name"> 값을 가져옵니다.
+
+        session_name = request.POST.get('session_name', '').strip()
+        worker_names = request.POST.get('worker_names', '')
+        gibun_input = request.POST.get('gibun_input', '')
+        shift_type = request.POST.get('shift_type', 'DAY')
+
+        # [안전장치] 만약 이름이 비어있으면 기본값 부여
+        if not session_name:
+            session_name = "Session (이름 없음)"
+
+        # 2. 이름 중복 처리 (선택사항: 입력한 이름이 이미 있으면 (2), (3) 붙이기)
+        # "바로 적용"을 원하시므로, 입력한 이름 그대로 저장을 시도하되
+        # 혹시 모를 중복 에러를 방지하기 위해 아래 로직을 넣습니다.
+        final_name = session_name
+        cnt = 1
+        while WorkSession.objects.filter(name=final_name, is_active=True).exists():
+            cnt += 1
+            final_name = f"{session_name} ({cnt})"
+
+        # 3. DB 저장
+        with transaction.atomic():
+            # [핵심] 여기서 final_name(사용자 입력값)을 name 필드에 저장합니다.
+            session = WorkSession.objects.create(
+                name=final_name, 
+                shift_type=shift_type,
+                is_active=True # 활성 상태로 생성
+            )
+            
+            # 4. 작업자 생성
+            normalized_workers = worker_names.replace(',', '\n').replace('\r', '')
+            names = [n.strip() for n in normalized_workers.split('\n') if n.strip()]
+            names = list(set(names)) # 중복 제거
+            
+            for name in names:
+                Worker.objects.create(session=session, name=name)
+
+            # 5. 일감(기번) 생성
+            if gibun_input:
+                raw_gibuns = [g.strip() for g in gibun_input.split(',') if g.strip()]
+                unique_gibuns = list(set(raw_gibuns))
+                
+                for gibun in unique_gibuns:
+                    # 우선순위 테이블 생성
+                    GibunPriority.objects.get_or_create(session=session, gibun=gibun)
+
+                    # 마스터 데이터 조회 및 일감 생성
                     masters = TaskMaster.objects.filter(gibun_code=gibun)
-                    
                     if masters.exists():
-                        # 마스터 데이터가 있으면 그 정보대로 일감 생성
                         for tm in masters:
                             WorkItem.objects.create(
                                 session=session,
                                 task_master=tm,
-                                gibun_input=gibun,  # 사용자가 입력한 값
-                                model_type=tm.gibun_code, # 마스터의 기종/기번
+                                gibun_input=gibun,
+                                model_type=tm.gibun_code,
                                 work_order=tm.work_order,
                                 op=tm.op,
                                 description=tm.description,
                                 work_mh=tm.default_mh
                             )
-                            created_count += 1
                     else:
-                        # 마스터 데이터가 없으면? 빈 껍데기라도 생성해서 알려줌
+                        # 데이터 없을 때 기본 일감
                         WorkItem.objects.create(
                             session=session,
                             gibun_input=gibun,
                             model_type=gibun,
                             work_order="정보 없음",
-                            description="마스터 데이터가 없습니다. 수정 필요",
+                            description="마스터 데이터가 없습니다.",
                             work_mh=0.0
                         )
-                        created_count += 1
 
-        messages.success(request, f'세션이 생성되었습니다.')
-        
-        # urls.py 설정에 따라 session_id 인지 pk 인지 확인 필요 (보통 pk 사용)
-        # 기존 코드에 session_id라고 되어있으면 그대로 유지
+        messages.success(request, f"세션 '{final_name}'이(가) 시작되었습니다!")
         return redirect('result_view', session_id=session.id)
     
 
@@ -355,10 +560,29 @@ class ResultView(SimpleLoginRequiredMixin, View):
         refresh_worker_totals(session)
         filter_worker = request.GET.get('worker')
 
-        # [수정] 정렬 기준 추가 (.order_by)
-        # 기번 -> Work Order -> OP 순서로 정렬하여, 수정해도 순서가 고정됩니다.
-        items_qs = session.workitem_set.all().order_by('gibun_input', 'work_order', 'op').prefetch_related('assignments__worker')
+        # -------------------------------------------------------------
+        # [수정] ManageItemsView와 동일한 정렬 로직 적용
+        # -------------------------------------------------------------
         
+        # 1. 우선순위 데이터 가져오기
+        gibun_priorities = GibunPriority.objects.filter(session=session)
+        prio_map = {gp.gibun: gp.order for gp in gibun_priorities}
+        
+        # 2. 정렬을 위한 Case/When 구문 생성
+        whens = [When(gibun_input=k, then=v) for k, v in prio_map.items()]
+        
+        # 3. 쿼리셋 조회 (Annotation + Order By)
+        # 정렬 순서: 기종우선순위 -> 기종이름 -> 수동순서(ordering) -> ID
+        items_qs = session.workitem_set.all().prefetch_related('assignments__worker').annotate(
+            prio_order=Case(
+                *whens, 
+                default=1, 
+                output_field=django_models.IntegerField()
+            )
+        ).order_by('prio_order', 'gibun_input', 'ordering', 'id')
+        
+        # -------------------------------------------------------------
+
         if filter_worker:
             items_qs = items_qs.filter(assignments__worker__name=filter_worker).distinct()
 
@@ -383,9 +607,13 @@ class ResultView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
         # (기존 POST 로직 동일)
         run_auto_assign(session_id)
-        messages.success(request, "자동 배정이 완료되었습니다! 🤖")
+        
+        # [추가] 동기화 로직도 함께 실행해주면 좋습니다.
+        run_sync_schedule(session_id)
+        
+        messages.success(request, "자동 배정 및 동기화가 완료되었습니다! 🤖")
         return redirect('result_view', session_id=session_id)
-    
+      
 
 class EditItemView(SimpleLoginRequiredMixin, View):
     # [GET] 수정 화면 보여주기
@@ -456,130 +684,218 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
         session = get_object_or_404(WorkSession, id=session_id)
         
-        # [우선순위 로직] 현재 등록된 기번들을 스캔해서 Priority 모델이 없으면 생성
-        exist_gibuns = WorkItem.objects.filter(session=session).values_list('gibun_input', flat=True).distinct()
-        for g_name in exist_gibuns:
-            if g_name:
-                GibunPriority.objects.get_or_create(session=session, gibun=g_name)
-
-        # 우선순위 목록 가져오기 (화면 표시용)
-        gibun_priorities = GibunPriority.objects.filter(session=session).order_by('order', 'gibun')
-
-        # 아이템 리스트 가져오기 (기번 우선순위 순으로 정렬해서 보여주면 더 좋음)
-        # 하지만 SQL 조인이 복잡해지므로, 여기선 기존대로 '기번 이름' 순으로 보여줍니다.
-        queryset = WorkItem.objects.filter(session=session).prefetch_related('assignments__worker').order_by('gibun_input', 'id')
-        
+        # 1. 쿼리셋 준비 (성능 최적화를 위해 prefetch_related 사용 추천)
+        # queryset = WorkItem.objects.filter(session=session).prefetch_related('assignments__worker').order_by('gibun_input', 'ordering', 'id')
+        queryset = WorkItem.objects.filter(session=session).order_by('gibun_input', 'ordering', 'id')
+        # 2. 폼셋 생성
         ManageFormSet = modelformset_factory(WorkItem, form=ManageItemForm, extra=0, can_delete=True)
         formset = ManageFormSet(queryset=queryset)
-
-        # 텍스트 입력창 초기값 (이름 표시)
+        
+        # ==================================================================
+        # [핵심 수정] 기존 배정된 작업자 이름을 폼의 초기값(initial)으로 주입
+        # ==================================================================
         for form in formset.forms:
             if form.instance.pk:
-                assigns = None
-                if hasattr(form.instance, 'assignments'): assigns = form.instance.assignments.all()
-                elif hasattr(form.instance, 'assignment_set'): assigns = form.instance.assignment_set.all()
+                # 해당 아이템에 연결된 배정 내역(Assignments) 가져오기
+                # (모델의 related_name이 'assignments'라고 가정. 아니면 'assignment_set' 사용)
+                current_assignments = form.instance.assignments.all()
                 
-                if assigns and assigns.exists():
-                    names = [a.worker.name for a in assigns]
-                    form.initial['assigned_worker_name'] = ", ".join(names)
+                if current_assignments:
+                    # 작업자 이름들을 콤마로 연결 (예: "철수, 영희")
+                    worker_names = [a.worker.name for a in current_assignments]
+                    form.initial['assigned_worker_name'] = ",".join(worker_names)
 
+        # 3. 작업자 목록 텍스트박스용 데이터 준비 (기존 로직)
+        workers = Worker.objects.filter(session=session).order_by('name')
+        worker_lines = []
+        for w in workers:
+            limit_val = int(w.limit_mh) if w.limit_mh % 1 == 0 else w.limit_mh
+            worker_lines.append(f"{w.name}:{limit_val}")
+        
+        worker_names_str = "\n".join(worker_lines)
+        
+        gibun_priorities = GibunPriority.objects.filter(session=session).order_by('order', 'gibun')
+        
         return render(request, 'manning/manage_items.html', {
             'session': session,
             'formset': formset,
-            'gibun_priorities': gibun_priorities, # 템플릿으로 전달
-            'worker_names_str': "\n".join([f"{w.name}:{w.max_mh}" for w in session.worker_set.all()])
+            'gibun_priorities': gibun_priorities,
+            'worker_names_str': worker_names_str,
         })
 
     def post(self, request, session_id):
         session = get_object_or_404(WorkSession, id=session_id)
         
-        # A. 근무 한도 저장 (기존 코드)
-        worker_limits = request.POST.get('worker_limits', '')
-        if worker_limits:
-            lines = worker_limits.strip().split('\n')
-            for line in lines:
-                if ':' in line:
-                    name, mh_str = line.split(':', 1)
-                    name = name.strip()
-                    try: mh = float(mh_str)
-                    except: mh = 8.0
-                    worker, created = Worker.objects.get_or_create(session=session, name=name)
-                    worker.max_mh = mh
-                    worker.save()
-
-        # B. [추가] 기번 우선순위 저장 로직
-        # 폼에서 name="prio_HL7777" value="1" 형태로 넘어옴
-        priorities = GibunPriority.objects.filter(session=session)
-        for p in priorities:
-            input_name = f"prio_{p.id}" # 예: prio_5
-            new_order = request.POST.get(input_name)
-            if new_order:
-                try:
-                    p.order = int(new_order)
-                    p.save()
-                except ValueError:
-                    pass
-
-        # C. 폼셋(아이템 리스트) 저장 (기존 코드)
-        queryset = WorkItem.objects.filter(session=session).prefetch_related('assignments__worker').order_by('gibun_input', 'id')
+        # 폼셋 준비
         ManageFormSet = modelformset_factory(WorkItem, form=ManageItemForm, extra=0, can_delete=True)
+        queryset = WorkItem.objects.filter(session=session).order_by('gibun_input', 'id')
         formset = ManageFormSet(request.POST, queryset=queryset)
+        
+        worker_names_str = request.POST.get('worker_names', '')
 
         if formset.is_valid():
-            instances = formset.save(commit=False)
-            for obj in formset.deleted_objects: obj.delete()
+            with transaction.atomic():
+                # ==========================================================
+                # 1. [핵심 수정] 작업자 동기화 (추가, 수정, 그리고 삭제!)
+                # ==========================================================
+                active_worker_names = [] # 이번에 입력된 이름들을 저장할 리스트
 
-            for form in formset.forms:
-                if form in formset.deleted_forms or not form.instance.pk: continue
+                if worker_names_str:
+                    lines = worker_names_str.splitlines() # 줄바꿈 문자 자동 처리
+                    
+                    for line in lines:
+                        line = line.strip()
+                        if not line: continue
+                        
+                        # 파싱 로직 (이름:시간)
+                        parts = line.split(':', 1) if ':' in line else line.split('：', 1)
+                        if len(parts) < 2: 
+                            parts = [line, '9'] # 시간 없으면 기본 9
+
+                        name = parts[0].strip()
+                        try:
+                            limit_mh = float(parts[1].strip())
+                        except ValueError:
+                            limit_mh = 9.0
+                        
+                        if name:
+                            # A. 있으면 업데이트, 없으면 생성
+                            Worker.objects.update_or_create(
+                                session=session,
+                                name=name,
+                                defaults={'limit_mh': limit_mh}
+                            )
+                            active_worker_names.append(name)
+
+                # B. [삭제 로직] 텍스트박스에 없는 이름은 DB에서 제거
+                # (이 코드가 없어서 삭제가 안 됐던 것임)
+                Worker.objects.filter(session=session).exclude(name__in=active_worker_names).delete()
+
+
+                # ==========================================================
+                # 2. 아이템 폼셋 저장
+                # ==========================================================
+                instances = formset.save(commit=False)
                 
-                item = form.save()
-                input_str = form.cleaned_data.get('assigned_worker_name', '').strip()
-                
-                if input_str:
-                    raw_names = [n.strip() for n in input_str.split(',') if n.strip()]
-                    if raw_names:
-                        if hasattr(item, 'assignments'): item.assignments.all().delete()
-                        elif hasattr(item, 'assignment_set'): item.assignment_set.all().delete()
+                # 삭제된 아이템 처리
+                for obj in formset.deleted_objects:
+                    obj.delete()
 
-                        valid_workers = []
-                        for name in raw_names:
-                            worker = Worker.objects.filter(session=session, name=name).first()
-                            if worker: valid_workers.append(worker)
+                # 수정/추가된 아이템 처리
+                for form in formset.forms:
+                    if form.instance.pk and form not in formset.deleted_forms:
+                        if form.is_valid():
+                            item = form.save()
 
-                        if valid_workers:
-                            mh_per_person = round(item.work_mh / len(valid_workers), 2)
-                            for worker in valid_workers:
-                                Assignment.objects.create(work_item=item, worker=worker, allocated_mh=mh_per_person)
-                            item.is_manual = True
+                            # 수동 배정(assigned_worker_name) 로직
+                            input_str = form.cleaned_data.get('assigned_worker_name', '').strip()
+                            
+                            # 기존 배정 초기화
+                            item.assignments.all().delete()
+
+                            if input_str:
+                                raw_names = [n.strip() for n in input_str.split(',') if n.strip()]
+                                valid_workers = []
+                                for name in raw_names:
+                                    w = Worker.objects.filter(session=session, name=name).first()
+                                    if w: valid_workers.append(w)
+                                
+                                if valid_workers:
+                                    mh = round(item.work_mh / len(valid_workers), 2)
+                                    for w in valid_workers:
+                                        Assignment.objects.create(work_item=item, worker=w, allocated_mh=mh)
+                                    item.is_manual = True
+                                else:
+                                    item.is_manual = False
+                            else:
+                                item.is_manual = False
+                            
                             item.save()
-                else:
-                    if hasattr(item, 'assignments'): item.assignments.all().delete()
-                    elif hasattr(item, 'assignment_set'): item.assignment_set.all().delete()
-                    item.is_manual = False
-                    item.save()
 
-            # D. 재배정 실행 (이제 우선순위에 따라 배정됨)
-            run_auto_assign(session.id)
-            messages.success(request, "저장 및 재배정 완료! (우선순위가 높은 기종부터 배정되었습니다) 🚀")
+                # ==========================================================
+                # 3. [핵심 수정] 자동 배정 초기화 및 재실행
+                # ==========================================================
+                # 수동 고정(is_manual=True)이 아닌 배정 내역을 싹 지움 (새 판 짜기)
+                # 이게 있어야 인원이 추가되었을 때 그 사람에게도 일이 배정됨
+                Assignment.objects.filter(
+                    work_item__session=session, 
+                    work_item__is_manual=False
+                ).delete()
+
+                # 서비스 실행
+                AutoAssignService(session.id).run()
+                run_auto_assign(session.id)
+                run_sync_schedule(session.id)
+                refresh_worker_totals(session)
+
+            messages.success(request, "✅ 작업자 명단 동기화 및 재배정 완료!")
             return redirect('manage_items', session_id=session.id)
             
         else:
-            # 에러 시
-            worker_names_str = request.POST.get('worker_limits', '')
-
-            # 우선순위 목록 다시 불러오기
-            gibun_priorities = GibunPriority.objects.filter(session=session).order_by('order', 'gibun')
-            
-            messages.error(request, "입력값에 오류가 있습니다. 빨간색 경고 메시지를 확인해주세요.")
-            
+            messages.error(request, "입력값 오류가 있습니다.")
             return render(request, 'manning/manage_items.html', {
                 'session': session,
                 'formset': formset,
-                'gibun_priorities': gibun_priorities,
+                'gibun_priorities': GibunPriority.objects.filter(session=session),
                 'worker_names_str': worker_names_str,
             })
         
 
+class ReorderItemView(SimpleLoginRequiredMixin, View):
+    def get(self, request, item_id, direction):
+        # 1. 아이템 조회
+        item = get_object_or_404(WorkItem, id=item_id)
+        session = item.session
+
+        # 2. 같은 세션, 같은 기번을 가진 아이템들을 순서대로 가져옴
+        siblings = list(WorkItem.objects.filter(
+            session=session,
+            gibun_input=item.gibun_input
+        ).order_by('ordering', 'id'))
+
+        try:
+            idx = siblings.index(item)
+        except ValueError:
+            return redirect('manage_items', session_id=session.id)
+
+        # 3. 순서 교환 로직 (Swap)
+        if direction == 'up' and idx > 0:
+            prev_item = siblings[idx - 1]
+            # 값 교환
+            item.ordering, prev_item.ordering = prev_item.ordering, item.ordering
+            # 만약 값이 같아서 교환 효과가 없다면 강제 조정
+            if item.ordering == prev_item.ordering:
+                prev_item.ordering = max(0, item.ordering - 1)
+            
+            item.save()
+            prev_item.save()
+
+        elif direction == 'down' and idx < len(siblings) - 1:
+            next_item = siblings[idx + 1]
+            # 값 교환
+            item.ordering, next_item.ordering = next_item.ordering, item.ordering
+            
+            if item.ordering == next_item.ordering:
+                next_item.ordering = item.ordering + 1
+            
+            item.save()
+            next_item.save()
+
+        # 4. (옵션) 전체 재정렬 - 구멍 난 번호를 메꿔줌 (0, 1, 2, 3...)
+        # DB 부하가 걱정되면 이 부분은 주석 처리해도 됨
+        all_items_in_group = WorkItem.objects.filter(
+            session=session, 
+            gibun_input=item.gibun_input
+        ).order_by('ordering', 'id')
+        
+        for i, obj in enumerate(all_items_in_group):
+            if obj.ordering != i:
+                obj.ordering = i
+                obj.save()
+
+        return redirect('manage_items', session_id=session.id)
+    
+    
 class PasteDataView(SimpleLoginRequiredMixin, View):
     """
     네비게이션 바의 '데이터 등록' 메뉴.
@@ -762,163 +1078,141 @@ def clear_history(request):
     
 
 class SaveManualInputView(SimpleLoginRequiredMixin, View):
-    def post(self, request, pk):
+    def post(self, request, session_id):
         try:
             data = json.loads(request.body)
             assignments_data = data.get('assignments', [])
-            session = WorkSession.objects.get(pk=pk)
-
-            # (1) 간비 아이템 준비 (코드가 있을 때만 사용됨)
-            ganbi_item, _ = WorkItem.objects.get_or_create(
-                session=session,
-                work_order='간비',
-                defaults={
-                    'op': '-', 'gibun_input': '-', 'model_type': '-',
-                    'description': '기타/대기/이동 시간', 'work_mh': 0.0, 'is_manual': True
-                }
-            )
+            
+            session = get_object_or_404(WorkSession, id=session_id)
 
             with transaction.atomic():
+                # 1. 수정 대상 작업자 식별
+                target_worker_ids = set()
                 for item in assignments_data:
-                    worker_id = item.get('worker_id')
-                    start_min = item.get('start_min')
-                    end_min = item.get('end_min')
-                    code = item.get('code', '').strip() # 입력한 코드 (예: 식사)
+                    target_worker_ids.add(int(item['worker_id']))
 
-                    if worker_id and start_min is not None and end_min is not None:
-                        worker = Worker.objects.get(id=worker_id)
-                        
-                        # [시간 계산 로직] 자정 넘김 처리
-                        if end_min < start_min:
-                            calc_end = end_min + 1440
-                        elif end_min == start_min and start_min > 0:
-                             calc_end = end_min # 0시간 입력 방지 필요시 +1440
-                        else:
-                            calc_end = end_min
+                # 2. 기존 데이터 삭제 (해당 작업자의 간비/수동입력 초기화)
+                if target_worker_ids:
+                    Assignment.objects.filter(
+                        work_item__session=session,
+                        worker__id__in=target_worker_ids
+                    ).filter(
+                        Q(work_item__isnull=True) | Q(work_item__work_order='간비')
+                    ).delete()
 
-                        duration = calc_end - start_min
-                        allocated_mh = round(duration / 60.0, 2)
+                # 3. '간비'용 공용 WorkItem 확보
+                kanbi_item = WorkItem.objects.filter(session=session, work_order='간비').first()
+                if not kanbi_item:
+                    kanbi_item = WorkItem.objects.create(
+                        session=session,
+                        work_order='간비',
+                        gibun_input='COMMON',
+                        description='간접비용/휴식',
+                        work_mh=0
+                    )
 
-                        # 시간이 유효할 때만 처리
-                        if allocated_mh > 0:
-                            
-                            # ========================================================
-                            # CASE A: 코드가 있음 -> "간비(고정)" 생성
-                            # ========================================================
-                            if code:
-                                # 간비 WorkItem 개별 생성 (수정/삭제 용이성을 위해)
-                                new_ganbi = WorkItem.objects.create(
-                                    session=session,
-                                    work_order='간비',
-                                    description=code, 
-                                    work_mh=allocated_mh,
-                                    is_manual=True,
-                                    gibun_input='-'
-                                )
-                                Assignment.objects.create(
-                                    work_item=new_ganbi,
-                                    worker=worker,
-                                    allocated_mh=allocated_mh,
-                                    start_min=start_min,
-                                    end_min=calc_end,
-                                    code=code
-                                )
+                # 4. 신규 데이터 저장
+                for item in assignments_data:
+                    code = str(item['code']).strip()
+                    # [수정] 0이어도 저장은 해야 함 (그래야 시간표 자리를 차지함)
+                    # if code == '0': continue  <-- 이 줄 삭제함!
 
-                            # ========================================================
-                            # CASE B: 코드가 없음(공란) -> "일반 작업(WO)" 끌어와서 고정
-                            # ========================================================
-                            else:
-                                # 1. 해당 작업자에게 자동 배정된 일감 중, 아직 시간 고정이 안 된 것을 찾음
-                                target_assign = Assignment.objects.filter(
-                                    worker=worker,
-                                    work_item__session=session,
-                                    start_min__isnull=True # 아직 시간이 안 정해진 것
-                                ).exclude(
-                                    work_item__work_order='간비' # 간비 제외
-                                ).select_related('work_item').order_by(
-                                    'work_item__gibun_input', 'work_item__work_order' # 정렬: 기번 -> WO 순
-                                ).first()
+                    worker_id = item['worker_id']
+                    start_min = item['start_min']
+                    end_min = item['end_min']
 
-                                if target_assign:
-                                    # 2. 찾은 일감을 이 시간대에 "고정"시킴
-                                    target_assign.start_min = start_min
-                                    target_assign.end_min = calc_end
-                                    
-                                    # [중요] 해당 시간만큼만 수행한다고 가정하고 M/H를 맞춤 (Manual Override)
-                                    # 예: 원래 2시간짜리 일인데 09:00~10:00(1시간)으로 잡으면 1시간으로 변경
-                                    target_assign.allocated_mh = allocated_mh
-                                    target_assign.save()
+                    worker = get_object_or_404(Worker, id=worker_id)
+                    
+                    Assignment.objects.create(
+                        work_item=kanbi_item, 
+                        worker=worker,
+                        code=code, 
+                        start_min=start_min,
+                        end_min=end_min,
+                        allocated_mh=0
+                    )
 
-                                    # 3. 해당 WorkItem을 수동(Manual) 모드로 변경하여
-                                    #    다음 자동 배정 때 삭제되지 않도록 보호
-                                    wi = target_assign.work_item
-                                    wi.is_manual = True
-                                    wi.save()
-                                else:
-                                    # 할당된 일반 작업이 하나도 없다면? -> 그냥 빈 간비로 생성하거나 무시
-                                    # 여기서는 사용자의 혼동을 막기 위해 '작업 없음'이라는 간비를 생성해줌
-                                    pass 
-
-            # 총 시간 갱신
-            refresh_worker_totals(session)
-            return JsonResponse({'status': 'success', 'message': '저장되었습니다.'})
+            return JsonResponse({'status': 'success'})
 
         except Exception as e:
+            print(f"Manual Save Error: {e}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
+        
 
 class UploadDataView(SimpleLoginRequiredMixin, View):
     def post(self, request, pk):
-        # 1. 세션 가져오기 (pk는 url의 session_id)
-        session = get_object_or_404(ManningSession, pk=pk)
+        # 1. 세션 가져오기
+        session = get_object_or_404(WorkSession, pk=pk)
         
         # 2. 파일 유무 확인
         if 'file' not in request.FILES:
-            print("파일이 없습니다.")
-            return redirect('result_view', pk=pk)
+            messages.error(request, "파일이 선택되지 않았습니다.")
+            return redirect('result_view', session_id=pk)
 
         excel_file = request.FILES['file']
         
         try:
             # 3. 판다스로 엑셀 읽기
-            # (header=0은 첫번째 줄을 제목으로 쓴다는 뜻)
             df = pd.read_excel(excel_file)
             
-            # 4. 데이터 저장 (Bulk Create 사용으로 속도 최적화)
+            # -----------------------------------------------------------
+            # [핵심 수정] 기번(기종) 중복 방지 및 우선순위 테이블 등록
+            # -----------------------------------------------------------
+            if '기종' in df.columns:
+                # 1) 엑셀 내에서 중복 제거 (unique)
+                unique_gibuns = df['기종'].dropna().astype(str).unique()
+                
+                # 2) DB에 없는 것만 생성 (get_or_create)
+                for g_val in unique_gibuns:
+                    g_clean = g_val.strip()
+                    if g_clean:
+                        GibunPriority.objects.get_or_create(
+                            session=session, 
+                            gibun=g_clean
+                        )
+            # -----------------------------------------------------------
+
+            # 4. 일감(WorkItem) 데이터 저장
             new_items = []
             
-            # 엑셀의 각 행(row)을 돌면서 객체 생성
             for index, row in df.iterrows():
-                # 엑셀 데이터가 비어있을 경우 방지 (fillna 등 사용 가능하지만 간단히 get 처리)
-                model_val = str(row.get('기종', ''))
-                wo_val = str(row.get('WO', ''))
-                op_val = str(row.get('OP', ''))
-                desc_val = str(row.get('설명', ''))
-                mh_val = row.get('M/H', 0)
+                # 데이터 추출 (없는 경우 빈 문자열)
+                model_val = str(row.get('기종', '')).strip()
+                wo_val = str(row.get('WO', '')).strip()
+                op_val = str(row.get('OP', '')).strip()
+                desc_val = str(row.get('설명', '')).strip()
+                
+                # M/H는 숫자로 변환
+                try:
+                    mh_val = float(row.get('M/H', 0))
+                except (ValueError, TypeError):
+                    mh_val = 0.0
 
-                # 필수값이 없으면 건너뛰기 (선택사항)
+                # 필수값(WO)이 없으면 건너뛰기
                 if not wo_val: 
                     continue
 
+                # 객체 생성 (저장은 나중에 한 번에)
                 new_items.append(WorkItem(
                     session=session,
-                    model_type=model_val,  # ★ 기종 정보 저장
+                    gibun_input=model_val, # [주의] 모델 필드명 확인 (gibun_input or model_type)
                     work_order=wo_val,
                     op=op_val,
                     description=desc_val,
-                    work_mh=float(mh_val) if mh_val else 0.0
+                    work_mh=mh_val
                 ))
             
-            # 5. DB에 한 번에 저장 (속도가 훨씬 빠름)
+            # 5. DB에 한 번에 저장 (Bulk Create)
             with transaction.atomic():
                 WorkItem.objects.bulk_create(new_items)
                 
+            messages.success(request, f"엑셀 업로드 완료! ({len(new_items)}건 등록됨)")
+                
         except Exception as e:
-            print(f"엑셀 업로드 중 오류 발생: {e}")
-            # 필요하다면 에러 메시지를 사용자에게 전달하는 로직 추가 가능
+            print(f"엑셀 업로드 오류: {e}")
+            messages.error(request, f"업로드 중 오류가 발생했습니다: {str(e)}")
         
-        # 6. 저장 후 결과 페이지로 이동
-        return redirect('result_view', session_id=pk)
+        return redirect('manage_items', session_id=pk) 
     
 
 class PasteInputView(SimpleLoginRequiredMixin, View):
@@ -1072,7 +1366,11 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
             floating_list.sort(key=lambda x: x['sort_key'])
             
             try:
-                calc = ScheduleCalculator(floating_list, fixed_slots=occupied_slots)
+                calc = ScheduleCalculator(
+                    floating_list, 
+                    fixed_slots=occupied_slots, 
+                    shift_type=session.shift_type 
+                )
                 calculated_schedule = calc.calculate()
             except Exception as e:
                 print(f"Calc Error: {e}")
@@ -1107,6 +1405,7 @@ class AssignedDetailView(SimpleLoginRequiredMixin, View):
 # ---------------------------------------------------------
 # 3. 개인 시간표 뷰 (PersonalScheduleView)
 # ---------------------------------------------------------
+
 class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
     model = WorkSession
     template_name = 'manning/personal_schedule.html'
@@ -1117,86 +1416,236 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         worker_id = self.request.GET.get('worker_id')
         
+        # 1. 우선순위 데이터 로드 (정렬용)
+        gibun_priorities = GibunPriority.objects.filter(session=self.object)
+        prio_map = {gp.gibun: gp.order for gp in gibun_priorities}
+
         if worker_id:
+            # 2. 해당 작업자의 모든 배정 내역 조회
             assignments = Assignment.objects.filter(
                 work_item__session=self.object,
                 worker_id=worker_id
             ).select_related('work_item', 'worker')
             
-            fixed_schedule = []
-            occupied_slots = []
-            floating_tasks = []
+            fixed_schedule = []   # 시간이 고정된 작업 (간비, 수동고정)
+            occupied_slots = []   # 계산기에게 알려줄 '이미 찬 시간'
+            floating_tasks = []   # 시간을 다시 계산할 작업들
+            
+            # [핵심] 모달 수정용 데이터 리스트 (JSON 변환용)
+            manual_edit_list = []
+
             total_mh = 0.0
             worker_name = ""
             task_count = 0
 
             for a in assignments:
                 if not worker_name: worker_name = a.worker.name
-                total_mh += float(a.allocated_mh)
+                # total_mh += float(a.allocated_mh)
                 
+                # ------------------------------------------------------------------
+                # [핵심 수정] 총 시간 계산 로직 변경 (간비 포함)
+                # ------------------------------------------------------------------
+                # 1. 간비(또는 순수 수동 입력)인지 확인
+                is_kanbi = False
+                if a.work_item and a.work_item.work_order == '간비':
+                    is_kanbi = True
+                elif not a.work_item: # WorkItem이 없으면 수동 입력(간비 취급)
+                    is_kanbi = True
+
+                # 2. 시간 합산
+                if is_kanbi:
+                    # 간비는 저장된 M/H가 0일 수 있으므로, 실제 시간(End - Start)으로 계산
+                    if a.start_min is not None and a.end_min is not None:
+                        duration_min = a.end_min - a.start_min
+                        if duration_min > 0:
+                            total_mh += (duration_min / 60.0) # 분 -> 시간 환산
+                else:
+                    # 일반 작업은 할당된 M/H 사용
+                    total_mh += float(a.allocated_mh)
+                # ------------------------------------------------------------------
+
+                # 데이터 추출
+                prio_rank = 1
+                gibun_val = ""
+                ordering_val = 0
+                item_id = 0
+                is_item_manual = False 
+
+                # WorkItem이 있는 경우 vs 없는 경우(순수 수동) 구분
                 if a.work_item:
                     wo_raw = a.work_item.work_order.strip()
                     op_raw = a.work_item.op
-                    gibun_val = a.work_item.gibun_input
-                    # 간비 코드 처리
-                    desc_disp = a.code if (wo_raw == '간비' and a.code) else a.work_item.description
-                    if wo_raw != '간비':
-                        task_count += 1
-                else:
-                    wo_raw, op_raw, gibun_val, desc_disp = "Direct", "", "", ""
+                    gibun_val = a.work_item.gibun_input or ""
+                    ordering_val = a.work_item.ordering
+                    item_id = a.work_item.id
+                    prio_rank = prio_map.get(gibun_val, 1)
+                    is_item_manual = a.work_item.is_manual
 
+                    if wo_raw == '간비':
+                        # 간비 내용: code가 있으면 code, 없으면 description
+                        desc_disp = a.code if a.code else ""
+                    else:
+                        desc_disp = a.work_item.description
+                else:
+                    # WorkItem 없이 Assignment만 있는 경우 (순수 수동 입력)
+                    wo_raw, op_raw, desc_disp = "Direct", "", ""
+                    if a.code: desc_disp = a.code 
+                    is_item_manual = True 
+
+                # 템플릿 표시용 데이터 객체
                 item_data = {
-                    'wo': wo_raw, 'op': op_raw, 'desc': desc_disp, 'mh': float(a.allocated_mh),
+                    'wo': wo_raw, 
+                    'op': op_raw, 
+                    'desc': desc_disp, 
+                    'mh': float(a.allocated_mh),
                     'gibun': gibun_val,
-                    'sort_key': (gibun_val or 'z', wo_raw or 'z', op_raw or 'z')
+                    'sort_key': (prio_rank, gibun_val, ordering_val, item_id)
                 }
 
-                # 고정 일정 (간비 등)
+                # ----------------------------------------------------------------
+                # [A] 고정 vs 유동 분류 및 모달 데이터 수집
+                # ----------------------------------------------------------------
+                is_fixed_anchor = False
+                
+                # 시간이 DB에 저장되어 있어야 고정으로 취급
                 if a.start_min is not None and a.end_min is not None:
+                    
+                    # 1. 간비 작업
+                    if wo_raw == '간비':
+                        is_fixed_anchor = True
+                        
+                        # [모달용 데이터 수집]
+                        # 0은 이미 SaveManualInputView에서 저장 안 했으므로 여기엔 정상 데이터만 옴
+                        s_hhmm = format_min_to_time(a.start_min).replace(":", "")
+                        e_hhmm = format_min_to_time(a.end_min).replace(":", "")
+                        manual_edit_list.append({
+                            'start': s_hhmm,
+                            'code': desc_disp, 
+                            'end': e_hhmm
+                        })
+
+                    # 2. 순수 수동 입력 (WorkItem 없음)
+                    elif not a.work_item:
+                        is_fixed_anchor = True
+                        s_hhmm = format_min_to_time(a.start_min).replace(":", "")
+                        e_hhmm = format_min_to_time(a.end_min).replace(":", "")
+                        manual_edit_list.append({
+                            'start': s_hhmm, 'code': desc_disp, 'end': e_hhmm
+                        })
+                    
+                    # 3. 일반 작업이지만 사용자가 이름을 지정해 고정한 경우
+                    elif is_item_manual:
+                        is_fixed_anchor = True
+                        # 주의: 일반 작업 고정은 '수동 입력 모달(간비용)'에는 띄우지 않음
+
+                if is_fixed_anchor:
+                    # [고정 스케줄 등록]
                     item_data.update({
-                        'start_str': format_min_to_time(a.start_min),
-                        'end_str': format_min_to_time(a.end_min),
                         'start_min': a.start_min,
-                        'is_fixed': True
+                        'end_min': a.end_min,
+                        'is_fixed': True,
+                        'start_str': format_min_to_time(a.start_min),
+                        'end_str': format_min_to_time(a.end_min)
                     })
                     fixed_schedule.append(item_data)
-                    # [주의] occupied_slots에는 원본 분(min)을 넘깁니다. 
-                    # 변환은 ScheduleCalculator 내부 __init__에서 수행합니다.
                     occupied_slots.append({'start': a.start_min, 'end': a.end_min})
+                    
+                    # 간비가 아니면 건수 포함
+                    if wo_raw != '간비': task_count += 1
+
                 else:
+                    # [유동 스케줄 등록]
+                    # 시간이 있어도 일반 작업이면 재계산을 위해 None 처리 (간비 뒤로 밀림)
+                    item_data['start_min'] = None
+                    item_data['end_min'] = None
                     floating_tasks.append(item_data)
+                    
+                    if wo_raw != '간비': task_count += 1
 
-            # 유동 작업 정렬
-            floating_tasks.sort(key=lambda x: x.get('sort_key', ('', '', '')))
+            # ----------------------------------------------------------------
+            # [B] 스케줄 자동 계산 (빈칸 채우기)
+            # ----------------------------------------------------------------
+            floating_tasks.sort(key=lambda x: x.get('sort_key'))
 
-            # 스케줄 계산 (빈칸 채우기)
             calculated_schedule = []
             if floating_tasks:
-                try:
-                    calc = ScheduleCalculator(floating_tasks, occupied_slots=occupied_slots)
+                try:                    
+                    calc = ScheduleCalculator(
+                        floating_tasks, 
+                        fixed_slots=occupied_slots, # 이미 찬 시간(간비 등) 회피
+                        shift_type=self.object.shift_type
+                    )
                     calculated_schedule = calc.calculate()
                 except Exception as e:
                     print(f"Schedule Calc Error: {e}")
-                    for item in floating_tasks:
-                        item['start_str'] = "-"
-                        item['end_str'] = "-"
                     calculated_schedule = floating_tasks
 
-            # 최종 합치기
-            final_schedule = fixed_schedule + calculated_schedule
-            
-            # [핵심 수정] 화면 표시용 정렬: get_adjusted_min 사용!
-            # 02:00(120) -> 26:00(1560)으로 변환되어 20:00(1200)보다 뒤에 옵니다.
-            final_schedule.sort(key=lambda x: get_adjusted_min(x.get('start_min')))
+            # ----------------------------------------------------------------
+            # [C] 최종 합치기 및 렌더링 준비
+            # ----------------------------------------------------------------
+            raw_combined = fixed_schedule + calculated_schedule
+            raw_combined.sort(key=lambda x: get_adjusted_min(x.get('start_min')))
 
-            context['schedule'] = final_schedule
-            context['worker_name'] = worker_name
-            context['worker_id'] = int(worker_id)
-            context['total_mh'] = round(total_mh, 1)
-            context['task_count'] = task_count
+            final_schedule = []
+            last_end_min = 0
+            
+            # 야간조 등 시작 시간 오프셋 설정
+            night_start_offset = 21 * 60 if self.object.shift_type == 'NIGHT' else 0
+            if self.object.shift_type == 'NIGHT':
+                last_end_min = night_start_offset
+
+            for item in raw_combined:
+                s = item.get('start_min')
+                e = item.get('end_min')
+                
+                # 시간이 없으면(계산 실패 등) 목록 맨 뒤로
+                if s is None or e is None:
+                    item['start_str'] = "-"
+                    item['end_str'] = "-"
+                    final_schedule.append(item)
+                    continue
+
+                # 빈 시간(Gap) 표시
+                if s > last_end_min:
+                    final_schedule.append({
+                        'wo': 'EMPTY_SLOT',
+                        'start_min': last_end_min,
+                        'end_min': s,
+                        'start_str': format_min_to_time(last_end_min),
+                        'end_str': format_min_to_time(s),
+                    })
+
+                # 자정(1440분) 분리 처리
+                if s < 1440 and e > 1440:
+                    part1 = item.copy()
+                    part1.update({'end_min': 1440, 'start_str': format_min_to_time(s), 'end_str': "24:00"})
+                    final_schedule.append(part1)
+                    
+                    part2 = item.copy()
+                    part2.update({'start_min': 1440, 'start_str': "00:00", 'end_str': format_min_to_time(e)})
+                    final_schedule.append(part2)
+                else:
+                    item['start_str'] = format_min_to_time(s)
+                    item['end_str'] = format_min_to_time(e)
+                    final_schedule.append(item)
+                
+                last_end_min = e
+
+            # 모달 데이터는 시간순 정렬해서 보냄
+            manual_edit_list.sort(key=lambda x: x['start'])
+
+            context.update({
+                'schedule': final_schedule,
+                'worker_name': worker_name,
+                'worker_id': int(worker_id),
+                'total_mh': round(total_mh, 1),
+                'task_count': task_count,
+                # 모달에 기존 데이터 뿌려주기 위함
+                'manual_data_json': manual_edit_list, 
+            })
             
         return context
-      
+          
 
 class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
     def post(self, request, pk):
@@ -1531,16 +1980,69 @@ class ResetAllSessionsView(SimpleLoginRequiredMixin, View):
 
 class AutoAssignView(SimpleLoginRequiredMixin, View):
     def post(self, request, pk):
+        session = get_object_or_404(WorkSession, pk=pk)
+        
         try:
-            # services.py에 있는 로직 실행
-            run_auto_assign(pk)
-            messages.success(request, "자동 균등 배정이 완료되었습니다.")
-        except Exception as e:
-            # 에러 발생 시 로그 출력 등 처리
-            print(f"Auto Assign Error: {e}")
-            messages.error(request, "배정 중 오류가 발생했습니다.")
+            # 1. 기본 자동 배정 (누가 무엇을 할지 결정, 시간은 미정)
+            run_auto_assign(session.id) 
             
-        # 결과 페이지로 이동 (urls.py 설정에 따라 session_id 파라미터명 확인)
+            # 2. [필수] 스케줄 동기화 및 당기기 실행
+            # 이 함수가 실행되어야 DB에 start_min/end_min이 저장됩니다.
+            run_sync_schedule(session.id)
+            
+            # 3. 결과 갱신
+            refresh_worker_totals(session)
+            
+            messages.success(request, "배정 및 시간 동기화(Gap 채우기) 완료! 🚀")
+            
+        except Exception as e:
+            # 에러 로그 출력 (디버깅용)
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f"배정 중 오류 발생: {str(e)}")
+            
         return redirect('result_view', session_id=pk)
+    
+
+class CheckGibunView(View):
+    """
+    항공기 기번 존재 여부 확인 API (클래스형 뷰)
+    """
+    def get(self, request):
+        gibun = request.GET.get('gibun', '').strip().upper()
+        
+        # 기번이 비어있으면 False 반환
+        if not gibun:
+            return JsonResponse({'exists': False})
+
+        # DB 조회
+        exists = TaskMaster.objects.filter(gibun_code=gibun).exists()
+        
+        return JsonResponse({'exists': exists})
+
+
+class TriggerAutoAssignView(SimpleLoginRequiredMixin, View):
+    def post(self, request, session_id):
+        session = get_object_or_404(WorkSession, id=session_id)
+        
+        try:
+            AutoAssignService(session.id).run()
+            # 1. 자동 배정 실행
+            # (services.py 내부에서 기존 자동 배정분을 삭제하고 다시 배정함)
+            run_auto_assign(session.id)
+            
+            # 2. 시간 동기화 (Gap 채우기 및 정렬)
+            run_sync_schedule(session.id)
+            
+            # 3. 작업자별 총 시간(M/H) 갱신
+            refresh_worker_totals(session)
+            
+            messages.success(request, "✅ 자동 배정이 완료되었습니다! (새로운 인원이 반영되었습니다)")
+            
+        except Exception as e:
+            print(f"Auto Assign Error: {e}")
+            messages.error(request, f"배정 중 오류가 발생했습니다: {str(e)}")
+            
+        return redirect('result_view', session_id=session.id)
     
 

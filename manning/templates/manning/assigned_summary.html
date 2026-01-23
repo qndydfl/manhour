@@ -1,166 +1,54 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>세션별 작업자 할당 합계</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        />
-        <link
-            rel="stylesheet"
-            as="style"
-            crossorigin
-            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-        <style>
-            body {
-                font-family: "Pretendard", sans-serif;
-                background: #f8f9fa;
-            }
-            .widget {
-                background: white;
-                border-radius: 12px;
-                padding: 12px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-            }
-            .small-muted {
-                font-size: 0.85rem;
-                color: #6c757d;
-            }
-        </style>
-    </head>
-    <body class="p-4">
-        <div class="container">
-            <div class="d-flex justify-content-start align-items-center mb-3">
-                <a href="{% url 'index' %}" class="btn btn-secondary"> 
-                    <i class="bi bi-house-fill"></i> 홈으로 
+{% extends "manning/base/base.html" %}
+{% load static %}
+
+<title>{% block title %}세션별 작업자 할당 합계{% endblock title %}</title>
+{% block style %}<link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}" />{% endblock style %}
+{% block js %}<script defer src="{% static 'js/assigned_summary.js' %}"></script>{% endblock js %}
+
+{% block main %}
+    <div class="container p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'result_view' session.id %}" class="btn btn-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-arrow-left"></i> 결과 화면으로
                 </a>
-            </div>
-            
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="mb-0">{{ session.name }} - 작업자별 시간표</h4>
-                <div>
-                    <a
-                        href="{% url 'result_view' session.id %}"
-                        class="btn btn-outline-secondary btn-sm"
-                        >결과로 돌아가기</a
-                    >
-                </div>
-            </div>
-
-            {% if common_schedule %}
-            <div class="card shadow-sm border-warning mb-4">
-                <div class="card-header bg-warning bg-opacity-25 text-dark fw-bold">
-                    <i class="bi bi-calendar-check me-2"></i>고정/간비 일정 현황 (전체 요약)
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover mb-0 text-center align-middle">
-                            <thead class="table-light text-muted small">
-                                <tr>
-                                    <th width="20%">시간</th>
-                                    <th>내용 (코드)</th>
-                                    <th width="25%">대상</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for sch in common_schedule %}
-                                <tr {% if sch.is_all %}class="table-warning"{% endif %}>
-                                    <td class="fw-bold text-dark">
-                                        {{ sch.start }} ~ {{ sch.end }}
-                                    </td>
-                                    <td class="fw-bold text-primary">
-                                        {{ sch.code }}
-                                    </td>
-                                    <td>
-                                        <span class="badge {{ sch.badge_class }} rounded-pill">
-                                            {{ sch.target }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="row g-3">
-                {% for w in workers_schedule %}
-                <div class="col-12 col-md-6">
-                    <div class="widget">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <div class="fw-bold fs-5">{{ w.worker_name }}</div>
-                                <div class="small-muted">
-                                    작업 {{ w.task_count }}건 • 총 {{ w.total_mh }} M/H
-                                </div>
-                            </div>
-                            <div class="d-flex gap-1">
-                                <button 
-                                    type="button" 
-                                    class="btn btn-sm btn-outline-warning text-dark fw-bold"
-                                    onclick="openIndirectModal('{{ session.id }}', '{{ w.worker.id }}', '{{ w.worker_name }}')"
-                                >
-                                    <i class="bi bi-cup-hot"></i> 간비
-                                </button>
-
-                                <a href="{% url 'personal_schedule' session.id %}?worker_id={{ w.worker.id }}" 
-                                class="btn btn-sm btn-outline-primary fw-bold">
-                                <i class="bi bi-calendar-week"></i> 시간표
-                                </a>
-                            </div>
-                        </div>                    
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="modal fade" id="indirectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-warning">
-                            <h5 class="modal-title fw-bold text-dark">
-                                <i class="bi bi-cup-hot-fill"></i> 간비 수정 - <span id="modalWorkerName"></span>
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-0">
-                            <iframe id="indirectFrame" src="" width="100%" height="400px" style="border:none;"></iframe>
-                        </div>
-                    </div>
-                </div>
+                <h4 class="mb-0 fw-bold">📅 작업자별 배정 요약</h4>
             </div>
         </div>
+
+        <div class="row g-3">
+            {% for w in workers_schedule %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="widget">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold fs-5">{{ w.worker_name }}</span>
+                                {% if w.total_mh > w.limit_mh %}
+                                <span class="badge bg-danger rounded-pill" style="font-size: 0.7rem;">초과</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-primary fw-bold mt-1">
+                                {{ w.total_mh|floatformat:1 }} <span class="text-muted fw-normal small">/ {{ w.limit_mh|floatformat:1 }} M/H</span>
+                            </div>
+                            <div class="small-muted mt-1">
+                                총 작업 {{ w.task_count }}건
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'personal_schedule' session.id %}?worker_id={{ w.worker.id }}" 
+                                class="btn btn-outline-primary fw-bold d-flex align-items-center gap-2"
+                                title="개인 시간표 보기"
+                            >
+                                <i class="bi bi-calendar-week"></i> 시간표
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock main %}
 
-    <script>
-        function openIndirectModal(sessionId, workerId, workerName) {
-            // 모달 제목 설정
-            document.getElementById('modalWorkerName').textContent = workerName;
-            
-            // 아이프레임 주소 설정
-            const url = `/session/${sessionId}/worker/${workerId}/indirect/`;
-            document.getElementById('indirectFrame').src = url;
-            
-            // 모달 띄우기
-            const myModal = new bootstrap.Modal(document.getElementById('indirectModal'));
-            myModal.show();
-        }
-        
-        // 모달이 닫힐 때 페이지 새로고침 (데이터 갱신 확인용)
-        document.getElementById('indirectModal').addEventListener('hidden.bs.modal', function () {
-            location.reload();
-        });
-    </script>
-
-    </body>
-</html>

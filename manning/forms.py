@@ -91,24 +91,29 @@ class WorkerIndirectForm(forms.ModelForm):
 
 
 class ManageItemForm(forms.ModelForm):
-    # [수정] 드롭다운 대신 '텍스트 입력창'으로 변경
+    # DB 모델에는 없지만 폼에서만 사용하는 가상 필드 (이름 입력용)
     assigned_worker_name = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control form-control-sm text-center fw-bold text-primary', 
-            'style': 'font-size: 0.85rem; background-color: #f8f9fa;',
-            'placeholder': '이름 입력'
+            'class': 'form-control form-control-sm border-0 bg-transparent', # CSS 클래스 매칭
+            'placeholder': '이름 입력',
+            'style': 'width: 100%;'
         })
     )
 
     class Meta:
         model = WorkItem
-        fields = ['gibun_input', 'work_order', 'op', 'description', 'work_mh']
-        
+        # HTML 테이블의 컬럼과 일치하는 필드들
+        fields = ['gibun_input', 'work_order', 'op', 'description', 'work_mh', 'ordering']
         widgets = {
-            'gibun_input': forms.TextInput(attrs={'class': 'form-control form-control-sm text-center'}),
-            'work_order': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
-            'op': forms.TextInput(attrs={'class': 'form-control form-control-sm text-center'}),
-            'description': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
-            'work_mh': forms.NumberInput(attrs={'class': 'form-control form-control-sm text-center', 'step': '0.1'}),
+            'gibun_input': forms.TextInput(attrs={'class': 'form-control'}),
+            'work_order': forms.TextInput(attrs={'class': 'form-control'}),
+            'op': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 1}), # 한 줄 높이 제한
+            'work_mh': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'ordering': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm text-center fw-bold bg-light', # 약간 회색 배경에 굵은 글씨
+                'style': 'width: 100%;',
+                'min': '0'
+            }),
         }

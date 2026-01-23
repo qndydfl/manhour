@@ -1,0 +1,78 @@
+body {
+    background-color: #f5f7fa;
+    font-family: "Pretendard", sans-serif;
+    padding-bottom: 80px;
+}
+
+/* 테이블 인풋 스타일: 평소엔 투명, 포커스시 입력창 */
+.table-custom input.form-control,
+.table-custom textarea.form-control {
+    border: 1px solid transparent;
+    background-color: transparent;
+    text-align: center;
+    font-size: 0.95rem; /* 글자 크기 약간 키움 */
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+/* 고정 배정 칸은 왼쪽 정렬 */
+.table-custom td.assign-cell input {
+    text-align: left;
+    padding-left: 10px;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.table-custom input.form-control:focus,
+.table-custom textarea.form-control:focus {
+    background-color: #fff;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* 기번 그룹 헤더 */
+.group-header {
+    background-color: #eef2f6 !important;
+    border-top: 2px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* 삭제된 행 스타일 */
+.row-deleted {
+    background-color: #ffebee !important;
+}
+.row-deleted input,
+.row-deleted textarea {
+    text-decoration: line-through;
+    color: #adb5bd !important;
+    pointer-events: none; /* 입력 막기 */
+}
+.row-deleted .form-check-input {
+    pointer-events: auto; /* 체크박스는 클릭 가능 */
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: 1.5rem;
+    z-index: 10;
+}
+
+.bottom-action-bar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #dee2e6;
+}
+
+/* [중요] 말줄임표 처리 클래스 */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    font-size: 0.85rem;
+    color: #6c757d;
+    line-height: 1.2;
+}

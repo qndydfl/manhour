@@ -6,12 +6,12 @@ urlpatterns = [
     path('login/', views.SimpleLoginView.as_view(), name='login'),
     path('logout/', views.SimpleLogoutView.as_view(), name='logout'),
 
-    path('index/', views.indexView.as_view(), name='index'),
+    path('', views.IndexView.as_view(), name='index'),
     path('history/', views.HistoryView.as_view(), name='history'),
     
     # 세션 관련
-    path('create/', views.CreateSessionView.as_view(), name='create_session'),
-    path('select/<str:name>/', views.SelectSessionView.as_view(), name='select_session'), # slot_name -> name
+    path('create/', views.CreateSessionView.as_view(), name='create_session'),    
+    path('select/<str:name>/', views.SelectSessionView.as_view(), name='select_session'), 
     path('session/<int:session_id>/', views.ResultView.as_view(), name='result_view'),
     path('session/<int:session_id>/edit/', views.EditSessionView.as_view(), name='edit_session'),
     path('session/<int:session_id>/finish/', views.FinishSessionView.as_view(), name='finish_session'),
@@ -20,25 +20,28 @@ urlpatterns = [
     path('session/<int:session_id>/edit_all/', views.EditAllView.as_view(), name='edit_all'),
     path('session/<int:session_id>/manage/', views.ManageItemsView.as_view(), name='manage_items'),
     path('session/<int:session_id>/paste/', views.PasteInputView.as_view(), name='paste_input'),
-    path('session/<int:pk>/upload/', views.UploadDataView.as_view(), name='upload_data'),
+    path('session/<int:session_id>/upload/', views.UploadDataView.as_view(), name='upload_data'),
     
     # 개별 아이템 및 기능
     path('item/<int:item_id>/edit/', views.EditItemView.as_view(), name='edit_item'),
     path('session/<int:session_id>/limits/', views.UpdateLimitsView.as_view(), name='update_limits'),
-    path('session/<int:pk>/save_manual/', views.SaveManualInputView.as_view(), name='save_manual_input'),
+    path('session/<int:session_id>/save_manual/', views.SaveManualInputView.as_view(), name='save_manual_input'),
     
     # 조회
     path('session/<int:session_id>/summary/', views.AssignedSummaryView.as_view(), name='assigned_summary'),
     path('session/<int:session_id>/schedule/', views.PersonalScheduleView.as_view(), name='personal_schedule'),
     
     # 기타 기능 (삭제, 복원 등)
-    path('taskmaster/delete/<int:pk>/', views.DeleteTaskMasterView.as_view(), name='delete_taskmaster'),
+    path('taskmaster/delete/<int:session_id>/', views.DeleteTaskMasterView.as_view(), name='delete_taskmaster'),
     path('taskmaster/delete_all/', views.DeleteAllTaskMastersView.as_view(), name='delete_all_taskmasters'),
     path('paste_data/', views.PasteDataView.as_view(), name='paste_data'), 
     path('session/<int:session_id>/worker/<int:worker_id>/indirect/', views.WorkerIndirectView.as_view(), name='worker_indirect'),
-    path('history/clear/', views.clear_history, name='clear_history'), # [추가] 기록 전체 삭제
+    path('history/clear/', views.clear_history, name='clear_history'),
     path('session/<int:session_id>/manage/add_direct/', views.AddItemsDirectView.as_view(), name='add_items_direct'),
     path('session/<int:session_id>/add_single/', views.AddSingleItemView.as_view(), name='add_single_item'),
     path('session/<int:session_id>/reset/', views.ResetSessionView.as_view(), name='reset_session'),
     path('reset_all/', views.ResetAllSessionsView.as_view(), name='reset_all_sessions'),
+    path('api/check_gibun/', views.CheckGibunView.as_view(), name='check_gibun'),
+    path('item/<int:item_id>/move/<str:direction>/', views.ReorderItemView.as_view(), name='reorder_item'),
+    path('session/<int:session_id>/auto_assign/', views.TriggerAutoAssignView.as_view(), name='trigger_auto_assign'),
 ]

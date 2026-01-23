@@ -1,82 +1,77 @@
 import math
 
-
 # ---------------------------------------------------------
-# 1. 시간 포맷 헬퍼 함수 (전역)
+# 1. 시간 포맷/변환 헬퍼 함수
 # ---------------------------------------------------------
 def format_min_to_time(minutes):
-    """분을 'HH:MM' 문자열로 변환 (24시 넘으면 +1 표시)"""
+    """분을 'HH:MM' 문자열로 변환 (24시 넘으면 00:00, 01:00... 으로 순환)"""
     if minutes is None: return ""
     try:
         minutes = int(minutes)
-        h = math.floor(minutes / 60)
-        m = int(minutes % 60)
         
-        if h >= 24:
-            h = h % 24
-            return f"{h:02d}:{m:02d} (+1)"
+        # 정확히 24:00인 경우
+        if minutes == 1440:
+            return "24:00"
+            
+        # 24시(1440분)으로 나눈 나머지 사용 -> 25:00은 01:00이 됨
+        normalized_min = minutes % 1440
+        
+        h = math.floor(normalized_min / 60)
+        m = int(normalized_min % 60)
+        
         return f"{h:02d}:{m:02d}"
     except:
         return ""
-    
+
+MINUTES_PER_DAY = 1440
+SHIFT_START_HOUR_DAY = 8
+SHIFT_START_MIN_DAY = SHIFT_START_HOUR_DAY * 60  # 480
+
 def get_adjusted_min(minutes):
-    """
-    [핵심 정렬 로직]
-    하루의 시작을 08:00로 봅니다.
-    00:00 ~ 07:59 사이의 시간은 '다음날'로 간주하여 24시간(1440분)을 더합니다.
-    예: 02:00(120) -> 26:00(1560) -> 그래야 20:00(1200)보다 뒤에 옴
-    """
     if minutes is None: return 99999
     
-    # 08:00(480분)보다 작으면 다음날 새벽으로 간주
-    if minutes < 480:
-        return minutes + 1440
+    # 08:00 이전이면 다음날로 간주
+    if minutes < SHIFT_START_MIN_DAY:
+        return minutes + MINUTES_PER_DAY
     return minutes
 
-
 # ---------------------------------------------------------
-# [수정] 스케줄 계산기 (주간/야간 풀타임 적용)
+# 2. 스케줄 계산기 (주간/야간 Shift 적용)
 # ---------------------------------------------------------
 class ScheduleCalculator:
-    # 1. 주간: 08:00(480) ~ 20:00(1200)
-    # 2. 야간: 20:00(1200) ~ 08:00(1920, 익일)
-    DEFAULT_SHIFTS = [
-        {'start': 480, 'end': 1200},   
-        {'start': 1200, 'end': 1920},  
-    ]
-
-    def __init__(self, floating_tasks, fixed_slots=None):
+    """
+    고정된 시간(간비)을 피해서, 유동적인 작업(WO)을 빈칸에 채워넣는 클래스
+    """
+    def __init__(self, floating_tasks, fixed_slots=None, shift_type='DAY'):
         self.tasks = floating_tasks
+        self.shift_type = shift_type # DAY 또는 NIGHT
         
-        # [핵심 수정] 고정된 시간(간비)을 받을 때, 야간 시간(02:00 등)을 26:00으로 변환해서 저장
-        # 그래야 계산기가 1200~1920 사이의 장애물로 인식함
+        # [핵심] 근무 타입에 따라 시작 시간과 범위 설정
+        if self.shift_type == 'NIGHT':
+            # 야간: 20:00(1200) ~ 08:00(1920) -> 12시간
+            self.shifts = [{'start': 1200, 'end': 1920}]
+            self.cursor = 1200 # 시작 커서: 20:00
+        else:
+            # 주간: 08:00(480) ~ 20:00(1200) -> 12시간
+            # 기본값 또는 DAY
+            self.shifts = [{'start': 480, 'end': 1200}]
+            self.cursor = 480  # 시작 커서: 08:00
+
+        # 고정 시간(간비) 보정 (야간 시간을 26:00 등으로 변환)
         adjusted_slots = []
         for slot in (fixed_slots or []):
-            start = slot['start']
-            end = slot['end']
+            s = get_adjusted_min(slot['start'])
+            e = get_adjusted_min(slot['end'])
             
-            # 종료 시간이 시작 시간보다 작으면(자정 넘김), 종료 시간에 +1440
-            if end < start:
-                end += 1440
+            # 종료 시간이 시작 시간보다 작아지는 경우 보정
+            if e < s: e += 1440
             
-            # 시작 시간이 08:00 이전이면(새벽), 시작/종료 모두 +1440
-            if start < 480:
-                start += 1440
-                if end < start: # 종료시간 보정 재확인
-                    end += 1440
-            
-            # 만약 08:00~08:00 처럼 종료가 08:00인 경우 야간조 끝으로 처리
-            if end < 480:
-                end += 1440
+            adjusted_slots.append({'start': s, 'end': e})
 
-            adjusted_slots.append({'start': start, 'end': end})
-
-        # 변환된 시간대로 정렬
+        # 시간순 정렬
         self.occupied = sorted(adjusted_slots, key=lambda x: x['start'])
-        
         self.results = []
         self.block_idx = 0
-        self.cursor = self.DEFAULT_SHIFTS[0]['start']
 
     def _min_to_time(self, minutes):
         return format_min_to_time(minutes)
@@ -86,47 +81,51 @@ class ScheduleCalculator:
         for slot in self.occupied:
             # 슬롯 안에 있거나 슬롯과 겹치는 경우
             if current_time < slot['end'] and end_time > slot['start']:
-                return True, slot['end']
+                return True, slot['end'] # 겹침! 겹치는 슬롯의 끝나는 시간을 반환
         return False, None
 
     def calculate(self):
-        shifts = self.DEFAULT_SHIFTS
+        # 현재 설정된 시프트 범위 안에서만 배정
+        if not self.shifts: return []
+        
+        current_shift = self.shifts[0] 
+        shift_end = current_shift['end']
         
         for task in self.tasks:
-            try: mh_val = float(task.get('mh', 0))
-            except: mh_val = 0.0
+            try: mh = float(task.get('mh', 0))
+            except: mh = 0.0
             
-            mh_remain = int(mh_val * 60)
+            remain = int(mh * 60)
             
-            while mh_remain > 0.1 and self.block_idx < len(shifts):
-                current_shift = shifts[self.block_idx]
-                
-                if self.cursor < current_shift['start']:
-                    self.cursor = current_shift['start']
-                
-                if self.cursor >= current_shift['end']:
-                    self.block_idx += 1
-                    continue
+            # 남은 시간이 있고 근무 시간이 안 끝났으면 계속
+            while remain > 0.1:
+                # 1. 근무 종료 체크
+                if self.cursor >= shift_end:
+                    break 
 
+                # 2. 간비 충돌 체크 (점프)
                 is_hit, jump_to = self._is_overlapping(self.cursor, 1)
                 if is_hit:
                     self.cursor = max(self.cursor, jump_to)
                     continue
 
-                limit = current_shift['end']
+                # 3. 가용 시간 계산
+                limit = shift_end
                 for slot in self.occupied:
+                    # 현재 커서보다 뒤에 있는 가장 빠른 간비 시작 시간 찾기
                     if slot['start'] > self.cursor:
                         limit = min(limit, slot['start'])
                         break
                 
                 duration = limit - self.cursor
                 
+                # 가용 시간이 없으면 점프
                 if duration <= 0:
-                    if limit >= current_shift['end']:
-                        self.block_idx += 1
+                    self.cursor = limit
                     continue
 
-                use = min(mh_remain, duration)
+                # 4. 할당 (남은 작업량과 가용 시간 중 작은 것)
+                use = min(remain, duration)
                 start_t = self.cursor
                 end_t = self.cursor + use
                 
@@ -135,15 +134,16 @@ class ScheduleCalculator:
                     'op': task.get('op', ''),
                     'desc': task.get('desc', ''),
                     'gibun': task.get('gibun', ''),
-                    'mh': round(use / 60, 2),
+                    'mh': round(use/60, 2),
                     'start_str': self._min_to_time(start_t),
                     'end_str': self._min_to_time(end_t),
                     'start_min': start_t,
+                    'end_min': end_t, # [중요] 뷰에서 자정 분리할 때 필요함
                     'is_fixed': False
                 })
                 
+                # 상태 업데이트
                 self.cursor += use
-                mh_remain -= use
+                remain -= use
                 
         return self.results
-    

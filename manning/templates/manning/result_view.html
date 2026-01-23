@@ -1,815 +1,330 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>배정 결과</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        />
-        <link
-            rel="stylesheet"
-            as="style"
-            crossorigin
-            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-        <style>
-            body {
-                font-family: "Pretendard", sans-serif;
-            }
+{% extends "manning/base/base.html" %}
+{% load static %}
 
-            #modalInputGrid input {
-                width: 100%;
-                border: none;
-                background: transparent;
-                text-align: center;
-                outline: none;
-                padding: 5px;
-            }
-            #modalInputGrid input:focus {
-                background-color: #e8f0fe; /* 포커스 시 연한 파랑 */
-                font-weight: bold;
-            }
+<title>{% block title %}배정 결과{% endblock title %}</title>
 
-            /* 결과 테이블 색상 */
-            .res-direct {
-                background-color: #f0fff4 !important;
-                color: #006400;
-            } /* 직비: 연두 */
-            .res-indirect {
-                background-color: #fff5f5 !important;
-                color: #c53030;
-            } /* 간비: 연한 빨강 */
-        </style>
-    </head>
-    <body class="p-4 bg-light">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <a
-                        href="{% url 'index' %}"
-                        class="btn btn-outline-secondary btn-sm"
-                    >
-                        <i class="bi bi-house-door-fill"></i> 홈
-                    </a>
-                    <h2 class="mb-0 fw-bold">📊 {{ session.name }} 결과</h2>
-                </div>
+{% block style %}
+<style>
+    body {
+        font-family: "Pretendard", sans-serif;
+    }
+    .res-direct {
+        background-color: #f0fff4 !important;
+        color: #006400;
+    }
+    .res-indirect {
+        background-color: #fff5f5 !important;
+        color: #c53030;
+    }
+</style>
+{% endblock style %}
 
-                <div class="d-flex gap-2">
-                    <a
-                        href="{% url 'edit_session' session.id %}"
-                        class="btn btn-outline-dark btn-sm d-flex align-items-center"
-                    >
-                        🔧 명단/이름 변경
-                    </a>
+{% block main %}
+    <div class="container p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <a
+                    href="{% url 'index' %}"
+                    class="btn btn-outline-secondary btn-sm"
+                >
+                    <i class="bi bi-house-door-fill"></i> 홈
+                </a>
+                <h2 class="mb-0 fw-bold">📊 {{ session.name }} 결과</h2>
+            </div>
+            <div class="d-flex gap-2">
+                <a
+                    href="{% url 'edit_session' session.id %}"
+                    class="btn btn-outline-dark btn-sm d-flex align-items-center"
+                >
+                    🔧 명단/이름 변경
+                </a>
 
-                    <a
-                        href="{% url 'manage_items' session.id %}"
-                        class="btn btn-primary btn-sm fw-bold d-flex align-items-center"
-                    >
-                        ⚙️ 통합 관리 (일감/한도)
-                    </a>
-                    <button
-                        type="button"
-                        class="btn btn-success btn-sm fw-bold d-flex align-items-center"
-                        data-bs-toggle="modal"
-                        data-bs-target="#uploadModal"
-                    >
-                        📥 엑셀 등록
-                    </button>
-                </div>
+                <a
+                    href="{% url 'manage_items' session.id %}"
+                    class="btn btn-primary btn-sm fw-bold d-flex align-items-center"
+                >
+                    ⚙️ 통합 관리 (일감/한도)
+                </a>
+                <button
+                    type="button"
+                    class="btn btn-success btn-sm fw-bold d-flex align-items-center"
+                    data-bs-toggle="modal"
+                    data-bs-target="#uploadModal"
+                >
+                    📥 엑셀 등록
+                </button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-3">
+            <form
+                action="{% url 'trigger_auto_assign' session.id %}"
+                method="POST"
+                class="d-inline"
+            >
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    class="btn btn-warning fw-bold shadow-sm"
+                >
+                    <i class="bi bi-magic"></i> 자동 배정 실행하기
+                </button>
+            </form>
+
+            <form
+                id="finish-form"
+                action="{% url 'finish_session' session.id %}"
+                method="POST"
+            >
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    class="btn btn-success fw-bold px-4"
+                    onclick="
+                        return confirm(
+                            '정말 작업을 완료하고 기록 보관소로 이동하시겠습니까?',
+                        );
+                    "
+                >
+                    ✅ 작업 완료 (퇴실)
+                </button>
+            </form>
+        </div>
+
+        {% comment %} {% if messages %} {% for message in messages %}
+        <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+        >
+            {{ message }}
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+            ></button>
+        </div>
+        {% endfor %} {% endif %} {% endcomment %}
+
+        <div class="card shadow-sm border-secondary mb-5">
+            <div
+                class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
+            >
+                <h5 class="mb-0">
+                    <i class="bi bi-person-gear me-2"></i>작업자 현황
+                </h5>
+                <small>최대 근무 시간을 수정 후 [저장]을 누르세요.</small>
             </div>
 
-            <div class="d-flex justify-content-end gap-2 mb-3">
-                <form method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary fw-bold px-4">
-                        ⚡ 자동 배정 실행하기
-                    </button>
-                </form>
-
+            <div class="card-body bg-light">
                 <form
-                    id="finish-form"
-                    action="{% url 'finish_session' session.id %}"
+                    action="{% url 'update_limits' session.id %}"
                     method="POST"
                 >
                     {% csrf_token %}
-                    <button
-                        type="button"
-                        class="btn btn-success fw-bold px-4"
-                        data-bs-toggle="modal"
-                        data-bs-target="#finishModal"
-                    >
-                        ✅ 작업 완료 (퇴실)
-                    </button>
-                </form>
-            </div>
-
-            {% if messages %} {% for message in messages %}
-            <div
-                class="alert alert-success alert-dismissible fade show"
-                role="alert"
-            >
-                {{ message }}
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                ></button>
-            </div>
-            {% endfor %} {% endif %}
-
-            <div class="card shadow-sm border-secondary mb-5">
-                <div
-                    class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
-                >
-                    <h5 class="mb-0">
-                        <i class="bi bi-person-gear me-2"></i>작업자 현황
-                    </h5>
-                    <small
-                        >최대 근무 시간을 수정 후 [저장]을
-                        누르세요.</small
-                    >
-                </div>
-
-                <div class="card-body bg-light">
-                    <form
-                        action="{% url 'update_limits' session.id %}"
-                        method="POST"
-                    >
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            {% for worker in workers %}
-                            <div class="col-6 col-md-4 col-lg-2">
-                                <div
-                                    class="card h-100 text-center {% if worker.used_mh > worker.limit_mh %}border-danger{% endif %}"
-                                >
-                                    <div class="card-body p-2">
-                                        <div class="fw-bold mb-1 text-truncate">
-                                            {{ worker.name }}
-                                        </div>
-                                        <div class="h3 mb-2 text-primary">
-                                            {{ worker.used_mh|floatformat:2 }}
-                                        </div>
-                                        <div
-                                            class="d-flex align-items-center justify-content-center gap-1 text-muted small"
-                                        >
-                                            <span>/ Max</span>
-                                            <input
-                                                type="number"
-                                                step="0.5"
-                                                name="limit_{{ worker.id }}"
-                                                class="form-control form-control-sm text-center fw-bold p-0"
-                                                style="
-                                                    width: 50px;
-                                                    height: 24px;
-                                                "
-                                                value="{{ worker.limit_mh }}"
-                                            />
-                                        </div>
+                    <div class="row g-3">
+                        {% for worker in workers %}
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div
+                                class="card h-100 text-center {% if worker.used_mh > worker.limit_mh %}border-danger{% endif %}"
+                            >
+                                <div class="card-body p-2">
+                                    <div class="fw-bold mb-1 text-truncate">
+                                        {{ worker.name }}
                                     </div>
-                                    {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
-                                    <div class="progress" style="height: 4px">
-                                        <div
-                                            class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}"
-                                            role="progressbar"
-                                            style="width: {{ ratio }}%;"
-                                        ></div>
+                                    <div class="h3 mb-2 text-primary">
+                                        {{ worker.used_mh|floatformat:2 }}
+                                    </div>
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-1 text-muted small"
+                                    >
+                                        <span>/ Max</span>
+                                        <input
+                                            type="number"
+                                            step="0.5"
+                                            name="limit_{{ worker.id }}"
+                                            class="form-control form-control-sm text-center fw-bold p-0"
+                                            style="
+                                                width: 50px;
+                                                height: 24px;
+                                            "
+                                            value="{{ worker.limit_mh }}"
+                                        />
                                     </div>
                                 </div>
+                                {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
+                                <div class="progress" style="height: 4px">
+                                    <div
+                                        class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}"
+                                        role="progressbar"
+                                        style="width: {{ ratio }}%;"
+                                    ></div>
+                                </div>
                             </div>
-                            {% endfor %}
                         </div>
-                        <div class="mt-3 text-end">
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button
+                            type="submit"
+                            class="btn btn-dark btn-sm fw-bold"
+                        >
+                            💾 한도(Max Time) 저장하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📋 작업 내역</h5>
+            <div class="d-flex gap-2">
+                <a
+                    href="{% url 'assigned_summary' session.id %}"
+                    class="btn btn-info btn-sm"
+                >
+                    📅 작업 시간별 보기
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-5">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table
+                        class="table table-bordered table-hover mb-0 text-center align-middle"
+                    >
+                        <thead class="table-dark">
+                            <tr>
+                                <th>기번</th>
+                                <th>WO</th>
+                                <th>OP</th>
+                                <th>설명</th>
+                                <th>총 시간</th>
+                                <th style="width: 40%">
+                                    배정 결과 (이름 : 시간)
+                                </th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %} {% if item.work_order != '간비' %}
+                            <tr
+                                {%
+                                if
+                                item.is_manual
+                                %}class="table-info"
+                                {%
+                                endif
+                                %}
+                            >
+                                <td class="fw-bold">
+                                    {{ item.gibun_input }}
+                                </td>
+
+                                <td>{{ item.work_order }}</td>
+                                <td>{{ item.op }}</td>
+                                <td class="text-start">
+                                    {{ item.description }}
+                                </td>
+                                <td class="fw-bold text-primary">
+                                    {{ item.work_mh }}
+                                </td>
+                                <td class="text-start">
+                                    {% for assign in item.assignments.all %}
+                                    <span class="badge bg-secondary me-1">
+                                        {{ assign.worker.name }} ({{ assign.allocated_mh|floatformat:2 }})
+                                    </span>
+                                    {% empty %}
+                                    <span class="text-muted small"
+                                        >아직 배정 안됨</span
+                                    >
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a
+                                        href="{% url 'edit_item' item.id %}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        ✏️ 수정
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endif %} 
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="modal fade"
+        id="uploadModal"
+        tabindex="-1"
+        aria-labelledby="uploadModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold" id="uploadModalLabel">
+                        📊 엑셀 데이터 일괄 등록
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <form
+                        method="POST"
+                        action="{% url 'upload_data' session.id %}"
+                        enctype="multipart/form-data"
+                    >
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label
+                                for="excelFile"
+                                class="form-label fw-bold"
+                                >파일 선택 (.xlsx, .xls)</label
+                            >
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="excelFile"
+                                name="file"
+                                accept=".xlsx, .xls"
+                                required
+                            />
+                        </div>
+
+                        <div class="alert alert-light border small">
+                            <strong
+                                >※ 엑셀 컬럼 순서 (첫 줄 헤더 포함):</strong
+                            ><br />
+                            <span class="badge bg-secondary">기종</span>
+                            <span class="badge bg-secondary">WO</span>
+                            <span class="badge bg-secondary">OP</span>
+                            <span class="badge bg-secondary">설명</span>
+                            <span class="badge bg-secondary">M/H</span>
+                        </div>
+
+                        <div class="d-grid">
                             <button
                                 type="submit"
-                                class="btn btn-dark btn-sm fw-bold"
+                                class="btn btn-success fw-bold"
                             >
-                                💾 한도(Max Time) 저장하기
+                                🚀 데이터 업로드 및 저장
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
-            <div class="mb-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">📋 작업 내역</h5>
-                <div class="d-flex gap-2">
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#timeInputModal"
-                    >
-                        ⏱️ 작업 시간 입력
-                    </button>
-                    <a
-                        href="{% url 'assigned_summary' session.id %}"
-                        class="btn btn-info btn-sm"
-                    >
-                        📅 작업 시간별 보기
-                    </a>
-                </div>
-            </div>
-
-            <div class="card shadow-sm mb-5">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table
-                            class="table table-bordered table-hover mb-0 text-center align-middle"
-                        >
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>기번</th>
-                                    <th>WO</th>
-                                    <th>OP</th>
-                                    <th>설명</th>
-                                    <th>총 시간</th>
-                                    <th style="width: 40%">
-                                        배정 결과 (이름 : 시간)
-                                    </th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in items %} {% if item.work_order != '간비' %}
-                                <tr
-                                    {% if item.is_manual %}class="table-info"{% endif %}
-                                >
-                                    <td class="fw-bold">
-                                        {{ item.gibun_input }}
-                                    </td>
-
-                                    <td>{{ item.work_order }}</td>
-                                    <td>{{ item.op }}</td>
-                                    <td class="text-start">
-                                        {{ item.description }}
-                                    </td>
-                                    <td class="fw-bold text-primary">
-                                        {{ item.work_mh }}
-                                    </td>
-                                    <td class="text-start">
-                                        {% for assign in item.assignments.all %}
-                                        <span class="badge bg-secondary me-1">
-                                            {{ assign.worker.name }} ({{ assign.allocated_mh|floatformat:2 }})
-                                        </span>
-                                        {% empty %}
-                                        <span class="text-muted small"
-                                            >아직 배정 안됨</span
-                                        >
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        <a
-                                            href="{% url 'edit_item' item.id %}"
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            ✏️ 수정
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endif %} {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
         </div>
+    </div>
+{% endblock main %}
 
-        <div
-            class="modal fade"
-            id="uploadModal"
-            tabindex="-1"
-            aria-labelledby="uploadModalLabel"
-            aria-hidden="true"
-        >
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title fw-bold" id="uploadModalLabel">
-                            📊 엑셀 데이터 일괄 등록
-                        </h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    <div class="modal-body">
-                        <form
-                            method="POST"
-                            action="{% url 'upload_data' pk=session.id %}"
-                            enctype="multipart/form-data"
-                        >
-                            {% csrf_token %}
-
-                            <div class="mb-3">
-                                <label
-                                    for="excelFile"
-                                    class="form-label fw-bold"
-                                    >파일 선택 (.xlsx, .xls)</label
-                                >
-                                <input
-                                    type="file"
-                                    class="form-control"
-                                    id="excelFile"
-                                    name="file"
-                                    accept=".xlsx, .xls"
-                                    required
-                                />
-                            </div>
-
-                            <div class="alert alert-light border small">
-                                <strong
-                                    >※ 엑셀 컬럼 순서 (첫 줄 헤더 포함):</strong
-                                ><br />
-                                <span class="badge bg-secondary">기종</span>
-                                <span class="badge bg-secondary">WO</span>
-                                <span class="badge bg-secondary">OP</span>
-                                <span class="badge bg-secondary">설명</span>
-                                <span class="badge bg-secondary">M/H</span>
-                            </div>
-
-                            <div class="d-grid">
-                                <button
-                                    type="submit"
-                                    class="btn btn-success fw-bold"
-                                >
-                                    🚀 데이터 업로드 및 저장
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div
-            class="modal fade"
-            id="timeInputModal"
-            tabindex="-1"
-            aria-labelledby="timeInputModalLabel"
-            aria-hidden="true"
-            data-bs-backdrop="static"
-        >
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5
-                            class="modal-title fw-bold"
-                            id="timeInputModalLabel"
-                        >
-                            ⏱️ 작업 시간 입력
-                        </h5>
-                        <button
-                            type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="alert-container"></div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold"
-                                >작업자 선택</label
-                            >
-                            <select
-                                id="worker-select"
-                                class="form-select form-select-sm mb-3"
-                            >
-                                <option value="">
-                                    -- 작업자를 선택하세요 --
-                                </option>
-                                <option value="all">모두</option>
-                                {% for worker in workers %} {% if worker.name != '간비' %}
-                                <option value="{{ worker.id }}">
-                                    {{ worker.name }}
-                                </option>
-                                {% endif %} {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">시간 입력</label>
-                            <table
-                                class="table table-bordered text-center align-middle"
-                            >
-                                <thead class="table-light">
-                                    <tr>
-                                        <th width="30%">시작시간</th>
-                                        <th width="30%">간비(코드)</th>
-                                        <th width="30%">종료시간</th>
-                                        <th width="10%"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="time-input-rows">
-                                    {% for i in "0123456789" %}
-                                    <tr class="time-input-row">
-                                        <td>
-                                            <input
-                                                type="text"
-                                                class="form-control form-control-sm start-time"
-                                                placeholder="0800"
-                                                maxlength="4"
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="text"
-                                                class="form-control form-control-sm code"
-                                                placeholder="코드"
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="text"
-                                                class="form-control form-control-sm end-time"
-                                                placeholder="1000"
-                                                maxlength="4"
-                                            />
-                                        </td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm btn-danger delete-row"
-                                                onclick="deleteRow(this)"
-                                            >
-                                                ✕
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="mb-3">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-outline-secondary"
-                                id="add-row-btn"
-                            >
-                                + 행 추가
-                            </button>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                        >
-                            취소
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-success fw-bold"
-                            id="save-times-btn"
-                        >
-                            💾 저장하기
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div
-            class="modal fade"
-            id="finishModal"
-            tabindex="-1"
-            aria-labelledby="finishModalLabel"
-            aria-hidden="true"
-            data-bs-backdrop="static"
-        >
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-sm">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title fw-bold" id="#finishModalLabel">
-                            ✅ 작업 완료 확인
-                        </h5>
-                        <button
-                            type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-2">
-                            아래 내용을 확인하시고 <strong>완료</strong> 버튼을
-                            눌러주세요.
-                        </p>
-                        <div class="p-3 rounded bg-light border">
-                            <p class="mb-1">
-                                <strong>세션명:</strong> {{ session.name }}
-                            </p>
-                            <p class="mb-0 text-muted">
-                                이 세션은 기록 보관소로 이동하며, 현재 방은 다시
-                                사용 가능합니다.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                        >
-                            취소
-                        </button>
-                        <button
-                            type="button"
-                            id="confirm-finish-btn"
-                            class="btn btn-success fw-bold"
-                        >
-                            작업 완료로 기록
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            // -----------------------------------------------------------
-            // 1. [작업 완료/퇴실] 버튼 클릭 시 처리
-            // -----------------------------------------------------------
-            document.addEventListener("DOMContentLoaded", function () {
-                const confirmBtn =
-                    document.getElementById("confirm-finish-btn");
-                if (confirmBtn) {
-                    confirmBtn.addEventListener("click", function () {
-                        // [핵심] 퇴실 시 로컬스토리지에 저장된 임시 입력 데이터를 싹 지웁니다.
-                        try {
-                            localStorage.removeItem(
-                                `manning_time_input_{{ session.id }}`
-                            );
-                        } catch (e) {}
-
-                        // 폼 제출 (서버로 종료 신호 전송)
-                        const form = document.getElementById("finish-form");
-                        if (form) form.submit();
-                    });
-                }
-            });
-
-            // -----------------------------------------------------------
-            // 2. [작업 시간 입력] 모달 관련 로직
-            // -----------------------------------------------------------
-            const STORAGE_KEY = `manning_time_input_{{ session.id }}`;
-            const timeInputModal = document.getElementById("timeInputModal");
-
-            // 모달 열릴 때: 로컬스토리지 데이터 불러오기
-            timeInputModal.addEventListener("show.bs.modal", function () {
-                loadInputData();
-            });
-
-            function loadInputData() {
-                const savedData = localStorage.getItem(STORAGE_KEY);
-                if (!savedData) return;
-
-                try {
-                    const data = JSON.parse(savedData);
-                    const tbody = document.getElementById("time-input-rows");
-                    const rows = tbody.querySelectorAll(".time-input-row");
-
-                    // 저장된 값 칸에 채워넣기
-                    data.rows.forEach((rowData, idx) => {
-                        if (idx < rows.length) {
-                            const row = rows[idx];
-                            row.querySelector(".start-time").value =
-                                rowData.start || "";
-                            row.querySelector(".code").value =
-                                rowData.code || "";
-                            row.querySelector(".end-time").value =
-                                rowData.end || "";
-                        }
-                    });
-
-                    const workerSelect =
-                        document.getElementById("worker-select");
-                    if (data.worker_id) {
-                        workerSelect.value = data.worker_id;
-                    }
-                } catch (e) {
-                    console.error("데이터 로드 실패:", e);
-                }
-            }
-
-            // 입력할 때마다 자동 저장 (LocalStorage)
-            function setupAutoSave() {
-                const tbody = document.getElementById("time-input-rows");
-                tbody.addEventListener("input", saveToLocalStorage);
-                document
-                    .getElementById("worker-select")
-                    .addEventListener("change", saveToLocalStorage);
-            }
-
-            function saveToLocalStorage() {
-                const rows = document.querySelectorAll(
-                    "#time-input-rows .time-input-row"
-                );
-                const rowData = [];
-                rows.forEach((row) => {
-                    rowData.push({
-                        start: row.querySelector(".start-time").value,
-                        code: row.querySelector(".code").value,
-                        end: row.querySelector(".end-time").value,
-                    });
-                });
-                const workerSelect = document.getElementById("worker-select");
-                const data = {
-                    worker_id: workerSelect.value,
-                    rows: rowData,
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            }
-
-            setupAutoSave();
-
-            // -----------------------------------------------------------
-            // 3. [저장하기] 버튼 클릭 (서버 전송)
-            // -----------------------------------------------------------
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== "") {
-                    const cookies = document.cookie.split(";");
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (
-                            cookie.substring(0, name.length + 1) ===
-                            name + "="
-                        ) {
-                            cookieValue = decodeURIComponent(
-                                cookie.substring(name.length + 1)
-                            );
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            function timeToMinutes(timeStr) {
-                if (!timeStr || timeStr.length !== 4) return null;
-                
-                const h = parseInt(timeStr.substr(0, 2), 10);
-                const m = parseInt(timeStr.substr(2, 2), 10);
-
-                // [수정] 2400 (자정) 허용 -> 1440분
-                if (h === 24 && m === 0) {
-                    return 1440; 
-                }
-
-                // [수정] 0~23시 정상 입력 확인 (24시 이상 입력은 백엔드 로직이 아닌 여기서 1차로 막거나 허용해야 함)
-                // 만약 사용자가 '2500'(새벽 1시)으로 입력하는 습관이 있다면 h > 23 제한을 풀어야 합니다.
-                // 여기서는 일반적인 시계(00~23) 입력을 기준으로 하고, 종료 시간이 작으면 다음날로 인식하게 합니다.
-                if (h < 0 || h > 23 || m < 0 || m > 59) {
-                    return null; 
-                }
-
-                return h * 60 + m;
-            }
-
-            document
-                .getElementById("save-times-btn")
-                .addEventListener("click", function () {
-                    const workerId =
-                        document.getElementById("worker-select").value;
-                    if (!workerId) {
-                        alert("작업자를 선택하세요.");
-                        return;
-                    }
-
-                    const rows = document.querySelectorAll(
-                        "#time-input-rows .time-input-row"
-                    );
-                    const assignments = [];
-                    let isValid = true;
-
-                    rows.forEach((row, idx) => {
-                        const startStr = row
-                            .querySelector(".start-time")
-                            .value.trim();
-                        const code = row.querySelector(".code").value.trim();
-                        const endStr = row
-                            .querySelector(".end-time")
-                            .value.trim();
-
-                        if (!startStr && !endStr && !code) return; // 빈 줄 패스
-
-                        if (!startStr || !endStr) {
-                            alert(
-                                `${idx + 1}번 행: 시작/종료 시간은 필수입니다.`
-                            );
-                            isValid = false;
-                            return;
-                        }
-
-                        const startMin = timeToMinutes(startStr);
-                        const endMin = timeToMinutes(endStr);
-
-                        if (startMin === null || endMin === null) {
-                            alert(`${idx + 1}번 행: 시간 형식 오류 (예: 0900)`);
-                            isValid = false;
-                            return;
-                        }
-
-                        // "모두" 선택 시 처리
-                        if (workerId === "all") {
-                            const options = document.querySelectorAll(
-                                "#worker-select option"
-                            );
-                            options.forEach((opt) => {
-                                if (opt.value && opt.value !== "all") {
-                                    assignments.push({
-                                        type: "INDIRECT",
-                                        start_min: startMin,
-                                        end_min: endMin,
-                                        code: code,
-                                        worker_id: parseInt(opt.value),
-                                    });
-                                }
-                            });
-                        } else {
-                            assignments.push({
-                                type: "INDIRECT",
-                                start_min: startMin,
-                                end_min: endMin,
-                                code: code,
-                                worker_id: parseInt(workerId),
-                            });
-                        }
-                    });
-
-                    if (!isValid) return;
-
-                    // 서버 전송
-                    fetch("{% url 'save_manual_input' session.id %}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": getCookie("csrftoken"),
-                        },
-                        body: JSON.stringify({ assignments: assignments }),
-                    })
-                        .then((r) => r.json())
-                        .then((data) => {
-                            if (data.status === "success") {
-                                // [수정] 요청하신 메시지로 변경
-                                alert("저장이 정상적으로 처리 되었습니다.");
-
-                                // 저장 성공 시 임시 데이터 삭제
-                                localStorage.removeItem(STORAGE_KEY);
-
-                                // 새로고침
-                                window.location.reload();
-                            } else {
-                                alert("저장 실패: " + (data.message || "오류"));
-                            }
-                        })
-                        .catch((err) => {
-                            alert("네트워크 오류: " + err);
-                        });
-                });
-
-            // -----------------------------------------------------------
-            // 4. 행 추가/삭제 기능
-            // -----------------------------------------------------------
-            document
-                .getElementById("add-row-btn")
-                .addEventListener("click", function () {
-                    const tbody = document.getElementById("time-input-rows");
-                    const newRow = document.createElement("tr");
-                    newRow.className = "time-input-row";
-                    newRow.innerHTML = `
-                    <td><input type="text" class="form-control form-control-sm start-time" placeholder="0800" maxlength="4"></td>
-                    <td><input type="text" class="form-control form-control-sm code" placeholder="코드"></td>
-                    <td><input type="text" class="form-control form-control-sm end-time" placeholder="1000" maxlength="4"></td>
-                    <td><button type="button" class="btn btn-sm btn-danger delete-row" onclick="deleteRow(this)">✕</button></td>
-                `;
-                    tbody.appendChild(newRow);
-                });
-
-            window.deleteRow = function (btn) {
-                const rows = document.querySelectorAll(
-                    "#time-input-rows .time-input-row"
-                );
-                if (rows.length > 1) {
-                    btn.closest("tr").remove();
-                    saveToLocalStorage(); // 삭제 후 상태 저장
-                } else {
-                    alert("최소 1개의 행이 필요합니다.");
-                }
-            };
-        </script>
-    </body>
-</html>
