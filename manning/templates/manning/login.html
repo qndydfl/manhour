@@ -1,44 +1,47 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}로그인{% endblock title %}</title>
-{% block style %}<link rel="stylesheet" href="{% static 'css/login.css' %}" />{% endblock style %}
+{% block title %}로그인{% endblock title %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}" />
+{% endblock css %}
 
-{% block main %}
-    <div class="login-card">
-        <div class="mb-4 text-primary">
-            <i class="bi bi-shield-lock-fill" style="font-size: 4.5rem;"></i>
-        </div>
-        <h3 class="fw-bold mb-2">Login Page</h3>
-        <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
-        
-        {% comment %} {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-danger py-2 mb-4 small fw-bold border-0 shadow-sm">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %} {% endcomment %}
-
-        <form method="POST">
-            {% csrf_token %}
+{% block content %} <div class="login-container">
+        <div class="login-card">
+            <div class="mb-4 text-primary">
+                <i class="bi bi-shield-lock-fill" style="font-size: 4.5rem;"></i>
+            </div>
+            <h3 class="fw-bold mb-2">Login Page</h3>
+            <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
             
-            <div class="mb-4">
-                <input type="password" 
-                    name="password" 
-                    class="form-control form-control-lg text-center" 
-                    placeholder="Password" 
-                    autocomplete="new-password" 
-                    required 
-                    autofocus>
-            </div>
+            {% comment %} {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger py-2 mb-4 small fw-bold border-0 shadow-sm">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %} {% endcomment %}
 
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-md fw-bold py-3 rounded-4 shadow-sm">
-                    접속하기 <i class="bi bi-chevron-right ms-1"></i>
-                </button>
-            </div>
-        </form>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <input type="password" 
+                        name="password" 
+                        class="form-control form-control-lg text-center bg-light border-0" 
+                        placeholder="Password" 
+                        autocomplete="new-password" 
+                        required 
+                        autofocus>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-md fw-bold py-3 rounded-4 shadow-sm transition-btn">
+                        접속하기 <i class="bi bi-chevron-right ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-{% endblock main %}
+{% endblock content %}

@@ -1,13 +1,16 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}A-Check Manning System{% endblock title %}</title>
+{% block title %}A-Check Manning System{% endblock title %}
 
+{% block style %}
 <style>
         body { background-color: #fff; font-size: 0.9rem; }
         /* 입력창 디자인 미세 조정 */
         .table td { vertical-align: middle; }
     </style>
+{% endblock style %}
+
 {% block main %}
     <form method="POST">
         {% csrf_token %}
@@ -17,8 +20,10 @@
             <thead class="table-light">
                 <tr>
                     <th width="8%">삭제</th>
-                    <th width="18%">시작 (HHMM)</th> <th>간비 내용</th>
-                    <th width="18%">종료 (HHMM)</th> <th width="15%">시간 (M/H)</th>
+                    <th width="18%">시작 (HHMM)</th> 
+                    <th>간비 내용</th>
+                    <th width="18%">종료 (HHMM)</th> 
+                    <th width="15%">시간 (M/H)</th>
                 </tr>
             </thead>
             <tbody>

@@ -1,0 +1,141 @@
+{% extends 'manning/base/base.html' %}
+{% load static %}
+
+{% block title %}작업 슬롯 현황{% endblock %}
+
+{% block css %}
+<style>
+    .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+    .bg-soft-indigo { background-color: #e0e7ff; }
+    .text-indigo { color: #4338ca; }
+    .bg-soft-warning { background-color: #fef3c7; }
+</style>
+{% endblock css %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-3 mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'index' %}">
+            <i class="bi bi-arrow-left me-2"></i> 대시보드로 돌아가기
+        </a>
+        <a href="{% url 'create_session' %}" class="btn btn-primary btn-sm fw-bold">
+            <i class="bi bi-plus-lg me-1"></i> 세션 추가
+        </a>
+    </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황</h3>
+            <p class="text-muted mb-0 small">현재 활성화된 작업 세션 목록입니다.</p>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="세션 검색..." id="sessionSearch">
+            </div>
+            {% if request.session.user_role == 'admin' and active_count > 0 %}
+            <button class="btn btn-outline-danger fw-bold" data-bs-toggle="modal" data-bs-target="#resetAllModal">
+                <i class="bi bi-trash3-fill"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4" id="sessionsGrid">
+        {% for session in active_sessions %}
+        <div class="col-12 col-md-6 col-lg-3 session-col">
+            
+            <div class="card h-100 border-0 shadow-sm card-hover">
+                <div class="h-1 w-100 {% if session.shift_type == 'NIGHT' %}bg-dark{% else %}bg-warning{% endif %}" style="height: 6px;"></div>
+                
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-light text-secondary border fw-normal">ID: {{ session.id }}</span>
+                        {% if session.shift_type == 'NIGHT' %}
+                            <span class="badge bg-soft-indigo text-indigo rounded-pill"><i class="bi bi-moon-stars-fill me-1"></i>야간</span>
+                        {% else %}
+                            <span class="badge bg-soft-warning text-warning rounded-pill"><i class="bi bi-sun-fill me-1"></i>주간</span>
+                        {% endif %}
+                    </div>
+
+                    <h5 class="card-title fw-bold mb-1 text-truncate">{{ session.name }}</h5>
+                    <p class="text-muted small mb-4">작업자 {{ session.worker_count }}명 • 아이템 {{ session.item_count }}개</p>
+
+                    <div class="d-flex justify-content-between bg-light p-2 rounded-3 mb-4">
+                        <div class="text-center w-50 border-end">
+                            <small class="text-muted" style="font-size: 0.7rem;">총 시간</small>
+                            <div class="fw-bold text-primary">{{ session.total_mh|floatformat:1 }} <span class="small">H</span></div>
+                        </div>
+                        <div class="text-center w-50">
+                            <small class="text-muted" style="font-size: 0.7rem;">상태</small>
+                            <div class="fw-bold text-success">진행중</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto d-grid gap-2">
+                        <a href="{% url 'result_view' session.id %}" class="btn btn-primary fw-bold shadow-sm">
+                            입장하기
+                        </a>
+                        <a href="{% url 'edit_session' session.id %}" class="btn btn-light text-muted btn-sm">
+                            <i class="bi bi-gear-fill me-1"></i> 설정
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="card border-dashed bg-light py-5">
+                <div class="card-body">
+                    <i class="bi bi-inbox fs-1 text-muted opacity-50 mb-3 d-block"></i>
+                    <h5 class="fw-bold text-muted">활성 세션이 없습니다</h5>
+                    <a href="{% url 'create_session' %}" class="btn btn-primary mt-3 rounded-pill px-4">
+                        새 세션 만들기
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="resetAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> 전체 초기화</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-5">
+                <h4 class="fw-bold text-dark mb-2">모든 세션을 종료하시겠습니까?</h4>
+                <p class="text-muted mb-0">현재 진행 중인 모든 작업 데이터가 아카이브로 이동됩니다.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0 pb-4">
+                <form action="{% url 'reset_all_sessions' %}" method="POST" class="d-flex gap-2 w-100 px-3">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-light flex-fill py-2 fw-bold" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-danger flex-fill py-2 fw-bold">모두 종료</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 간단한 클라이언트 검색 기능
+    document.getElementById('sessionSearch').addEventListener('keyup', function() {
+        let val = this.value.toLowerCase();
+        let items = document.querySelectorAll('.session-col');
+        items.forEach(item => {
+            let text = item.textContent.toLowerCase();
+            item.style.display = text.includes(val) ? 'block' : 'none';
+        });
+    });
+</script>
+{% endblock content %}

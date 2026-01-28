@@ -1,0 +1,66 @@
+/* static/css/result_view.css */
+
+/* 1. 작업자 상태 카드 */
+.worker-card {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.worker-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-color: #e9ecef;
+}
+
+/* 2. 프로그레스 바 커스텀 */
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* 3. 테이블 스타일 */
+.table-custom th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e9ecef;
+    vertical-align: middle;
+}
+.table-custom td {
+    vertical-align: middle;
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+.table-custom tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* 4. 스티키 헤더 (테이블 길어질 때 유용) */
+.table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+}
+.table-sticky thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* 5. 배정 결과 뱃지 */
+.assign-badge {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #495057;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}

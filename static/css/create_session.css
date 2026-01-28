@@ -1,0 +1,37 @@
+/* static/css/create_session.css */
+
+/* 1. 항공기 기번 입력 컨테이너 (Input 처럼 보이게 꾸밈) */
+.tag-input-container {
+    min-height: 50px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem; /* Bootstrap rounded */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: text;
+}
+
+/* 포커스 되었을 때 (Bootstrap 기본 focus ring 효과 모방) */
+.tag-input-container.ring-focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* 2. 세션 슬롯 선택 버튼 */
+.slot-btn {
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+
+/* 마우스 올렸을 때 (비활성화 버튼 제외) */
+.slot-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: #0d6efd; /* Primary Color */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* 선택된 상태 (활성화) */
+.slot-btn.active-slot {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Primary Gradient */
+    color: white;
+    border-color: transparent;
+}

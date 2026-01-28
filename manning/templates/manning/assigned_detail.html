@@ -1,7 +1,7 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}{{ worker.name }} - 할당 상세{% endblock title %}</title>
+{% block title %}{{ worker.name }} - 할당 상세{% endblock title %}
 
 {% block main %}
     <div class="container">

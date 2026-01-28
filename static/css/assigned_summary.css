@@ -1,14 +1,31 @@
-body {
-    font-family: "Pretendard", sans-serif;
-    background: #f8f9fa;
-}
-.widget {
-    background: white;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-.small-muted {
+/* 테이블 커스텀 스타일 */
+.summary-table th {
     font-size: 0.85rem;
+    font-weight: 600;
     color: #6c757d;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+.summary-table td {
+    font-size: 0.9rem;
+    vertical-align: middle;
+    padding: 0.75rem 1rem;
+}
+/* 프로그레스 바 배경 (흐릿하게) */
+.progress-bg {
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 10px;
+    width: 100%;
+    min-width: 120px;
+}
+/* 호버 효과 */
+.hover-row:hover {
+    background-color: #f8f9fa;
+}
+/* 뱃지 스타일 */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
 }

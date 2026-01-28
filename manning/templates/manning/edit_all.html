@@ -1,7 +1,7 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}일괄 수정 - {{ session.name }}{% endblock title %}</title>
+{% block title %}일괄 수정 - {{ session.name }}{% endblock title %}
 
 {% block js %}<script defer src="{% static 'js/edit_all.js' %}"></script>{% endblock js %}
 
@@ -168,7 +168,7 @@
                                 type="hidden"
                                 name="action"
                                 id="formAction"
-                                value="save"
+                                value="save_all"
                             />
                             <div
                                 class="text-end d-flex gap-2 justify-content-end"

@@ -1,8 +1,212 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}Personal Schedule{% endblock title %}</title>
-{% block style %}<link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />{% endblock style %}
+{% block title %}{{ worker_name }}님의 시간표 | Manning{% endblock title %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
+{% endblock css %}
+
+{% block js %}
+    <script>
+        const SESSION_ID = "{{ session.id }}";
+        const CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
+        const SERVER_DATA = {{ manual_data_json|default:"[]"|safe }};
+        const SAVE_URL = "{% url 'save_manual_input' session.id %}";
+
+        // 테이블 복사 기능
+        function copyTableToClipboard() {
+            const range = document.createRange();
+            const table = document.getElementById('scheduleTable');
+            range.selectNode(table);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            alert('📋 시간표가 복사되었습니다! 엑셀에 붙여넣기(Ctrl+V) 하세요.');
+        }
+    </script>
+    <script defer src="{% static 'js/personal_schedule.js' %}"></script>
+{% endblock js %}
+
+{% block content %}
+<div class="container mt-4 mb-5" style="max-width: 900px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+        <a href="{% url 'assigned_summary' session.id %}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-muted">
+            <i class="bi bi-arrow-left"></i> 목록으로
+        </a>
+        <h4 class="fw-bold mb-0 text-dark">{{ worker_name }} <span class="fw-normal text-muted fs-6">Schedule</span></h4>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold shadow-sm" onclick="copyTableToClipboard()">
+                <i class="bi bi-clipboard"></i> 복사
+            </button>
+            <button type="button" class="btn btn-primary rounded-pill px-3 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#manualInputModal">
+                <i class="bi bi-pencil-square me-1"></i> 수동 입력
+            </button>
+        </div>
+    </div>
+
+    {% if schedule %}
+    <div class="row g-3 mb-4" data-aos="fade-up">
+        <div class="col-6">
+            <div class="widget-card d-flex align-items-center gap-3 py-3">
+                <div class="bg-soft-primary p-3 rounded-circle text-primary">
+                    <i class="bi bi-clock-history fs-4"></i>
+                </div>
+                <div>
+                    <div class="small text-muted text-uppercase fw-bold ls-1">Total Hours</div>
+                    <div class="fs-4 fw-bold text-dark">{{ total_mh }} <span class="fs-6 text-muted">M/H</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="widget-card d-flex align-items-center gap-3 py-3">
+                <div class="bg-soft-success p-3 rounded-circle text-success">
+                    <i class="bi bi-check2-square fs-4"></i>
+                </div>
+                <div>
+                    <div class="small text-muted text-uppercase fw-bold ls-1">Task Count</div>
+                    <div class="fs-4 fw-bold text-dark">{{ task_count }} <span class="fs-6 text-muted">건</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="scheduleTable" class="table table-schedule align-middle mb-0 text-center">
+                    <thead class="bg-light">
+                        <tr>
+                            <th width="20%">WO</th>
+                            <th width="10%">OP</th>
+                            <th width="20%">간비</th>
+                            <th width="25%">Start</th>
+                            <th width="25%">End</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in schedule %} 
+                            {% if item.wo != 'EMPTY_SLOT' %}
+                            <tr class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}">
+                                
+                                <td class="fw-bold text-dark">
+                                    {% if item.wo != '간비' %}{{ item.wo }}{% else %}&nbsp;{% endif %}
+                                </td>
+                                
+                                <td>
+                                    {% if item.op %}{{ item.op }}{% else %}&nbsp;{% endif %}
+                                </td>
+                                
+                                <td class="fw-bold text-primary">
+                                    {% if item.wo == '간비' %} 
+                                        {% if item.desc and item.desc != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif %} 
+                                    {% else %} 
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="fw-bold font-monospace text-secondary">
+                                    {% if item.wo != '간비' or item.desc != '0' %} {{ item.start_str }} {% endif %}
+                                </td>
+                                
+                                <td class="fw-bold font-monospace text-secondary">
+                                    {% if item.wo != '간비' or item.desc != '0' %} {{ item.end_str }} {% endif %}
+                                </td>
+                            </tr> 
+                            {% endif %}                               
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light border-0 text-center py-3">
+            <small class="text-muted"><i class="bi bi-info-circle me-1"></i>표 내용을 드래그하거나 상단 [복사] 버튼을 눌러 엑셀에 붙여넣으세요.</small>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5 bg-light rounded-4 border border-dashed mt-4">
+        <i class="bi bi-calendar-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
+        <h6 class="text-muted fw-bold">배정된 작업이 없습니다.</h6>
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="modal fade" id="manualInputModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>작업 시간 수동 입력</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Target Worker</label>
+                    <select id="modal-worker-select" class="form-select form-select-lg bg-light border-0 fw-bold">
+                        <option value="">-- 작업자를 선택하세요 --</option>
+                        <option value="all">👥 전체 작업자 일괄 적용</option>
+                        {% for w in session.worker_set.all %}
+                        <option value="{{ w.id }}">{{ w.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="card border bg-light mb-3">
+                    <div class="card-header bg-white fw-bold small text-muted text-uppercase border-bottom">
+                        Input Schedule (4-digit time)
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-borderless text-center align-middle mb-0">
+                            <thead class="small text-muted border-bottom">
+                                <tr>
+                                    <th width="30%">시작 (HHMM)</th>
+                                    <th width="30%">내용 (숫자)</th>
+                                    <th width="30%">종료 (HHMM)</th>
+                                    <th width="10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-rows-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-primary w-100 border-dashed fw-bold py-2 mb-3" id="btn-add-row">
+                    <i class="bi bi-plus-lg me-1"></i> 행 추가하기
+                </button>
+
+                <div class="alert alert-light d-flex align-items-start gap-2 small text-muted border">
+                    <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+                    <div>
+                        <strong>작성 요령:</strong> 시간은 4자리 숫자(0900)로 입력하세요.<br>
+                        내용에 '0'을 입력하면 해당 줄은 저장되지 않습니다.
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary fw-bold px-4 shadow-sm" id="btn-save-manual">
+                    <i class="bi bi-save me-1"></i> 저장하기
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+{% comment %} {% extends "manning/base/base.html" %}
+{% load static %}
+
+{% block title %}Personal Schedule{% endblock title %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
+{% endblock css %}
 
 {% block js %}
     <script>
@@ -19,7 +223,7 @@
     <script defer src="{% static 'js/personal_schedule.js' %}"></script>
 {% endblock js %}
 
-{% block main %}
+{% block content %}
     <div class="container" style="max-width: 800px">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <a
@@ -207,4 +411,4 @@
             </div>
         </div>
     </div>
-{% endblock main %}
+{% endblock content %} {% endcomment %}

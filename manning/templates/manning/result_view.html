@@ -1,330 +1,257 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}배정 결과{% endblock title %}</title>
+{% block title %}배정 결과 | {{ session.name }}{% endblock title %}
 
-{% block style %}
-<style>
-    body {
-        font-family: "Pretendard", sans-serif;
-    }
-    .res-direct {
-        background-color: #f0fff4 !important;
-        color: #006400;
-    }
-    .res-indirect {
-        background-color: #fff5f5 !important;
-        color: #c53030;
-    }
-</style>
-{% endblock style %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/result_view.css' %}">
+{% endblock extra_css %}
 
-{% block main %}
-    <div class="container p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center gap-3">
-                <a
-                    href="{% url 'index' %}"
-                    class="btn btn-outline-secondary btn-sm"
-                >
-                    <i class="bi bi-house-door-fill"></i> 홈
+{% block extra_js %}
+    <script defer src="{% static 'js/result_view.js' %}"></script>
+{% endblock extra_js %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" >
+    <div class="mb-4">
+        <a href="{% url 'index' %}" class="fs-6 btn btn-primary btn-sm rounded-3 px-3 text-white fw-bold shadow-sm">
+            <i class="bi bi-arrow-left"></i> 홈 페이지
+        </a>
+        <span class="badge bg-soft-primary text-primary rounded-pill">Session ID: {{ session.id }}</span>
+    </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3" data-aos="fade-down">
+    
+        {% comment %} <div class="d-flex align-items-center gap-2 mb-1">
+            
+
+            
+        </div> {% endcomment %}
+
+        <h2 class="fw-bold mb-0 text-dark">📊 {{ session.name }}</h2>
+
+        <div class="d-flex gap-2">           
+            
+            <div class="btn-group shadow-sm">
+                <a href="{% url 'edit_session' session.id %}" class="btn btn-white text-dark fw-bold border">
+                    <i class="bi bi-people me-1"></i> 명단 관리
                 </a>
-                <h2 class="mb-0 fw-bold">📊 {{ session.name }} 결과</h2>
-            </div>
-            <div class="d-flex gap-2">
-                <a
-                    href="{% url 'edit_session' session.id %}"
-                    class="btn btn-outline-dark btn-sm d-flex align-items-center"
-                >
-                    🔧 명단/이름 변경
+                <a href="{% url 'manage_items' session.id %}" class="btn btn-white text-dark fw-bold border">
+                    <i class="bi bi-list-task me-1"></i> 통합 관리
                 </a>
-
-                <a
-                    href="{% url 'manage_items' session.id %}"
-                    class="btn btn-primary btn-sm fw-bold d-flex align-items-center"
-                >
-                    ⚙️ 통합 관리 (일감/한도)
-                </a>
-                <button
-                    type="button"
-                    class="btn btn-success btn-sm fw-bold d-flex align-items-center"
-                    data-bs-toggle="modal"
-                    data-bs-target="#uploadModal"
-                >
-                    📥 엑셀 등록
-                </button>
             </div>
+            
+            <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> 엑셀 등록
+            </button>
         </div>
+    </div>
 
-        <div class="d-flex justify-content-end gap-2 mb-3">
-            <form
-                action="{% url 'trigger_auto_assign' session.id %}"
-                method="POST"
-                class="d-inline"
-            >
-                {% csrf_token %}
-                <button
-                    type="submit"
-                    class="btn btn-warning fw-bold shadow-sm"
-                >
-                    <i class="bi bi-magic"></i> 자동 배정 실행하기
-                </button>
-            </form>
-
-            <form
-                id="finish-form"
-                action="{% url 'finish_session' session.id %}"
-                method="POST"
-            >
-                {% csrf_token %}
-                <button
-                    type="submit"
-                    class="btn btn-success fw-bold px-4"
-                    onclick="
-                        return confirm(
-                            '정말 작업을 완료하고 기록 보관소로 이동하시겠습니까?',
-                        );
-                    "
-                >
-                    ✅ 작업 완료 (퇴실)
-                </button>
-            </form>
-        </div>
-
-        {% comment %} {% if messages %} {% for message in messages %}
-        <div
-            class="alert alert-success alert-dismissible fade show"
-            role="alert"
-        >
-            {{ message }}
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
-        </div>
-        {% endfor %} {% endif %} {% endcomment %}
-
-        <div class="card shadow-sm border-secondary mb-5">
-            <div
-                class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
-            >
-                <h5 class="mb-0">
-                    <i class="bi bi-person-gear me-2"></i>작업자 현황
-                </h5>
-                <small>최대 근무 시간을 수정 후 [저장]을 누르세요.</small>
+    <div class="card border-0 shadow-lg rounded-4 mb-4 bg-white" data-aos="fade-up">
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 p-4">
+            <div>
+                <h5 class="fw-bold mb-1">🚀 작업 배정 컨트롤</h5>
+                <p class="text-muted small mb-0">작업자 한도를 설정한 후 자동 배정을 실행하세요.</p>
             </div>
-
-            <div class="card-body bg-light">
-                <form
-                    action="{% url 'update_limits' session.id %}"
-                    method="POST"
-                >
+            <div class="d-flex gap-3">
+                <form action="{% url 'trigger_auto_assign' session.id %}" method="POST">
                     {% csrf_token %}
-                    <div class="row g-3">
-                        {% for worker in workers %}
-                        <div class="col-6 col-md-4 col-lg-2">
-                            <div
-                                class="card h-100 text-center {% if worker.used_mh > worker.limit_mh %}border-danger{% endif %}"
-                            >
-                                <div class="card-body p-2">
-                                    <div class="fw-bold mb-1 text-truncate">
-                                        {{ worker.name }}
-                                    </div>
-                                    <div class="h3 mb-2 text-primary">
-                                        {{ worker.used_mh|floatformat:2 }}
-                                    </div>
-                                    <div
-                                        class="d-flex align-items-center justify-content-center gap-1 text-muted small"
-                                    >
-                                        <span>/ Max</span>
-                                        <input
-                                            type="number"
-                                            step="0.5"
-                                            name="limit_{{ worker.id }}"
-                                            class="form-control form-control-sm text-center fw-bold p-0"
-                                            style="
-                                                width: 50px;
-                                                height: 24px;
-                                            "
-                                            value="{{ worker.limit_mh }}"
-                                        />
-                                    </div>
-                                </div>
-                                {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
-                                <div class="progress" style="height: 4px">
-                                    <div
-                                        class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}"
-                                        role="progressbar"
-                                        style="width: {{ ratio }}%;"
-                                    ></div>
-                                </div>
+                    <button type="submit" class="btn btn-warning btn-md rounded-3 fw-bold shadow-sm text-dark px-2">
+                        <i class="bi bi-magic me-1"></i> 자동 배정 실행
+                    </button>
+                </form>
+
+                <form id="finish-form" action="{% url 'finish_session' session.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="btn btn-dark btn-md rounded-3 fw-bold shadow-sm px-2"
+                            onclick="return confirm('정말 작업을 완료하고 기록 보관소로 이동하시겠습니까?');">
+                        <i class="bi bi-check2-circle me-1"></i> 작업 완료 (퇴실)
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 mb-5 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-header bg-white border-bottom pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-person-gear text-primary me-2"></i>작업자 현황 (M/H)</h5>
+                <button type="submit" form="limitForm" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                    <i class="bi bi-save me-1"></i> 한도 저장
+                </button>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <form id="limitForm" action="{% url 'update_limits' session.id %}" method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for worker in workers %}
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="worker-card p-2 rounded-3 h-100 position-relative border border-primary">
+    
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <span class="fw-bold text-dark text-truncate small">{{ worker.name }}</span>
+                                
+                                {% if worker.used_mh > worker.limit_mh %}
+                                    <i class="bi bi-exclamation-circle-fill text-danger" style="font-size: 0.8rem;" data-bs-toggle="tooltip" title="초과"></i>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-2 text-center">
+                                <span class="h6 fw-bold {% if worker.used_mh > worker.limit_mh %}text-danger{% else %}text-primary{% endif %} mb-0">
+                                    {{ worker.used_mh|floatformat:1 }}
+                                </span>
+                                <span class="text-muted small" style="font-size: 0.7rem;">/</span>
+                                
+                                <input type="number" step="0.5" name="limit_{{ worker.id }}" 
+                                    class="form-control form-control-sm d-inline-block text-center fw-bold border-0 bg-light p-0"
+                                    style="width: 45px; font-size: 0.85rem;" value="{{ worker.limit_mh }}">
+                            </div>
+
+                            {% widthratio worker.used_mh worker.limit_mh 100 as ratio %}
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar {% if worker.used_mh > worker.limit_mh %}bg-danger{% else %}bg-success{% endif %}" 
+                                    role="progressbar" style="width: {{ ratio }}%;"></div>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
-                    <div class="mt-3 text-end">
-                        <button
-                            type="submit"
-                            class="btn btn-dark btn-sm fw-bold"
-                        >
-                            💾 한도(Max Time) 저장하기
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 px-1" data-aos="fade-up" data-aos-delay="200">
+        <h5 class="fw-bold mb-0 text-dark">📋 작업 상세 내역</h5>
+        <a href="{% url 'assigned_summary' session.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-calendar-range me-1"></i> 시간별 보기
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom table-sticky table-hover mb-0 text-center w-100">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 8%;">기번</th>
+                            <th style="width: 10%;">WO</th>
+                            <th style="width: 8%;">OP</th>
+                            <th class="text-start">작업 설명</th>
+                            <th style="width: 8%;">M/H</th>
+                            <th style="width: 50%;">배정 결과</th>
+                            <th style="width: 5%;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %} 
+                            {% if item.work_order != '간비' %}
+                            <tr class="{% if item.is_manual %}bg-soft-warning{% endif %}">
+                                <td class="fw-bold text-dark">{{ item.gibun_input }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ item.work_order }}</span></td>
+                                <td class="text-muted">{{ item.op }}</td>
+                                <td class="text-start text-truncate" style="max-width: 300px;" title="{{ item.description }}">
+                                    {{ item.description }}
+                                </td>
+                                <td><span class="badge bg-soft-primary text-primary">{{ item.work_mh }}H</span></td>
+                                <td class="text-start">
+                                    {% for assign in item.assignments.all %}
+                                        <div class="d-inline-block me-1 mb-1">
+                                            <span class="badge bg-white border border-secondary text-dark fw-normal shadow-sm">
+                                                <i class="bi bi-person-fill text-primary me-1"></i>{{ assign.worker.name }}
+                                                
+                                                <span class="badge bg-primary rounded-pill ms-1">
+                                                    {{ assign.allocated_mh|floatformat:1 }}H
+                                                </span>
+                                            </span>
+                                        </div>
+                                    {% empty %}
+                                        <span class="badge bg-light text-muted border border-dashed">미배정</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'edit_item' item.id %}" class="btn btn-sm btn-light text-muted" data-bs-toggle="tooltip" title="수정">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endif %} 
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="py-5 text-muted">등록된 작업 아이템이 없습니다.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-excel-fill me-2"></i>엑셀 데이터 등록</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{% url 'upload_data' session.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4 text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-cloud-arrow-up text-success opacity-50" style="font-size: 4rem;"></i>
+                        </div>
+                        <p class="text-muted">.xlsx 또는 .xls 파일을 업로드해주세요.</p>
+                        <input type="file" class="form-control form-control-lg" name="file" accept=".xlsx, .xls" required>
+                    </div>
+
+                    <div class="alert alert-light border small text-muted">
+                        <strong><i class="bi bi-info-circle me-1"></i>필수 컬럼 순서:</strong><br>
+                        기종 | WO | OP | 설명 | M/H
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm">
+                            업로드 하기
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-
-        <div class="mb-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">📋 작업 내역</h5>
-            <div class="d-flex gap-2">
-                <a
-                    href="{% url 'assigned_summary' session.id %}"
-                    class="btn btn-info btn-sm"
-                >
-                    📅 작업 시간별 보기
-                </a>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mb-5">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table
-                        class="table table-bordered table-hover mb-0 text-center align-middle"
-                    >
-                        <thead class="table-dark">
-                            <tr>
-                                <th>기번</th>
-                                <th>WO</th>
-                                <th>OP</th>
-                                <th>설명</th>
-                                <th>총 시간</th>
-                                <th style="width: 40%">
-                                    배정 결과 (이름 : 시간)
-                                </th>
-                                <th>관리</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in items %} {% if item.work_order != '간비' %}
-                            <tr
-                                {%
-                                if
-                                item.is_manual
-                                %}class="table-info"
-                                {%
-                                endif
-                                %}
-                            >
-                                <td class="fw-bold">
-                                    {{ item.gibun_input }}
-                                </td>
-
-                                <td>{{ item.work_order }}</td>
-                                <td>{{ item.op }}</td>
-                                <td class="text-start">
-                                    {{ item.description }}
-                                </td>
-                                <td class="fw-bold text-primary">
-                                    {{ item.work_mh }}
-                                </td>
-                                <td class="text-start">
-                                    {% for assign in item.assignments.all %}
-                                    <span class="badge bg-secondary me-1">
-                                        {{ assign.worker.name }} ({{ assign.allocated_mh|floatformat:2 }})
-                                    </span>
-                                    {% empty %}
-                                    <span class="text-muted small"
-                                        >아직 배정 안됨</span
-                                    >
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    <a
-                                        href="{% url 'edit_item' item.id %}"
-                                        class="btn btn-sm btn-outline-secondary"
-                                    >
-                                        ✏️ 수정
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endif %} 
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
+</div>
 
-    <div
-        class="modal fade"
-        id="uploadModal"
-        tabindex="-1"
-        aria-labelledby="uploadModalLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold" id="uploadModalLabel">
-                        📊 엑셀 데이터 일괄 등록
+<div class="modal fade" id="indirectModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            
+            <div class="modal-header bg-dark text-white border-0 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil-square fs-5 text-warning"></i>
+                    <h5 class="modal-title fw-bold">
+                        <span id="modalWorkerName" class="text-warning">작업자</span>님의 시간표 수정
                     </h5>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
                 </div>
-                <div class="modal-body">
-                    <form
-                        method="POST"
-                        action="{% url 'upload_data' session.id %}"
-                        enctype="multipart/form-data"
-                    >
-                        {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label
-                                for="excelFile"
-                                class="form-label fw-bold"
-                                >파일 선택 (.xlsx, .xls)</label
-                            >
-                            <input
-                                type="file"
-                                class="form-control"
-                                id="excelFile"
-                                name="file"
-                                accept=".xlsx, .xls"
-                                required
-                            />
-                        </div>
-
-                        <div class="alert alert-light border small">
-                            <strong
-                                >※ 엑셀 컬럼 순서 (첫 줄 헤더 포함):</strong
-                            ><br />
-                            <span class="badge bg-secondary">기종</span>
-                            <span class="badge bg-secondary">WO</span>
-                            <span class="badge bg-secondary">OP</span>
-                            <span class="badge bg-secondary">설명</span>
-                            <span class="badge bg-secondary">M/H</span>
-                        </div>
-
-                        <div class="d-grid">
-                            <button
-                                type="submit"
-                                class="btn btn-success fw-bold"
-                            >
-                                🚀 데이터 업로드 및 저장
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <div class="modal-body p-0" style="height: 600px; background-color: #f8f9fa;">
+                <iframe 
+                    id="indirectFrame" 
+                    src="" 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0"
+                    style="display: block;"
+                ></iframe>
+            </div>
+
         </div>
     </div>
-{% endblock main %}
+</div>
 
+{% endblock content %}

@@ -1,93 +1,71 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}작업 이력 (History){% endblock title %}</title>
+{% block title %}작업 이력 (History){% endblock title %}
 
-{% block main %}
-    <div class="container">
-        <div class="d-flex justify-content-start align-items-center mb-3">
-            <a href="{% url 'index' %}" class="btn btn-secondary">
-                <i class="bi bi-house-fill"></i> 홈으로
-            </a>
-        </div>
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+    <div class="d-flex justify-content-start align-items-center mb-4">
+        <a href="{% url 'index' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-house-fill me-1"></i> 홈으로
+        </a>
+    </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold">
-                <i class="bi bi-clock-history"></i> 작업 이력 (History)
-            </h4>
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-clock-history text-primary me-2"></i>작업 이력 (History)
+        </h4>
 
-            {% if request.session.user_role == 'admin' %}
-            <form
-                action="{% url 'clear_history' %}"
-                method="POST"
-                onsubmit="
-                    return confirm(
-                        '⚠️ 정말로 모든 작업 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
-                    );
-                "
-            >
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger fw-bold">
-                    <i class="bi bi-trash-fill"></i> 기록 초기화
+        {% if request.session.user_role == 'admin' or request.user.is_superuser %}
+        <form action="{% url 'clear_history' %}" method="POST" onsubmit="return confirm('⚠️ 정말로 모든 작업 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold hover-shadow">
+                <i class="bi bi-trash-fill me-1"></i>기록 초기화
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="row justify-content-end mb-4">
+        <div class="col-md-6 col-lg-4">
+            <form method="GET" class="d-flex gap-2">
+                <input type="text" name="q" class="form-control" placeholder="세션명, 기번 검색..." value="{{ request.GET.q|default:'' }}">
+                <button type="submit" class="btn btn-primary px-3">
+                    <i class="bi bi-search"></i>
                 </button>
             </form>
-            {% endif %}
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="row gx-2 gy-2 w-100">
-                <div class="col">
-                    <form method="GET" class="d-flex">
-                        <input
-                            type="text"
-                            name="q"
-                            class="form-control form-control-sm me-2"
-                            placeholder="기번, 이름, 세션명..."
-                            value="{{ request.GET.q|default:'' }}"
-                        />
-                        <button
-                            type="submit"
-                            class="btn btn-sm btn-outline-primary w-25"
-                        >
-                            검색
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow-sm">
-            <div class="list-group list-group-flush">
-                {% for session in history_list %}
-                <div
-                    class="list-group-item d-flex justify-content-between align-items-center"
-                >
-                    <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h5 class="mb-0">{{ session.name }}</h5>
-                            <span class="badge bg-secondary"
-                                >{{ session.created_at|date:"m월 d일 H:i" }}</span
-                            >
-                        </div>
-                        <small class="text-muted">
-                            작업자: {{ session.worker_set.count }}명 | 일감:
-                            {{ session.workitem_set.count }}개
-                        </small>
-                    </div>
-
-                    <a
-                        href="{% url 'result_view' session.id %}"
-                        class="btn btn-sm btn-outline-primary fw-bold"
-                    >
-                        결과 다시보기 🔍
-                    </a>
-                </div>
-                {% empty %}
-                <div class="p-4 text-center text-muted">
-                    기록된 작업 내역이 없습니다.
-                </div>
-                {% endfor %}
-            </div>
         </div>
     </div>
-{% endblock main %}
+
+    <div class="card shadow-sm border-0">
+        <div class="list-group list-group-flush">
+            {% for session in history_list %}
+            <div class="list-group-item list-group-item-action p-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h5 class="mb-0 fw-bold text-dark">{{ session.name }}</h5>
+                        <span class="badge bg-light text-secondary border">
+                            {{ session.created_at|date:"Y-m-d H:i" }}
+                        </span>
+                    </div>
+                    <div class="small text-muted">
+                        <span class="me-2"><i class="bi bi-people me-1"></i>작업자 {{ session.worker_set.count }}명</span>
+                        <span><i class="bi bi-airplane me-1"></i>일감 {{ session.workitem_set.count }}개</span>
+                    </div>
+                </div>
+
+                <a href="{% url 'result_view' session.id %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3">
+                    결과 보기 <i class="bi bi-chevron-right ms-1"></i>
+                </a>
+            </div>
+            {% empty %}
+            <div class="p-5 text-center text-muted bg-light rounded">
+                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+                <span>기록된 작업 내역이 없습니다.</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

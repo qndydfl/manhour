@@ -1,205 +1,371 @@
 {% extends "manning/base/base.html" %}
 {% load static %}
 
-<title>{% block title %}데이터 붙여넣기{% endblock title %}</title>
+{% block title %}데이터 등록 | Manning System{% endblock title %}
 
-{% block main %}
-    <div class="container mt-4 mb-3" style="max-width: 800px">
-        <div class="container mt-5">
-            <div
-                class="d-flex justify-content-start align-items-center mb-3"
-            >
-                <a href="{% url 'index' %}" class="btn btn-secondary">
-                    <i class="bi bi-house-fill"></i> 홈으로
-                </a>
-            </div>
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/pasta_input.css' %}">
+    <style>
+        /* 테이블 입력 전용 스타일 */
+        .input-cell {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            outline: none;
+            padding: 8px 0;
+            font-size: 0.95rem;
+        }
+        .input-cell:focus {
+            background-color: #e3f2fd; /* 포커스 시 연한 파란색 */
+            font-weight: bold;
+        }
+        /* 테이블 헤더 고정 및 스타일 */
+        .smart-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .smart-table td {
+            padding: 0 !important; /* 인풋이 셀을 가득 채우도록 */
+            vertical-align: middle;
+        }
+    </style>
+{% endblock css %}
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <!-- 등록된 TaskMaster 목록 보기 (모달로 표시) -->
-                    <div class="mb-3">
-                        <button
-                            class="btn btn-sm btn-outline-secondary"
-                            type="button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#existingDataModal"
-                        >
-                            현재 등록된 데이터 보기
-                        </button>
-                    </div>
-                </div>
-            </div>
+{% block content %}
+<div class="container mt-4 mb-5" style="max-width: 1100px;"> <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3" data-aos="fade-down">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'index' %}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-muted">
+                <i class="bi bi-chevron-left"></i> 홈으로
+            </a>
+            <h4 class="fw-bold m-0 text-dark">데이터 관리</h4>
         </div>
+        
+        <a href="{% url 'master_data_list' %}" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-list-ul me-1"></i> 데이터 목록 관리
+        </a>
+    </div>
 
-        <div class="container mt-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        📋 데이터 일괄 등록 (복사/붙여넣기)
-                    </h4>
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden" data-aos="fade-up">
+        <div class="card-header bg-white border-0 pt-4 px-4 px-md-5">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-soft-primary p-3 rounded-circle" style="background-color: rgba(13, 110, 253, 0.1);">
+                    <i class="bi bi-magic fs-3 text-primary"></i>
                 </div>
-                <div class="card-body">
-                    {% if messages %} {% for message in messages %}
-                    <div class="alert alert-success">{{ message }}</div>
-                    {% endfor %} {% endif %}
-
-                    <p class="text-muted">
-                        <strong
-                            >순서: 기번(HL) | Work Order | OP | Description
-                            | Work</strong
-                        >
+                <div>
+                    <h5 class="fw-bold mb-1">데이터 스마트 일괄 등록</h5>
+                    <p class="text-muted small mb-0">
+                        엑셀 데이터를 복사(Ctrl+C)한 후, <strong>표의 첫 번째 칸을 클릭하고 붙여넣기(Ctrl+V)</strong> 하세요.
                     </p>
-
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <textarea
-                                name="excel_data"
-                                class="form-control"
-                                rows="10"
-                                placeholder="여기 클릭하고 Ctrl+V 하세요!"
-                            ></textarea>
-                        </div>
-
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <a
-                                    href="{% url 'index' %}"
-                                    class="btn btn-secondary w-100 fw-bold"
-                                >
-                                    취소
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary w-100 fw-bold"
-                                >
-                                    저장하기 💾
-                                </button>
-                            </div>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
 
-        <!-- Existing Data Modal -->
-        <div
-            class="modal fade"
-            id="existingDataModal"
-            tabindex="-1"
-            aria-labelledby="existingDataModalLabel"
-            aria-hidden="true"
-            data-bs-backdrop="static"
-        >
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="existingDataModalLabel">
-                            현재 등록된 데이터
-                        </h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    <div class="modal-body">
-                        {% if taskmasters and taskmasters.exists %}
-                        <div class="table-responsive">
-                            <table class="table table-sm table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>기번</th>
-                                        <th>Work Order</th>
-                                        <th>OP</th>
-                                        <th>설명</th>
-                                        <th class="text-end">기준 M/H</th>
-                                        <th>삭제</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for t in taskmasters %}
-                                    <tr>
-                                        <td>{{ t.gibun_code }}</td>
-                                        <td>{{ t.work_order }}</td>
-                                        <td>{{ t.op }}</td>
-                                        <td>{{ t.description }}</td>
-                                        <td class="text-end">
-                                            {{ t.default_mh }}
-                                        </td>
-                                        <td>
-                                            <form
-                                                action="{% url 'delete_taskmaster' t.id %}"
-                                                method="POST"
-                                                class="d-inline"
-                                            >
-                                                {% csrf_token %}
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    onclick="
-                                                        return confirm(
-                                                            '정말로 이 항목을 삭제하시겠습니까?',
-                                                        );
-                                                    "
-                                                >
-                                                    <i
-                                                        class="bi bi-trash"
-                                                    ></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="alert alert-info">
-                            등록된 데이터가 없습니다.
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="modal-footer">
-                        <form
-                            action="{% url 'delete_all_taskmasters' %}"
-                            method="POST"
-                            class="me-auto"
-                        >
-                            {% csrf_token %}
-                            <button
-                                type="submit"
-                                class="btn btn-danger"
-                                onclick="
-                                    return confirm(
-                                        '정말로 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
-                                    );
-                                "
-                            >
-                                <i
-                                    class="bi bi-exclamation-triangle-fill"
-                                ></i>
-                                모두 삭제하기
-                            </button>
-                        </form>
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                        >
-                            닫기
+        <div class="card-body px-4 px-md-5 pb-5">
+            
+            <div class="instruction-box p-3 rounded-3 mb-4 bg-light border">
+                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)</h6>
+                <div class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center">
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">1. 기번 (HLxxxx)</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">2. Work Order</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">3. OP</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">4. Description</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">5. Work (M/H)</span>
+                </div>
+            </div>
+
+            <form id="pasteForm">
+                {% csrf_token %}
+                
+                <div class="table-responsive mb-4 border rounded-3">
+                    <table class="table table-bordered text-center align-middle mb-0 smart-table" id="gridTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%">기번 (Gibun)</th>
+                                <th style="width: 15%">Work Order</th>
+                                <th style="width: 10%">OP</th>
+                                <th style="width: 45%">설명 (Description)</th>
+                                <th style="width: 15%">기준 M/H</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <button type="button" onclick="addRow()" class="btn btn-light w-100 fw-bold border text-muted rounded-pill">
+                            <i class="bi bi-plus-lg"></i> 줄 추가
                         </button>
-                        <a
-                            href="{% url 'paste_data' %}"
-                            class="btn btn-outline-primary"
-                            >전체 페이지로 이동</a
-                        >
                     </div>
+                    <div class="col-md-3">
+                         <a href="{% url 'index' %}" class="btn btn-light w-100 fw-bold text-secondary rounded-pill">
+                            취소
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" onclick="saveData()" class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm">
+                            <i class="bi bi-save me-1"></i> 데이터 저장하기
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const tableBody = document.querySelector('#gridTable tbody');
+    const ROW_COUNT = 15;
+    const COL_COUNT = 5;
+
+    // 1. 초기 테이블 생성
+    function initTable() {
+        for (let i = 0; i < ROW_COUNT; i++) {
+            createRow();
+        }
+    }
+
+    function createRow() {
+        const tr = document.createElement('tr');
+        for (let j = 0; j < COL_COUNT; j++) {
+            const td = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-cell';
+            input.placeholder = j === 0 ? "HLxxxx" : "-";
+            input.addEventListener('paste', handlePaste);
+            td.appendChild(input);
+            tr.appendChild(td);
+        }
+        tableBody.appendChild(tr);
+    }
+
+    function addRow() {
+        createRow();
+    }
+
+    // 2. 스마트 붙여넣기
+    function handlePaste(e) {
+        e.preventDefault();
+        const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
+        const rows = clipboardData.split(/\r\n|\n|\r/).filter(row => row.trim().length > 0);
+        
+        const currentInput = e.target;
+        const currentCell = currentInput.parentElement;
+        const currentRow = currentCell.parentElement;
+        const startRowIndex = Array.from(tableBody.children).indexOf(currentRow);
+        const startColIndex = Array.from(currentRow.children).indexOf(currentCell);
+
+        rows.forEach((rowData, rIndex) => {
+            const cols = rowData.split('\t');
+            let targetRow = tableBody.children[startRowIndex + rIndex];
+            
+            if (!targetRow) {
+                createRow();
+                targetRow = tableBody.children[startRowIndex + rIndex];
+            }
+            
+            if (targetRow) {
+                cols.forEach((cellData, cIndex) => {
+                    const targetCell = targetRow.children[startColIndex + cIndex];
+                    if (targetCell) {
+                        const input = targetCell.querySelector('input');
+                        if (input) {
+                            input.value = cellData.trim();
+                            input.style.backgroundColor = "#e8f5e9";
+                            setTimeout(() => input.style.backgroundColor = "transparent", 500);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    // 3. 데이터 저장 (로그인 체크 강화)
+    function saveData() {
+        const data = [];
+        const rows = tableBody.querySelectorAll('tr');
+        let isValid = false;
+
+        rows.forEach(tr => {
+            const inputs = tr.querySelectorAll('input');
+            const gibun = inputs[0].value.trim();
+            if (gibun !== "") {
+                isValid = true;
+                data.push({
+                    gibun_code: gibun,
+                    work_order: inputs[1].value.trim(),
+                    op: inputs[2].value.trim(),
+                    description: inputs[3].value.trim(),
+                    default_mh: inputs[4].value.trim()
+                });
+            }
+        });
+
+        if (!isValid) {
+            alert("저장할 데이터가 없습니다.\n첫 번째 칸(기번)에 데이터를 입력해주세요.");
+            return;
+        }
+
+        // CSRF 토큰 가져오기 (폼 안에 있는지 확인)
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfInput) {
+            alert("보안 토큰(CSRF)을 찾을 수 없습니다. 페이지를 새로고침 해주세요.");
+            return;
+        }
+
+        if(!confirm(`총 ${data.length}건의 데이터를 저장하시겠습니까?`)) return;
+
+        fetch("{% url 'paste_data' %}", {
+            method: "POST",
+            credentials: 'include',
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfInput.value
+            },
+            body: JSON.stringify(data)
+        })
+        .then(async response => {
+            // Mixin에 의해 로그인 페이지로 리다이렉트 되었는지 확인
+            if (response.redirected) {
+                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                window.location.href = response.url;
+                return;
+            }
+            
+            // 서버 에러(500)나 잘못된 요청(400) 확인
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text); // 에러 내용을 catch로 보냄
+            }
+
+            return response.json();
+        })
+        .then(result => {
+            if (result && result.status === 'success') {
+                alert(`성공! ${result.count}건의 데이터가 저장되었습니다.`);
+                window.location.href = "{% url 'master_data_list' %}";
+            } else if (result) {
+                alert("저장 실패: " + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // JSON 파싱 에러인 경우 보통 로그인이 풀려서 HTML이 날아온 것임
+            if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+                alert("통신 오류: 로그인이 만료되었거나 서버 설정 오류입니다.\n페이지를 새로고침하고 다시 로그인해보세요.");
+            } else {
+                alert("서버 오류 발생:\n" + error.message.substring(0, 100));
+            }
+        });
+    }
+
+    initTable();
+</script>
+{% endblock content %}
+
+
+{% comment %} {% extends "manning/base/base.html" %}
+{% load static %}
+
+{% block title %}데이터 등록 | Manning System{% endblock title %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/pasta_input.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container mt-4 mb-5" style="max-width: 900px;">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3" data-aos="fade-down">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'index' %}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-muted">
+                <i class="bi bi-chevron-left"></i> 홈으로
+            </a>
+            <h4 class="fw-bold m-0 text-dark">데이터 관리</h4>
+        </div>
+        
+        <a href="{% url 'master_data_list' %}" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-list-ul me-1"></i> 데이터 목록 관리
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden" data-aos="fade-up">
+        <div class="card-header bg-white border-0 pt-4 px-4 px-md-5">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-soft-primary p-3 rounded-circle">
+                    <i class="bi bi-clipboard-data fs-3 text-primary"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-1">데이터 일괄 등록</h5>
+                    <p class="text-muted small mb-0">엑셀에서 데이터를 복사(Ctrl+C)하여 아래에 붙여넣기(Ctrl+V) 하세요.</p>
                 </div>
             </div>
         </div>
-    </div> 
-{% endblock main %}
+
+        <div class="card-body px-4 px-md-5 pb-5">
+            
+            {% comment %} {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %} {% endcomment %}
+
+            {% comment %} <div class="instruction-box p-3 rounded-3 mb-3">
+                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)</h6>
+                <div class="d-flex flex-wrap gap-2 font-monospace small text-dark">
+                    <span class="badge bg-white text-dark border">1. 기번 (HLxxxx)</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border">2. Work Order</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border">3. OP</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border">4. Description</span>
+                    <i class="bi bi-arrow-right text-muted"></i>
+                    <span class="badge bg-white text-dark border">5. Work (M/H)</span>
+                </div>
+            </div>
+
+            <form method="POST" action="">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <textarea name="excel_data" 
+                            class="form-control paste-area p-4 rounded-3" 
+                            rows="12" 
+                            placeholder="예시:
+                                HL1234  WO-2024-001  OP10  엔진 오일 점검  2.5
+                                HL5678  WO-2024-002  OP20  타이어 교체    1.0
+                                ..." 
+                            required></textarea>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="{% url 'index' %}" class="btn btn-light btn-lg w-100 fw-bold text-secondary rounded-pill">
+                            취소
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow-sm">
+                            <i class="bi bi-save me-1"></i> 데이터 저장하기
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %} {% endcomment %}

@@ -1,122 +1,140 @@
-body {
-    font-family: "Pretendard", sans-serif;
-    background-color: #f8f9fa;
+/* =========================================
+   1. Typography & Base
+   ========================================= */
+
+/* 환영 문구 그라데이션 (조금 더 세련된 색감 적용) */
+.text-gradient {
+    background: linear-gradient(135deg, #212529 0%, #6c757d 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block; /* 그라데이션 잘림 방지 */
 }
 
-/* 슬롯 카드 스타일 */
-.slot-card {
-    transition: all 0.2s;
-    cursor: pointer;
-    border: none;
-    position: relative; /* 초기화 버튼 위치 잡기용 */
-}
-.slot-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+/* 시계용 고정폭 폰트 (HTML 인라인 스타일 제거용) */
+.font-digital {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums; /* 숫자 간격 일정하게 */
 }
 
-.navbar-brand {
-    font-weight: 800;
-    letter-spacing: -0.5px;
+/* 네비게이션 브랜드 아이콘 정렬 */
+.navbar-brand i {
+    transform: translateY(-2px);
 }
 
-.stat-card {
-    border-radius: 15px;
-    border: none;
+/* =========================================
+   2. Card Styles (카드 & 호버 효과)
+   ========================================= */
+
+/* 모든 대시보드 카드 공통 둥글기 */
+.card, .hero-card, .stat-card {
+    border-radius: 1rem !important; /* 부트스트랩 rounded-4와 동일 */
 }
 
-/* --- 아날로그 시계 스타일 시작 --- */
-.clock-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 15px;
-    border: none;
-    height: 100%;
+/* [핵심] 마우스 올렸을 때 부드럽게 떠오르는 효과 */
+.hover-lift {
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    will-change: transform, box-shadow;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    /* 그림자를 더 부드럽고 깊게 설정 */
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Stretched Link 사용 시 카드 z-index 이슈 방지 */
+.card {
+    position: relative;
+    overflow: hidden; /* 배경 데코레이션 삐침 방지 */
+}
+
+/* =========================================
+   3. Components (아이콘, 위젯 등)
+   ========================================= */
+
+/* 아이콘 배경 원형 스타일 */
+.icon-circle {
+    width: 64px;
+    height: 64px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.clock-face {
-    width: 120px;
-    height: 120px;
-    border: 4px solid rgba(255, 255, 255, 0.8);
     border-radius: 50%;
-    position: relative;
-    margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    font-size: 1.75rem;
+    flex-shrink: 0; /* 찌그러짐 방지 */
+    transition: transform 0.3s ease;
 }
 
-/* 시계 바늘 공통 */
-.hand {
+/* 카드 호버 시 아이콘도 살짝 커지게 (선택사항) */
+.hover-lift:hover .icon-circle {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* 시계 위젯 배경 데코레이션 아이콘 */
+.bg-deco-icon {
     position: absolute;
-    bottom: 50%;
-    left: 50%;
-    transform-origin: bottom center;
-    border-radius: 4px;
-    z-index: 10;
+    top: -20px;
+    right: -20px;
+    font-size: 10rem;
+    color: rgba(255, 255, 255, 0.08); /* 은은하게 */
+    pointer-events: none;
+    transform: rotate(15deg);
 }
 
-.hour-hand {
-    width: 4px;
-    height: 35px;
-    background: white;
-    margin-left: -2px;
+/* =========================================
+   4. Animations (등장 애니메이션)
+   ========================================= */
+
+/* 페이지 로드 시 요소들이 아래에서 위로 등장 */
+.js-animate-in {
+    animation: fadeUp 600ms cubic-bezier(0.165, 0.84, 0.44, 1) both;
 }
 
-.min-hand {
-    width: 3px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.9);
-    margin-left: -1.5px;
+/* 딜레이를 주어 순차적으로 등장하게 하고 싶을 때 사용 */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
 }
 
-.sec-hand {
-    width: 2px;
-    height: 52px;
-    background: #ff6b6b;
-    margin-left: -1px;
-    z-index: 11;
+/* =========================================
+   5. Legacy Support (이전 버전 호환성)
+   ========================================= */
+/* 혹시 session_list.html 등에서 여전히 쓰일 수 있는 스타일들 */
+
+.slot-card {
+    border-radius: 16px;
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.slot-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
-.center-dot {
-    width: 8px;
-    height: 8px;
-    background: white;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 12;
-}
+.search-group { min-width: 240px; }
+.sort-select { min-width: 160px; }
 
-.date-text {
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-.day-text {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-/* --- 아날로그 시계 스타일 끝 --- */
-
-/* 초기화 버튼 스타일 (카드 우측 상단) */
-.btn-reset-slot {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 20; /* 카드 클릭보다 위에 오도록 */
-    opacity: 0.5;
-    transition: opacity 0.2s;
-}
-.btn-reset-slot:hover {
-    opacity: 1;
-    background-color: #dc3545;
-    color: white;
+/* 모바일 대응 */
+@media (max-width: 576px) {
+    .search-group, .sort-select {
+        min-width: 100%;
+    }
+    
+    /* 모바일에서는 hover 효과 끄기 (터치 시 이상 동작 방지) */
+    .hover-lift:hover {
+        transform: none;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+    }
 }

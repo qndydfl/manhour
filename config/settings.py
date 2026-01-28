@@ -21,12 +21,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
+# SECRET_KEY = "django-insecure-(ypmf6_cgmn!h-$1_g$qz!7lhnu9+#v!5165eiy^7+3^$ym1i&"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
@@ -36,7 +36,13 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 SIMPLE_PASSWORD_ADMIN = os.getenv('SIMPLE_PASSWORD_ADMIN')
 SIMPLE_PASSWORD_USER = os.getenv('SIMPLE_PASSWORD_USER')
 
-ALLOWED_HOSTS = ['qndydfl.pythonanywhere.com']
+# 로그인에 사용할 공통 비밀번호
+# SIMPLE_PASSWORD_ADMIN = "admin1234"  # 관리자용
+# SIMPLE_PASSWORD_USER = "asiana1234"    # 일반 사용자용 (조회 전용)
+
+
+ALLOWED_HOSTS = ['*']
+
 
 # Application definition
 
@@ -48,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'manning',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.debug',
             ],
         },
     },
@@ -127,15 +135,44 @@ USE_TZ = True
 
 from pathlib import Path
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+STATICFILES_DIRS = [ BASE_DIR / 'static', ]
 
 
 # 세션 설정
 SESSION_COOKIE_AGE = 1800  # 30분 (초 단위)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 브라우저 닫으면 세션 종료
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGIN_URL = '/login/'
+
+
+# -------pythonanywhere settings.py 예시 끝-------
+
+# import os
+# from pathlib import Path
+# from dotenv import load_dotenv
+
+# BASE_DIR = Path(__file__).resolve().parent.parent
+
+# # 로컬 개발용 .env (배포에서는 PythonAnywhere 환경변수 권장)
+# load_dotenv(BASE_DIR / ".env", override=False)
+
+# SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+# if not SECRET_KEY:
+#     raise ValueError("DJANGO_SECRET_KEY가 설정되지 않았습니다.")
+
+# DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+# ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
+# CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+
+# SIMPLE_PASSWORD_ADMIN = os.getenv("SIMPLE_PASSWORD_ADMIN", "")
+# SIMPLE_PASSWORD_USER = os.getenv("SIMPLE_PASSWORD_USER", "")

@@ -1,5 +1,5 @@
 from django import forms
-from .models import WorkItem, Worker
+from .models import WorkItem, Assignment
 
 
 class WorkItemForm(forms.ModelForm):
@@ -117,3 +117,57 @@ class ManageItemForm(forms.ModelForm):
                 'min': '0'
             }),
         }
+
+
+class KanbiAssignmentForm(forms.ModelForm):
+    start_time = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-sm text-center',
+            'placeholder': '0900',
+            'maxlength': '4'
+        })
+    )
+    end_time = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-sm text-center',
+            'placeholder': '1200',
+            'maxlength': '4'
+        })
+    )
+
+    class Meta:
+        model = Assignment
+        fields = ['code']  # code만 모델 필드로 저장 (시간은 start/end로 입력 받아 변환)
+        widgets = {
+            'code': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': '식사, 교육, 휴식 등'
+            })
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        s = (cleaned.get('start_time') or '').strip()
+        e = (cleaned.get('end_time') or '').strip()
+        code = (cleaned.get('code') or '').strip()
+
+        # 완전 빈줄이면 허용(뷰에서 skip 처리)
+        if not s and not e and not code:
+            return cleaned
+
+        # 시간 둘 중 하나만 있으면 에러
+        if (s and not e) or (e and not s):
+            raise forms.ValidationError("시작/종료 시간은 둘 다 입력하세요.")
+
+        # HHMM 형식 체크
+        def _is_hhmm(x):
+            return x.isdigit() and len(x) == 4
+
+        if s and not _is_hhmm(s):
+            raise forms.ValidationError("시작 시간은 4자리 숫자(HHMM)로 입력하세요. 예: 0900")
+        if e and not _is_hhmm(e):
+            raise forms.ValidationError("종료 시간은 4자리 숫자(HHMM)로 입력하세요. 예: 1200")
+
+        return cleaned
