@@ -195,15 +195,35 @@ function loadFromStorage() {
 
     modalBody.innerHTML = "";
 
-    // 우선순위: LocalStorage > ServerData > 기본 1줄
-    let rowsData = [];
-    if (data.rows && data.rows.length > 0) rowsData = data.rows;
-    else if (typeof SERVER_DATA !== "undefined" && SERVER_DATA.length > 0)
-        rowsData = SERVER_DATA;
+    // 우선순위: LocalStorage > ServerData > 기본 3줄
+    // let rowsData = [];
+    // if (data.rows && data.rows.length > 0) rowsData = data.rows;
+    // else if (typeof SERVER_DATA !== "undefined" && SERVER_DATA.length > 0)
+    //     rowsData = SERVER_DATA;
 
-    if (rowsData.length > 0)
-        rowsData.forEach((r) => createRow(r.start, r.code, r.end));
-    else createRow(); // 기본 1줄
+    // if (rowsData.length > 0)
+    //     rowsData.forEach((r) => createRow(r.start, r.code, r.end));
+    // else {
+    //     for (let i = 0; i < 3; i++) {
+    //         createRow(); // 기본 3줄
+    //     }
+    // }
+    const DEFAULT_ROWS = 5;
+
+    // 우선순위: LocalStorage > ServerData > 기본 DEFAULT_ROWS줄
+    let rowsData = [];
+
+    if (data.rows?.length) {
+        rowsData = data.rows;
+    } else if (typeof SERVER_DATA !== "undefined" && SERVER_DATA.length) {
+        rowsData = SERVER_DATA;
+    }
+
+    if (rowsData.length) {
+        rowsData.forEach(r => createRow(r.start, r.code, r.end));
+    } else {
+        Array.from({ length: DEFAULT_ROWS }, () => createRow());
+    }
 
     saveToStorage(); // 열 때 한번 정리 저장
 }

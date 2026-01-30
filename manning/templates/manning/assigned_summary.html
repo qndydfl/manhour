@@ -7,23 +7,26 @@
     <link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}">
 {% endblock css %}
 
+{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
+{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
+{% block navreturn %}
+<a
+    href="{% url 'result_view' session.id %}"
+    class="btn btn-outline-secondary btn-sm text-light border-secondary"
+>
+    <i class="bi bi-clock-history"></i>
+    <span class="d-none d-md-inline">되돌아가기</span>
+</a>
+{% endblock navreturn %} 
+
 {% block content %}
-<div class="container mt-4 mb-5">
+<div class="" style="padding-top: 100px;">   
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{% url 'result_view' session.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm">
-                <i class="bi bi-arrow-left"></i> 결과 화면
-            </a>
-            
-        </div>
+        <h4 class="fw-bold text-dark">📅 배정 현황 요약</h4>
         <span class="badge bg-dark rounded-pill px-3 py-2">
             총 인원: {{ workers_schedule|length }}명
         </span>
-    </div>
-
-    <div class="mb-3">
-        <h4 class="fw-bold text-dark">📅 배정 현황 요약</h4>
     </div>
 
     <div class="alert alert-light border d-flex align-items-center gap-2 small text-muted mb-4 py-2">

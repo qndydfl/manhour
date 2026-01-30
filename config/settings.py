@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-# SECRET_KEY = "django-insecure-(ypmf6_cgmn!h-$1_g$qz!7lhnu9+#v!5165eiy^7+3^$ym1i&"
+SECRET_KEY = "django-insecure-(ypmf6_cgmn!h-$1_g$qz!7lhnu9+#v!5165eiy^7+3^$ym1i&"
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -33,12 +33,12 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 
 # 관리자 및 일반 사용자 비밀번호 도출 방지
-SIMPLE_PASSWORD_ADMIN = os.getenv('SIMPLE_PASSWORD_ADMIN')
-SIMPLE_PASSWORD_USER = os.getenv('SIMPLE_PASSWORD_USER')
+# SIMPLE_PASSWORD_ADMIN = os.getenv('SIMPLE_PASSWORD_ADMIN')
+# SIMPLE_PASSWORD_USER = os.getenv('SIMPLE_PASSWORD_USER')
 
 # 로그인에 사용할 공통 비밀번호
-# SIMPLE_PASSWORD_ADMIN = "admin1234"  # 관리자용
-# SIMPLE_PASSWORD_USER = "asiana1234"    # 일반 사용자용 (조회 전용)
+SIMPLE_PASSWORD_ADMIN = "admin1234"  # 관리자용
+SIMPLE_PASSWORD_USER = "asiana1234"    # 일반 사용자용 (조회 전용)
 
 
 ALLOWED_HOSTS = ['*']

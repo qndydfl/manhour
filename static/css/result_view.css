@@ -1,53 +1,97 @@
 /* static/css/result_view.css */
 
-/* 1. 작업자 상태 카드 */
+/* ============================================================
+   0) 공통: 모바일에서 터치/스크롤 자연스럽게
+   ============================================================ */
+:root {
+    --rv-border: #f0f0f0;
+    --rv-muted: #495057;
+    --rv-head-bg: #f8f9fa;
+}
+
+.table-responsive {
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+}
+
+/* ============================================================
+   1) 작업자 상태 카드
+   ============================================================ */
 .worker-card {
     background: #fff;
-    border: 1px solid #f0f0f0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--rv-border);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    border-radius: 12px; /* 모바일에서 더 부드럽게 */
 }
 .worker-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     border-color: #e9ecef;
 }
 
-/* 2. 프로그레스 바 커스텀 */
+/* 모바일에서는 hover 이펙트가 오히려 불편할 수 있어서 완화 */
+@media (max-width: 576px) {
+    .worker-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* ============================================================
+   2) 프로그레스 바 커스텀
+   ============================================================ */
 .progress {
     background-color: #e9ecef;
     border-radius: 10px;
     overflow: hidden;
+    height: 10px; /* 모바일에서도 보기 좋게 */
 }
 .progress-bar {
     border-radius: 10px;
     transition: width 0.6s ease;
 }
 
-/* 3. 테이블 스타일 */
+/* ============================================================
+   3) 테이블 스타일
+   ============================================================ */
+.table-custom {
+    width: 100%;
+    table-layout: auto; /* 기본은 auto, 모바일에서 스크롤로 대응 */
+}
+
 .table-custom th {
-    background-color: #f8f9fa;
-    color: #495057;
+    background-color: var(--rv-head-bg);
+    color: var(--rv-muted);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.8rem;
     letter-spacing: 0.5px;
     border-bottom: 2px solid #e9ecef;
     vertical-align: middle;
-}
-.table-custom td {
-    vertical-align: middle;
-    padding: 1rem 0.75rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-.table-custom tbody tr:hover {
-    background-color: #f8f9fa;
+    white-space: nowrap; /* 헤더 줄바꿈 방지 */
 }
 
-/* 4. 스티키 헤더 (테이블 길어질 때 유용) */
+.table-custom td {
+    vertical-align: top; /* 상세내역이 길면 위쪽 정렬이 읽기 편함 */
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid var(--rv-border);
+}
+
+.table-custom tbody tr:hover {
+    background-color: var(--rv-head-bg);
+}
+
+/* ============================================================
+   4) 스티키 헤더
+   ============================================================ */
 .table-responsive {
     max-height: 600px;
     overflow-y: auto;
+    overflow-x: auto; /* 모바일에서 가로 스크롤 허용 */
+    border-radius: 12px; /* 테이블 컨테이너도 둥글게 */
 }
+
 .table-sticky thead th {
     position: sticky;
     top: 0;
@@ -55,12 +99,77 @@
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* 5. 배정 결과 뱃지 */
+/* ============================================================
+   5) 배정 결과 뱃지
+   ============================================================ */
 .assign-badge {
     font-size: 0.85rem;
     padding: 6px 10px;
     border-radius: 6px;
     background-color: rgba(108, 117, 125, 0.1);
-    color: #495057;
+    color: var(--rv-muted);
     border: 1px solid rgba(108, 117, 125, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ============================================================
+   6) ✅ 작업 상세 내역(Description)을 "전부 보여주기"로
+   ============================================================ */
+/*
+  - 아래 규칙은 description이 들어있는 td 또는 내부 요소에 적용하면 됨.
+  - HTML에서 description 셀에 class="desc-cell" 또는 내부 span에 class="desc-text"를 주면 가장 깔끔.
+*/
+
+.desc-cell,
+.desc-text {
+    white-space: normal !important; /* 줄바꿈 허용 */
+    overflow: visible !important; /* 잘림 방지 */
+    text-overflow: clip !important; /* ... 제거 */
+    word-break: break-word; /* 긴 단어도 줄바꿈 */
+    overflow-wrap: anywhere; /* 모바일에서 강제 줄바꿈 강력 */
+    line-height: 1.35;
+}
+
+/* 만약 description에 \n(개행)이 들어오면 그대로 보이게 하고 싶다면 */
+.desc-pre {
+    white-space: pre-wrap !important; /* 개행 유지 + 자동 줄바꿈 */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   7) ✅ 모바일 최적화: 폰에서 표 가독성 개선
+   ============================================================ */
+@media (max-width: 576px) {
+    .table-custom th {
+        font-size: 0.72rem;
+    }
+    .table-custom td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* 뱃지 너무 커 보이면 약간 줄임 */
+    .assign-badge {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+    }
+
+    /* 표가 가로로 너무 좁아질 때 최소 폭 부여 → 가로 스크롤 자연스럽게 */
+    .table-custom {
+        min-width: 720px;
+    }
+
+    /* 스크롤 영역 높이도 조금 줄여서 모바일에서 덜 답답하게 */
+    .table-responsive {
+        max-height: 55vh;
+    }
+}
+
+.desc-hide {
+  white-space: nowrap;     /* 한 줄 */
+  overflow: hidden;      /* 넘치는 글자 숨김 */
+  /* text-overflow: ellipsis; 넘치는 글자 ... 처리 */
 }

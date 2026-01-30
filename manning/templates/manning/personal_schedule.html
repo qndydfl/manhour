@@ -29,14 +29,24 @@
     <script defer src="{% static 'js/personal_schedule.js' %}"></script>
 {% endblock js %}
 
+{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
+{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
+{% block navreturn %}
+<a
+    href="{% url 'assigned_summary' session.id %}"
+    class="btn btn-outline-secondary btn-sm text-light border-secondary"
+>
+    <i class="bi bi-clock-history"></i>
+    <span class="d-none d-md-inline">되돌아가기</span>
+</a>
+{% endblock navreturn %}
+
 {% block content %}
-<div class="container mt-4 mb-5" style="max-width: 900px;">
+<div class="" style="padding-top: 100px;">
 
     <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
-        <a href="{% url 'assigned_summary' session.id %}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-muted">
-            <i class="bi bi-arrow-left"></i> 목록으로
-        </a>
-        <h4 class="fw-bold mb-0 text-dark">{{ worker_name }} <span class="fw-normal text-muted fs-6">Schedule</span></h4>
+        
+        <h4 class="fw-bold mb-0 text-dark">{{ worker_name }} <span class="fw-normal text-muted fs-6">님의 시간표</span></h4>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold shadow-sm" onclick="copyTableToClipboard()">
                 <i class="bi bi-clipboard"></i> 복사
@@ -156,8 +166,8 @@
                 </div>
 
                 <div class="card border bg-light mb-3">
-                    <div class="card-header bg-white fw-bold small text-muted text-uppercase border-bottom">
-                        Input Schedule (4-digit time)
+                    <div class="card-header bg-white fw-bold small text-primary text-uppercase border-bottom">
+                        4자리 숫자를 입력하세요
                     </div>
                     <div class="card-body p-0">
                         <table class="table table-borderless text-center align-middle mb-0">
@@ -197,218 +207,3 @@
     </div>
 </div>
 {% endblock content %}
-
-
-{% comment %} {% extends "manning/base/base.html" %}
-{% load static %}
-
-{% block title %}Personal Schedule{% endblock title %}
-
-{% block css %}
-    <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
-{% endblock css %}
-
-{% block js %}
-    <script>
-        // [핵심] Django 데이터를 자바스크립트 변수로 미리 선언
-        const SESSION_ID = "{{ session.id }}";
-        const CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
-        
-        // JSON 데이터는 |safe 필터 필수
-        const SERVER_DATA = {{ manual_data_json|default:"[]"|safe }};
-        
-    
-        const SAVE_URL = "{% url 'save_manual_input' session.id %}";
-    </script>
-    <script defer src="{% static 'js/personal_schedule.js' %}"></script>
-{% endblock js %}
-
-{% block content %}
-    <div class="container" style="max-width: 800px">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a
-                href="{% url 'assigned_summary' session.id %}"
-                class="btn btn-secondary btn-sm rounded-pill px-3"
-            >
-                <i class="bi bi-arrow-left"></i> 이전 페이지
-            </a>
-            <h5 class="fw-bold mb-0">📅 {{ worker_name }}님의 시간표</h5>
-
-            <button
-                type="button"
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#manualInputModal"
-            >
-                <i class="bi bi-plus-circle"></i> 수동 입력
-            </button>
-        </div>
-
-        {% if schedule %}
-        <div class="row g-3 mb-4">
-            <div class="col-6">
-                <div class="widget-card">
-                    <div class="small text-muted mb-1">총 할당 시간</div>
-                    <div class="fs-4 fw-bold text-primary">
-                        {{ total_mh }} M/H
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="widget-card">
-                    <div class="small text-muted mb-1">작업 건수</div>
-                    <div class="fs-4 fw-bold">{{ task_count }} 건</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="table-card">
-            <div class="table-responsive">
-                <table
-                    class="table table-hover align-middle mb-0 text-center"
-                >
-                    <thead class="table-light">
-                        <tr>
-                            <th width="20%">WO</th>
-                            <th width="10%">OP</th>
-                            <th width="20%">간비</th>
-                            <th width="25%">Start</th>
-                            <th width="25%">End</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in schedule %} 
-                            {% if item.wo != 'EMPTY_SLOT' %}
-                            <tr>
-                                <td class="fw-semibold">
-                                    {% if item.wo != '간비' %}{{ item.wo }}{% else %}&nbsp;{% endif %}
-                                </td>
-                                <td>
-                                    {% if item.op %}{{ item.op }}{% else %}&nbsp;{% endif %}
-                                </td>
-                                <td class="fw-bold text-primary">
-                                    {% if item.wo == '간비' %} {% if item.desc and item.desc != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif %} {% else %} &nbsp;
-                                    {% endif %}
-                                </td>
-                                <td class="fw-bold text-secondary">
-                                    {% if item.wo != '간비' or item.desc != '0' %} {{ item.start_str }} {% endif %}
-                                </td>
-                                <td class="fw-bold text-secondary">
-                                    {% if item.wo != '간비' or item.desc != '0' %} {{ item.end_str }} {% endif %}
-                                </td>
-                            </tr> 
-                            {% endif %}                          
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% else %}
-        <div class="alert alert-warning text-center mt-5">
-            <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
-            배정된 작업 데이터가 없습니다.
-        </div>
-        {% endif %}
-    </div>
-
-    <div
-        class="modal fade"
-        id="manualInputModal"
-        tabindex="-1"
-        aria-labelledby="manualInputModalLabel"
-        aria-hidden="true"
-        data-bs-backdrop="static"
-    >
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5
-                        class="modal-title fw-bold"
-                        id="manualInputModalLabel"
-                    >
-                        ⏱️ 작업 시간 수동 입력
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small"
-                            >작업자 선택</label
-                        >
-                        <select
-                            id="modal-worker-select"
-                            class="form-select form-select-sm"
-                        >
-                            <option value="">
-                                -- 작업자를 선택하세요 --
-                            </option>
-                            <option value="all">
-                                👥 모두 (전체 작업자)
-                            </option>
-                            {% for w in session.worker_set.all %}
-                            <option value="{{ w.id }}">{{ w.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table
-                            class="table table-bordered text-center align-middle mb-0"
-                        >
-                            <thead class="table-light small">
-                                <tr>
-                                    <th width="30%">시작 (HHMM)</th>
-                                    <th width="30%">간비 내용 (숫자만)</th>
-                                    <th width="30%">종료 (HHMM)</th>
-                                    <th width="10%">삭제</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modal-rows-body"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-2">
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-secondary w-100"
-                            id="btn-add-row"
-                        >
-                            <i class="bi bi-plus-lg"></i> 행 추가
-                        </button>
-                    </div>
-
-                    <div class="form-text small text-muted mt-2">
-                        ※ 입력 내용은 브라우저에 임시 저장됩니다.
-                        [저장하기]를 눌러야 반영됩니다.<br />
-                        ※
-                        <strong
-                            >내용에 '0'을 입력하면 해당 행은 저장되지
-                            않습니다.</strong
-                        >
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary btn-sm"
-                        data-bs-dismiss="modal"
-                    >
-                        닫기
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-sm fw-bold"
-                        id="btn-save-manual"
-                    >
-                        💾 저장하기
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock content %} {% endcomment %}

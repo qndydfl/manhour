@@ -3,6 +3,19 @@
 
 {% block title %}세션 수정 | {{ session.name }}{% endblock title %}
 
+{% block navsize %}style="max-width: 720px;"{% endblock navsize %}
+{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
+{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
+{% block navreturn %}
+<a
+    href="{% url 'index' %}"
+    class="btn btn-outline-secondary btn-sm text-light border-secondary"
+>
+    <i class="bi bi-clock-history"></i>
+    <span class="d-none d-md-inline">되돌아가기</span>
+</a>
+{% endblock navreturn %}
+
 {% block content %}
 <div class="container mt-5 mb-5" style="max-width: 700px;">
 

@@ -11,7 +11,7 @@ class WorkItemForm(forms.ModelForm):
     class Meta:
         model = WorkItem
         # 수정/추가할 항목들
-        fields = ['gibun_input', 'work_order', 'op', 'description', 'work_mh']
+        fields = ['gibun_input', 'work_order', 'op', 'description', 'work_mh', 'assigned_text']
         
         # 부트스트랩 디자인 입히기 (화면 예쁘게)
         widgets = {

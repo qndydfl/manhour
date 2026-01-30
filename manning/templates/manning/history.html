@@ -3,13 +3,21 @@
 
 {% block title %}작업 이력 (History){% endblock title %}
 
+{% block navsize %}style="max-width: 720px;"{% endblock navsize %}
+{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
+{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
+{% block navreturn %}
+<a
+    href="{% url 'index' %}"
+    class="btn btn-outline-secondary btn-sm text-light border-secondary"
+>
+    <i class="bi bi-clock-history"></i>
+    <span class="d-none d-md-inline">되돌아가기</span>
+</a>
+{% endblock navreturn %} 
+
 {% block content %}
-<div class="container py-4" style="max-width: 720px;">
-    <div class="d-flex justify-content-start align-items-center mb-4">
-        <a href="{% url 'index' %}" class="btn btn-secondary btn-sm">
-            <i class="bi bi-house-fill me-1"></i> 홈으로
-        </a>
-    </div>
+<div class="container" style="max-width: 720px; padding-top: 100px;">
 
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
         <h4 class="fw-bold mb-0 text-dark">

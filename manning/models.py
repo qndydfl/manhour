@@ -1,3 +1,5 @@
+from django.utils import timezone
+from urllib.parse import parse_qs, urlparse
 from django.db import models
 from django.db.models import Q
 
@@ -48,7 +50,8 @@ class Worker(models.Model):
     used_mh = models.FloatField(default=0.0)
 
     class Meta:
-        unique_together = ('session', 'name')  # 같은 세션 내 이름 중복 방지(강추)
+        unique_together = ('session', 'name') 
+        ordering = ['id']
 
     def __str__(self):
         return f"{self.name} ({self.session.name})"
@@ -112,3 +115,71 @@ class Assignment(models.Model):
                 name='uniq_assignment_only_when_no_time'
             )
         ]
+
+
+class GibunTeam(models.Model):
+    session = models.ForeignKey("WorkSession", on_delete=models.CASCADE, related_name="gibun_teams")
+    gibun = models.CharField(max_length=50)
+    workers = models.ManyToManyField("Worker", related_name="gibun_teams", blank=True)
+
+    class Meta:
+        unique_together = ("session", "gibun")
+
+    def __str__(self):
+        return f"{self.session.name} / {self.gibun}"
+    
+
+class YoutubeVideo(models.Model):
+    title = models.CharField("제목", max_length=200, blank=True)
+    youtube_url = models.URLField("YouTube URL", max_length=500)
+    video_id = models.CharField("Video ID", max_length=32, blank=True, db_index=True)
+
+    is_active = models.BooleanField("노출", default=True)
+    created_at = models.DateTimeField("등록일", default=timezone.now)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title or self.video_id or self.youtube_url
+
+    @staticmethod
+    def extract_video_id(url: str) -> str:
+        """
+        지원:
+        - https://youtu.be/VIDEOID
+        - https://www.youtube.com/watch?v=VIDEOID
+        - https://www.youtube.com/embed/VIDEOID
+        - https://www.youtube.com/shorts/VIDEOID
+        """
+        try:
+            u = urlparse(url)
+            host = (u.netloc or "").lower()
+
+            # youtu.be/VIDEOID
+            if "youtu.be" in host:
+                return u.path.strip("/")
+
+            # youtube.com/... variants
+            if "youtube.com" in host:
+                path = (u.path or "").strip("/")
+
+                if path.startswith("watch"):
+                    qs = parse_qs(u.query)
+                    return (qs.get("v", [""])[0] or "").strip()
+
+                # /embed/VIDEOID, /shorts/VIDEOID
+                parts = path.split("/")
+                if len(parts) >= 2 and parts[0] in ("embed", "shorts"):
+                    return parts[1].strip()
+
+            return ""
+        except Exception:
+            return ""
+
+    @property
+    def embed_url(self) -> str:
+        vid = self.video_id or self.extract_video_id(self.youtube_url)
+        return f"https://www.youtube.com/embed/{vid}" if vid else ""
+    
+    

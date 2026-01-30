@@ -7,21 +7,15 @@
     <link rel="stylesheet" href="{% static 'css/login.css' %}" />
 {% endblock css %}
 
-{% block content %} <div class="login-container">
+{% block navbar %}{% endblock navbar %}
+{% block content %}
+    <div class="login-container">
         <div class="login-card">
             <div class="mb-4 text-primary">
                 <i class="bi bi-shield-lock-fill" style="font-size: 4.5rem;"></i>
             </div>
             <h3 class="fw-bold mb-2">Login Page</h3>
             <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
-            
-            {% comment %} {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-danger py-2 mb-4 small fw-bold border-0 shadow-sm">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %} {% endcomment %}
 
             <form method="POST">
                 {% csrf_token %}
@@ -45,3 +39,5 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block footer %}{% endblock footer %}

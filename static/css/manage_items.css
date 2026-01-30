@@ -53,40 +53,65 @@ tr.deleted-row .table-input {
 /* ---------메시지 생성 시작--------- */
 
 /* 화면 정중앙 고정 오버레이 */
-    .message-overlay {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%); /* 정확한 정중앙 배치 */
-        z-index: 9999; /* 다른 요소보다 무조건 위에 */
-        min-width: 320px; /* 최소 너비 */
-        max-width: 90%;   /* 모바일 대응 */
-        text-align: center;
-        animation: popIn 0.3s ease-out forwards; /* 나타날 때 팝업 효과 */
-    }
+.message-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 정확한 정중앙 배치 */
+    z-index: 9999; /* 다른 요소보다 무조건 위에 */
+    min-width: 320px; /* 최소 너비 */
+    max-width: 90%; /* 모바일 대응 */
+    text-align: center;
+    animation: popIn 0.3s ease-out forwards; /* 나타날 때 팝업 효과 */
+}
 
-    /* 알림창 디자인 커스텀 */
-    .custom-alert {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px); /* 배경 흐림 효과 */
-        border: 1px solid rgba(0,0,0,0.1);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* 깊은 그림자 */
-        padding: 1.5rem 2rem;
-        border-radius: 1rem;
-        font-size: 1.1rem;
-    }
+/* 알림창 디자인 커스텀 */
+.custom-alert {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); /* 배경 흐림 효과 */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* 깊은 그림자 */
+    padding: 1.5rem 2rem;
+    border-radius: 1rem;
+    font-size: 1.1rem;
+}
 
-    /* 팝업 애니메이션 키프레임 */
-    @keyframes popIn {
-        0% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
-        100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-    
-    /* 사라질 때 애니메이션 */
-    .fade-out {
+/* 팝업 애니메이션 키프레임 */
+@keyframes popIn {
+    0% {
         opacity: 0;
-        transform: translate(-50%, -60%) scale(0.9);
-        transition: all 0.3s ease-in;
+        transform: translate(-50%, -40%) scale(0.9);
     }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
 
-    /* ---------메시지 생성 끝--------- */
+/* 사라질 때 애니메이션 */
+.fade-out {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.9);
+    transition: all 0.3s ease-in;
+}
+
+/* ---------메시지 생성 끝--------- */
+
+/* textarea든 뭐든 한 줄처럼 보이게 */
+.desc-one-line {
+    height: 2.2rem; /* 한 줄 높이 */
+    line-height: 2.2rem; /* 글자 세로 정렬 */
+    padding-top: 0;
+    padding-bottom: 0;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    resize: none; /* textarea 크기 조절 막기 */
+}
+
+.desc-one-line::-webkit-scrollbar {
+    display: none;
+}
