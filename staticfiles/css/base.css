@@ -1,0 +1,176 @@
+/* 1. 기본 설정 (통합) */
+body {
+    font-family:
+        "Pretendard",
+        -apple-system,
+        BlinkMacSystemFont,
+        system-ui,
+        Roboto,
+        "Helvetica Neue",
+        "Segoe UI",
+        "Apple SD Gothic Neo",
+        "Noto Sans KR",
+        "Malgun Gothic",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        sans-serif;
+    background-color: #f4f6f9; /* 눈이 편안한 연회색 */
+    color: #495057;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    padding-bottom: 60px; /* 하단 고정 바 여백 확보 */
+}
+
+/* 스크롤바 커스텀 (크롬/사파리/엣지) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 2. 카드 공통 스타일 (둥글고 그림자 있게) */
+.card {
+    border: none;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 아주 연한 그림자 */
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+/* 마우스 올렸을 때 붕 뜨는 효과 */
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+}
+
+/* 3. 빈 슬롯 스타일 (점선) */
+.card-dashed {
+    border: 2px dashed #dee2e6;
+    background-color: transparent;
+    box-shadow: none;
+}
+.card-dashed:hover {
+    border-color: #adb5bd;
+    background-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px);
+}
+
+/* 4. 버튼 스타일 */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #ffffff; /* 글자색 흰색 고정 */
+    transition: all 0.2s ease;
+}
+.btn-primary:hover {
+    filter: brightness(1.1); /* 10% 밝게 */
+    transform: scale(1.02); /* 살짝 커짐 */
+    color: #ffffff;
+}
+.btn-primary:active {
+    transform: scale(0.98); /* 클릭 시 눌림 효과 */
+}
+
+/* 5. 뱃지(Badge) & 색상 유틸리티 스타일 */
+.badge-soft {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+/* 색상별 정의 (HTML에서 사용된 클래스들) */
+.bg-soft-primary {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+.bg-soft-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+.bg-soft-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #b48608;
+} /* 주간용 */
+.bg-soft-dark {
+    background-color: rgba(33, 37, 41, 0.1);
+    color: #212529;
+}
+.bg-soft-secondary {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+} /* 대기용 */
+.bg-soft-indigo {
+    background-color: rgba(102, 16, 242, 0.1);
+    color: #6610f2;
+} /* 야간용 */
+
+/* 텍스트 색상 유틸리티 */
+.text-indigo {
+    color: #6610f2 !important;
+}
+
+/* 6. 기타 유틸리티 */
+/* 자간 넓게 (Letter Spacing) */
+.ls-1 {
+    letter-spacing: 1px;
+}
+
+/* 그림자 유틸리티 (필요시 추가 강조) */
+.shadow-soft {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+}
+
+/* 모바일 화면 적용 */
+@media (max-width: 767.98px) {
+    /* 1. 컨테이너의 양옆 여백을 강제로 제거 */
+    .container,
+    .container-fluid,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 2. 카드(Card)의 둥근 모서리를 직각으로 변경 (선택사항) */
+    /* 화면에 꽉 차는데 모서리만 둥글면 어색할 수 있어서 보통 0으로 만듭니다. */
+    .card {
+        border-radius: 0 !important;
+        border-left: 0 !important;
+        border-right: 0 !important;
+    }
+
+    /* 3. 가로 스크롤 방지 (혹시 튀어나가는 요소 방어) */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* 4. (옵션) 내용물이 화면에 너무 딱 붙는 게 싫다면 내부 여백 추가 */
+    /* 필요한 경우 주석을 풀고 사용하세요. */
+    /*
+            .container > div {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            */
+}

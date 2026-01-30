@@ -1,139 +1,136 @@
 
-// // 빈 공간 클릭 시 해당 슬롯 이름 자동 입력 함수
-// function setSessionName(name) {
-//     const nameInput = document.querySelector(
-//         '#createSessionModal input[name="name"]',
-//     );
-//     if (nameInput) {
-//         nameInput.value = name;
-//     }
-// }
-
-// document.addEventListener("DOMContentLoaded", function() {
-//     // 빈 공간 클릭 시 해당 슬롯 이름 자동 입력 함수
-//     // (create_session.js가 아니라 index.js에 필요한 기능이라면 유지)
-//     window.setSessionName = function(name) {
-//         const nameInput = document.querySelector('#createSessionModal input[name="name"]');
-//         if (nameInput) {
-//             nameInput.value = name;
-//         }
-//     };
-
-
-// // 아날로그 + 디지털 시계 작동 스크립트
-//     function setClock() {
-//         const now = new Date();
-
-//         // 1. 아날로그 바늘 각도 계산
-//         const seconds = now.getSeconds();
-//         const minutes = now.getMinutes();
-//         const hours = now.getHours();
-
-//         const secondsDegrees = (seconds / 60) * 360;
-//         const minutesDegrees =
-//             (minutes / 60) * 360 + (seconds / 60) * 6;
-//         const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
-
-//         const secHand = document.getElementById("sec-hand");
-//         const minHand = document.getElementById("min-hand");
-//         const hourHand = document.getElementById("hour-hand");
-
-//         if (secHand)
-//             secHand.style.transform = `rotate(${secondsDegrees}deg)`;
-//         if (minHand)
-//             minHand.style.transform = `rotate(${minutesDegrees}deg)`;
-//         if (hourHand)
-//             hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
-
-//         // 2. 하단 디지털 텍스트 업데이트
-//         const year = now.getFullYear();
-//         const month = String(now.getMonth() + 1).padStart(2, "0");
-//         const date = String(now.getDate()).padStart(2, "0");
-//         const daysArr = ["일", "월", "화", "수", "목", "금", "토"];
-//         const dayName = daysArr[now.getDay()];
-
-//         const dDate = document.getElementById("digital-date");
-//         if (dDate)
-//             dDate.textContent = `${year}.${month}.${date} (${dayName})`;
-
-//         let h = hours;
-//         const ampm = h >= 12 ? "PM" : "AM";
-//         h = h % 12;
-//         h = h ? h : 12;
-//         const m = String(minutes).padStart(2, "0");
-//         const s = String(seconds).padStart(2, "0");
-
-//         const dTime = document.getElementById("digital-time");
-//         if (dTime) dTime.textContent = `${h}:${m}:${s} ${ampm}`;
-//     }
-
-//     setInterval(setClock, 1000);
-//     setClock();
-// });
-
-// static/js/index.js
-
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
     
-    // ----------------------------------------------------------------
-    // 1. 슬롯 이름 자동 입력 함수
-    // HTML 태그의 onclick="setSessionName(...)"에서 호출하려면 
-    // window 객체(전역)에 등록해야 합니다.
-    // ----------------------------------------------------------------
-    window.setSessionName = function(name) {
-        const nameInput = document.querySelector('#createSessionModal input[name="name"]');
-        if (nameInput) {
-            nameInput.value = name;
-        }
-    };
-
-    // ----------------------------------------------------------------
-    // 2. 아날로그 + 디지털 시계 작동 스크립트
-    // ----------------------------------------------------------------
-    function setClock() {
-        const now = new Date();
-
-        // --- A. 아날로그 바늘 각도 계산 ---
-        const seconds = now.getSeconds();
-        const minutes = now.getMinutes();
-        const hours = now.getHours();
-
-        const secondsDegrees = (seconds / 60) * 360;
-        const minutesDegrees = (minutes / 60) * 360 + (seconds / 60) * 6;
-        const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
-
-        const secHand = document.getElementById("sec-hand");
-        const minHand = document.getElementById("min-hand");
-        const hourHand = document.getElementById("hour-hand");
-
-        if (secHand) secHand.style.transform = `rotate(${secondsDegrees}deg)`;
-        if (minHand) minHand.style.transform = `rotate(${minutesDegrees}deg)`;
-        if (hourHand) hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
-
-        // --- B. 하단 디지털 텍스트 업데이트 ---
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const date = String(now.getDate()).padStart(2, "0");
-        const daysArr = ["일", "월", "화", "수", "목", "금", "토"];
-        const dayName = daysArr[now.getDay()];
-
-        const dDate = document.getElementById("digital-date");
-        if (dDate) dDate.textContent = `${year}.${month}.${date} (${dayName})`;
-
-        let h = hours;
-        const ampm = h >= 12 ? "PM" : "AM";
-        h = h % 12;
-        h = h ? h : 12;
-        const m = String(minutes).padStart(2, "0");
-        const s = String(seconds).padStart(2, "0");
-
-        const dTime = document.getElementById("digital-time");
-        if (dTime) dTime.textContent = `${h}:${m}:${s} ${ampm}`;
+    // ==========================================
+    // 1. Toast 알림 자동 실행
+    // ==========================================
+    // HTML에 .toast 클래스가 있으면 자동으로 띄움 (없으면 무시됨)
+    const toastEls = document.querySelectorAll('.toast');
+    if (toastEls.length > 0 && window.bootstrap) {
+        toastEls.forEach(function (toastEl) {
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        });
     }
 
-    // --- C. 시계 시작 ---
-    // 1초마다 갱신
-    setInterval(setClock, 1000);
-    // 로딩 즉시 한 번 실행 (깜빡임 방지)
-    setClock();
+    // ==========================================
+    // 2. 실시간 시계 (Clock)
+    // ==========================================
+    function updateClock() {
+        const now = new Date();
+        
+        // 1) Local Time
+        const timeEl = document.getElementById('digital-time');
+        const dateEl = document.getElementById('digital-date');
+        
+        if (timeEl) {
+            timeEl.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        if (dateEl) {
+            dateEl.textContent = now.toLocaleDateString('ko-KR', {
+                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+            });
+        }
+
+        // 2) UTC Time
+        const utcEl = document.getElementById('digital-time-utc');
+        if (utcEl) {
+            const utcHour = String(now.getUTCHours()).padStart(2, '0');
+            const utcMin = String(now.getUTCMinutes()).padStart(2, '0');
+            utcEl.textContent = `${utcHour}:${utcMin}`;
+        }
+    }
+
+    // 요소가 있을 때만 시계 실행
+    if (document.getElementById('digital-time')) {
+        setInterval(updateClock, 1000);
+        updateClock(); // 즉시 1회 실행
+    }
+
+    // ==========================================
+    // 3. 검색 및 필터링 (Search & Filter)
+    // ==========================================
+    const searchInput = document.getElementById('sessionSearch');
+    const clearBtn = document.getElementById('clearSearch');
+    const filterBtns = document.querySelectorAll('[data-filter]');
+    const sessionCols = document.querySelectorAll('.session-col');
+
+    // 검색창이 존재하는 페이지에서만 실행 (오류 방지)
+    if (searchInput) {
+        let currentFilter = 'all';
+
+        // 필터링 로직 함수
+        function filterSessions() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            sessionCols.forEach(col => {
+                const shift = col.dataset.shift; // data-shift 속성값
+                const name = col.dataset.name;   // data-name 속성값
+                
+                const matchesSearch = name.includes(query);
+                const matchesFilter = (currentFilter === 'all') || (shift === currentFilter);
+
+                // 검색어와 필터 모두 만족하면 보이기
+                if (matchesSearch && matchesFilter) {
+                    col.style.display = ''; // 원래 display 속성으로 복구 (보임)
+                } else {
+                    col.style.display = 'none'; // 숨김
+                }
+            });
+        }
+
+        // [이벤트] 검색어 입력 시
+        searchInput.addEventListener('input', filterSessions);
+
+        // [이벤트] 초기화 버튼 클릭 시
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                filterSessions();
+                searchInput.focus();
+            });
+        }
+
+        // [이벤트] 주간/야간/전체 버튼 클릭 시
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 1. 모든 버튼 스타일 초기화 (비활성 상태로)
+                filterBtns.forEach(b => {
+                    b.classList.remove('active', 'btn-dark');
+                    if(b.classList.contains('btn-sm')) {
+                        b.classList.add('btn-outline-secondary');
+                    }
+                });
+                
+                // 2. 클릭한 버튼 스타일 활성화
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('active', 'btn-dark');
+
+                // 3. 필터 적용
+                currentFilter = btn.dataset.filter;
+                filterSessions();
+            });
+        });
+    }
 });
+
+function updateClock() {
+        const now = new Date();
+        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        
+        // Local Time
+        const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+        const dateString = now.toLocaleDateString('ko-KR') + ` (${days[now.getDay()]})`;
+        
+        document.getElementById('digital-time').textContent = timeString;
+        document.getElementById('digital-date').textContent = dateString;
+
+        // UTC Time
+        const utcHour = String(now.getUTCHours()).padStart(2, '0');
+        const utcMin = String(now.getUTCMinutes()).padStart(2, '0');
+        document.getElementById('digital-time-utc').textContent = `${utcHour}:${utcMin}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+

@@ -1,27 +1,38 @@
-body {
-    background-color: #e9ecef;
+/* static/css/login.css */
+
+/* 화면 전체를 사용하여 내용을 정중앙에 배치 */
+.login-container {
+    min-height: 80vh; /* 화면 높이의 80% 확보 */
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    font-family: sans-serif;
+    justify-content: center;
+    background-color: transparent;
 }
+
+/* 로그인 카드 디자인 */
 .login-card {
     background: white;
-    padding: 3.5rem 3rem;
-    border-radius: 24px;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+    padding: 3rem 2.5rem;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px; /* 카드 최대 너비 */
+    border-radius: 1.5rem; /* 둥근 모서리 */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* 부드러운 그림자 */
     text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
-.form-control-lg {
-    border-radius: 12px;
-    border: 2px solid #dee2e6;
-    transition: all 0.2s;
+
+/* 입력창 포커스 효과 */
+.login-card input:focus {
+    background-color: #fff !important;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    border: 1px solid #86b7fe !important;
 }
-.form-control-lg:focus {
-    border-color: #0d6efd;
-    box-shadow: none;
+
+/* 버튼 호버 애니메이션 */
+.transition-btn {
+    transition: all 0.3s ease;
+}
+.transition-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3) !important;
 }
