@@ -30,7 +30,7 @@
 </head>
 <body>
     {% block navbar %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 mb-4 shadow-sm fixed-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 mb-4 shadow-sm fixed-top w-100">
             <div class="container" {% block navsize %}{% endblock navsize %}>
                 <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" 
                     {% block navhome %}href="{% url 'index' %}"{% endblock navhome %}>
@@ -58,7 +58,7 @@
         </nav>
     {% endblock navbar %}
     
-    <div class="container" >
+    <div class="container justify-content-center align-items-center" >
         {% block content %}
         {% block video %}{% endblock video %}
         {% endblock content %}

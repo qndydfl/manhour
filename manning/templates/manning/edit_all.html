@@ -1,4 +1,4 @@
-{% extends "manning/base/base.html" %} {% load static %} {% block title %}일괄
+{% comment %} {% extends "manning/base/base.html" %} {% load static %} {% block title %}일괄
 수정 - {{ session.name }}{% endblock title %} {% block js %}
 <script defer src="{% static 'js/edit_all.js' %}"></script>
 {% endblock js %} {% block main %}
@@ -182,4 +182,4 @@
     </div>
 </div>
 
-{% endblock main %}
+{% endblock main %} {% endcomment %}

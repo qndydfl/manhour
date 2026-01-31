@@ -34,9 +34,13 @@ urlpatterns = [
     # 조회
     path("session/<int:session_id>/summary/", views.AssignedSummaryView.as_view(), name="assigned_summary" ),
     path( "session/<int:session_id>/schedule/", views.PersonalScheduleView.as_view(), name="personal_schedule" ),
+
+    # 리셋
+    path("session/<int:session_id>/worker/<int:worker_id>/manual_reset/", views.ResetWorkerManualInputView.as_view(),               
+        name="reset_worker_manual_input"),
+    path("session/<int:session_id>/manual_reset/", views.ResetManualInputView.as_view(), name="reset_manual_input"),
     
-    # 기타 기능
-    # ✅ pk로 수정
+    # 기타 기능    
     path( "taskmaster/delete/<int:pk>/", views.DeleteTaskMasterView.as_view(), name="delete_taskmaster" ),
     path( "taskmaster/delete_all/", views.DeleteAllTaskMastersView.as_view(), name="delete_all_taskmasters" ),
     path( "paste_data/", views.PasteDataView.as_view(), name="paste_data"),

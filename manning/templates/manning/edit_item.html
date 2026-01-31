@@ -1,19 +1,10 @@
-{% extends "manning/base/base.html" %}
+{% comment %} {% extends "manning/base/base.html" %}
 {% load static %}
 
 {% block title %}작업 수정 - {{ item.work_order }}{% endblock title %}
 
 {% block css %}
-<style>
-    body {
-        font-family: "Pretendard", sans-serif;
-        background-color: #f8f9fa;
-    }
-    .card {
-        border: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-</style>
+
 {% endblock css %}
 
 {% block content %}
@@ -253,4 +244,4 @@
             </div>
         </div>
     </div>
-{% endblock main %} {% endcomment %}
+{% endblock main %} {% endcomment %} {% endcomment %}
