@@ -8,7 +8,7 @@
 {% block navname %}<span>홈 페이지</span>{% endblock navname %} 
 {% block navreturn %}
 <a
-    href="{% url 'index' %}"
+    href="{% url 'result_view' session.id %}"
     class="btn btn-outline-secondary btn-sm text-light border-secondary"
 >
     <i class="bi bi-clock-history"></i>
@@ -17,21 +17,11 @@
 {% endblock navreturn %}
 
 {% block content %}
-<div class="container mt-5 mb-5" style="max-width: 700px;">
-
-    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
-        <a href="{% url 'result_view' session.id %}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-muted">
-            <i class="bi bi-arrow-left"></i> 결과 화면으로
-        </a>
-        <span class="badge bg-soft-secondary text-secondary rounded-pill">Session ID: {{ session.id }}</span>
-    </div>
+<div class="container mb-5" style="max-width: 700px;">    
 
     <div class="card border-0 shadow-lg rounded-4 overflow-hidden" data-aos="fade-up">
         
-        <div class="card-header bg-white border-0 pt-4 pb-2 px-4 text-center">
-            {% comment %} <div class="d-inline-flex align-items-center justify-content-center bg-soft-info p-3 rounded-circle mb-3">
-                <i class="bi bi-gear-wide-connected fs-2 text-info"></i>
-            </div> {% endcomment %}
+        <div class="card-header bg-white border-0 pt-4 pb-2 px-4 text-center ios-topbar-shadow">
             <h3 class="fw-bold text-dark mb-1">세션 정보 수정</h3>
             <p class="text-muted small">작업자 명단을 변경하거나 세션 이름을 수정합니다.</p>
         </div>

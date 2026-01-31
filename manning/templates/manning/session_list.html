@@ -4,13 +4,21 @@
 {% block title %}작업 슬롯 현황{% endblock %}
 
 {% block css %}
-<style>
-    .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; }
-    .bg-soft-indigo { background-color: #e0e7ff; }
-    .text-indigo { color: #4338ca; }
-    .bg-soft-warning { background-color: #fef3c7; }
-    .header { margin-bottom: 2rem; }
-</style>
+    <style>
+        .card-hover:hover { 
+            transform: translateY(-5px); 
+            transition: transform all 0.5s ease;
+        }
+        .bg-soft-indigo { background-color: #e0e7ff; }
+        .text-indigo { color: #4338ca; }
+        .bg-soft-warning { background-color: #fef3c7; }
+        .header { padding: 0; }
+        .app-content {
+            padding-top: 0px;
+        }   
+    </style>
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
 {% endblock css %}
 
 {% block navbar %}
@@ -27,9 +35,10 @@
 {% endblock navbar %}
 
 {% block content %}    
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+<div class="app-content d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div>
-        <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황</h3>
+        <h3 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황</h3>
         <p class="text-muted mb-2 small">현재 활성화된 작업 세션 목록입니다.</p>
     </div>
     

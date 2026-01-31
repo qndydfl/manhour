@@ -6,7 +6,7 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
-{% endblock css %} 
+{% endblock css %}
 
 {% block js %}
 <script defer src="{% static 'js/manage_items.js' %}"></script>
@@ -26,7 +26,7 @@
 {% endblock navreturn %} 
 
 {% block content %}
-<div class="" style="padding-top: 100px">
+<div class="ios-topbar" >
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-3">
             <div>
@@ -120,7 +120,7 @@
                             style="max-height: 200px; overflow-y: auto"
                         >
                             <table
-                                class="table table-sm table-hover mb-0 text-center align-middle small"
+                                class="table ios-table table-sm table-hover mb-0 text-center align-middle small"
                             >
                                 <thead class="table-light sticky-top">
                                     <tr>

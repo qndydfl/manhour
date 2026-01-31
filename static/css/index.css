@@ -4,25 +4,24 @@
 
 /* 스크롤바 전체 영역 */
 ::-webkit-scrollbar {
-  width: 12px; /* 스크롤바 너비 */
+    width: 12px; /* 스크롤바 너비 */
 }
 
 /* 스크롤바 트랙 (배경) */
 ::-webkit-scrollbar-track {
-  background: #343a40; /* 헤더/푸터 색상과 맞추기 */
+    background: #343a40; /* 헤더/푸터 색상과 맞추기 */
 }
 
 /* 스크롤바 핸들 (움직이는 부분) */
 ::-webkit-scrollbar-thumb {
-  background: #495057; /* 조금 더 진한 색상 */
-  border-radius: 6px;
+    background: #495057; /* 조금 더 진한 색상 */
+    border-radius: 6px;
 }
 
 /* hover 시 색상 */
 ::-webkit-scrollbar-thumb:hover {
-  background: #212529;
+    background: #212529;
 }
-
 
 /* 환영 문구 그라데이션 (조금 더 세련된 색감 적용) */
 .text-gradient {
@@ -35,7 +34,7 @@
 
 /* 시계용 고정폭 폰트 (HTML 인라인 스타일 제거용) */
 .font-digital {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Courier New", Courier, monospace;
     letter-spacing: -1px;
     font-variant-numeric: tabular-nums; /* 숫자 간격 일정하게 */
 }
@@ -50,7 +49,9 @@
    ========================================= */
 
 /* 모든 대시보드 카드 공통 둥글기 */
-.card, .hero-card, .stat-card {
+.card,
+.hero-card,
+.stat-card {
     border-radius: 1rem !important; /* 부트스트랩 rounded-4와 동일 */
 }
 
@@ -115,8 +116,12 @@
 }
 
 /* 딜레이를 주어 순차적으로 등장하게 하고 싶을 때 사용 */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
+.delay-100 {
+    animation-delay: 100ms;
+}
+.delay-200 {
+    animation-delay: 200ms;
+}
 
 @keyframes fadeUp {
     from {
@@ -138,25 +143,32 @@
 
 .slot-card {
     border-radius: 16px;
-    transition: transform 0.14s ease, box-shadow 0.14s ease;
+    transition:
+        transform 0.14s ease,
+        box-shadow 0.14s ease;
 }
 .slot-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
-.search-group { min-width: 240px; }
-.sort-select { min-width: 160px; }
+.search-group {
+    min-width: 240px;
+}
+.sort-select {
+    min-width: 160px;
+}
 
 /* 모바일 대응 */
 @media (max-width: 576px) {
-    .search-group, .sort-select {
+    .search-group,
+    .sort-select {
         min-width: 100%;
     }
-    
+
     /* 모바일에서는 hover 효과 끄기 (터치 시 이상 동작 방지) */
     .hover-lift:hover {
         transform: none;
-        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
     }
 }
