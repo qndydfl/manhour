@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'manning',
     'widget_tweaks',
+    'embed_video',
 ]
 
 MIDDLEWARE = [

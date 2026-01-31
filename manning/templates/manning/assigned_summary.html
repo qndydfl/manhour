@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}">
 {% endblock css %}
 
+{% block navsize %}style="max-width: 900px;"{% endblock navsize %}
 {% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
 {% block navname %}<span>홈 페이지</span>{% endblock navname %} 
 {% block navreturn %}
@@ -20,7 +21,7 @@
 {% endblock navreturn %} 
 
 {% block content %}
-<div class="" style="padding-top: 100px;">   
+<div class="container" style="max-width: 900px; padding-top: 100px;">   
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold text-dark">📅 배정 현황 요약</h4>

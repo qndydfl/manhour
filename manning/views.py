@@ -35,15 +35,9 @@ from .models import (
     Assignment,
     TaskMaster,
     GibunPriority,
-    YoutubeVideo,
 )
 from .forms import KanbiAssignmentForm, ManageItemForm, WorkItemForm, WorkerIndirectForm
-from .services import (
-    AutoAssignService,
-    run_auto_assign,
-    refresh_worker_totals,
-    run_sync_schedule,
-)
+from .services import run_auto_assign, refresh_worker_totals, run_sync_schedule
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 
@@ -295,24 +289,6 @@ def parse_worker_names(worker_names: str):
     return uniq
 
 
-class SelectSessionView(SimpleLoginRequiredMixin, ListView):
-    template_name = "manning/select_session.html"
-    context_object_name = "sessions"
-
-    def get_queryset(self):
-        name = self.kwargs.get("name")
-        return WorkSession.objects.filter(name=name, is_active=True).order_by(
-            "-created_at"
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        for session in context["sessions"]:
-            session.item_count = session.workitem_set.exclude(work_order="간비").count()
-        context["slot_name"] = self.kwargs.get("name")
-        return context
-
-
 class EditSessionView(SimpleLoginRequiredMixin, View):
     # 세션 정보 및 작업자 명단 수정
     def get(self, request, session_id):
@@ -343,7 +319,16 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         # 중복 제거
         new_names = list(dict.fromkeys(raw_names))
 
-        session.worker_set.exclude(name__in=new_names).delete()
+        workers_to_delete = session.worker_set.exclude(name__in=new_names)
+
+        if workers_to_delete.exists():
+            affected_items = WorkItem.objects.filter(
+                session=session, assignments__worker__in=workers_to_delete
+            ).distinct()
+            # 삭제되는 작업자가 포함된 아이템은 자동 배정 대상으로 전환
+            affected_items.update(is_manual=False)
+
+        workers_to_delete.delete()
 
         # 신규 작업자 추가 (이미 있는 사람은 건너뜀)
         existing_names = session.worker_set.values_list("name", flat=True)
@@ -351,8 +336,12 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
             if name not in existing_names:
                 Worker.objects.create(session=session, name=name)
 
+        run_auto_assign(session.id)
+        run_sync_schedule(session.id)
+        refresh_worker_totals(session)
+
         messages.success(request, "세션 정보가 수정되었습니다!")
-        return redirect("result_view", session_id=session.id)
+        return redirect(f"{reverse('result_view', args=[session.id])}?reassigned=1")
 
 
 class EditAllView(SimpleLoginRequiredMixin, View):
@@ -691,6 +680,57 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # 1. 저장 트랜잭션
         # ---------------------------------------------------------
         with transaction.atomic():
+            # -----------------------------------------------------
+            # (0) 근무 한도/명단 업데이트를 먼저 반영
+            # -----------------------------------------------------
+            worker_str = request.POST.get("worker_names_str", "")
+            valid_names = set()
+
+            if worker_str:
+                lines = worker_str.splitlines()
+
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    # "이름: 시간" 파싱
+                    if ":" in line:
+                        parts = line.split(":", 1)
+                        name_part = parts[0].strip()
+                        limit_part = parts[1].strip()
+                        try:
+                            limit_val = float(limit_part)
+                        except ValueError:
+                            limit_val = 12.0
+                    else:
+                        name_part = line
+                        limit_val = 12.0
+
+                    if name_part:
+                        valid_names.add(name_part)
+                        worker, created = Worker.objects.get_or_create(
+                            session=session, name=name_part
+                        )
+                        if worker.limit_mh != limit_val:
+                            worker.limit_mh = limit_val
+                            worker.save(update_fields=["limit_mh"])
+
+                if valid_names:
+                    workers_to_delete = Worker.objects.filter(session=session).exclude(
+                        name__in=valid_names
+                    )
+
+                    if workers_to_delete.exists():
+                        affected_items = WorkItem.objects.filter(
+                            session=session,
+                            assignments__worker__in=workers_to_delete,
+                        ).distinct()
+
+                        # 삭제되는 작업자가 포함된 아이템은 자동 배정 대상으로 전환
+                        affected_items.update(is_manual=False)
+
+                        workers_to_delete.delete()
             # (1) 삭제 처리
             formset.save(commit=False)
             for obj in formset.deleted_objects:
@@ -712,13 +752,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     form.cleaned_data.get("assigned_text") or ""
                 ).strip()
 
-                if worker_name_input:
-                    instance.is_manual = True  # 자동배정 대상 제외
-                else:
-                    instance.is_manual = False  # 다시 자동배정 포함
-
-                instance.save()
-
                 # (3) assigned_text 처리: 고정 배정 생성
                 current_assigns = instance.assignments.all()
                 current_names_set = set(a.worker.name for a in current_assigns)
@@ -734,8 +767,19 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     else:
                         clean_names_list.append(item)
 
+                # 근무 한도 명단이 있으면 그 명단만 허용
+                if valid_names:
+                    clean_names_list = [n for n in clean_names_list if n in valid_names]
+
                 new_names = set(clean_names_list)
                 new_names_set = set(new_names)
+
+                if new_names_set:
+                    instance.is_manual = True  # 자동배정 대상 제외
+                else:
+                    instance.is_manual = False  # 다시 자동배정 포함
+
+                instance.save()
 
                 if current_names_set != new_names_set:
                     # 기존 배정 삭제 후 재생성 (균등 분배 로직 유지)
@@ -762,72 +806,13 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                                 allocated_mh=alloc,
                             )
 
-            # ---------------------------------------------------------
-            # (4) ✅ [추가됨] 근무 한도(M/H) 텍스트박스 저장 로직
-            #     이 부분이 없어서 저장이 안 되었던 것입니다.
-            # ---------------------------------------------------------
-            worker_str = request.POST.get("worker_names_str", "")
-
-            if worker_str:
-                lines = worker_str.splitlines()
-                # ✅ 텍스트박스에 존재하는 '유효한 이름'을 담을 집합(Set)
-                valid_names = set()
-
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    # "이름: 시간" 파싱
-                    if ":" in line:
-                        parts = line.split(":", 1)
-                        name_part = parts[0].strip()
-                        limit_part = parts[1].strip()
-                        try:
-                            limit_val = float(limit_part)
-                        except ValueError:
-                            limit_val = 12.0
-                    else:
-                        name_part = line
-                        limit_val = 12.0
-
-                    if name_part:
-                        # 1. 유효한 이름 목록에 추가
-                        valid_names.add(name_part)
-                        # 2. DB 업데이트 (없으면 생성, 있으면 한도 수정)
-                        worker, created = Worker.objects.get_or_create(
-                            session=session, name=name_part
-                        )
-                        # 값이 다를 때만 업데이트
-                        if worker.limit_mh != limit_val:
-                            worker.limit_mh = limit_val
-                            worker.save(update_fields=["limit_mh"])
-                if valid_names:
-                    # 1. 삭제 대상 작업자 찾기 (아직 삭제 실행 X)
-                    workers_to_delete = Worker.objects.filter(session=session).exclude(
-                        name__in=valid_names
-                    )
-
-                    if workers_to_delete.exists():
-                        # 2. 삭제될 작업자가 포함된 WorkItem 찾기
-                        affected_items = WorkItem.objects.filter(
-                            session=session, assignments__worker__in=workers_to_delete
-                        ).distinct()
-
-                        # 3. 해당 아이템들을 '자동 배정 대상(is_manual=False)'으로 전환
-                        #    -> "수동으로 맞춘 멤버가 나갔으니, 나머지는 AI가 채워라"라는 의미
-                        affected_items.update(is_manual=False)
-
-                        # 4. 작업자 삭제 (Assignment도 CASCADE로 자동 삭제됨)
-                        workers_to_delete.delete()
-
         # ---------------------------------------------------------
         # 2. 자동 배정/스케줄 동기화 재실행
         # ---------------------------------------------------------
         run_auto_assign(session.id)
         run_sync_schedule(session.id)
 
-        return redirect("manage_items", session_id=session.id)
+        return redirect(f"{reverse('result_view', args=[session.id])}?reassigned=1")
 
 
 # class EditItemView(SimpleLoginRequiredMixin, View):
@@ -995,48 +980,6 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
-class UndoDeleteView(SimpleLoginRequiredMixin, View):
-    def post(self, request):
-        last_list = request.session.get("last_deleted_items")
-        if not last_list:
-            messages.error(request, "복원할 삭제 항목이 없습니다.")
-            return redirect("index")
-
-        session_id = last_list[0].get("session_id")
-        session = get_object_or_404(WorkSession, id=session_id)
-
-        recreated = 0
-        for last in last_list:
-            task_master = None
-            tm_id = last.get("task_master_id")
-            if tm_id:
-                try:
-                    task_master = TaskMaster.objects.get(id=tm_id)
-                except TaskMaster.DoesNotExist:
-                    task_master = None
-
-            WorkItem.objects.create(
-                session=session,
-                task_master=task_master,
-                gibun_input=last.get("gibun_input", ""),
-                model_type=last.get("model_type", ""),
-                work_order=last.get("work_order", ""),
-                op=last.get("op", ""),
-                description=last.get("description", ""),
-                work_mh=last.get("work_mh", 0.0),
-            )
-            recreated += 1
-
-        try:
-            del request.session["last_deleted_items"]
-            request.session.modified = True
-        except KeyError:
-            pass
-
-        messages.success(request, f"{recreated}개의 삭제 항목을 복원했습니다.")
-        return redirect("result_view", session_id=session.id)
-
-
 class UpdateLimitsView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
         session = get_object_or_404(WorkSession, id=session_id)
@@ -1090,131 +1033,28 @@ def clear_history(request):
     return redirect("history")
 
 
-def _json_body(request):
-    try:
-        return json.loads(request.body.decode("utf-8") or "{}")
-    except Exception:
-        return {}
-
-
-# class SaveManualInputView(SimpleLoginRequiredMixin, View):
-#     def post(self, request, session_id):
-#         try:
-#             # 1. 데이터 파싱
-#             data = json.loads(request.body)
-#             raw_assignments = data.get("assignments", [])
-#             session = get_object_or_404(WorkSession, id=session_id)
-#             planner = Planner(session_id=session.id)
-
-#             # 2. 작업 분류 (일반작업 WO vs 간비 Code)
-#             wo_list = []
-#             kanbi_list = []
-
-#             for row in raw_assignments:
-#                 if row.get("worker_id") is None or row.get("start_min") is None:
-#                     continue
-
-#                 # code가 있으면(0 포함) 간비 리스트로
-#                 if (row.get("code") or "").strip():
-#                     kanbi_list.append(row)
-#                 else:
-#                     wo_list.append(row)
-
-#             # 3. [핵심 로직] WO 시간 자르기 (Smart Trimming)
-#             # WO가 간비(0)와 만나면, 겹치는 부분만 도려내고 남은 부분은 살립니다.
-
-#             final_wo_list = []
-
-#             for wo in wo_list:
-#                 wo_worker = int(wo.get("worker_id"))
-#                 wo_start = int(wo.get("start_min"))
-#                 wo_end = int(wo.get("end_min"))
-
-#                 # 유효하지 않은 시간은 패스
-#                 if wo_end <= wo_start:
-#                     continue
-
-#                 # 이 WO를 조각낼 수도 있으므로 리스트로 관리 (초기엔 원본 하나)
-#                 current_pieces = [(wo_start, wo_end)]
-
-#                 # 모든 간비와 비교하며 조각내기
-#                 for k in kanbi_list:
-#                     k_worker = int(k.get("worker_id"))
-#                     k_start = int(k.get("start_min"))
-#                     k_end = int(k.get("end_min"))
-
-#                     # 다른 사람이면 패스
-#                     if wo_worker != k_worker:
-#                         continue
-
-#                     next_pieces = []
-#                     for s, e in current_pieces:
-#                         # 겹치지 않음 (간비가 아예 앞이나 뒤에 있음)
-#                         if k_end <= s or k_start >= e:
-#                             next_pieces.append((s, e))
-
-#                         # 겹침 발생! -> 간비를 피해 남은 부분만 조각냄
-#                         else:
-#                             # 앞부분이 남는 경우 (WO 시작 ~ 간비 시작)
-#                             if s < k_start:
-#                                 next_pieces.append((s, k_start))
-
-#                             # 뒷부분이 남는 경우 (간비 끝 ~ WO 끝)
-#                             # 주의: 사용자가 원한 게 "뒤로 밀리는 것"이 아니라 "시간을 비우는 것"이라면 이 로직이 맞음
-#                             if e > k_end:
-#                                 next_pieces.append((k_end, e))
-
-#                     current_pieces = next_pieces
-
-#                 # 살아남은 조각들을 최종 리스트에 추가
-#                 for s, e in current_pieces:
-#                     # 원본 데이터를 복사해서 시간만 바꿔서 추가
-#                     new_wo = wo.copy()
-#                     new_wo["start_min"] = s
-#                     new_wo["end_min"] = e
-#                     final_wo_list.append(new_wo)
-
-#             # 4. Planner에 등록
-
-#             # (1) 조각난 일반 작업 등록
-#             for row in final_wo_list:
-#                 planner.add_assignment(
-#                     wo=row.get("wo", "").strip(),
-#                     op=row.get("op", "").strip(),
-#                     code="",
-#                     start_min=int(row.get("start_min")),
-#                     end_min=int(row.get("end_min")),
-#                     worker_id=int(row.get("worker_id")),
-#                 )
-
-#             # (2) 간비 등록 (우선순위 높음)
-#             for row in kanbi_list:
-#                 planner.add_assignment(
-#                     wo="",
-#                     op="",
-#                     code=row.get("code", "").strip(),
-#                     start_min=int(row.get("start_min")),
-#                     end_min=int(row.get("end_min")),
-#                     worker_id=int(row.get("worker_id")),
-#                 )
-
-#             # 5. 저장
-#             planner.resolve_conflicts()
-#             planner.save_changes(replace_workers=True)
-
-#             return JsonResponse(
-#                 {"status": "success", "conflicts": len(planner.conflicts)}
-#             )
-
-#         except Exception as e:
-#             return JsonResponse({"status": "error", "message": str(e)}, status=400)
-
-
 def _norm_int(v, default=None):
     try:
         return int(v)
     except Exception:
         return default
+
+
+def hhmm_to_min(hhmm: str):
+    if not hhmm:
+        return None
+    s = str(hhmm).strip()
+    if len(s) != 4 or not s.isdigit():
+        return None
+    hh = int(s[:2])
+    mm = int(s[2:])
+    if hh < 0 or hh > 24:
+        return None
+    if mm < 0 or mm >= 60:
+        return None
+    if hh == 24 and mm != 0:
+        return None
+    return hh * 60 + mm
 
 
 def _clip_if_invalid_time(s, e):
@@ -1623,6 +1463,7 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
                 {
                     "worker": w,
                     "worker_name": w.name,
+                    "is_night": session.shift_type == "NIGHT",
                     "total_mh": round(total_mh, 1),
                     "task_count": task_count,
                     "schedule": final_schedule,
@@ -1638,16 +1479,6 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
                 "common_schedule": common_schedule,
             },
         )
-
-
-class AssignedDetailView(SimpleLoginRequiredMixin, View):
-    def get(self, request, session_id, worker_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-        worker = get_object_or_404(Worker, id=worker_id, session=session)
-        from django.urls import reverse
-
-        url = reverse("result_view", args=[session.id]) + f"?worker={worker.name}"
-        return redirect(url)
 
 
 class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
@@ -1849,69 +1680,15 @@ class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
         return redirect(request.META.get("HTTP_REFERER", "paste_data"))
 
 
-class DeleteAllTaskMastersView(SimpleLoginRequiredMixin, View):
-    def post(self, request):
-        try:
-            count = TaskMaster.objects.all().count()
-            TaskMaster.objects.all().delete()
-            messages.success(request, f"총 {count}개의 모든 데이터가 삭제되었습니다.")
-        except Exception as e:
-            messages.error(request, f"삭제 중 오류가 발생했습니다: {e}")
-
-        return redirect(request.META.get("HTTP_REFERER", "paste_data"))
-
-
-def hhmm_to_min(time_str):
-    if not time_str:
-        return None
-    time_str = str(time_str).strip()
-    if len(time_str) != 4 or not time_str.isdigit():
-        return None
-    h = int(time_str[:2])
-    m = int(time_str[2:])
-    if h < 0 or h > 47 or m < 0 or m > 59:
-        return None
-    return h * 60 + m
-
-
-def min_to_hhmm(minutes):
-    if minutes is None:
-        return ""
-    minutes = int(minutes)
-    h = minutes // 60
-    m = minutes % 60
-    return f"{h:02d}{m:02d}"
-
-
-@method_decorator(xframe_options_sameorigin, name="dispatch")
 class WorkerIndirectView(SimpleLoginRequiredMixin, View):
-    """
-    [수정됨] 간접 시간 입력 뷰
-    - IntegrityError 방지: 시간이 입력되지 않은 빈 행은 저장을 건너뛰도록 수정
-    """
-
-    def _get_kanbi_item(self, session: WorkSession) -> WorkItem:
-        kanbi_item, _ = WorkItem.objects.get_or_create(
-            session=session,
-            work_order="간비",
-            defaults={
-                "gibun_input": "COMMON",
-                "op": "",
-                "description": "간접비용/휴식(공용)",
-                "work_mh": 0.0,
-                "is_manual": True,
-                "ordering": 0,
-            },
-        )
-        return kanbi_item
+    def _get_kanbi_item(self, session):
+        return get_or_create_common_item(session, KANBI_WO)
 
     def get(self, request, session_id, worker_id):
         session = get_object_or_404(WorkSession, id=session_id)
         worker = get_object_or_404(Worker, id=worker_id, session=session)
-
         kanbi_item = self._get_kanbi_item(session)
 
-        # 시간순 정렬
         qs = Assignment.objects.filter(work_item=kanbi_item, worker=worker).order_by(
             "start_min", "id"
         )
@@ -1920,12 +1697,6 @@ class WorkerIndirectView(SimpleLoginRequiredMixin, View):
             Assignment, form=KanbiAssignmentForm, extra=1, can_delete=True
         )
         formset = KanbiFormSet(queryset=qs)
-
-        # 분 -> HH:MM 변환하여 초기값 세팅
-        for f in formset.forms:
-            if f.instance.pk:
-                f.initial["start_time"] = min_to_hhmm(f.instance.start_min)
-                f.initial["end_time"] = min_to_hhmm(f.instance.end_min)
 
         return render(
             request,
@@ -2049,6 +1820,9 @@ class AddItemsDirectView(SimpleLoginRequiredMixin, View):
                 op = clean_str(op)
                 desc = clean_str(desc)
 
+                if not gibun or not wo:
+                    continue
+
                 WorkItem.objects.create(
                     session=session,
                     gibun_input=gibun,
@@ -2056,8 +1830,20 @@ class AddItemsDirectView(SimpleLoginRequiredMixin, View):
                     op=op,
                     description=desc,
                     work_mh=mh,
-                    is_manual=False,
                 )
+
+                if not GibunPriority.objects.filter(
+                    session=session, gibun=gibun
+                ).exists():
+                    last_prio_dict = GibunPriority.objects.filter(
+                        session=session
+                    ).aggregate(Max("order"))
+                    last_prio = last_prio_dict["order__max"]
+                    new_order = (last_prio or 0) + 1
+                    GibunPriority.objects.create(
+                        session=session, gibun=gibun, order=new_order
+                    )
+
                 success_count += 1
 
             except Exception as e:
@@ -2165,26 +1951,6 @@ class ResetAllSessionsView(SimpleLoginRequiredMixin, View):
         return redirect("index")
 
 
-class AutoAssignView(SimpleLoginRequiredMixin, View):
-    def post(self, request, pk):
-        session = get_object_or_404(WorkSession, pk=pk)
-
-        try:
-            run_auto_assign(session.id)
-            run_sync_schedule(session.id)
-            refresh_worker_totals(session)
-
-            messages.success(request, "배정 및 시간 동기화(Gap 채우기) 완료! 🚀")
-
-        except Exception as e:
-            import traceback
-
-            traceback.print_exc()
-            messages.error(request, f"배정 중 오류 발생: {str(e)}")
-
-        return redirect("result_view", session_id=pk)
-
-
 class CheckGibunView(View):
     def get(self, request):
         gibun = request.GET.get("gibun", "").strip().upper()
@@ -2195,73 +1961,6 @@ class CheckGibunView(View):
         exists = TaskMaster.objects.filter(gibun_code=gibun).exists()
 
         return JsonResponse({"exists": exists})
-
-
-class TriggerAutoAssignView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-
-        try:
-            AutoAssignService(session.id).run()
-            run_auto_assign(session.id)
-            run_sync_schedule(session.id)
-            refresh_worker_totals(session)
-
-            messages.success(
-                request, "✅ 자동 배정이 완료되었습니다! (새로운 인원이 반영되었습니다)"
-            )
-
-        except Exception as e:
-            print(f"Auto Assign Error: {e}")
-            messages.error(request, f"배정 중 오류가 발생했습니다: {str(e)}")
-
-        return redirect("result_view", session_id=session.id)
-
-
-class SaveDirectInputView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id):
-        try:
-            data = json.loads(request.body)
-            rows = data.get("assignments", [])
-
-            session = get_object_or_404(WorkSession, id=session_id)
-
-            with transaction.atomic():
-                direct_item = get_or_create_common_item(session, DIRECT_WO)
-
-                target_worker_ids = {
-                    int(x["worker_id"]) for x in rows if x.get("worker_id")
-                }
-                if target_worker_ids:
-                    Assignment.objects.filter(
-                        work_item=direct_item, worker_id__in=target_worker_ids
-                    ).delete()
-
-                for row in rows:
-                    worker_id = int(row["worker_id"])
-                    code = str(row.get("code", "")).strip()
-                    start_min = int(row.get("start_min", 0))
-                    end_min = int(row.get("end_min", 0))
-                    if end_min <= start_min:
-                        end_min += 1440
-
-                    worker = get_object_or_404(Worker, id=worker_id, session=session)
-
-                    Assignment.objects.create(
-                        work_item=direct_item,
-                        worker=worker,
-                        code=code,
-                        start_min=start_min,
-                        end_min=end_min,
-                        allocated_mh=0.0,
-                        is_fixed=True,
-                    )
-
-            return JsonResponse({"status": "success"})
-
-        except Exception as e:
-            print(f"Direct Save Error: {e}")
-            return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 
 class MasterDataListView(SimpleLoginRequiredMixin, ListView):
@@ -2470,16 +2169,3 @@ class ResetManualInputView(SimpleLoginRequiredMixin, View):
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
-
-
-class YoutubeVideoListView(SimpleLoginRequiredMixin, ListView):
-    model = YoutubeVideo
-    template_name = "videos/video_list.html"
-    context_object_name = "videos"
-
-    def get_queryset(self):
-        return (
-            YoutubeVideo.objects.filter(is_active=True)
-            .exclude(video_id="")
-            .order_by("-created_at")
-        )

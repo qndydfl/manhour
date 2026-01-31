@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : [];
     const SAVE_URL = window.SAVE_URL;
     const MANUAL_RESET_URL = window.MANUAL_RESET_URL;
+    const SHIFT_TYPE = (window.SHIFT_TYPE || "DAY").toUpperCase();
 
     const DEFAULT_ROWS = 5;
     const STORAGE_KEY = "manning_input_personal_" + String(SESSION_ID);
@@ -142,6 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (rowsData.length) {
             rowsData.forEach((r) => createRow(r.start, r.code, r.end));
+            if (rowsData.length < DEFAULT_ROWS) {
+                Array.from({ length: DEFAULT_ROWS - rowsData.length }, () =>
+                    createRow(),
+                );
+            }
         } else {
             Array.from({ length: DEFAULT_ROWS }, () => createRow());
         }
@@ -197,6 +203,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
                 hasError = true;
                 return;
+            }
+
+            if (SHIFT_TYPE === "DAY") {
+                if (parseInt(sStr, 10) >= 2000) {
+                    showDuplicateModal(
+                        `${idx + 1}번째 줄: 주간은 20:00 이후 시작할 수 없습니다. (입력: ${sStr})`,
+                    );
+                    hasError = true;
+                    return;
+                }
+            } else if (SHIFT_TYPE === "NIGHT") {
+                const sVal = parseInt(sStr, 10);
+                if (sVal >= 800 && sVal < 2000) {
+                    showDuplicateModal(
+                        `${idx + 1}번째 줄: 야간은 08:00~20:00 사이에 시작할 수 없습니다. (입력: ${sStr})`,
+                    );
+                    hasError = true;
+                    return;
+                }
             }
 
             if (sStr === eStr) {

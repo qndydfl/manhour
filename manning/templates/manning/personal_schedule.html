@@ -1,17 +1,16 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
 
-{% block title %}
-{{worker_name }}님의 시간표 | Manning 
-{% endblock title %} 
+{% block title %}{{worker_name }}님의 시간표 | Manning {% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
 {% endblock css %} 
 
-{% block navsize %}style="max-width: 720px;"{% endblock navsize %}
-{% block navhome %}href="{% url 'index' %}"{% endblock navhome %}
+{% block navsize %}style="max-width: 900px;"{% endblock navsize %} 
+{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
 {% block navname %}<span>홈 페이지</span>{% endblock navname %} 
+
 {% block navreturn %}
 <a
     href="{% url 'assigned_summary' session.id %}"
@@ -23,7 +22,7 @@
 {% endblock navreturn %} 
 
 {% block content %}
-<div class="container" style="width: 720px; padding-top: 100px">
+<div class="container" style="max-width: 900px; padding-top: 100px">
     <div
         class="d-flex justify-content-between align-items-center mb-4"
         data-aos="fade-down"
@@ -48,8 +47,7 @@
             >
                 <i class="bi bi-pencil-square me-1"></i> 수동 입력
             </button>
-        </div>
-        
+        </div>        
     </div>
 
     {% if schedule %}
@@ -121,8 +119,11 @@
                             </td>
 
                             <td class="fw-bold text-primary">
-                                {% if item.wo == '간비' %} {% if item.desc and item.desc != '0' %} {{ item.desc }} {% else %}
-                                &nbsp; {% endif %} {% else %} &nbsp; {% endif %}
+                                {% if item.wo == '간비' and item.desc and item.desc != '0' %}
+                                    {{ item.desc }}
+                                {% else %}
+                                    &nbsp;
+                                {% endif %}
                             </td>
 
                             <td class="fw-bold font-monospace text-secondary">
@@ -327,14 +328,13 @@
         </div>
     </div>
 </div>
-{% endblock content %}
-
-{% block js %}
+{% endblock content %} {% block js %}
 <script>
 
     window.SESSION_ID = "{{ session.id }}";
     window.CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
     window.SERVER_DATA = {{ manual_data_json|default:"[]"|safe }};
+    window.SHIFT_TYPE = "{{ session.shift_type }}";
 
     // ✅ urls.py 기준 (save_manual / manual_reset)
     window.SAVE_URL = "{% url 'save_manual_input' session.id  %}";
@@ -357,4 +357,4 @@
     }
 </script>
 <script defer src="{% static 'js/personal_schedule.js' %}"></script>
-{% endblock js %} 
+{% endblock js %}

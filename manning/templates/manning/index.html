@@ -1,76 +1,141 @@
-{% extends 'manning/base/base.html' %}
-{% load static %}
-
-{% block title %}대시보드 | Manning System{% endblock %}
+{% extends 'manning/base/base.html' %} 
+{% load static %} 
+{% block title %}대시보드 | Manning System{% endblock %} 
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}?v=2">
-{% endblock css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}?v=2" />
+{% endblock css %} 
 
 {% block js %}
-    <script src="{% static 'js/index.js' %}"></script>
-{% endblock js %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock js %} 
 
 {% block content %}
-<div class="row g-4 mb-5" style="padding-top: 100px;">
+<div class="row g-4 mb-5" style="padding-top: 100px">
     <div class="col-lg-7 d-flex flex-column justify-content-center">
         <div class="ps-2">
             <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold border border-primary border-opacity-10">
+                <span
+                    class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold border border-primary border-opacity-10"
+                >
                     <i class="bi bi-calendar-check me-1"></i> {{ today|date:"Y년 m월 d일 (D)" }}
                 </span>
                 {% if active_count > 0 %}
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold border border-success border-opacity-10">
-                        <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>
-                        가동 중
-                    </span>
+                <span
+                    class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold border border-success border-opacity-10"
+                >
+                    <span
+                        class="spinner-grow spinner-grow-sm me-1"
+                        role="status"
+                        aria-hidden="true"
+                    ></span>
+                    가동 중
+                </span>
                 {% else %}
-                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill border border-secondary border-opacity-10">
-                        대기 중
-                    </span>
+                <span
+                    class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill border border-secondary border-opacity-10"
+                >
+                    대기 중
+                </span>
                 {% endif %}
             </div>
 
-            <h1 class="display-6 fw-bold mb-3 text-gradient">Work Smart, <br>Manage Better.</h1>
+            <h1 class="display-6 fw-bold mb-3 text-gradient">
+                Work Smart, <br />Manage Better.
+            </h1>
             <p class="text-muted fs-6 mb-4">
-                작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br>
+                작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
                 효율적인 업무 배정이 여기서 시작됩니다.
             </p>
 
             <div class="d-flex flex-wrap gap-3">
-                <a href="{% url 'create_session' %}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold">
+                <a
+                    href="{% url 'create_session' %}"
+                    class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold"
+                >
                     <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
                 </a>
-                
-                <a href="{% url 'session_list' %}" class="btn btn-dark btn-lg rounded-pill px-4 shadow-sm fw-bold">
+
+                <a
+                    href="{% url 'session_list' %}"
+                    class="btn btn-dark btn-lg rounded-pill px-4 shadow-sm fw-bold"
+                >
                     <i class="bi bi-grid-fill me-1"></i> 현황판 입장
+                </a>
+                <a
+                    href="{% url 'master_data_list' %}"
+                    class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm fw-bold"
+                >
+                    <i class="bi bi-database-add"></i> 데이터 등록 현황
                 </a>
             </div>
         </div>
     </div>
 
     <div class="col-lg-5">
-        <div class="card bg-dark text-white border-0 shadow-lg rounded-4 overflow-hidden position-relative h-100">
-            <div class="position-absolute opacity-25" style="top: -20px; right: -20px;">
-                <i class="bi bi-clock" style="font-size: 10rem; color: rgba(255,255,255,0.1);"></i>
+        <div
+            class="card bg-dark text-white border-0 shadow-lg rounded-4 overflow-hidden position-relative h-100"
+        >
+            <div
+                class="position-absolute opacity-25"
+                style="top: -20px; right: -20px"
+            >
+                <i
+                    class="bi bi-clock"
+                    style="font-size: 10rem; color: rgba(255, 255, 255, 0.1)"
+                ></i>
             </div>
-            
-            <div class="card-body p-4 d-flex flex-column justify-content-center position-relative z-1">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="fw-bold text-warning letter-spacing-1"><i class="bi bi-globe2 me-1"></i> GLOBAL TIME</span>
+
+            <div
+                class="card-body p-4 d-flex flex-column justify-content-center position-relative z-1"
+            >
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+                    <span class="fw-bold text-warning letter-spacing-1"
+                        ><i class="bi bi-globe2 me-1"></i> GLOBAL TIME</span
+                    >
                     <span class="badge bg-danger rounded-pill px-3">LIVE</span>
                 </div>
 
                 <div class="row align-items-end g-0">
                     <div class="col-7">
-                        <small class="text-white-50 text-uppercase fw-bold" style="letter-spacing: 1px;">Local Time</small>
-                        <div class="display-5 fw-bold my-1" id="digital-time" style="font-family: 'Courier New', monospace;">00:00:00</div>
-                        <small class="text-white-50" id="digital-date">Loading...</small>
+                        <small
+                            class="text-white-50 text-uppercase fw-bold"
+                            style="letter-spacing: 1px"
+                            >Local Time</small
+                        >
+                        <div
+                            class="display-5 fw-bold my-1"
+                            id="digital-time"
+                            style="
+                                font-family: &quot;Courier New&quot;, monospace;
+                            "
+                        >
+                            00:00:00
+                        </div>
+                        <small class="text-white-50" id="digital-date"
+                            >Loading...</small
+                        >
                     </div>
-                    
-                    <div class="col-5 text-end border-start border-secondary ps-3">
-                        <small class="text-white-50 text-uppercase fw-bold" style="letter-spacing: 1px;">UTC</small>
-                        <div class="fs-2 fw-bold my-1 text-warning" id="digital-time-utc" style="font-family: 'Courier New', monospace;">00:00</div>
+
+                    <div
+                        class="col-5 text-end border-start border-secondary ps-3"
+                    >
+                        <small
+                            class="text-white-50 text-uppercase fw-bold"
+                            style="letter-spacing: 1px"
+                            >UTC</small
+                        >
+                        <div
+                            class="fs-2 fw-bold my-1 text-warning"
+                            id="digital-time-utc"
+                            style="
+                                font-family: &quot;Courier New&quot;, monospace;
+                            "
+                        >
+                            00:00
+                        </div>
                         <small class="text-white-50">Universal</small>
                     </div>
                 </div>
@@ -79,21 +144,26 @@
     </div>
 </div>
 
-<hr class="my-5 opacity-10">
-
-
+<hr class="my-5 opacity-10" />
 
 <div class="row g-4 mb-5">
-    
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift">
             <div class="card-body p-4 d-flex align-items-center">
-                <div class="icon-circle bg-primary bg-opacity-10 text-primary me-3">
+                <div
+                    class="icon-circle bg-primary bg-opacity-10 text-primary me-3"
+                >
                     <i class="bi bi-activity"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted text-uppercase fw-bold small mb-1">Active Sessions</h6>
-                    <h2 class="fw-bold text-dark mb-0">{{ active_count }}<span class="fs-6 text-muted ms-1">개</span></h2>
+                    <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                        Active Sessions
+                    </h6>
+                    <h2 class="fw-bold text-dark mb-0">
+                        {{ active_count }}<span class="fs-6 text-muted ms-1"
+                            >개</span
+                        >
+                    </h2>
                 </div>
                 <a href="{% url 'session_list' %}" class="stretched-link"></a>
             </div>
@@ -103,12 +173,20 @@
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift">
             <div class="card-body p-4 d-flex align-items-center">
-                <div class="icon-circle bg-success bg-opacity-10 text-success me-3">
+                <div
+                    class="icon-circle bg-success bg-opacity-10 text-success me-3"
+                >
                     <i class="bi bi-archive"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted text-uppercase fw-bold small mb-1">History Archive</h6>
-                    <h2 class="fw-bold text-dark mb-0">{{ history_count }}<span class="fs-6 text-muted ms-1">건</span></h2>
+                    <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                        History Archive
+                    </h6>
+                    <h2 class="fw-bold text-dark mb-0">
+                        {{ history_count }}<span class="fs-6 text-muted ms-1"
+                            >건</span
+                        >
+                    </h2>
                 </div>
                 <a href="{% url 'history' %}" class="stretched-link"></a>
             </div>
@@ -122,7 +200,9 @@
                     <i class="bi bi-database-add"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted text-uppercase fw-bold small mb-1">Master Data</h6>
+                    <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                        Master Data
+                    </h6>
                     <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
                 </div>
                 <a href="{% url 'paste_data' %}" class="stretched-link"></a>
@@ -130,19 +210,5 @@
         </div>
     </div>
 </div>
-
-{% comment %} <hr class="my-5 opacity-10">
-
-{% block video %}
-    {% include "manning/video_list.html" %}
-{% endblock video %}
-<div class="container my-5">
-    <h4 class="fw-bold mb-3 text-center">🐯 YOU TUBE 영상 모음</h4>
-
-    <div class="rounded-4 overflow-hidden shadow" style="max-width:560px; margin:auto;">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/K4V17jmlGXc?si=nW0rVbWFxc7ayxht" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    </div>
-</div> {% endcomment %}
-
 
 {% endblock content %}

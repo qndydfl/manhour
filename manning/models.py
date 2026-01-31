@@ -6,6 +6,7 @@ from django.db.models import Q
 
 class TaskMaster(models.Model):
     """기본 데이터 (엑셀 붙여넣기 원본)"""
+
     gibun_code = models.CharField(max_length=50, verbose_name="기번")
     work_order = models.CharField(max_length=100)
     op = models.CharField(max_length=50)
@@ -15,24 +16,25 @@ class TaskMaster(models.Model):
     def __str__(self):
         return f"{self.gibun_code} - {self.work_order}"
 
+
 class WorkSession(models.Model):
-    SHIFT_DAY = 'DAY'
-    SHIFT_NIGHT = 'NIGHT'
+    SHIFT_DAY = "DAY"
+    SHIFT_NIGHT = "NIGHT"
     SHIFT_CHOICES = [
-        (SHIFT_DAY, '주간 (08:00 ~ 20:00)'),
-        (SHIFT_NIGHT, '야간 (20:00 ~ 익일 08:00)'),
+        (SHIFT_DAY, "주간 (08:00 ~ 20:00)"),
+        (SHIFT_NIGHT, "야간 (20:00 ~ 익일 08:00)"),
     ]
-    
+
     name = models.CharField(max_length=100, verbose_name="세션 이름")
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    
+
     # [추가] 근무 타입 (기본값: 주간)
     shift_type = models.CharField(
-        max_length=10, 
-        choices=SHIFT_CHOICES, 
-        default=SHIFT_DAY, 
-        verbose_name="근무 형태"
+        max_length=10,
+        choices=SHIFT_CHOICES,
+        default=SHIFT_DAY,
+        verbose_name="근무 형태",
     )
 
     @property
@@ -50,8 +52,8 @@ class Worker(models.Model):
     used_mh = models.FloatField(default=0.0)
 
     class Meta:
-        unique_together = ('session', 'name') 
-        ordering = ['id']
+        unique_together = ("session", "name")
+        ordering = ["id"]
 
     def __str__(self):
         return f"{self.name} ({self.session.name})"
@@ -63,19 +65,21 @@ class GibunPriority(models.Model):
     order = models.PositiveIntegerField(default=999)
 
     class Meta:
-        unique_together = ('session', 'gibun')
+        unique_together = ("session", "gibun")
         indexes = [
-            models.Index(fields=['session', 'order']),
+            models.Index(fields=["session", "order"]),
         ]
 
     def __str__(self):
         return f"{self.session.name} / {self.gibun} = {self.order}"
 
 
-
 class WorkItem(models.Model):
     """실제 작업 항목"""
-    model_type = models.CharField(max_length=50, blank=True, null=True, verbose_name="기종")
+
+    model_type = models.CharField(
+        max_length=50, blank=True, null=True, verbose_name="기종"
+    )
     session = models.ForeignKey(WorkSession, on_delete=models.CASCADE)
     gibun_input = models.CharField(max_length=50, blank=True, null=True)
     work_order = models.CharField(max_length=100, blank=True, default="")
@@ -88,19 +92,25 @@ class WorkItem(models.Model):
     ordering = models.PositiveIntegerField(default=0)
 
     # TaskMaster와 연결 (선택 사항)
-    task_master = models.ForeignKey('TaskMaster', on_delete=models.SET_NULL, null=True, blank=True)
+    task_master = models.ForeignKey(
+        "TaskMaster", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     class Meta:
         # 기본 정렬: 기번 -> 순서 -> ID
-        ordering = ['gibun_input', 'ordering', 'id']
+        ordering = ["gibun_input", "ordering", "id"]
 
     def __str__(self):
         return f"{self.work_order} ({self.description})"
 
 
 class Assignment(models.Model):
-    work_item = models.ForeignKey(WorkItem, related_name='assignments', on_delete=models.CASCADE)
-    worker = models.ForeignKey(Worker, related_name='assignments', on_delete=models.CASCADE)
+    work_item = models.ForeignKey(
+        WorkItem, related_name="assignments", on_delete=models.CASCADE
+    )
+    worker = models.ForeignKey(
+        Worker, related_name="assignments", on_delete=models.CASCADE
+    )
     allocated_mh = models.FloatField(default=0.0)
     start_min = models.IntegerField(null=True, blank=True)
     end_min = models.IntegerField(null=True, blank=True)
@@ -110,15 +120,17 @@ class Assignment(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['work_item', 'worker'],
+                fields=["work_item", "worker"],
                 condition=Q(start_min__isnull=True, end_min__isnull=True),
-                name='uniq_assignment_only_when_no_time'
+                name="uniq_assignment_only_when_no_time",
             )
         ]
 
 
 class GibunTeam(models.Model):
-    session = models.ForeignKey("WorkSession", on_delete=models.CASCADE, related_name="gibun_teams")
+    session = models.ForeignKey(
+        "WorkSession", on_delete=models.CASCADE, related_name="gibun_teams"
+    )
     gibun = models.CharField(max_length=50)
     workers = models.ManyToManyField("Worker", related_name="gibun_teams", blank=True)
 
@@ -127,59 +139,3 @@ class GibunTeam(models.Model):
 
     def __str__(self):
         return f"{self.session.name} / {self.gibun}"
-    
-
-class YoutubeVideo(models.Model):
-    title = models.CharField("제목", max_length=200, blank=True)
-    youtube_url = models.URLField("YouTube URL", max_length=500)
-    video_id = models.CharField("Video ID", max_length=32, blank=True, db_index=True)
-
-    is_active = models.BooleanField("노출", default=True)
-    created_at = models.DateTimeField("등록일", default=timezone.now)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return self.title or self.video_id or self.youtube_url
-
-    @staticmethod
-    def extract_video_id(url: str) -> str:
-        """
-        지원:
-        - https://youtu.be/VIDEOID
-        - https://www.youtube.com/watch?v=VIDEOID
-        - https://www.youtube.com/embed/VIDEOID
-        - https://www.youtube.com/shorts/VIDEOID
-        """
-        try:
-            u = urlparse(url)
-            host = (u.netloc or "").lower()
-
-            # youtu.be/VIDEOID
-            if "youtu.be" in host:
-                return u.path.strip("/")
-
-            # youtube.com/... variants
-            if "youtube.com" in host:
-                path = (u.path or "").strip("/")
-
-                if path.startswith("watch"):
-                    qs = parse_qs(u.query)
-                    return (qs.get("v", [""])[0] or "").strip()
-
-                # /embed/VIDEOID, /shorts/VIDEOID
-                parts = path.split("/")
-                if len(parts) >= 2 and parts[0] in ("embed", "shorts"):
-                    return parts[1].strip()
-
-            return ""
-        except Exception:
-            return ""
-
-    @property
-    def embed_url(self) -> str:
-        vid = self.video_id or self.extract_video_id(self.youtube_url)
-        return f"https://www.youtube.com/embed/{vid}" if vid else ""
-    
-    
