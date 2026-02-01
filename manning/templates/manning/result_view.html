@@ -1,7 +1,7 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
-{% block title %}배정 결과 | {{ session.name }}
-{% endblock title %} 
+
+{% block title %}배정 결과 | {{ session.name }} {% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/result_view.css' %}" />
@@ -23,29 +23,19 @@
 </script>
 {% endblock js %} 
 
-{% block navsize %}{% endblock navsize %} 
-{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
-{% block navname %}
-<span>홈 페이지</span>
-{% endblock navname %} 
-
-{% block navreturn %}
-<a
-    href="{% url 'session_list' %}"
-    class="btn btn-outline-secondary btn-sm text-light border-secondary"
->
-    <i class="bi bi-clock-history"></i>
-    <span class="d-none d-md-inline">되돌아가기</span>
-</a>
-{% endblock navreturn %} 
-
 {% block content %}
 <div class="" data-aos="fade-up" data-aos-duration="1000">
-    
     <div
         class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3"
     >
-        <h2 class="fw-bold pt-3 mb-0 text-dark">📊 {{ session.name }}</h2>
+        <h2 class="fw-bold pt-3 mb-0 text-dark">
+            📊 {{ session.name }} 
+            {% if not session.is_active %}
+                <span class="badge text-bg-secondary ms-2" style="font-size: 1rem;">작업 완료</span>
+            {% else %}
+                <span class="badge text-bg-primary ms-2" style="font-size: 1rem;">작업 중</span>
+            {% endif %}
+        </h2>
 
         <div class="d-flex gap-2">
             <button
@@ -73,18 +63,18 @@
                 </p>
             </div>
             <div class="d-flex gap-3">
-                <div class="btn-group shadow-sm">                    
+                <div class="btn-group shadow-sm">
                     <a
                         href="{% url 'edit_session' session.id %}"
-                        class="btn btn-warning text-white fw-bold border"
-                        >
+                        class="btn btn-secondary text-white fw-bold"
+                    >
                         <i class="bi bi-people me-1"></i> 명단 관리
                     </a>
                 </div>
                 <div class="btn-group shadow-sm">
                     <a
                         href="{% url 'manage_items' session.id %}"
-                        class="btn btn-danger text-white fw-bold border"
+                        class="btn btn-info text-dark fw-bold "
                     >
                         <i class="bi bi-list-task me-1"></i> 통합 관리
                     </a>
@@ -105,8 +95,7 @@
                             );
                         "
                     >
-                        <i class="bi bi-check2-circle me-1"></i> 작업 완료
-                        (퇴실)
+                        <i class="bi bi-check2-circle me-1"></i> 작업 완료 (퇴실)
                     </button>
                 </form>
             </div>
@@ -124,15 +113,6 @@
                     <i class="bi bi-person-gear text-primary me-2"></i>작업자
                     현황 (M/H)
                 </h5>
-                {% comment %}
-                <button
-                    type="submit"
-                    form="limitForm"
-                    class="btn btn-sm btn-primary rounded-pill px-3 fw-bold"
-                >
-                    <i class="bi bi-save me-1"></i> 한도 저장
-                </button>
-                {% endcomment %}
             </div>
         </div>
 
@@ -213,7 +193,7 @@
         <h5 class="fw-bold mb-0 text-dark">📋 작업 상세 내역</h5>
         <a
             href="{% url 'assigned_summary' session.id %}"
-            class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+            class="btn btn-outline-primary btn-md rounded-4 fw-bold px-3"
         >
             <i class="bi bi-calendar-range me-1"></i> 시간별 보기
         </a>
@@ -240,8 +220,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items %} 
-                        {% if item.work_order != '간비' %}
+                        {% for item in items %} {% if item.work_order != '간비' %}
                         <tr
                             class="{% if item.is_manual %}bg-soft-warning{% endif %}"
                         >
@@ -291,8 +270,7 @@
                                 {% endfor %}
                             </td>
                         </tr>
-                        {% endif %} 
-                        {% empty %}
+                        {% endif %} {% empty %}
                         <tr>
                             <td colspan="7" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.

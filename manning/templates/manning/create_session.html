@@ -14,21 +14,8 @@
 <script defer src="{% static 'js/create_session.js' %}"></script>
 {% endblock js %} 
 
-{% block navsize %}style="max-width: 900px;"{% endblock navsize %}
-{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
-{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
-{% block navreturn %}
-<a
-    href="{% url 'paste_data' %}"
-    class="btn btn-outline-secondary btn-sm text-light border-secondary"
->
-    <i class="bi bi-clock-history"></i>
-    <span class="d-none d-md-inline">데이터 등록</span>
-</a>
-{% endblock navreturn %} 
-
 {% block content %}
-<div class="container" style="max-width: 900px; padding-top: 100px;">
+<div class="container" style="max-width: 900px;">
     <div
         class="card border-0 shadow-lg rounded-4 overflow-hidden"
         data-aos="fade-up"
@@ -199,4 +186,4 @@
         </div>
     </div>
 </div>
-{% endblock content %} 
+{% endblock content %}

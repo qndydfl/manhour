@@ -50,6 +50,21 @@ tr.deleted-row .table-input {
     border-top: 1px solid #dee2e6;
 }
 
+/* 고정 배정(이름) 텍스트가 모두 보이도록 */
+.js-assigned-text {
+    display: block;
+    width: 100%;
+    resize: none; /* 드래그 필요 없게 (원하면 vertical로 바꿔도 됨) */
+    overflow: hidden; /* 스크롤바 숨김(자동 높이라 필요 없음) */
+
+    height: auto;
+    box-sizing: border-box;
+
+    padding: 0.25rem 0.5rem; /* 위아래 간격 줄이기 */
+    line-height: 1.25; /* 줄 간격 통일 */
+    min-height: 2.1rem; /* 1줄 최소 높이 */
+}
+
 /* ---------메시지 생성 시작--------- */
 
 /* 화면 정중앙 고정 오버레이 */

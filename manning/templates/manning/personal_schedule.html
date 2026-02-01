@@ -7,19 +7,36 @@
 <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
 {% endblock css %} 
 
-{% comment %} {% block navsize %}style="max-width: 900px;"{% endblock navsize %}  {% endcomment %}
-{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
-{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
+{% block js %}
+<script>
 
-{% block navreturn %}
-<a
-    href="{% url 'assigned_summary' session.id %}"
-    class="btn btn-outline-secondary btn-sm text-light border-secondary"
->
-    <i class="bi bi-clock-history"></i>
-    <span class="d-none d-md-inline">되돌아가기</span>
-</a>
-{% endblock navreturn %} 
+    window.SESSION_ID = "{{ session.id }}";
+    window.CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
+    window.SERVER_DATA = {{ manual_data_json|default:"[]"|safe }};
+    window.SHIFT_TYPE = "{{ session.shift_type }}";
+
+    // ✅ urls.py 기준 (save_manual / manual_reset)
+    window.SAVE_URL = "{% url 'save_manual_input' session.id  %}";
+    window.MANUAL_RESET_URL = "{% url 'reset_manual_input' session.id  %}";
+
+    // 테이블 복사 기능
+    function copyTableToClipboard() {
+        const range = document.createRange();
+        const table = document.getElementById('scheduleTable');
+        range.selectNode(table);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        alert('📋 시간표가 복사되었습니다! 해당되는 곳에 붙여넣기(Ctrl+V) 하세요.');
+    }
+    function getStorageKey() {
+        const wid = workerSelect.value || "none";
+        return `manning_input_personal_${SESSION_ID}_${wid}`;
+    }
+</script>
+<script defer src="{% static 'js/personal_schedule.js' %}"></script>
+{% endblock js %}
 
 {% block content %}
 <div class="container" style="max-width: 900px;">
@@ -145,7 +162,7 @@
         <div class="card-footer bg-light border-0 text-center py-3">
             <small class="text-muted"
                 ><i class="bi bi-info-circle me-1"></i>표 내용을 드래그하거나
-                상단 [복사] 버튼을 눌러 엑셀에 붙여넣으세요.</small
+                상단 [복사] 버튼을 눌러 해당되는 곳에 붙여넣으세요.</small
             >
         </div>
     </div>
@@ -238,25 +255,7 @@
                     </div>
                 </div>
             </div>
-
-            {% comment %}
-            <div class="modal-footer border-0 pt-0 pb-4 px-4">
-                <button
-                    type="button"
-                    class="btn btn-light fw-bold"
-                    data-bs-dismiss="modal"
-                >
-                    닫기
-                </button>
-                <button
-                    type="button"
-                    class="btn btn-primary fw-bold px-4 shadow-sm"
-                    id="btn-save-manual"
-                >
-                    <i class="bi bi-save me-1"></i> 저장하기
-                </button>
-            </div>
-            {% endcomment %}
+            
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
                 <button
                     type="button"
@@ -328,33 +327,5 @@
         </div>
     </div>
 </div>
-{% endblock content %} {% block js %}
-<script>
+{% endblock content %} 
 
-    window.SESSION_ID = "{{ session.id }}";
-    window.CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
-    window.SERVER_DATA = {{ manual_data_json|default:"[]"|safe }};
-    window.SHIFT_TYPE = "{{ session.shift_type }}";
-
-    // ✅ urls.py 기준 (save_manual / manual_reset)
-    window.SAVE_URL = "{% url 'save_manual_input' session.id  %}";
-    window.MANUAL_RESET_URL = "{% url 'reset_manual_input' session.id  %}";
-
-    // 테이블 복사 기능
-    function copyTableToClipboard() {
-        const range = document.createRange();
-        const table = document.getElementById('scheduleTable');
-        range.selectNode(table);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-        document.execCommand('copy');
-        window.getSelection().removeAllRanges();
-        alert('📋 시간표가 복사되었습니다! 엑셀에 붙여넣기(Ctrl+V) 하세요.');
-    }
-    function getStorageKey() {
-        const wid = workerSelect.value || "none";
-        return `manning_input_personal_${SESSION_ID}_${wid}`;
-    }
-</script>
-<script defer src="{% static 'js/personal_schedule.js' %}"></script>
-{% endblock js %}

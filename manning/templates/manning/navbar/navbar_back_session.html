@@ -1,0 +1,15 @@
+{% extends "manning/navbar/navbar_base.html" %} 
+
+{% block nav_return %}
+<a href="{% url 'create_session' %}" class="btn btn-primary btn-sm fw-bold">
+    <i class="bi bi-plus-lg me-1"></i> 세션 추가
+</a>
+
+<a
+    href="{% url 'index' %}"
+    class="btn btn-outline-secondary btn-sm text-light"
+>
+    <i class="bi bi-arrow-left"></i>
+    <span class="d-none d-md-inline">되돌아가기</span>
+</a>
+{% endblock nav_return %}

@@ -70,7 +70,11 @@ tr.deleted-row .table-input {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px); /* 배경 흐림 효과 */
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* 깊은 그림자 */
+    position: fixed !important; /* Added fixed positioning */
+    left: 0; /* Added left positioning */
+    right: 0; /* Added right positioning */
+    bottom: 0 !important; /* Added bottom positioning */
+    z-index: 1030; /* Added z-index */
     padding: 1.5rem 2rem;
     border-radius: 1rem;
     font-size: 1.1rem;

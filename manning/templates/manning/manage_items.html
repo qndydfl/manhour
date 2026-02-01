@@ -1,32 +1,19 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
-
 {% load widget_tweaks %} 
+
 {% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
-{% endblock css %}
+{% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/manage_items.js' %}"></script>
-{% endblock js %}  
-
-{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
-{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
-
-{% block navreturn %}
-<a
-    href="{% url 'result_view' session.id %}"
-    class="btn btn-outline-secondary btn-sm text-light border-secondary"
->
-    <i class="bi bi-clock-history"></i>
-    <span class="d-none d-md-inline">되돌아가기</span>
-</a>
-{% endblock navreturn %} 
+{% endblock js %} 
 
 {% block content %}
-<div class="ios-topbar" >
+<div class="ios-topbar">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-3">
             <div>
@@ -73,9 +60,8 @@
                     <div class="row align-items-end g-2">
                         <div class="col-md-10">
                             <label class="form-label small text-muted fw-bold">
-                                <i class="bi bi-info-circle me-1"></i>데이터
-                                복사 붙여넣기 (순서: 기번 | WO | OP | 설명 |
-                                시간)
+                                <i class="bi bi-info-circle me-1"></i>
+                                데이터 복사 붙여넣기 (순서: 기번 | WO | OP | 설명 | 시간)
                             </label>
                             <textarea
                                 name="raw_data"
@@ -103,7 +89,8 @@
         id="manage-form"
         action="{% url 'manage_items' session.id %}"
     >
-        {% csrf_token %} {{ formset.management_form }}
+        {% csrf_token %} 
+        {{ formset.management_form }}
 
         <div class="row g-4 mb-4">
             <div class="col-md-6">
@@ -163,7 +150,8 @@
                     <div
                         class="card-header bg-white fw-bold border-bottom py-2"
                     >
-                        <i class="bi bi-person-gear text-secondary me-1"></i>근무 한도(M/H)
+                        <i class="bi bi-person-gear text-secondary me-1"></i
+                        >근무 한도(M/H)
                     </div>
                     <div class="card-body p-0">
                         <textarea
@@ -223,10 +211,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for form in formset %} 
-                                {{ form.id }} 
-                                {% for hidden in form.hidden_fields %} {{ hidden }} 
-                                {% endfor %}
+                            {% for form in formset %} {{ form.id }} 
+                            {% for hidden in form.hidden_fields %} {{ hidden }} 
+                            {% endfor %}
 
                             <input
                                 type="hidden"
@@ -344,7 +331,7 @@
                                     {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
                                 </td>
                                 <td>
-                                    {% render_field form.op class="table-input" placeholder="OP" %}
+                                {% render_field form.op class="table-input" placeholder="OP" %}
                                 </td>
                                 <td>
                                     {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
@@ -371,41 +358,43 @@
                 </div>
             </div>
         </div>
-
-        <nav class="navbar fixed-bottom bottom-action-bar py-3 shadow-lg">
-            <div class="container justify-content-between align-items-center">
-                <div class="d-flex align-items-center text-muted small">
-                    <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
-                    <span
-                        >이름 입력 시 <strong>고정 배정</strong>. 삭제하려면
-                        체크하세요.</span
-                    >
-                </div>
-                <div class="d-flex gap-2">
-                    <a
-                        href="{% url 'result_view' session.id %}"
-                        class="btn btn-secondary px-4"
-                        >취소</a
-                    >
-                    <button
-                        type="button"
-                        class="btn btn-outline-danger px-4"
-                        id="btn-clear-assigned"
-                    >
-                        고정 배정 전체 삭제
-                    </button>
-                    <button
-                        type="submit"
-                        class="btn btn-success fw-bold px-5 shadow"
-                    >
-                        <i class="bi bi-check-lg me-1"></i>저장 및 재배정
-                    </button>
-                </div>
-            </div>
-        </nav>
-        <div style="height: 60px"></div>
     </form>
 </div>
+
+<nav
+    class="navbar navbar-expand-lg fixed-bottom  py-3 shadow-lg"
+>
+    <div class="container justify-content-between align-items-center">
+        <div class="d-flex align-items-center text-muted small">
+            <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
+            <span
+                >이름 입력 시 <strong>고정 배정</strong>. 삭제하려면
+                체크하세요.</span
+            >
+        </div>
+        <div class="d-flex gap-2">
+            <a
+                href="{% url 'result_view' session.id %}"
+                class="btn btn-secondary px-4"
+                >취소</a
+            >
+            <button
+                type="button"
+                class="btn btn-outline-danger px-4"
+                id="btn-clear-assigned"
+            >
+                고정 배정 전체 삭제
+            </button>
+            <button
+                type="submit"
+                form="manage-form"
+                class="btn btn-success fw-bold px-5 shadow"
+            >
+                <i class="bi bi-check-lg me-1"></i>저장 및 재배정
+            </button>
+        </div>
+    </div>
+</nav>
 
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -419,7 +408,10 @@
                 ></button>
             </div>
             <div class="modal-body p-4">
-                <form>
+                <form
+                    action="{% url 'add_single_item' session.id %}"
+                    method="POST"
+                >
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label fw-bold small"
@@ -495,5 +487,4 @@
         </div>
     </div>
 </div>
-{% endblock content %} 
-{% block footer %}{% endblock footer %}
+{% endblock content %} {% block footer %}{% endblock footer %}

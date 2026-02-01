@@ -158,13 +158,22 @@ class SessionListView(SimpleLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_count"] = self.object_list.count()
+        context["navbar_template"] = "manning/navbar/navbar_back_session.html"
         return context
 
 
 class CreateSessionView(SimpleLoginRequiredMixin, View):
     def get(self, request):
         slot_name = request.GET.get("slot", "")
-        return render(request, "manning/create_session.html", {"slot": slot_name})
+        return render(
+            request,
+            "manning/create_session.html",
+            # navbar
+            {
+                "slot": slot_name,
+                "navbar_template": "manning/navbar/navbar_back_create.html",
+            },
+        )
 
     def post(self, request):
         session_name = request.POST.get("session_name", "").strip()
@@ -297,7 +306,11 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         return render(
             request,
             "manning/edit_session.html",
-            {"session": session, "worker_names_str": worker_names},
+            {
+                "session": session,
+                "worker_names_str": worker_names,
+                "navbar_template": "manning/navbar/navbar_back_edit.html",
+            },
         )
 
     def post(self, request, session_id):
@@ -485,6 +498,7 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
                 "workers": session.worker_set.all(),
                 "items": items,  # 가공된 items 리스트 전달
                 "filter_worker": filter_worker or "",
+                "navbar_template": "manning/navbar/navbar_back_result.html",
             }
         )
         return context
@@ -641,6 +655,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 "formset": formset,
                 "gibun_priorities": gibun_priorities,
                 "worker_names_str": worker_names_str,
+                "navbar_template": "manning/navbar/navbar_back_manage.html",
             },
         )
 
@@ -686,51 +701,49 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             worker_str = request.POST.get("worker_names_str", "")
             valid_names = set()
 
-            if worker_str:
-                lines = worker_str.splitlines()
+            lines = worker_str.splitlines()
 
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
 
-                    # "이름: 시간" 파싱
-                    if ":" in line:
-                        parts = line.split(":", 1)
-                        name_part = parts[0].strip()
-                        limit_part = parts[1].strip()
-                        try:
-                            limit_val = float(limit_part)
-                        except ValueError:
-                            limit_val = 12.0
-                    else:
-                        name_part = line
+                # "이름: 시간" 파싱
+                if ":" in line:
+                    parts = line.split(":", 1)
+                    name_part = parts[0].strip()
+                    limit_part = parts[1].strip()
+                    try:
+                        limit_val = float(limit_part)
+                    except ValueError:
                         limit_val = 12.0
+                else:
+                    name_part = line
+                    limit_val = 12.0
 
-                    if name_part:
-                        valid_names.add(name_part)
-                        worker, created = Worker.objects.get_or_create(
-                            session=session, name=name_part
-                        )
-                        if worker.limit_mh != limit_val:
-                            worker.limit_mh = limit_val
-                            worker.save(update_fields=["limit_mh"])
-
-                if valid_names:
-                    workers_to_delete = Worker.objects.filter(session=session).exclude(
-                        name__in=valid_names
+                if name_part:
+                    valid_names.add(name_part)
+                    worker, created = Worker.objects.get_or_create(
+                        session=session, name=name_part
                     )
+                    if worker.limit_mh != limit_val:
+                        worker.limit_mh = limit_val
+                        worker.save(update_fields=["limit_mh"])
 
-                    if workers_to_delete.exists():
-                        affected_items = WorkItem.objects.filter(
-                            session=session,
-                            assignments__worker__in=workers_to_delete,
-                        ).distinct()
+            workers_to_delete = Worker.objects.filter(session=session).exclude(
+                name__in=valid_names
+            )
 
-                        # 삭제되는 작업자가 포함된 아이템은 자동 배정 대상으로 전환
-                        affected_items.update(is_manual=False)
+            if workers_to_delete.exists():
+                affected_items = WorkItem.objects.filter(
+                    session=session,
+                    assignments__worker__in=workers_to_delete,
+                ).distinct()
 
-                        workers_to_delete.delete()
+                # 삭제되는 작업자가 포함된 아이템은 자동 배정 대상으로 전환
+                affected_items.update(is_manual=False)
+
+                workers_to_delete.delete()
             # (1) 삭제 처리
             formset.save(commit=False)
             for obj in formset.deleted_objects:
@@ -806,6 +819,20 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                                 allocated_mh=alloc,
                             )
 
+            # -----------------------------------------------------
+            # (3) 남은 기번이 없으면 우선순위도 정리
+            # -----------------------------------------------------
+            remaining_gibuns = set(
+                WorkItem.objects.filter(session=session)
+                .exclude(gibun_input__isnull=True)
+                .exclude(gibun_input__exact="")
+                .values_list("gibun_input", flat=True)
+                .distinct()
+            )
+            GibunPriority.objects.filter(session=session).exclude(
+                gibun__in=remaining_gibuns
+            ).delete()
+
         # ---------------------------------------------------------
         # 2. 자동 배정/스케줄 동기화 재실행
         # ---------------------------------------------------------
@@ -815,79 +842,16 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         return redirect(f"{reverse('result_view', args=[session.id])}?reassigned=1")
 
 
-# class EditItemView(SimpleLoginRequiredMixin, View):
-#     def get(self, request, item_id):
-#         item = get_object_or_404(WorkItem, id=item_id)
-#         all_workers = item.session.worker_set.all().order_by("name")
-#         assigned_ids = item.assignments.values_list("worker_id", flat=True)
-
-#         context = {
-#             "item": item,
-#             "all_workers": all_workers,
-#             "assigned_ids": assigned_ids,
-#         }
-#         return render(request, "manning/edit_item.html", context)
-
-#     def post(self, request, item_id):
-#         item = get_object_or_404(WorkItem, id=item_id)
-
-#         # 1. 아이템 기본 정보 수정 및 저장
-#         item.model_type = request.POST.get("model_type", "")
-#         item.work_order = request.POST.get("work_order", "")
-#         item.op = request.POST.get("op", "")
-#         item.description = request.POST.get("description", "")
-#         try:
-#             item.work_mh = float(request.POST.get("work_mh") or 0)
-#         except ValueError:
-#             item.work_mh = 0.0
-
-#         item.save()  # M/H 변경사항 먼저 저장
-
-#         # 2. 작업자 선택 처리
-#         selected_ids = request.POST.getlist("worker_ids")
-
-#         with transaction.atomic():
-#             # 기존 배정 삭제 (깨끗하게 덮어쓰기)
-#             item.assignments.all().delete()
-
-#             if selected_ids:
-#                 # [중요] 작업자를 선택했으므로 수동(Manual) 모드로 고정
-#                 item.is_manual = True
-
-#                 # 선택된 인원 수만큼 시간 나누기 (N빵)
-#                 share_mh = 0.0
-#                 if item.work_mh > 0:
-#                     share_mh = round(item.work_mh / len(selected_ids), 2)
-
-#                 for w_id in selected_ids:
-#                     worker = Worker.objects.get(id=w_id)
-#                     Assignment.objects.create(
-#                         work_item=item,
-#                         worker=worker,
-#                         allocated_mh=share_mh,
-#                         is_fixed=False,  # 담당자는 고정되지만 시간표는 유동적
-#                     )
-#             else:
-#                 # 작업자 선택을 모두 해제하면 -> 자동 배정 대상으로 전환
-#                 item.is_manual = False
-
-#             # Manual 플래그 변경사항 저장
-#             item.save()
-
-#             # 3. [핵심] 변경된 사항(수동 배정)을 토대로 나머지 자동 배정 다시 돌리기
-#             # 이렇게 해야 수동으로 배정된 사람의 시간이 차고, 나머지가 균형을 맞춤
-#             run_auto_assign(item.session.id)
-#             run_sync_schedule(item.session.id)
-#             refresh_worker_totals(item.session)
-
-#         messages.success(request, f"'{item.work_order}' 작업이 수정되었습니다.")
-#         return redirect("result_view", session_id=item.session.id)
-
-
 # @method_decorator(csrf_exempt, name="dispatch")
 class PasteDataView(SimpleLoginRequiredMixin, View):
     def get(self, request):
-        return render(request, "manning/paste_data.html")
+        return render(
+            request,
+            "manning/paste_data.html",
+            {
+                "navbar_template": "manning/navbar/navbar_back_paste.html",
+            },
+        )
 
     def post(self, request):
         try:
@@ -1026,10 +990,27 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
             ).distinct()
         return qs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["navbar_template"] = "manning/navbar/navbar_back_history.html"
+        return context
+
 
 @require_POST
 def clear_history(request):
     WorkSession.objects.filter(is_active=False).delete()
+    return redirect("history")
+
+
+@require_POST
+def delete_history_session(request, session_id):
+    if request.session.get("user_role") != "admin" and not request.user.is_superuser:
+        messages.error(request, "관리자 권한이 필요합니다.")
+        return redirect("history")
+
+    session = get_object_or_404(WorkSession, id=session_id, is_active=False)
+    session.delete()
+    messages.success(request, "기록이 삭제되었습니다.")
     return redirect("history")
 
 
@@ -1266,7 +1247,11 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
         return render(
             request,
             "manning/paste_data.html",
-            {"session": session, "taskmasters": taskmasters},
+            {
+                "session": session,
+                "taskmasters": taskmasters,
+                "navbar_template": "manning/navbar/navbar_back_paste.html",
+            },
         )
 
     def post(self, request, session_id):
@@ -1477,6 +1462,7 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
                 "session": session,
                 "workers_schedule": workers_schedule,
                 "common_schedule": common_schedule,
+                "navbar_template": "manning/navbar/navbar_back_assign.html",
             },
         )
 
@@ -1495,6 +1481,7 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
         prio_map = {gp.gibun: gp.order for gp in gibun_priorities}
 
         if not worker_id:
+            context["navbar_template"] = "manning/navbar/navbar_back_personal.html"
             return context
 
         session = self.object
@@ -1662,6 +1649,7 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                 "total_mh": round(total_mh, 1),
                 "task_count": task_count,
                 "manual_data_json": manual_edit_list,
+                "navbar_template": "manning/navbar/navbar_back_personal.html",
             }
         )
 
@@ -1974,6 +1962,7 @@ class MasterDataListView(SimpleLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["total_count"] = self.object_list.count()
+        context["navbar_template"] = "manning/navbar/navbar_back_master.html"
         return context
 
 

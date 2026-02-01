@@ -12,25 +12,14 @@
         // ✅ Django 템플릿에서만 렌더링 가능
         const PASTE_DATA_POST_URL = "{% url 'paste_data' %}";
         const MASTER_DATA_LIST_URL = "{% url 'master_data_list' %}";
-      </script>
+    </script>
     <script defer src="{% static 'js/paste_data.js' %}"></script>
 {% endblock js %}
 
-{% block navsize %}style="max-width: 900px;"{% endblock navsize %}
-{% block navhome %}href="{% url 'index' %}"{% endblock navhome %} 
-{% block navname %}<span>홈 페이지</span>{% endblock navname %} 
-{% block navreturn %}
-<a
-    href="{% url 'index' %}"
-    class="btn btn-outline-secondary btn-sm text-light border-secondary"
->
-    <i class="bi bi-clock-history"></i>
-    <span class="d-none d-md-inline">되돌아가기</span>
-</a>
-{% endblock navreturn %}
+{% with navbar_template="manning/navbar/navbar_back_paste.html" %}{% endwith %}
 
 {% block content %}
-<div class="container" style="max-width: 900px; padding-top: 100px;"> 
+<div class="container" style="max-width: 900px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3" data-aos="fade-down">
         <div class="d-flex align-items-center gap-3">            
             <h4 class="fw-bold m-0 text-dark">데이터 관리</h4>

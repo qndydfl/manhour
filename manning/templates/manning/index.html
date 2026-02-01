@@ -1,5 +1,6 @@
 {% extends 'manning/base/base.html' %} 
 {% load static %} 
+
 {% block title %}대시보드 | Manning System{% endblock %} 
 
 {% block css %}
@@ -9,6 +10,10 @@
 {% block js %}
 <script src="{% static 'js/index.js' %}"></script>
 {% endblock js %} 
+
+{% block navbar %}
+    {% include "manning/navbar/navbar_base.html" %}  
+{% endblock navbar %}
 
 {% block content %}
 <div class="row g-4 mb-5" data-aos="fade-up" data-aos-duration="1000">
@@ -210,5 +215,13 @@
         </div>
     </div>
 </div>
+
+<footer
+    class="text-center text-white py-3 mt-4 bg-secondary fixed-bottom"
+>
+    <small class="opacity-50">
+        &copy; 2026 Man Hour Calculator System. All rights reserved.
+    </small>
+</footer>
 
 {% endblock content %}

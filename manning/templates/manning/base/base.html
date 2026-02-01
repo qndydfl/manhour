@@ -44,80 +44,14 @@
         {% block css %}{% endblock css %} {% block js %}{% endblock js %}
     </head>
     <body>
-        {% comment %} {% if messages %}
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
-            {% for message in messages %}
-            <div
-                class="toast align-items-center text-bg-{{ message.tags|default:'secondary' }} border-0 mb-2"
-                role="alert"
-                aria-live="assertive"
-                aria-atomic="true"
-            >
-                <div class="d-flex">
-                    <div class="toast-body">{{ message }}</div>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white me-2 m-auto"
-                        data-bs-dismiss="toast"
-                        aria-label="Close"
-                    ></button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %} {% endcomment %} 
-        {% block navbar %}
-        <nav
-            class="navbar navbar-expand-lg navbar-dark bg-dark py-3 mb-4 shadow-sm fixed-top w-100"
-        >
-            <div class="container" {% block navsize %}{% endblock navsize %}>
-                <a
-                    class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4"
-                    {% block navhome %}href="{% url 'index' %}"{% endblock navhome %}   
-                >
-                    <i class="bi bi-airplane-engines-fill text-warning"></i>
-                    {% block navname %}<span>Manning System</span>{% endblock navname %}
-                </a>
-                <div class="d-flex align-items-center gap-2">
-                    {% if request.session.user_role == "admin" %}
-                    <a
-                        href="/admin/"
-                        class="btn btn-outline-danger btn-sm rounded-pill px-4 shadow-sm fw-bold"
-                    >
-                        <i class="bi bi-shield-lock me-1"></i> 관리자 모드
-                    </a>
-                    {% endif %} {% block navreturn %}
-                    <a
-                        href="{% url 'history' %}"
-                        class="btn btn-outline-secondary btn-sm text-light border-secondary"
-                    >
-                        <i class="bi bi-clock-history"></i>
-                        <span class="d-none d-md-inline">기록 보관소</span>
-                    </a>
-                    {% endblock navreturn %}
-                    <a
-                        href="{% url 'logout' %}"
-                        class="btn btn-outline-danger btn-sm fw-bold px-3 rounded-pill"
-                    >
-                        <i class="bi bi-box-arrow-right me-1"></i> 로그아웃
-                    </a>
-                </div>
-            </div>
-        </nav>
-        {% endblock navbar %}
+        {% include navbar_template|default:"manning/navbar/navbar_base.html" %}
 
-        <div class="ios-wrap app-content">
+        <div class="ios-wrap">
             {% block content %} {% endblock content %}
         </div>
 
         {% block footer %}
-        <footer
-            class="text-center text-white py-3 mt-4 bg-secondary fixed-bottom"
-        >
-            <small class="opacity-50">
-                &copy; 2026 Man Hour Calculator System. All rights reserved.
-            </small>
-        </footer>
+        
         {% endblock footer %}
     </body>
 </html>

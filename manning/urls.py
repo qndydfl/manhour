@@ -89,7 +89,7 @@ urlpatterns = [
     ),
     path(
         "taskmaster/delete_all/",
-            views.TaskMasterDeleteAllView.as_view(),
+        views.TaskMasterDeleteAllView.as_view(),
         name="delete_all_taskmasters",
     ),
     path("paste_data/", views.PasteDataView.as_view(), name="paste_data"),
@@ -99,6 +99,11 @@ urlpatterns = [
         name="worker_indirect",
     ),
     path("history/clear/", views.clear_history, name="clear_history"),
+    path(
+        "history/<int:session_id>/delete/",
+        views.delete_history_session,
+        name="delete_history_session",
+    ),
     path(
         "session/<int:session_id>/manage/add_direct/",
         views.AddItemsDirectView.as_view(),

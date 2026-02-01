@@ -1,0 +1,11 @@
+{% extends "manning/navbar/navbar_base.html" %} 
+
+{% block nav_return %}
+<a
+    href="{% url 'create_session' %}"
+    class="btn btn-outline-secondary btn-sm text-light border-secondary"
+>
+    <i class="bi bi-clock-history"></i>
+    <span class="d-none d-md-inline">되돌아가기</span>
+</a>
+{% endblock nav_return %}
