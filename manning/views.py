@@ -1657,12 +1657,13 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
 
 
 class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
-    def get(self, request, pk):
+    def get(self, request, pk=None, session_id=None, **kwargs):
         return redirect("master_data_list")
 
-    def post(self, request, pk):
+    def post(self, request, pk=None, session_id=None, **kwargs):
+        target_pk = pk or session_id
         try:
-            task = get_object_or_404(TaskMaster, pk=pk)
+            task = get_object_or_404(TaskMaster, pk=target_pk)
             task.delete()
             messages.success(request, f"데이터 '{task.work_order}'가 삭제되었습니다.")
         except Exception as e:
