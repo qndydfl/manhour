@@ -1657,6 +1657,9 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
 
 
 class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
+    def get(self, request, pk):
+        return redirect("master_data_list")
+
     def post(self, request, pk):
         try:
             task = get_object_or_404(TaskMaster, pk=pk)
@@ -1665,7 +1668,8 @@ class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f"삭제 중 오류가 발생했습니다: {e}")
 
-        return redirect(request.META.get("HTTP_REFERER", "paste_data"))
+        next_url = request.POST.get("next") or "master_data_list"
+        return redirect(next_url)
 
 
 class WorkerIndirectView(SimpleLoginRequiredMixin, View):
