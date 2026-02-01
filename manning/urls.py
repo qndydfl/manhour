@@ -82,16 +82,6 @@ urlpatterns = [
         name="reset_manual_input",
     ),
     # 기타 기능
-    path(
-        "taskmaster/delete/<int:pk>/",
-        views.DeleteTaskMasterView.as_view(),
-        name="delete_taskmaster",
-    ),
-    path(
-        "taskmaster/delete_all/",
-        views.TaskMasterDeleteAllView.as_view(),
-        name="delete_all_taskmasters",
-    ),
     path("paste_data/", views.PasteDataView.as_view(), name="paste_data"),
     path(
         "session/<int:session_id>/worker/<int:worker_id>/indirect/",
