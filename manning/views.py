@@ -1,7 +1,6 @@
 import math, json, re
 from datetime import timedelta
 
-import pandas as pd
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -493,11 +492,14 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
             else:
                 item.assigned_names_str = ""  # 배정 없음
 
+        wo_total = sum(1 for item in items if item.work_order != KANBI_WO)
+
         context.update(
             {
                 "workers": session.worker_set.all(),
                 "items": items,  # 가공된 items 리스트 전달
                 "filter_worker": filter_worker or "",
+                "wo_total": wo_total,
                 "navbar_template": "manning/navbar/navbar_back_result.html",
             }
         )
@@ -770,7 +772,9 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 current_names_set = set(a.worker.name for a in current_assigns)
 
                 raw_inputs = [
-                    n.strip() for n in worker_name_input.split(",") if n.strip()
+                    n.strip()
+                    for n in re.split(r"[\n\s,]+", worker_name_input)
+                    if n.strip()
                 ]
                 clean_names_list = []
                 for item in raw_inputs:
@@ -784,8 +788,14 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 if valid_names:
                     clean_names_list = [n for n in clean_names_list if n in valid_names]
 
-                new_names = set(clean_names_list)
-                new_names_set = set(new_names)
+                ordered_names = []
+                seen_names = set()
+                for n in clean_names_list:
+                    if n not in seen_names:
+                        ordered_names.append(n)
+                        seen_names.add(n)
+
+                new_names_set = set(ordered_names)
 
                 if new_names_set:
                     instance.is_manual = True  # 자동배정 대상 제외
@@ -798,26 +808,64 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     # 기존 배정 삭제 후 재생성 (균등 분배 로직 유지)
                     instance.assignments.all().delete()
 
-                    if new_names:
+                    if ordered_names:
                         total_mh = float(instance.work_mh or 0.0)
-                        n = len(new_names)
 
-                        # 균등 분배
-                        base = round(total_mh / n, 2)
-                        allocations = [base] * n
-                        diff = round(total_mh - sum(allocations), 2)
-                        allocations[-1] = round(allocations[-1] + diff, 2)
+                        workers_all = list(Worker.objects.filter(session=session))
+                        worker_count = len(workers_all)
+                        name_to_worker = {w.name: w for w in workers_all}
 
-                        for name, alloc in zip(new_names, allocations):
-                            worker_obj, _ = Worker.objects.get_or_create(
-                                session=session, name=name
+                        selected_workers = [
+                            name_to_worker[n]
+                            for n in ordered_names
+                            if n in name_to_worker
+                        ]
+
+                        if selected_workers:
+                            load_map = {w.id: 0.0 for w in workers_all}
+                            load_qs = (
+                                Assignment.objects.filter(work_item__session=session)
+                                .exclude(work_item=instance)
+                                .exclude(
+                                    work_item__work_order__in=[KANBI_WO, DIRECT_WO]
+                                )
+                                .values("worker_id")
+                                .annotate(total=Sum("allocated_mh"))
                             )
-                            Assignment.objects.create(
-                                work_item=instance,
-                                worker=worker_obj,
-                                is_fixed=True,
-                                allocated_mh=alloc,
+                            for row in load_qs:
+                                load_map[row["worker_id"]] = float(row["total"] or 0.0)
+
+                            total_existing = sum(load_map.values())
+                            target_avg = (
+                                (total_existing + total_mh) / worker_count
+                                if worker_count
+                                else 0.0
                             )
+
+                            deficits = [
+                                max(target_avg - load_map[w.id], 0.0)
+                                for w in selected_workers
+                            ]
+
+                            if sum(deficits) > 0:
+                                allocations = [
+                                    round(total_mh * d / sum(deficits), 2)
+                                    for d in deficits
+                                ]
+                            else:
+                                base = round(total_mh / len(selected_workers), 2)
+                                allocations = [base] * len(selected_workers)
+
+                            diff = round(total_mh - sum(allocations), 2)
+                            allocations[-1] = round(allocations[-1] + diff, 2)
+
+                            for worker_obj, alloc in zip(selected_workers, allocations):
+                                Assignment.objects.create(
+                                    work_item=instance,
+                                    worker=worker_obj,
+                                    is_fixed=True,
+                                    allocated_mh=alloc,
+                                )
 
             # -----------------------------------------------------
             # (3) 남은 기번이 없으면 우선순위도 정리
@@ -1179,65 +1227,70 @@ class SaveManualInputView(SimpleLoginRequiredMixin, View):
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 
-class UploadDataView(SimpleLoginRequiredMixin, View):
+def _reset_manual_for_workers(session, worker_ids):
+    kanbi_item = get_or_create_common_item(session, KANBI_WO)
+
+    deleted_qs = Assignment.objects.filter(
+        work_item=kanbi_item,
+        worker_id__in=worker_ids,
+    )
+    deleted_count = deleted_qs.count()
+    deleted_qs.delete()
+
+    Assignment.objects.filter(
+        work_item__session=session,
+        worker_id__in=worker_ids,
+    ).exclude(work_item__work_order__in=[KANBI_WO, DIRECT_WO]).update(
+        start_min=None, end_min=None
+    )
+
+    run_sync_schedule(session.id)
+    refresh_worker_totals(session)
+
+    return deleted_count
+
+
+class ResetManualInputView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
         session = get_object_or_404(WorkSession, id=session_id)
-
-        if "file" not in request.FILES:
-            messages.error(request, "파일이 선택되지 않았습니다.")
-            return redirect("result_view", id=session_id)
-
-        excel_file = request.FILES["file"]
-
         try:
-            df = pd.read_excel(excel_file)
+            data = json.loads(request.body or "{}")
+        except json.JSONDecodeError:
+            data = {}
 
-            if "기종" in df.columns:
-                unique_gibuns = df["기종"].dropna().astype(str).unique()
-                for g_val in unique_gibuns:
-                    g_clean = g_val.strip()
-                    if g_clean:
-                        GibunPriority.objects.get_or_create(
-                            session=session, gibun=g_clean
-                        )
-
-            new_items = []
-
-            for index, row in df.iterrows():
-                model_val = str(row.get("기종", "")).strip()
-                wo_val = str(row.get("WO", "")).strip()
-                op_val = str(row.get("OP", "")).strip()
-                desc_val = str(row.get("설명", "")).strip()
-
-                try:
-                    mh_val = float(row.get("M/H", 0))
-                except (ValueError, TypeError):
-                    mh_val = 0.0
-
-                if not wo_val:
-                    continue
-
-                new_items.append(
-                    WorkItem(
-                        session=session,
-                        gibun_input=model_val,
-                        work_order=wo_val,
-                        op=op_val,
-                        description=desc_val,
-                        work_mh=mh_val,
-                    )
+        worker_id = data.get("worker_id")
+        if worker_id in (None, "", "all"):
+            worker_ids = list(session.worker_set.values_list("id", flat=True))
+        else:
+            try:
+                worker_id = int(worker_id)
+            except (TypeError, ValueError):
+                return JsonResponse(
+                    {"status": "error", "message": "잘못된 작업자 ID입니다."},
+                    status=400,
                 )
+            if not session.worker_set.filter(id=worker_id).exists():
+                return JsonResponse(
+                    {"status": "error", "message": "작업자를 찾을 수 없습니다."},
+                    status=404,
+                )
+            worker_ids = [worker_id]
 
-            with transaction.atomic():
-                WorkItem.objects.bulk_create(new_items)
+        deleted_count = _reset_manual_for_workers(session, worker_ids)
+        return JsonResponse({"status": "success", "deleted": deleted_count}, status=200)
 
-            messages.success(request, f"엑셀 업로드 완료! ({len(new_items)}건 등록됨)")
 
-        except Exception as e:
-            print(f"엑셀 업로드 오류: {e}")
-            messages.error(request, f"업로드 중 오류가 발생했습니다: {str(e)}")
+class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
+    def post(self, request, session_id, worker_id):
+        session = get_object_or_404(WorkSession, id=session_id)
+        if not session.worker_set.filter(id=worker_id).exists():
+            return JsonResponse(
+                {"status": "error", "message": "작업자를 찾을 수 없습니다."},
+                status=404,
+            )
 
-        return redirect("manage_items", id=session_id)
+        deleted_count = _reset_manual_for_workers(session, [worker_id])
+        return JsonResponse({"status": "success", "deleted": deleted_count}, status=200)
 
 
 class PasteInputView(SimpleLoginRequiredMixin, View):
@@ -1328,6 +1381,156 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
             messages.warning(request, "저장할 유효한 데이터가 없습니다.")
 
         return redirect("index")
+
+
+class PasteItemsView(SimpleLoginRequiredMixin, View):
+    def post(self, request, session_id):
+        session = get_object_or_404(WorkSession, id=session_id)
+
+        try:
+            data = json.loads(request.body or "[]")
+            if not isinstance(data, list):
+                return JsonResponse(
+                    {
+                        "status": "error",
+                        "message": "리스트 형태(JSON 배열)로 보내야 합니다.",
+                    },
+                    status=400,
+                )
+
+            normalized = []
+            for item in data:
+                gibun = (item.get("gibun_code") or "").strip().upper()
+                wo = (item.get("work_order") or "").strip()
+                op = (item.get("op") or "").strip()
+                desc = (item.get("description") or "").strip()
+                mh_raw = item.get("default_mh")
+
+                if not any([gibun, wo, op, desc, str(mh_raw or "").strip()]):
+                    continue
+                if not gibun or not wo:
+                    continue
+
+                try:
+                    mh_val = float(mh_raw or 0)
+                except (ValueError, TypeError):
+                    mh_val = 0.0
+
+                normalized.append(
+                    {
+                        "gibun": gibun,
+                        "wo": wo,
+                        "op": op,
+                        "desc": desc,
+                        "mh": mh_val,
+                    }
+                )
+
+            if not normalized:
+                return JsonResponse(
+                    {"status": "error", "message": "저장할 유효한 데이터가 없습니다."},
+                    status=400,
+                )
+
+            # ✅ 기존 데이터(현재 세션)와 WO+OP 중복 체크
+            incoming_pairs = set(
+                (item["wo"].strip(), item["op"].strip())
+                for item in normalized
+                if item.get("wo") and item.get("op")
+            )
+            if incoming_pairs:
+                existing_pairs = set(
+                    WorkItem.objects.filter(session=session)
+                    .exclude(work_order="")
+                    .exclude(op="")
+                    .values_list("work_order", "op")
+                )
+                duplicates = incoming_pairs & existing_pairs
+                if duplicates:
+                    preview = ", ".join(
+                        [f"{wo}/{op}" for wo, op in list(duplicates)[:5]]
+                    )
+                    return JsonResponse(
+                        {
+                            "status": "error",
+                            "message": f"이미 등록된 WO/OP가 있습니다: {preview}",
+                        },
+                        status=400,
+                    )
+
+            existing_gibuns = set(
+                GibunPriority.objects.filter(session=session).values_list(
+                    "gibun", flat=True
+                )
+            )
+            last_order = (
+                GibunPriority.objects.filter(session=session).aggregate(Max("order"))[
+                    "order__max"
+                ]
+                or 0
+            )
+            last_item_ordering = (
+                WorkItem.objects.filter(session=session).aggregate(Max("ordering"))[
+                    "ordering__max"
+                ]
+                or 0
+            )
+
+            new_priorities = []
+            added_gibuns = set()
+            work_items = []
+
+            with transaction.atomic():
+                for item in normalized:
+                    last_item_ordering += 10
+                    gibun = item["gibun"]
+
+                    if gibun not in existing_gibuns and gibun not in added_gibuns:
+                        last_order += 1
+                        new_priorities.append(
+                            GibunPriority(
+                                session=session, gibun=gibun, order=last_order
+                            )
+                        )
+                        added_gibuns.add(gibun)
+
+                    task_master, _ = TaskMaster.objects.update_or_create(
+                        work_order=item["wo"],
+                        op=item["op"],
+                        defaults={
+                            "gibun_code": gibun,
+                            "description": item["desc"],
+                            "default_mh": item["mh"],
+                        },
+                    )
+
+                    work_items.append(
+                        WorkItem(
+                            session=session,
+                            task_master=task_master,
+                            model_type=gibun,
+                            gibun_input=gibun,
+                            work_order=item["wo"],
+                            op=item["op"],
+                            description=item["desc"],
+                            work_mh=item["mh"],
+                            ordering=last_item_ordering,
+                        )
+                    )
+
+                if new_priorities:
+                    GibunPriority.objects.bulk_create(new_priorities)
+
+                WorkItem.objects.bulk_create(work_items)
+
+            return JsonResponse({"status": "success", "count": len(work_items)})
+
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"status": "error", "message": "잘못된 JSON 형식입니다."}, status=400
+            )
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 class AssignedSummaryView(SimpleLoginRequiredMixin, View):
@@ -1764,95 +1967,6 @@ class WorkerIndirectView(SimpleLoginRequiredMixin, View):
         return render(request, "manning/worker_indirect_close.html")
 
 
-class AddItemsDirectView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-        raw_data = request.POST.get("raw_data", "")
-
-        if not raw_data:
-            messages.error(request, "입력된 데이터가 없습니다.")
-            return redirect("manage_items", session_id=session.id)
-
-        rows = raw_data.strip().split("\n")
-        success_count = 0
-        error_logs = []
-
-        def clean_str(text):
-            if not text:
-                return ""
-            return re.sub(r"[^ \w\.\,\/\-\(\)\[\]가-힣]", "", text)
-
-        for row in rows:
-            row = row.strip()
-            if not row:
-                continue
-
-            cols = row.split("\t")
-            if len(cols) < 2:
-                cols = re.split(r"\s{2,}", row)
-
-            try:
-                cols = [c.strip() for c in cols]
-
-                gibun = cols[0]
-                wo = cols[1] if len(cols) > 1 else ""
-                op = cols[2] if len(cols) > 2 else ""
-                desc = cols[3] if len(cols) > 3 else ""
-
-                mh = 0.0
-                if len(cols) >= 5:
-                    last_val = cols[4]
-                    try:
-                        mh = float(last_val)
-                    except ValueError:
-                        desc += " " + last_val
-                        mh = 0.0
-
-                gibun = clean_str(gibun)
-                wo = clean_str(wo)
-                op = clean_str(op)
-                desc = clean_str(desc)
-
-                if not gibun or not wo:
-                    continue
-
-                WorkItem.objects.create(
-                    session=session,
-                    gibun_input=gibun,
-                    work_order=wo,
-                    op=op,
-                    description=desc,
-                    work_mh=mh,
-                )
-
-                if not GibunPriority.objects.filter(
-                    session=session, gibun=gibun
-                ).exists():
-                    last_prio_dict = GibunPriority.objects.filter(
-                        session=session
-                    ).aggregate(Max("order"))
-                    last_prio = last_prio_dict["order__max"]
-                    new_order = (last_prio or 0) + 1
-                    GibunPriority.objects.create(
-                        session=session, gibun=gibun, order=new_order
-                    )
-
-                success_count += 1
-
-            except Exception as e:
-                error_logs.append(f"Row Error: {str(e)}")
-                continue
-
-        if success_count > 0:
-            run_auto_assign(session.id)
-            messages.success(request, f"✅ 총 {success_count}건 등록 성공!")
-        else:
-            error_msg = error_logs[0] if error_logs else "데이터 형식 불일치"
-            messages.error(request, f"❌ 등록 실패. 원인: {error_msg}")
-
-        return redirect("manage_items", session_id=session.id)
-
-
 class AddSingleItemView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
         return redirect("manage_items", session_id=session_id)
@@ -2051,6 +2165,63 @@ class ReorderItemView(SimpleLoginRequiredMixin, View):
         return redirect("manage_items", session_id=session.id)
 
 
+class ReorderItemsView(SimpleLoginRequiredMixin, View):
+    def post(self, request, session_id):
+        session = get_object_or_404(WorkSession, id=session_id)
+
+        try:
+            data = json.loads(request.body or "{}")
+            gibun = (data.get("gibun") or "").strip()
+            ordered_ids = data.get("ordered_ids") or []
+
+            if not gibun or not isinstance(ordered_ids, list):
+                return JsonResponse(
+                    {"status": "error", "message": "잘못된 요청입니다."},
+                    status=400,
+                )
+
+            try:
+                ordered_ids_int = [int(x) for x in ordered_ids]
+            except (TypeError, ValueError):
+                return JsonResponse(
+                    {"status": "error", "message": "ID 형식이 올바르지 않습니다."},
+                    status=400,
+                )
+
+            items = list(
+                WorkItem.objects.filter(
+                    session=session, gibun_input=gibun, id__in=ordered_ids_int
+                )
+            )
+            if len(items) != len(ordered_ids_int):
+                return JsonResponse(
+                    {"status": "error", "message": "항목을 찾을 수 없습니다."},
+                    status=400,
+                )
+
+            item_map = {item.id: item for item in items}
+
+            with transaction.atomic():
+                for idx, item_id in enumerate(ordered_ids_int):
+                    item = item_map.get(item_id)
+                    if not item:
+                        continue
+                    new_ordering = (idx + 1) * 10
+                    if item.ordering != new_ordering:
+                        item.ordering = new_ordering
+                        item.save(update_fields=["ordering"])
+
+            return JsonResponse({"status": "success"})
+
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"status": "error", "message": "잘못된 JSON 형식입니다."},
+                status=400,
+            )
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+
 class ReorderGibunView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id, gibun_name, direction):
         session = get_object_or_404(WorkSession, id=session_id)
@@ -2096,70 +2267,3 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
 
         # 6. 관리 페이지로 복귀
         return redirect("manage_items", session_id=session.id)
-
-
-class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id, worker_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-        worker = get_object_or_404(Worker, id=worker_id, session=session)
-
-        kanbi_item = WorkItem.objects.filter(
-            session=session, work_order=KANBI_WO
-        ).first()
-        direct_item = WorkItem.objects.filter(
-            session=session, work_order=DIRECT_WO
-        ).first()
-
-        with transaction.atomic():
-            # ✅ 이 작업자(worker)의 간비/직비만 삭제
-            if kanbi_item:
-                Assignment.objects.filter(work_item=kanbi_item, worker=worker).delete()
-            if direct_item:
-                Assignment.objects.filter(work_item=direct_item, worker=worker).delete()
-
-        # 시간표 재계산 + 합계 갱신
-        run_sync_schedule(session.id)
-        refresh_worker_totals(session)
-
-        messages.success(
-            request,
-            f"{worker.name} 수동 입력(간비/직비)이 리셋되었습니다. 다시 입력하세요.",
-        )
-        # personal_schedule로 돌아가기 (현재 worker 유지)
-        return redirect("personal_schedule", session_id=session.id)
-
-
-class ResetManualInputView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id):
-        try:
-            data = json.loads(request.body or "{}")
-            worker_id = (data.get("worker_id") or "").strip()
-
-            session = get_object_or_404(WorkSession, id=session_id)
-
-            # worker_id 필수
-            if not worker_id:
-                return JsonResponse(
-                    {"status": "error", "message": "worker_id가 없습니다."}, status=400
-                )
-
-            # all 이면 세션 전체 작업자 대상
-            worker_ids = []
-            if worker_id == "all":
-                worker_ids = list(session.worker_set.values_list("id", flat=True))
-            else:
-                worker_ids = [int(worker_id)]
-
-            with transaction.atomic():
-                # ✅ 수동입력으로 저장되는 공용 WorkItem(간비/DIRECT) 배정만 삭제
-                Assignment.objects.filter(
-                    work_item__session=session,
-                    worker_id__in=worker_ids,
-                    work_item__work_order__in=[KANBI_WO, DIRECT_WO],
-                    start_min__isnull=False,
-                    end_min__isnull=False,
-                ).delete()
-
-            return JsonResponse({"status": "success"})
-        except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)}, status=400)

@@ -130,3 +130,56 @@ tr.deleted-row .table-input {
 .desc-one-line::-webkit-scrollbar {
     display: none;
 }
+
+/* 드래그 정렬용 커서 */
+/* 드래그 핸들에 마우스 커서 모양 변경 */
+/* 드래그 핸들 영역 확대 및 강조 */
+.drag-handle {
+    cursor: grab;
+    display: inline-block;
+    padding: 10px;
+}
+
+.drag-handle:active {
+    cursor: grabbing !important;
+}
+
+.sortable-selected {
+    background-color: #e7f1ff !important;
+    outline: 2px solid #0d6efd;
+}
+
+/* .drag-handle:active {
+    cursor: grabbing !important;
+} */
+
+/* 드래그 중인 행의 스타일 */
+/* tr.sortable-row.dragging {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+    border: 2px dashed #0d6efd !important;
+} */
+
+/* 드래그 가능함을 알리는 스타일 */
+/* tr.sortable-row {
+    transition: transform 0.1s ease;
+} */
+
+/* 드래그 중인 행의 입력창들이 마우스 이벤트를 무시하게 함 */
+/* tr.sortable-row.dragging input,
+tr.sortable-row.dragging textarea {
+    pointer-events: none;
+} */
+
+/* 드래그 중인 실제 행 */
+.sortable-handler.dragging {
+    opacity: 0.8;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 드래그 시 자리가 비어있는 곳의 스타일 */
+.bg-light {
+    background-color: #f0f7ff !important;
+    border: 2px dashed #007bff !important;
+}

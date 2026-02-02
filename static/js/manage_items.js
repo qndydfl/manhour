@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 폰트/레이아웃 로딩 완료 후 높이 재계산
     requestAnimationFrame(refreshAssignedTextLayout);
+
+    // 드래그 정렬 초기화
+    initSortableRows();
 });
 
 window.addEventListener("load", () => {
@@ -147,4 +150,287 @@ function refreshAssignedTextLayout() {
         formatAssignedText(el);
         autosizeTextarea(el);
     });
+}
+
+function getCsrfToken() {
+    const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
+    return csrfInput ? csrfInput.value : "";
+}
+
+// function initSortableRows() {
+//     const tbody = document.querySelector("#manageItemsTable tbody");
+//     if (!tbody || typeof Sortable === "undefined") return;
+
+//     new Sortable(tbody, {
+//         handle: "tr.sortable-row",
+//         filter: "input, textarea, select, button, a",
+//         preventOnFilter: true,
+//         draggable: "tr.sortable-row",
+//         animation: 150,
+//         onMove: (evt) => {
+//             const dragged = evt.dragged;
+//             const related = evt.related;
+//             if (!dragged || !related) return true;
+
+//             const g1 = dragged.dataset.gibun || "";
+//             const g2 = related.dataset.gibun || "";
+
+//             if (!g2) return true;
+//             return g1 === g2;
+//         },
+//         onEnd: (evt) => {
+//             const dragged = evt.item;
+//             if (!dragged) return;
+
+//             const gibun = dragged.dataset.gibun || "";
+//             if (!gibun) return;
+
+//             const rows = Array.from(
+//                 tbody.querySelectorAll("tr.sortable-row"),
+//             ).filter((row) => row.dataset.gibun === gibun);
+
+//             const orderedIds = rows
+//                 .map((row) => row.dataset.itemId)
+//                 .filter(Boolean);
+
+//             if (orderedIds.length === 0) return;
+//             if (typeof REORDER_ITEMS_URL === "undefined") return;
+
+//             const csrf = getCsrfToken();
+//             if (!csrf) return;
+
+//             fetch(REORDER_ITEMS_URL, {
+//                 method: "POST",
+//                 credentials: "include",
+//                 headers: {
+//                     "Content-Type": "application/json",
+//                     "X-CSRFToken": csrf,
+//                 },
+//                 body: JSON.stringify({
+//                     gibun: gibun,
+//                     ordered_ids: orderedIds,
+//                 }),
+//             }).catch((error) => {
+//                 console.error("reorder failed", error);
+//             });
+//         },
+//     });
+// }
+
+// function initSortableRows() {
+//     const tbody = document.querySelector("#manageItemsTable tbody");
+//     if (!tbody) return;
+
+//     let draggedRow = null;
+//     let draggedGibun = "";
+
+//     const setRowDraggable = (row, value) => {
+//         if (!row) return;
+//         row.draggable = value;
+//     };
+
+//     tbody.addEventListener("pointerdown", (e) => {
+//         const handle = e.target.closest(".drag-handle");
+//         if (!handle) return;
+//         const row = handle.closest("tr.sortable-row");
+//         if (!row) return;
+//         setRowDraggable(row, true);
+//     });
+
+//     tbody.addEventListener("pointerup", (e) => {
+//         const row = e.target.closest("tr.sortable-row");
+//         if (!row) return;
+//         setRowDraggable(row, false);
+//     });
+
+//     tbody.addEventListener("dragstart", (e) => {
+//         const handle = e.target.closest(".drag-handle");
+//         if (!handle) {
+//             e.preventDefault();
+//             return;
+//         }
+//         const row = handle.closest("tr.sortable-row");
+//         if (!row) return;
+
+//         draggedRow = row;
+//         draggedGibun = (row.dataset.gibun || "").trim();
+//         row.classList.add("dragging");
+
+//         if (e.dataTransfer) {
+//             e.dataTransfer.effectAllowed = "move";
+//             e.dataTransfer.setData("text/plain", row.dataset.itemId || "");
+//         }
+//     });
+
+//     tbody.addEventListener("dragover", (e) => {
+//         if (!draggedRow) return;
+//         e.preventDefault();
+
+//         const targetRow = e.target.closest("tr.sortable-row");
+//         if (!targetRow || targetRow === draggedRow) return;
+
+//         const targetGibun = (targetRow.dataset.gibun || "").trim();
+//         if (draggedGibun && targetGibun && draggedGibun !== targetGibun) return;
+
+//         const rect = targetRow.getBoundingClientRect();
+//         const after = e.clientY - rect.top > rect.height / 2;
+
+//         if (after) {
+//             tbody.insertBefore(draggedRow, targetRow.nextSibling);
+//         } else {
+//             tbody.insertBefore(draggedRow, targetRow);
+//         }
+//     });
+
+//     tbody.addEventListener("drop", (e) => {
+//         if (!draggedRow) return;
+//         e.preventDefault();
+//         persistReorder(draggedGibun, tbody);
+//     });
+
+//     tbody.addEventListener("dragend", () => {
+//         if (draggedRow) {
+//             draggedRow.classList.remove("dragging");
+//             setRowDraggable(draggedRow, false);
+//         }
+//         draggedRow = null;
+//         draggedGibun = "";
+//     });
+// }
+
+function initSortableRows() {
+    const tbody = document.querySelector("#manageItemsTable tbody");
+    if (!tbody) return;
+
+    if (typeof Sortable === "undefined") {
+        console.warn("SortableJS not loaded. Falling back to native drag.");
+        initNativeDragRows(tbody);
+        return;
+    }
+
+    // SortableJS 설정
+    new Sortable(tbody, {
+        handle: ".drag-handle", // 이 클래스를 가진 요소만 드래그 가능
+        draggable: ".sortable-row", // 드래그 대상 행
+        animation: 150, // 부드러운 이동 효과 (ms)
+        ghostClass: "bg-light", // 드래그 중인 행의 임시 스타일
+        filter: "input, textarea, select, button, a, label",
+        preventOnFilter: false,
+        multiDrag: true,
+        selectedClass: "sortable-selected",
+        multiDragKey: "ctrl",
+
+        // 드래그가 끝났을 때 실행
+        onEnd: function (evt) {
+            const draggedRow = evt.item;
+            const gibun = draggedRow.dataset.gibun;
+
+            // 만약 다른 그룹(기번)으로 넘어갔다면 원복시키거나 경고 (선택 사항)
+            // 여기서는 같은 그룹 내에서의 ID 순서를 서버로 보냅니다.
+            persistReorder(gibun, tbody);
+        },
+    });
+}
+
+function initNativeDragRows(tbody) {
+    let draggedRow = null;
+    let draggedGibun = "";
+
+    const setRowDraggable = (row, value) => {
+        if (!row) return;
+        row.draggable = value;
+    };
+
+    tbody.addEventListener("pointerdown", (e) => {
+        const handle = e.target.closest(".drag-handle");
+        if (!handle) return;
+        const row = handle.closest("tr.sortable-row");
+        if (!row) return;
+        setRowDraggable(row, true);
+    });
+
+    tbody.addEventListener("pointerup", (e) => {
+        const row = e.target.closest("tr.sortable-row");
+        if (!row) return;
+        setRowDraggable(row, false);
+    });
+
+    tbody.addEventListener("dragstart", (e) => {
+        const handle = e.target.closest(".drag-handle");
+        if (!handle) {
+            e.preventDefault();
+            return;
+        }
+        const row = handle.closest("tr.sortable-row");
+        if (!row) return;
+
+        draggedRow = row;
+        draggedGibun = (row.dataset.gibun || "").trim();
+        row.classList.add("dragging");
+
+        if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", row.dataset.itemId || "");
+        }
+    });
+
+    tbody.addEventListener("dragover", (e) => {
+        if (!draggedRow) return;
+        e.preventDefault();
+
+        const targetRow = e.target.closest("tr.sortable-row");
+        if (!targetRow || targetRow === draggedRow) return;
+
+        const targetGibun = (targetRow.dataset.gibun || "").trim();
+        if (draggedGibun && targetGibun && draggedGibun !== targetGibun) return;
+
+        const rect = targetRow.getBoundingClientRect();
+        const after = e.clientY - rect.top > rect.height / 2;
+
+        if (after) {
+            tbody.insertBefore(draggedRow, targetRow.nextSibling);
+        } else {
+            tbody.insertBefore(draggedRow, targetRow);
+        }
+    });
+
+    tbody.addEventListener("drop", (e) => {
+        if (!draggedRow) return;
+        e.preventDefault();
+        persistReorder(draggedGibun, tbody);
+    });
+
+    tbody.addEventListener("dragend", () => {
+        if (draggedRow) {
+            draggedRow.classList.remove("dragging");
+            setRowDraggable(draggedRow, false);
+        }
+        draggedRow = null;
+        draggedGibun = "";
+    });
+}
+
+function persistReorder(gibun, tbody) {
+    if (!gibun || !tbody) return;
+
+    const rows = Array.from(tbody.querySelectorAll("tr.sortable-row")).filter(
+        (row) => (row.dataset.gibun || "").trim() === gibun,
+    );
+
+    const orderedIds = rows.map((row) => row.dataset.itemId).filter(Boolean);
+    if (orderedIds.length === 0) return;
+    if (typeof REORDER_ITEMS_URL === "undefined") return;
+
+    const csrf = getCsrfToken();
+    if (!csrf) return;
+
+    fetch(REORDER_ITEMS_URL, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrf,
+        },
+        body: JSON.stringify({ gibun, ordered_ids: orderedIds }),
+    }).catch((error) => console.error("reorder failed", error));
 }

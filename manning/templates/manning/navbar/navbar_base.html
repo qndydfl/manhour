@@ -7,7 +7,7 @@
             href="{% url 'index' %}"   
         >
             <i class="bi bi-airplane-engines-fill text-warning"></i>
-            <span>Manning System</span>
+            <span>Man Hour</span>
         </a>
         <div class="d-flex align-items-center gap-2">
             {% if request.session.user_role == "admin" %}
@@ -19,15 +19,7 @@
             </a>
             {% endif %}             
         
-            {% block nav_return %}
-            <a
-                href="{% url 'index' %}"
-                class="btn btn-outline-secondary btn-sm text-light border-secondary"
-            >
-                <i class="bi bi-clock-history"></i>
-                <span class="d-none d-md-inline">홈</span>
-            </a>
-            
+            {% block nav_return %}            
             <a
                 href="{% url 'logout' %}"
                 class="btn btn-outline-danger btn-sm fw-bold px-3 rounded-pill"

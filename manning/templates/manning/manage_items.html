@@ -9,6 +9,12 @@
 {% endblock css %} 
 
 {% block js %}
+<script>
+    const PASTE_DATA_POST_URL = "{% url 'paste_items' session.id %}";
+    const MASTER_DATA_LIST_URL = "{% url 'manage_items' session.id %}";
+    const REORDER_ITEMS_URL = "{% url 'reorder_items' session.id %}";
+</script>
+<script defer src="{% static 'js/paste_data.js' %}"></script>
 <script defer src="{% static 'js/manage_items.js' %}"></script>
 {% endblock js %} 
 
@@ -26,61 +32,13 @@
 
         <div class="d-flex gap-2">
             <button
-                class="btn btn-outline-success fw-bold btn-sm rounded-pill px-3"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#excelImportArea"
-            >
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i>엑셀 등록
-            </button>
-            <button
                 type="button"
                 class="btn btn-primary fw-bold btn-sm rounded-pill px-3 shadow-sm"
                 data-bs-toggle="modal"
-                data-bs-target="#addItemModal"
+                data-bs-target="#pasteDataModal"
             >
-                <i class="bi bi-plus-lg me-1"></i>개별 추가
+                <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
             </button>
-        </div>
-    </div>
-
-    <div class="collapse mb-4" id="excelImportArea">
-        <div class="card border-success shadow-sm">
-            <div
-                class="card-header bg-success bg-opacity-10 fw-bold text-success border-success"
-            >
-                <i class="bi bi-clipboard-plus me-2"></i>엑셀 데이터 일괄 등록
-            </div>
-            <div class="card-body bg-light">
-                <form
-                    action="{% url 'add_items_direct' session.id %}"
-                    method="POST"
-                >
-                    {% csrf_token %}
-                    <div class="row align-items-end g-2">
-                        <div class="col-md-10">
-                            <label class="form-label small text-muted fw-bold">
-                                <i class="bi bi-info-circle me-1"></i>
-                                데이터 복사 붙여넣기 (순서: 기번 | WO | OP | 설명 | 시간)
-                            </label>
-                            <textarea
-                                name="raw_data"
-                                class="form-control font-monospace border-success"
-                                style="height: 100px; font-size: 0.85rem"
-                                placeholder="예시: HL7777  WO123456  OP01  타이어 점검  1.5"
-                            ></textarea>
-                        </div>
-                        <div class="col-md-2">
-                            <button
-                                type="submit"
-                                class="btn btn-success w-100 fw-bold py-3 shadow-sm"
-                            >
-                                <i class="bi bi-upload me-1"></i>업로드
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -89,8 +47,7 @@
         id="manage-form"
         action="{% url 'manage_items' session.id %}"
     >
-        {% csrf_token %} 
-        {{ formset.management_form }}
+        {% csrf_token %} {{ formset.management_form }}
 
         <div class="row g-4 mb-4">
             <div class="col-md-6">
@@ -186,6 +143,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table
+                        id="manageItemsTable"
                         class="table table-hover mb-0 align-middle text-center"
                     >
                         <thead
@@ -223,7 +181,8 @@
 
                             {% ifchanged form.instance.gibun_input %}
                             <tr
-                                class="table-secondary border-bottom border-secondary"
+                                class="table-secondary border-bottom border-secondary group-header"
+                                data-gibun="{{ form.instance.gibun_input|escape }}"
                             >
                                 <td colspan="8" class="text-start py-2 px-3">
                                     <div
@@ -283,7 +242,9 @@
                             {% endifchanged %}
 
                             <tr
-                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %}"
+                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row"
+                                data-item-id="{{ form.instance.pk }}"
+                                data-gibun="{{ form.instance.gibun_input|escape }}"
                             >
                                 <td class="text-danger">
                                     {% if form.instance.pk %}
@@ -300,26 +261,21 @@
                                     </div>
                                     {% endif %}
                                 </td>
-                                <td class="text-danger">
+                                <td class="text-danger" style="width: 40px">
                                     {% if form.instance.pk %}
                                     <div
                                         class="d-flex flex-column align-items-center lh-1"
                                     >
-                                        <a
-                                            href="{% url 'reorder_item' form.instance.pk 'up' %}"
-                                            class="text-secondary hover-primary mb-1"
-                                        >
-                                            <i class="bi bi-caret-up-fill"></i>
-                                        </a>
-
-                                        <a
-                                            href="{% url 'reorder_item' form.instance.pk 'down' %}"
-                                            class="text-secondary hover-primary"
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
                                         >
                                             <i
-                                                class="bi bi-caret-down-fill"
+                                                class="bi bi-grip-vertical fs-4"
                                             ></i>
-                                        </a>
+                                        </span>
                                     </div>
                                     {% endif %}
                                 </td>
@@ -331,7 +287,7 @@
                                     {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
                                 </td>
                                 <td>
-                                {% render_field form.op class="table-input" placeholder="OP" %}
+                                    {% render_field form.op class="table-input" placeholder="OP" %}
                                 </td>
                                 <td>
                                     {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
@@ -361,9 +317,7 @@
     </form>
 </div>
 
-<nav
-    class="navbar navbar-expand-lg fixed-bottom  py-3 shadow-lg"
->
+<nav class="navbar navbar-expand-lg fixed-bottom py-3 shadow-lg">
     <div class="container justify-content-between align-items-center">
         <div class="d-flex align-items-center text-muted small">
             <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
@@ -396,11 +350,11 @@
     </div>
 </nav>
 
-<div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="pasteDataModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold">➕ 데이터 개별 추가</h5>
+                <h5 class="modal-title fw-bold">📋 데이터 일괄 등록</h5>
                 <button
                     type="button"
                     class="btn-close btn-close-white"
@@ -408,83 +362,96 @@
                 ></button>
             </div>
             <div class="modal-body p-4">
-                <form
-                    action="{% url 'add_single_item' session.id %}"
-                    method="POST"
-                >
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small"
-                            >기번 <span class="text-danger">*</span></label
-                        >
-                        <input
-                            type="text"
-                            name="gibun"
-                            class="form-control"
-                            required
-                        />
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-8">
-                            <label class="form-label fw-bold small"
-                                >Work Order
-                                <span class="text-danger">*</span></label
-                            >
-                            <input
-                                type="text"
-                                name="wo"
-                                class="form-control"
-                                required
-                            />
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label fw-bold small">OP</label>
-                            <input type="text" name="op" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small"
-                            >작업 내용</label
-                        >
-                        <input
-                            type="text"
-                            name="description"
-                            class="form-control"
-                        />
-                    </div>
-                    <div class="row g-2 mb-4">
-                        <div class="col-6">
-                            <label class="form-label fw-bold small"
-                                >시간 (M/H)</label
-                            >
-                            <input
-                                type="number"
-                                step="0.1"
-                                name="mh"
-                                class="form-control"
-                                value="0.0"
-                            />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold small"
-                                >고정 작업자</label
-                            >
-                            <input
-                                type="text"
-                                name="worker_name"
-                                class="form-control"
-                            />
-                        </div>
-                    </div>
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100 fw-bold py-2"
+                <div class="instruction-box p-3 rounded-3 mb-4 bg-light border">
+                    <h6 class="fw-bold text-primary mb-2">
+                        <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀
+                        컬럼)
+                    </h6>
+                    <div
+                        class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
                     >
-                        추가하기
-                    </button>
+                        <span
+                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                            >1. 기번 (HLxxxx)</span
+                        >
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span
+                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                            >2. Work Order</span
+                        >
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span
+                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                            >3. OP</span
+                        >
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span
+                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                            >4. Description</span
+                        >
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span
+                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                            >5. Work (M/H)</span
+                        >
+                    </div>
+                </div>
+
+                <form id="pasteForm">
+                    {% csrf_token %}
+
+                    <div class="table-responsive mb-4 border rounded-3">
+                        <table
+                            class="table table-bordered text-center align-middle mb-0 smart-table"
+                            id="gridTable"
+                        >
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%">기번 (Gibun)</th>
+                                    <th style="width: 15%">Work Order</th>
+                                    <th style="width: 10%">OP</th>
+                                    <th style="width: 45%">
+                                        설명 (Description)
+                                    </th>
+                                    <th style="width: 15%">기준 M/H</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <button
+                                type="button"
+                                onclick="addRow()"
+                                class="btn btn-light w-100 fw-bold border text-muted rounded-pill"
+                            >
+                                <i class="bi bi-plus-lg"></i> 줄 추가
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button
+                                type="reset"
+                                class="btn btn-light w-100 fw-bold text-secondary rounded-pill"
+                            >
+                                초기화
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button
+                                type="button"
+                                onclick="saveData()"
+                                class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
+                            >
+                                <i class="bi bi-save me-1"></i> 저장만 하기
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock content %} {% block footer %}{% endblock footer %}

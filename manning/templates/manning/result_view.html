@@ -29,24 +29,16 @@
         class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3"
     >
         <h2 class="fw-bold pt-3 mb-0 text-dark">
-            📊 {{ session.name }} 
-            {% if not session.is_active %}
-                <span class="badge text-bg-secondary ms-2" style="font-size: 1rem;">작업 완료</span>
+            📊 {{ session.name }} {% if not session.is_active %}
+            <span class="badge text-bg-secondary ms-2" style="font-size: 1rem"
+                >작업 완료</span
+            >
             {% else %}
-                <span class="badge text-bg-primary ms-2" style="font-size: 1rem;">작업 중</span>
+            <span class="badge text-bg-primary ms-2" style="font-size: 1rem"
+                >작업 중</span
+            >
             {% endif %}
         </h2>
-
-        <div class="d-flex gap-2">
-            <button
-                type="button"
-                class="btn btn-success fw-bold shadow-sm"
-                data-bs-toggle="modal"
-                data-bs-target="#uploadModal"
-            >
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i> 엑셀 등록
-            </button>
-        </div>
     </div>
 
     <div
@@ -74,7 +66,7 @@
                 <div class="btn-group shadow-sm">
                     <a
                         href="{% url 'manage_items' session.id %}"
-                        class="btn btn-info text-dark fw-bold "
+                        class="btn btn-info text-dark fw-bold"
                     >
                         <i class="bi bi-list-task me-1"></i> 통합 관리
                     </a>
@@ -110,8 +102,7 @@
         <div class="card-header bg-white border-bottom pt-4 pb-3 px-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-person-gear text-primary me-2"></i>작업자
-                    현황 (M/H)
+                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황 (M/H)
                 </h5>
             </div>
         </div>
@@ -190,7 +181,15 @@
         data-aos="fade-up"
         data-aos-delay="200"
     >
-        <h5 class="fw-bold mb-0 text-dark">📋 작업 상세 내역</h5>
+        <h5 class="fw-bold mb-0 text-dark">
+            📋 작업 상세 내역
+            <span
+                class="badge bg-secondary rounded-pill text-white border ms-2"
+                style="font-size: 0.8rem"
+            >
+                {{ wo_total }}건
+            </span>
+        </h5>
         <a
             href="{% url 'assigned_summary' session.id %}"
             class="btn btn-outline-primary btn-md rounded-4 fw-bold px-3"
@@ -220,7 +219,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items %} {% if item.work_order != '간비' %}
+                        {% for item in items %} 
+                        {% if item.work_order != '간비' %}
                         <tr
                             class="{% if item.is_manual %}bg-soft-warning{% endif %}"
                         >
@@ -270,7 +270,8 @@
                                 {% endfor %}
                             </td>
                         </tr>
-                        {% endif %} {% empty %}
+                        {% endif %} 
+                        {% empty %}
                         <tr>
                             <td colspan="7" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.
@@ -279,69 +280,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-success text-white border-0">
-                <h5 class="modal-title fw-bold">
-                    <i class="bi bi-file-earmark-excel-fill me-2"></i>엑셀
-                    데이터 등록
-                </h5>
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"
-                ></button>
-            </div>
-            <div class="modal-body p-4">
-                <form
-                    action="{% url 'upload_data' session.id %}"
-                    method="POST"
-                    enctype="multipart/form-data"
-                >
-                    {% csrf_token %}
-
-                    <div class="mb-4 text-center">
-                        <div class="mb-3">
-                            <i
-                                class="bi bi-cloud-arrow-up text-success opacity-50"
-                                style="font-size: 4rem"
-                            ></i>
-                        </div>
-                        <p class="text-muted">
-                            .xlsx 또는 .xls 파일을 업로드해주세요.
-                        </p>
-                        <input
-                            type="file"
-                            class="form-control form-control-lg"
-                            name="file"
-                            accept=".xlsx, .xls"
-                            required
-                        />
-                    </div>
-
-                    <div class="alert alert-light border small text-muted">
-                        <strong
-                            ><i class="bi bi-info-circle me-1"></i>필수 컬럼
-                            순서:</strong
-                        ><br />
-                        기종 | WO | OP | 설명 | M/H
-                    </div>
-
-                    <div class="d-grid">
-                        <button
-                            type="submit"
-                            class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm"
-                        >
-                            업로드 하기
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

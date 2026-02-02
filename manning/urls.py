@@ -32,17 +32,16 @@ urlpatterns = [
         views.PasteInputView.as_view(),
         name="paste_data",
     ),
-    # ✅ UploadDataView와 파라미터명 통일(views를 session_id로 바꾸는 걸 추천)
     path(
-        "session/<int:session_id>/upload/",
-        views.UploadDataView.as_view(),
-        name="upload_data",
+        "session/<int:session_id>/paste-items/",
+        views.PasteItemsView.as_view(),
+        name="paste_items",
     ),
     # 개별 아이템 및 기능
     path(
-        "item/<int:item_id>/move/<str:direction>/",
-        views.ReorderItemView.as_view(),
-        name="reorder_item",
+        "session/<int:session_id>/reorder-items/",
+        views.ReorderItemsView.as_view(),
+        name="reorder_items",
     ),
     path(
         "reorder-gibun/<int:session_id>/<str:gibun_name>/<str:direction>/",
@@ -93,11 +92,6 @@ urlpatterns = [
         "history/<int:session_id>/delete/",
         views.delete_history_session,
         name="delete_history_session",
-    ),
-    path(
-        "session/<int:session_id>/manage/add_direct/",
-        views.AddItemsDirectView.as_view(),
-        name="add_items_direct",
     ),
     path(
         "session/<int:session_id>/add_single/",
