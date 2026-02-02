@@ -1,52 +1,30 @@
 import os
 from pathlib import Path
-from re import S
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ------개발 환경-------시작
-
 # .env 파일에서 환경 변수 로드
 load_dotenv()
-# .env보다 보안 강화 --> os.environ
 
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    # "django-insecure-(ypmf6_cgmn!h-$1_g$qz!7lhnu9+#v!5165eiy^7+3^$ym1i&",
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
+
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("DJANGO_SECRET_KEY 환경변수가 설정되어야 합니다.")
+
+# 관리자 및 일반 사용자 비밀번호
+SIMPLE_PASSWORD_ADMIN = os.getenv("SIMPLE_PASSWORD_ADMIN")
+SIMPLE_PASSWORD_USER = os.getenv("SIMPLE_PASSWORD_USER")
+
+allowed_hosts = os.getenv(
+    "DJANGO_ALLOWED_HOSTS",
+    "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
 )
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = "True"
-
-# 관리자 및 일반 사용자 비밀번호 도출 방지
-SIMPLE_PASSWORD_ADMIN = os.getenv('SIMPLE_PASSWORD_ADMIN')
-SIMPLE_PASSWORD_USER = os.getenv('SIMPLE_PASSWORD_USER')
-
-# ALLOWED_HOSTS = ["*",]
-
-# ------개발 환경-------끝
-
-
-# ------배포 개발 환경-------시작
-
-# SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-
-DEBUG = 'False'
-
-## 로그인에 사용할 공통 비밀번호
-# 환경 변수 등록
-# export SIMPLE_PASSWORD_ADMIN="비밀번호" 
-# export SIMPLE_PASSWORD_USER="비밀번호"
-
-# SIMPLE_PASSWORD_ADMIN = os.environ.get("SIMPLE_PASSWORD_ADMIN")# 관리자용
-# SIMPLE_PASSWORD_USER = os.environ.get("SIMPLE_PASSWORD_USER")# 일반 사용자용 (조회 전용)
-
-ALLOWED_HOSTS = ["qndydfl.pythonanywhere.com",]
-
-# ------배포 개발 환경-------끝
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
 
 # Application definition
@@ -60,7 +38,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "manning",
     "widget_tweaks",
-    "embed_video",
 ]
 
 MIDDLEWARE = [
@@ -72,7 +49,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # django-session-timeout 미들웨어
-    'django_session_timeout.middleware.SessionTimeoutMiddleware', 
+    "django_session_timeout.middleware.SessionTimeoutMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -154,11 +131,11 @@ STATICFILES_DIRS = [
 
 # 세션 설정
 
-#-- django-session-timeout 설정 --
+# -- django-session-timeout 설정 --
 # 세션 만료 시간(초 단위)
 SESSION_EXPIRE_SECONDS = 3600  # 1시간 (초 단위)
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True  # 마지막 활동 후 만료 시간 적용
-#-------------------------------
+# -------------------------------
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 브라우저 닫으면 세션 종료
 SESSION_COOKIE_HTTPS_ONLY = True  # HTTPS 사용 시에만 쿠키 전송
