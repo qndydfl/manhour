@@ -19,13 +19,13 @@ SECRET_KEY = os.getenv(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = "True"
+# DEBUG = "True"
 
 # 관리자 및 일반 사용자 비밀번호 도출 방지
 SIMPLE_PASSWORD_ADMIN = os.getenv('SIMPLE_PASSWORD_ADMIN')
 SIMPLE_PASSWORD_USER = os.getenv('SIMPLE_PASSWORD_USER')
 
-ALLOWED_HOSTS = ["*",]
+# ALLOWED_HOSTS = ["*",]
 
 # ------개발 환경-------끝
 
@@ -34,7 +34,7 @@ ALLOWED_HOSTS = ["*",]
 
 # SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
-# DEBUG = "False"
+DEBUG = 'False'
 
 ## 로그인에 사용할 공통 비밀번호
 # 환경 변수 등록
@@ -44,7 +44,7 @@ ALLOWED_HOSTS = ["*",]
 # SIMPLE_PASSWORD_ADMIN = os.environ.get("SIMPLE_PASSWORD_ADMIN")# 관리자용
 # SIMPLE_PASSWORD_USER = os.environ.get("SIMPLE_PASSWORD_USER")# 일반 사용자용 (조회 전용)
 
-# ALLOWED_HOSTS = ["qndydfl.pythonanywhere.com",]
+ALLOWED_HOSTS = ["qndydfl.pythonanywhere.com",]
 
 # ------배포 개발 환경-------끝
 

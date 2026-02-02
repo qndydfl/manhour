@@ -37,6 +37,11 @@ urlpatterns = [
         views.PasteItemsView.as_view(),
         name="paste_items",
     ),
+    path(
+        "session/<int:session_id>/upload/",
+        views.LegacyUploadRedirectView.as_view(),
+        name="legacy_upload_redirect",
+    ),
     # 개별 아이템 및 기능
     path(
         "session/<int:session_id>/reorder-items/",
@@ -112,6 +117,11 @@ urlpatterns = [
         "master-data/delete/<int:pk>/",
         views.TaskMasterDeleteView.as_view(),
         name="delete_taskmaster",
+    ),
+    path(
+        "taskmaster/delete/<int:session_id>/",
+        views.DeleteTaskMasterView.as_view(),
+        name="delete_taskmaster_legacy",
     ),
     path(
         "master-data/delete-all/",

@@ -50,6 +50,21 @@ tr.deleted-row .table-input {
     border-top: 1px solid #dee2e6;
 }
 
+/* 고정 배정(이름) 텍스트가 모두 보이도록 */
+.js-assigned-text {
+    display: block;
+    width: 100%;
+    resize: none; /* 드래그 필요 없게 (원하면 vertical로 바꿔도 됨) */
+    overflow: hidden; /* 스크롤바 숨김(자동 높이라 필요 없음) */
+
+    height: auto;
+    box-sizing: border-box;
+
+    padding: 0.25rem 0.5rem; /* 위아래 간격 줄이기 */
+    line-height: 1.25; /* 줄 간격 통일 */
+    min-height: 2.1rem; /* 1줄 최소 높이 */
+}
+
 /* ---------메시지 생성 시작--------- */
 
 /* 화면 정중앙 고정 오버레이 */
@@ -70,11 +85,7 @@ tr.deleted-row .table-input {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px); /* 배경 흐림 효과 */
     border: 1px solid rgba(0, 0, 0, 0.1);
-    position: fixed !important; /* Added fixed positioning */
-    left: 0; /* Added left positioning */
-    right: 0; /* Added right positioning */
-    bottom: 0 !important; /* Added bottom positioning */
-    z-index: 1030; /* Added z-index */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* 깊은 그림자 */
     padding: 1.5rem 2rem;
     border-radius: 1rem;
     font-size: 1.1rem;
@@ -118,4 +129,57 @@ tr.deleted-row .table-input {
 
 .desc-one-line::-webkit-scrollbar {
     display: none;
+}
+
+/* 드래그 정렬용 커서 */
+/* 드래그 핸들에 마우스 커서 모양 변경 */
+/* 드래그 핸들 영역 확대 및 강조 */
+.drag-handle {
+    cursor: grab;
+    display: inline-block;
+    padding: 10px;
+}
+
+.drag-handle:active {
+    cursor: grabbing !important;
+}
+
+.sortable-selected {
+    background-color: #e7f1ff !important;
+    outline: 2px solid #0d6efd;
+}
+
+/* .drag-handle:active {
+    cursor: grabbing !important;
+} */
+
+/* 드래그 중인 행의 스타일 */
+/* tr.sortable-row.dragging {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+    border: 2px dashed #0d6efd !important;
+} */
+
+/* 드래그 가능함을 알리는 스타일 */
+/* tr.sortable-row {
+    transition: transform 0.1s ease;
+} */
+
+/* 드래그 중인 행의 입력창들이 마우스 이벤트를 무시하게 함 */
+/* tr.sortable-row.dragging input,
+tr.sortable-row.dragging textarea {
+    pointer-events: none;
+} */
+
+/* 드래그 중인 실제 행 */
+.sortable-handler.dragging {
+    opacity: 0.8;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 드래그 시 자리가 비어있는 곳의 스타일 */
+.bg-light {
+    background-color: #f0f7ff !important;
+    border: 2px dashed #007bff !important;
 }

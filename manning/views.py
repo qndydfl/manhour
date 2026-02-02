@@ -1876,6 +1876,14 @@ class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
         return redirect(next_url)
 
 
+class LegacyUploadRedirectView(SimpleLoginRequiredMixin, View):
+    def get(self, request, session_id, *args, **kwargs):
+        return redirect("manage_items", session_id=session_id)
+
+    def post(self, request, session_id, *args, **kwargs):
+        return redirect("manage_items", session_id=session_id)
+
+
 class WorkerIndirectView(SimpleLoginRequiredMixin, View):
     def _get_kanbi_item(self, session):
         return get_or_create_common_item(session, KANBI_WO)
@@ -2089,13 +2097,13 @@ class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
     model = TaskMaster
     success_url = reverse_lazy("paste_data")  # 기본값
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         self.object = self.get_object()
         self.object.delete()
-        messages.success(request, "항목이 삭제되었습니다.")
+        messages.success(self.request, "항목이 삭제되었습니다.")
 
         # 돌아갈 페이지 유동적 처리
-        next_page = request.POST.get("next")
+        next_page = self.request.POST.get("next")
         if next_page == "master_data_list":
             return redirect("master_data_list")
         return redirect(self.success_url)
