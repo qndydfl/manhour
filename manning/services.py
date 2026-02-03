@@ -27,7 +27,7 @@ class AutoAssignService:
 
         self.temp_load = {w.id: 0.0 for w in self.workers}
         self.target_load = None
-        self.ignore_existing_loads = True
+        self.ignore_existing_loads = False
 
         # ❌ self.team_workers_map 삭제됨 (여기서 에러가 났었음)
 

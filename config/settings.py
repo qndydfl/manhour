@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from re import DEBUG
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
@@ -26,8 +27,9 @@ allowed_hosts = os.getenv(
 )
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
-
+# ALLOWDED_HOSTS = ["*"]  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
 # Application definition
+# DEBUG = True  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
 
 INSTALLED_APPS = [
     "django.contrib.admin",

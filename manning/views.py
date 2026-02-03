@@ -249,7 +249,6 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
 
         messages.success(request, f"세션 '{final_name}'이(가) 시작되었습니다!")
 
-        run_auto_assign(session.id)
         run_sync_schedule(session.id)
 
         return redirect("session_list")
@@ -619,7 +618,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 
         for form in formset:
             if form.instance.pk:
-                assigns = form.instance.assignments.all()
+                assigns = form.instance.assignments.filter(is_fixed=True)
                 if assigns.exists():
                     text_parts = []
                     for a in assigns:
@@ -768,7 +767,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 ).strip()
 
                 # (3) assigned_text 처리: 고정 배정 생성
-                current_assigns = instance.assignments.all()
+                current_assigns = instance.assignments.filter(is_fixed=True)
                 current_names_set = set(a.worker.name for a in current_assigns)
 
                 raw_inputs = [
@@ -804,68 +803,37 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 
                 instance.save()
 
-                if current_names_set != new_names_set:
+                if new_names_set:
                     # 기존 배정 삭제 후 재생성 (균등 분배 로직 유지)
                     instance.assignments.all().delete()
 
-                    if ordered_names:
-                        total_mh = float(instance.work_mh or 0.0)
+                    total_mh = float(instance.work_mh or 0.0)
 
-                        workers_all = list(Worker.objects.filter(session=session))
-                        worker_count = len(workers_all)
-                        name_to_worker = {w.name: w for w in workers_all}
+                    workers_all = list(Worker.objects.filter(session=session))
+                    worker_count = len(workers_all)
+                    name_to_worker = {w.name: w for w in workers_all}
 
-                        selected_workers = [
-                            name_to_worker[n]
-                            for n in ordered_names
-                            if n in name_to_worker
-                        ]
+                    selected_workers = [
+                        name_to_worker[n] for n in ordered_names if n in name_to_worker
+                    ]
 
-                        if selected_workers:
-                            load_map = {w.id: 0.0 for w in workers_all}
-                            load_qs = (
-                                Assignment.objects.filter(work_item__session=session)
-                                .exclude(work_item=instance)
-                                .exclude(
-                                    work_item__work_order__in=[KANBI_WO, DIRECT_WO]
-                                )
-                                .values("worker_id")
-                                .annotate(total=Sum("allocated_mh"))
+                    if selected_workers:
+                        base = round(total_mh / len(selected_workers), 2)
+                        allocations = [base] * len(selected_workers)
+
+                        diff = round(total_mh - sum(allocations), 2)
+                        allocations[-1] = round(allocations[-1] + diff, 2)
+
+                        for worker_obj, alloc in zip(selected_workers, allocations):
+                            Assignment.objects.create(
+                                work_item=instance,
+                                worker=worker_obj,
+                                is_fixed=True,
+                                allocated_mh=alloc,
                             )
-                            for row in load_qs:
-                                load_map[row["worker_id"]] = float(row["total"] or 0.0)
-
-                            total_existing = sum(load_map.values())
-                            target_avg = (
-                                (total_existing + total_mh) / worker_count
-                                if worker_count
-                                else 0.0
-                            )
-
-                            deficits = [
-                                max(target_avg - load_map[w.id], 0.0)
-                                for w in selected_workers
-                            ]
-
-                            if sum(deficits) > 0:
-                                allocations = [
-                                    round(total_mh * d / sum(deficits), 2)
-                                    for d in deficits
-                                ]
-                            else:
-                                base = round(total_mh / len(selected_workers), 2)
-                                allocations = [base] * len(selected_workers)
-
-                            diff = round(total_mh - sum(allocations), 2)
-                            allocations[-1] = round(allocations[-1] + diff, 2)
-
-                            for worker_obj, alloc in zip(selected_workers, allocations):
-                                Assignment.objects.create(
-                                    work_item=instance,
-                                    worker=worker_obj,
-                                    is_fixed=True,
-                                    allocated_mh=alloc,
-                                )
+                else:
+                    if current_names_set:
+                        instance.assignments.all().delete()
 
             # -----------------------------------------------------
             # (3) 남은 기번이 없으면 우선순위도 정리

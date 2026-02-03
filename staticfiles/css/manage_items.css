@@ -183,3 +183,53 @@ tr.sortable-row.dragging textarea {
     background-color: #f0f7ff !important;
     border: 2px dashed #007bff !important;
 }
+
+/* ============================================================
+   모바일: 통합 관리 표 레이아웃
+   ============================================================ */
+@media (max-width: 576px) {
+    #manageItemsTable thead tr,
+    #manageItemsTable tbody tr.sortable-row {
+        display: grid;
+        grid-template-columns: 0.7fr 1.4fr 1fr 0.9fr 1fr;
+        grid-template-areas:
+            "delete gibun wo op mh"
+            "assign assign assign assign assign";
+        align-items: start;
+        row-gap: 6px;
+    }
+
+    /* 순서/작업내용 숨김 */
+    #manageItemsTable .col-order,
+    #manageItemsTable .col-desc {
+        display: none;
+    }
+
+    #manageItemsTable .col-delete {
+        grid-area: delete;
+    }
+    #manageItemsTable .col-gibun {
+        grid-area: gibun;
+    }
+    #manageItemsTable .col-wo {
+        grid-area: wo;
+    }
+    #manageItemsTable .col-op {
+        grid-area: op;
+    }
+    #manageItemsTable .col-mh {
+        grid-area: mh;
+    }
+    #manageItemsTable .col-assign {
+        grid-area: assign;
+        width: 100%;
+    }
+
+    #manageItemsTable td,
+    #manageItemsTable th {
+        padding: 0.6rem 0.5rem;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+}

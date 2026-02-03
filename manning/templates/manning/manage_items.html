@@ -24,8 +24,8 @@
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-gear-wide-connected text-primary me-2"></i
-                    >데이터 통합 관리
+                    <i class="bi bi-gear-wide-connected text-primary me-2"></i>
+                    데이터 통합 관리
                 </h4>
             </div>
         </div>
@@ -55,8 +55,8 @@
                     <div
                         class="card-header bg-white fw-bold border-bottom py-2"
                     >
-                        <i class="bi bi-sort-numeric-down text-warning me-1"></i
-                        >기종 우선순위
+                        <i class="bi bi-sort-numeric-down text-warning me-1"></i>
+                        기종 우선순위
                     </div>
                     <div class="card-body p-0">
                         <div
@@ -107,8 +107,8 @@
                     <div
                         class="card-header bg-white fw-bold border-bottom py-2"
                     >
-                        <i class="bi bi-person-gear text-secondary me-1"></i
-                        >근무 한도(M/H)
+                        <i class="bi bi-person-gear text-secondary me-1"></i>
+                        근무 한도(M/H)
                     </div>
                     <div class="card-body p-0">
                         <textarea
@@ -116,8 +116,7 @@
                             class="form-control border-0 bg-light small font-monospace p-3 h-100"
                             style="min-height: 150px; resize: none"
                             placeholder="이름: 시간 (줄바꿈)"
-                        >{{ worker_names_str }}</textarea
-                        >
+                        >{{ worker_names_str }}</textarea>
                     </div>
                 </div>
             </div>
@@ -151,18 +150,27 @@
                             style="z-index: 4"
                         >
                             <tr class="text-secondary small">
-                                <th style="width: 5%" class="text-danger">
+                                <th
+                                    style="width: 5%"
+                                    class="text-danger col-delete"
+                                >
                                     <i class="bi bi-trash3-fill"></i>
                                 </th>
-                                <th style="width: 5%">순서</th>
-                                <th style="width: 8%">기번</th>
-                                <th style="width: 10%">Work Order</th>
-                                <th style="width: 5%">OP</th>
-                                <th>작업 내용</th>
-                                <th style="width: 10%">M/H</th>
+                                <th style="width: 5%" class="col-order">
+                                    순서
+                                </th>
+                                <th style="width: 8%" class="col-gibun">
+                                    기번
+                                </th>
+                                <th style="width: 10%" class="col-wo">
+                                    Work Order
+                                </th>
+                                <th style="width: 5%" class="col-op">OP</th>
+                                <th class="col-desc">작업 내용</th>
+                                <th style="width: 10%" class="col-mh">M/H</th>
                                 <th
                                     style="width: 40%"
-                                    class="bg-primary bg-opacity-10 text-primary"
+                                    class="bg-primary bg-opacity-10 text-primary col-assign"
                                 >
                                     고정 배정 (이름)
                                 </th>
@@ -246,7 +254,7 @@
                                 data-item-id="{{ form.instance.pk }}"
                                 data-gibun="{{ form.instance.gibun_input|escape }}"
                             >
-                                <td class="text-danger">
+                                <td class="text-danger col-delete">
                                     {% if form.instance.pk %}
                                     <div class="d-flex justify-content-center">
                                         <div class="d-none">
@@ -261,7 +269,10 @@
                                     </div>
                                     {% endif %}
                                 </td>
-                                <td class="text-danger" style="width: 40px">
+                                <td
+                                    class="text-danger col-order"
+                                    style="width: 40px"
+                                >
                                     {% if form.instance.pk %}
                                     <div
                                         class="d-flex flex-column align-items-center lh-1"
@@ -280,22 +291,22 @@
                                     {% endif %}
                                 </td>
 
-                                <td>
-                                    {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
+                                <td class="col-gibun">
+                                    {% render_field form.gibun_input class="table-input fw-bold"   placeholder="기번" %}
                                 </td>
-                                <td>
+                                <td class="col-wo">
                                     {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
                                 </td>
-                                <td>
+                                <td class="col-op">
                                     {% render_field form.op class="table-input" placeholder="OP" %}
                                 </td>
-                                <td>
+                                <td class="col-desc">
                                     {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
                                 </td>
-                                <td>
+                                <td class="col-mh">
                                     {% render_field form.work_mh class="table-input text-end fw-bold text-primary" step="0.1" %}
                                 </td>
-                                <td class="bg-primary bg-opacity-10">
+                                <td class="bg-primary bg-opacity-10 col-assign">
                                     {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
                                 </td>
                             </tr>

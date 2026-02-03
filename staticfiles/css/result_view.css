@@ -157,7 +157,7 @@
         padding: 5px 8px;
     }
 
-    /* 표가 가로로 너무 좁아질 때 최소 폭 부여 → 가로 스크롤 자연스럽게 */
+    /* 표가 가로로 너무 좁아질 때 최소 폭 부여 → 가로 스크롤 */
     .table-custom {
         min-width: 720px;
     }
@@ -166,10 +166,52 @@
     .table-responsive {
         max-height: 55vh;
     }
+
+    /* 모바일: 작업 설명 숨기고, 배정 결과는 다음 줄에 표시 */
+    .table-custom thead th.col-desc,
+    .table-custom tbody td.col-desc {
+        display: none;
+    }
+
+    .table-custom thead tr,
+    .table-custom tbody tr {
+        display: grid;
+        grid-template-columns: 1.1fr 1.6fr 1fr 1fr;
+        grid-template-areas:
+            "gibun wo op mh"
+            "assign assign assign assign";
+        align-items: start;
+        row-gap: 6px;
+    }
+
+    .table-custom .col-gibun {
+        grid-area: gibun;
+    }
+    .table-custom .col-wo {
+        grid-area: wo;
+    }
+    .table-custom .col-op {
+        grid-area: op;
+    }
+    .table-custom .col-mh {
+        grid-area: mh;
+    }
+    .table-custom .col-assign {
+        grid-area: assign;
+        width: 100%;
+    }
+}
+
+/* 큰 화면에서는 세로 스크롤바 제거 */
+@media (min-width: 577px) {
+    .table-responsive {
+        max-height: none;
+        overflow-y: visible;
+    }
 }
 
 .desc-hide {
-  white-space: nowrap;     /* 한 줄 */
-  overflow: hidden;      /* 넘치는 글자 숨김 */
-  /* text-overflow: ellipsis; 넘치는 글자 ... 처리 */
+    white-space: nowrap; /* 한 줄 */
+    overflow: hidden; /* 넘치는 글자 숨김 */
+    /* text-overflow: ellipsis; 넘치는 글자 ... 처리 */
 }

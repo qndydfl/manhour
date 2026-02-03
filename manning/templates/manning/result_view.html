@@ -1,7 +1,7 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
-
-{% block title %}배정 결과 | {{ session.name }} {% endblock title %} 
+{% block title %}배정
+결과 | {{ session.name }} {% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/result_view.css' %}" />
@@ -87,7 +87,8 @@
                             );
                         "
                     >
-                        <i class="bi bi-check2-circle me-1"></i> 작업 완료 (퇴실)
+                        <i class="bi bi-check2-circle me-1"></i> 작업 완료
+                        (퇴실)
                     </button>
                 </form>
             </div>
@@ -102,7 +103,8 @@
         <div class="card-header bg-white border-bottom pt-4 pb-3 px-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황 (M/H)
+                    <i class="bi bi-person-gear text-primary me-2"></i>작업자
+                    현황 (M/H)
                 </h5>
             </div>
         </div>
@@ -204,47 +206,48 @@
         data-aos-delay="200"
     >
         <div class="card-body p-0">
-            <div class="table">
+            <div class="table-responsive">
                 <table
                     class="table table-custom table-sticky table-hover mb-0 text-center w-100"
                 >
                     <thead class="bg-light">
                         <tr>
-                            <th style="width: 8%">기번</th>
-                            <th style="width: 10%">WO</th>
-                            <th style="width: 8%">OP</th>
-                            <th class="text-start">작업 설명</th>
-                            <th style="width: 8%">M/H</th>
-                            <th style="width: 40%">배정 결과</th>
+                            <th class="col-gibun" style="width: 8%">기번</th>
+                            <th class="col-wo" style="width: 10%">WO</th>
+                            <th class="col-op" style="width: 8%">OP</th>
+                            <th class="col-desc text-start">작업 설명</th>
+                            <th class="col-mh" style="width: 8%">M/H</th>
+                            <th class="col-assign" style="width: 40%">
+                                배정 결과
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items %} 
-                        {% if item.work_order != '간비' %}
+                        {% for item in items %} {% if item.work_order != '간비' %}
                         <tr
                             class="{% if item.is_manual %}bg-soft-warning{% endif %}"
                         >
-                            <td class="fw-bold text-dark">
+                            <td class="col-gibun fw-bold text-dark">
                                 {{ item.gibun_input }}
                             </td>
-                            <td>
+                            <td class="col-wo">
                                 <span class="badge bg-light text-dark border"
                                     >{{ item.work_order }}</span
                                 >
                             </td>
-                            <td class="text-muted">{{ item.op }}</td>
+                            <td class="col-op text-muted">{{ item.op }}</td>
                             <td
-                                class="text-start desc-hide"
+                                class="col-desc text-start desc-hide"
                                 title="{{ item.description }}"
                             >
                                 {{ item.description }}
                             </td>
-                            <td>
+                            <td class="col-mh">
                                 <span class="badge bg-soft-primary text-primary"
                                     >{{ item.work_mh }}H</span
                                 >
                             </td>
-                            <td class="text-start">
+                            <td class="col-assign text-start">
                                 {% for assign in item.assignments.all %}
                                 <div class="d-inline-block me-1 mb-1">
                                     <span
@@ -270,8 +273,7 @@
                                 {% endfor %}
                             </td>
                         </tr>
-                        {% endif %} 
-                        {% empty %}
+                        {% endif %} {% empty %}
                         <tr>
                             <td colspan="7" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.
