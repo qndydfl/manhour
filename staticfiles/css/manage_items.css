@@ -22,6 +22,7 @@
 .table-input.text-start {
     text-align: left;
 }
+
 /* 오른쪽 정렬이 필요한 숫자용 */
 .table-input.text-end {
     text-align: right;
@@ -32,6 +33,7 @@ tr.deleted-row {
     background-color: #ffe6e6 !important;
     opacity: 0.6;
 }
+
 tr.deleted-row .table-input {
     text-decoration: line-through;
     color: #dc3545;
@@ -149,28 +151,6 @@ tr.deleted-row .table-input {
     outline: 2px solid #0d6efd;
 }
 
-/* .drag-handle:active {
-    cursor: grabbing !important;
-} */
-
-/* 드래그 중인 행의 스타일 */
-/* tr.sortable-row.dragging {
-    opacity: 0.5;
-    background-color: #f8f9fa;
-    border: 2px dashed #0d6efd !important;
-} */
-
-/* 드래그 가능함을 알리는 스타일 */
-/* tr.sortable-row {
-    transition: transform 0.1s ease;
-} */
-
-/* 드래그 중인 행의 입력창들이 마우스 이벤트를 무시하게 함 */
-/* tr.sortable-row.dragging input,
-tr.sortable-row.dragging textarea {
-    pointer-events: none;
-} */
-
 /* 드래그 중인 실제 행 */
 .sortable-handler.dragging {
     opacity: 0.8;
@@ -179,13 +159,13 @@ tr.sortable-row.dragging textarea {
 }
 
 /* 드래그 시 자리가 비어있는 곳의 스타일 */
-.bg-light {
+.bg-light, .col-assign {
     background-color: #f0f7ff !important;
     border: 2px dashed #007bff !important;
 }
 
 /* ============================================================
-   모바일: 통합 관리 표 레이아웃
+    모바일: 통합 관리 표 레이아웃
    ============================================================ */
 @media (max-width: 576px) {
     #manageItemsTable thead tr,
@@ -232,4 +212,9 @@ tr.sortable-row.dragging textarea {
         word-break: break-word;
         overflow-wrap: anywhere;
     }
+}
+
+
+.manage-footer {
+    padding-right: 80px;
 }

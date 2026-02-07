@@ -25,6 +25,22 @@ body {
 .navbar::--webkit-scrollbar {
     display: none;
 }
+
+.bg-image-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+.page-content {
+    position: relative;
+    min-height: 100vh;
+}
+
 /* 스크롤바 전체 영역 */
 ::-webkit-scrollbar {
     width: 8px; /* 스크롤바 너비 */
@@ -168,4 +184,76 @@ body {
         border-left: 0 !important;
         border-right: 0 !important;
     }
+}
+
+/* iPad/PC iOS-like */
+:root {
+    --ios-bg: #f2f2f7;
+    --ios-card: #ffffff;
+    --ios-border: rgba(0, 0, 0, 0.08);
+    --ios-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--ios-bg);
+}
+
+/* container */
+.ios-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 110px 18px 60px; /* header + bottom */
+}
+
+/* sticky header blur */
+.ios-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(242, 242, 247, 0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--ios-border);
+}
+
+/* cards */
+.ios-card {
+    background: var(--ios-card);
+    border: 0 !important;
+    border-radius: 20px !important;
+    box-shadow: var(--ios-shadow);
+}
+
+.ios-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* iOS inputs */
+.ios-input,
+.ios-input:focus {
+    background: #f2f2f7 !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+/* tables inside cards */
+.ios-table thead th {
+    background: #f6f6fa !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.ios-table tbody td {
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* subtle action bar */
+.ios-actionbar {
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--ios-border);
 }

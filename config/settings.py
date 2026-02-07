@@ -11,8 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
-
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     raise ImproperlyConfigured("DJANGO_SECRET_KEY 환경변수가 설정되어야 합니다.")
@@ -26,6 +24,8 @@ allowed_hosts = os.getenv(
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
 )
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
+
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # ALLOWDED_HOSTS = ["*"]  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
 # Application definition
