@@ -5,6 +5,11 @@ urlpatterns = [
     # 로그인
     path("login/", views.SimpleLoginView.as_view(), name="login"),
     path("logout/", views.SimpleLogoutView.as_view(), name="logout"),
+    path(
+        "workplace/change/",
+        views.ChangeWorkplaceView.as_view(),
+        name="change_workplace",
+    ),
     path("", views.IndexView.as_view(), name="index"),
     path("sessions/", views.SessionListView.as_view(), name="session_list"),
     path("history/", views.HistoryView.as_view(), name="history"),

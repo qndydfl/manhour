@@ -47,6 +47,57 @@ from django.views.decorators.csrf import csrf_exempt
 KANBI_WO = "간비"
 DIRECT_WO = "DIRECT"
 
+WORKPLACE_SESSION_KEY = "workplace"
+WORKPLACE_LABEL_SESSION_KEY = "workplace_label"
+
+TASKMASTER_RETENTION_HOURS = 12
+
+
+def normalize_workplace(workplace: str | None) -> str:
+    valid = {choice[0] for choice in WorkSession.SITE_CHOICES}
+    if workplace in valid:
+        return workplace
+    return WorkSession.SITE_INCHEON
+
+
+def set_workplace_in_session(request, workplace: str | None) -> str:
+    normalized = normalize_workplace(workplace)
+    request.session[WORKPLACE_SESSION_KEY] = normalized
+    request.session[WORKPLACE_LABEL_SESSION_KEY] = dict(WorkSession.SITE_CHOICES).get(
+        normalized, normalized
+    )
+    return normalized
+
+
+def get_current_workplace(request) -> str:
+    current = request.session.get(WORKPLACE_SESSION_KEY)
+    return set_workplace_in_session(request, current)
+
+
+def get_session_or_404(request, session_id: int, **kwargs):
+    workplace = get_current_workplace(request)
+    return get_object_or_404(
+        WorkSession,
+        id=session_id,
+        site=workplace,
+        **kwargs,
+    )
+
+
+def get_item_or_404(request, item_id: int, **kwargs):
+    workplace = get_current_workplace(request)
+    return get_object_or_404(
+        WorkItem,
+        id=item_id,
+        session__site=workplace,
+        **kwargs,
+    )
+
+
+def purge_expired_taskmasters():
+    cutoff = timezone.now() - timedelta(hours=TASKMASTER_RETENTION_HOURS)
+    TaskMaster.objects.filter(created_at__lt=cutoff).delete()
+
 
 def get_or_create_common_item(session, wo: str) -> WorkItem:
     defaults = {
@@ -73,6 +124,7 @@ class SimpleLoginRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.session.get("is_authenticated"):
             return redirect("login")
+        get_current_workplace(request)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -80,24 +132,43 @@ class SimpleLoginView(View):
     def get(self, request):
         if request.session.get("is_authenticated"):
             return redirect("index")
-        return render(request, "manning/login.html")
+        current_workplace = get_current_workplace(request)
+        return render(
+            request,
+            "manning/login.html",
+            {
+                "workplace_options": WorkSession.SITE_CHOICES,
+                "current_workplace": current_workplace,
+            },
+        )
 
     def post(self, request):
         password = request.POST.get("password")
+        workplace = request.POST.get("workplace")
 
         if password == settings.SIMPLE_PASSWORD_ADMIN:
             request.session["is_authenticated"] = True
             request.session["user_role"] = "admin"
+            set_workplace_in_session(request, workplace)
             return redirect("index")
 
         elif password == settings.SIMPLE_PASSWORD_USER:
             request.session["is_authenticated"] = True
             request.session["user_role"] = "user"
+            set_workplace_in_session(request, workplace)
             return redirect("index")
 
         else:
             messages.error(request, "비밀번호가 올바르지 않습니다.")
-            return render(request, "manning/login.html")
+            current_workplace = set_workplace_in_session(request, workplace)
+            return render(
+                request,
+                "manning/login.html",
+                {
+                    "workplace_options": WorkSession.SITE_CHOICES,
+                    "current_workplace": current_workplace,
+                },
+            )
 
 
 class SimpleLogoutView(View):
@@ -106,19 +177,31 @@ class SimpleLogoutView(View):
         return redirect("login")
 
 
+class ChangeWorkplaceView(SimpleLoginRequiredMixin, View):
+    def post(self, request):
+        workplace = request.POST.get("workplace")
+        set_workplace_in_session(request, workplace)
+        next_url = request.POST.get("next") or request.META.get("HTTP_REFERER")
+        return redirect(next_url or "index")
+
+
 class IndexView(SimpleLoginRequiredMixin, TemplateView):
     template_name = "manning/index.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        workplace = get_current_workplace(self.request)
+
         # 활성 세션 통계
-        active_qs = WorkSession.objects.filter(is_active=True)
+        active_qs = WorkSession.objects.filter(is_active=True, site=workplace)
         active_count = active_qs.count()
 
         # 이력 통계 (최근 7일 기준 예시)
         cutoff = timezone.now() - timedelta(days=7)
-        history_count = WorkSession.objects.filter(is_active=False).count()
+        history_count = WorkSession.objects.filter(
+            is_active=False, site=workplace
+        ).count()
 
         context.update(
             {
@@ -138,8 +221,9 @@ class SessionListView(SimpleLoginRequiredMixin, ListView):
     context_object_name = "active_sessions"
 
     def get_queryset(self):
+        workplace = get_current_workplace(self.request)
         return (
-            WorkSession.objects.filter(is_active=True)
+            WorkSession.objects.filter(is_active=True, site=workplace)
             .annotate(
                 worker_count=Count("worker", distinct=True),
                 item_count=Count(
@@ -179,19 +263,25 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
         worker_names = request.POST.get("worker_names", "")
         gibun_input = request.POST.get("gibun_input", "")
         shift_type = request.POST.get("shift_type", "DAY")
+        workplace = get_current_workplace(request)
 
         if not session_name:
             session_name = "Session (이름 없음)"
 
         final_name = session_name
         cnt = 1
-        while WorkSession.objects.filter(name=final_name, is_active=True).exists():
+        while WorkSession.objects.filter(
+            name=final_name, is_active=True, site=workplace
+        ).exists():
             cnt += 1
             final_name = f"{session_name} ({cnt})"
 
         with transaction.atomic():
             session = WorkSession.objects.create(
-                name=final_name, shift_type=shift_type, is_active=True
+                name=final_name,
+                shift_type=shift_type,
+                is_active=True,
+                site=workplace,
             )
 
             # -------------------------------------------------------------
@@ -224,7 +314,9 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
                         session=session, gibun=gibun, order=idx
                     )
 
-                    masters = TaskMaster.objects.filter(gibun_code=gibun)
+                    masters = TaskMaster.objects.filter(
+                        gibun_code=gibun, site=workplace
+                    )
                     if masters.exists():
                         for tm in masters:
                             WorkItem.objects.create(
@@ -299,7 +391,7 @@ def parse_worker_names(worker_names: str):
 class EditSessionView(SimpleLoginRequiredMixin, View):
     # 세션 정보 및 작업자 명단 수정
     def get(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         worker_names = "\n".join([w.name for w in session.worker_set.all()])
         return render(
             request,
@@ -312,7 +404,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         )
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         session_name = request.POST.get("session_name")
         if session_name:
@@ -357,7 +449,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
 
 class EditAllView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         WorkItemFormSet = modelformset_factory(
             WorkItem, form=WorkItemForm, extra=3, can_delete=True
@@ -445,6 +537,10 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
     context_object_name = "session"
     pk_url_kwarg = "session_id"
 
+    def get_queryset(self):
+        workplace = get_current_workplace(self.request)
+        return super().get_queryset().filter(site=workplace)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         session = self.object
@@ -514,7 +610,7 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
 
 class EditItemView(SimpleLoginRequiredMixin, View):
     def get(self, request, item_id):
-        item = get_object_or_404(WorkItem, id=item_id)
+        item = get_item_or_404(request, item_id)
         all_workers = item.session.worker_set.all().order_by("name")
         assigned_worker_ids = item.assignments.values_list("worker_id", flat=True)
 
@@ -526,7 +622,7 @@ class EditItemView(SimpleLoginRequiredMixin, View):
         return render(request, "manning/edit_item.html", context)
 
     def post(self, request, item_id):
-        item = get_object_or_404(WorkItem, id=item_id)
+        item = get_item_or_404(request, item_id)
 
         item.model_type = request.POST.get("model_type", "")
         item.work_order = request.POST.get("work_order")
@@ -576,7 +672,7 @@ from .services import run_auto_assign, run_sync_schedule
 
 class ManageItemsView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         # ---------------------------------------------------------
         # 1. [정렬 로직] 기번 우선순위 -> 작업순서 -> 등록순서
@@ -656,12 +752,15 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 "formset": formset,
                 "gibun_priorities": gibun_priorities,
                 "worker_names_str": worker_names_str,
+                "non_common_count": WorkItem.objects.filter(session=session)
+                .exclude(gibun_input="COMMON")
+                .count(),
                 "navbar_template": "manning/navbar/navbar_back_manage.html",
             },
         )
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         # ---------------------------------------------------------
         # 0. 기번 우선순위 업데이트 (prio_ 로 들어오는 값)
@@ -720,7 +819,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                         limit_val = 12.0
                 else:
                     name_part = line
-                    limit_val = 12.0
+                    limit_val = 9.0
 
                 if name_part:
                     valid_names.add(name_part)
@@ -871,6 +970,7 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
 
     def post(self, request):
         try:
+            workplace = get_current_workplace(request)
             data = json.loads(request.body)
 
             if not isinstance(data, list):
@@ -940,6 +1040,7 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
             with transaction.atomic():
                 for item in normalized:
                     TaskMaster.objects.update_or_create(
+                        site=workplace,
                         gibun_code=item["gibun_code"],
                         work_order=item["work_order"],
                         op=item["op"],
@@ -962,7 +1063,7 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
 
 class UpdateLimitsView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         for key, value in request.POST.items():
             if key.startswith("limit_"):
@@ -979,7 +1080,7 @@ class UpdateLimitsView(SimpleLoginRequiredMixin, View):
 
 class FinishSessionView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         session.is_active = False
         session.save()
 
@@ -996,7 +1097,10 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
     context_object_name = "history_list"
 
     def get_queryset(self):
-        qs = WorkSession.objects.filter(is_active=False).order_by("-created_at")
+        workplace = get_current_workplace(self.request)
+        qs = WorkSession.objects.filter(is_active=False, site=workplace).order_by(
+            "-created_at"
+        )
         query = self.request.GET.get("q")
         if query:
             qs = qs.filter(
@@ -1014,7 +1118,8 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
 
 @require_POST
 def clear_history(request):
-    WorkSession.objects.filter(is_active=False).delete()
+    workplace = get_current_workplace(request)
+    WorkSession.objects.filter(is_active=False, site=workplace).delete()
     return redirect("history")
 
 
@@ -1024,7 +1129,7 @@ def delete_history_session(request, session_id):
         messages.error(request, "관리자 권한이 필요합니다.")
         return redirect("history")
 
-    session = get_object_or_404(WorkSession, id=session_id, is_active=False)
+    session = get_session_or_404(request, session_id, is_active=False)
     session.delete()
     messages.success(request, "기록이 삭제되었습니다.")
     return redirect("history")
@@ -1098,7 +1203,7 @@ class SaveManualInputView(SimpleLoginRequiredMixin, View):
             data = json.loads(request.body or "{}")
             raw_assignments = data.get("assignments", [])
 
-            session = get_object_or_404(WorkSession, id=session_id)
+            session = get_session_or_404(request, session_id)
 
             # -----------------------------
             # 1) 들어온 간비 리스트 정리
@@ -1220,7 +1325,7 @@ def _reset_manual_for_workers(session, worker_ids):
 
 class ResetManualInputView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         try:
             data = json.loads(request.body or "{}")
         except json.JSONDecodeError:
@@ -1250,7 +1355,7 @@ class ResetManualInputView(SimpleLoginRequiredMixin, View):
 
 class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id, worker_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         if not session.worker_set.filter(id=worker_id).exists():
             return JsonResponse(
                 {"status": "error", "message": "작업자를 찾을 수 없습니다."},
@@ -1263,8 +1368,9 @@ class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
 
 class PasteInputView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-        taskmasters = TaskMaster.objects.all().order_by("gibun_code")
+        session = get_session_or_404(request, session_id)
+        workplace = get_current_workplace(request)
+        taskmasters = TaskMaster.objects.filter(site=workplace).order_by("gibun_code")
         return render(
             request,
             "manning/paste_data.html",
@@ -1276,8 +1382,9 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
         )
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         raw_data = request.POST.get("excel_data", "")
+        workplace = get_current_workplace(request)
 
         if not raw_data:
             messages.warning(request, "입력된 데이터가 없어서 홈으로 돌아갑니다.")
@@ -1317,6 +1424,7 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
 
                 if wo_val:
                     task_master, created = TaskMaster.objects.update_or_create(
+                        site=workplace,
                         work_order=wo_val,
                         op=op_val,
                         defaults={
@@ -1353,7 +1461,8 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
 
 class PasteItemsView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
+        workplace = get_current_workplace(request)
 
         try:
             data = json.loads(request.body or "[]")
@@ -1463,6 +1572,7 @@ class PasteItemsView(SimpleLoginRequiredMixin, View):
                         added_gibuns.add(gibun)
 
                     task_master, _ = TaskMaster.objects.update_or_create(
+                        site=workplace,
                         work_order=item["wo"],
                         op=item["op"],
                         defaults={
@@ -1503,7 +1613,7 @@ class PasteItemsView(SimpleLoginRequiredMixin, View):
 
 class AssignedSummaryView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         common_schedule = []
 
@@ -1643,6 +1753,10 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
     template_name = "manning/personal_schedule.html"
     context_object_name = "session"
     pk_url_kwarg = "session_id"
+
+    def get_queryset(self):
+        workplace = get_current_workplace(self.request)
+        return super().get_queryset().filter(site=workplace)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1834,7 +1948,8 @@ class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
     def post(self, request, pk=None, session_id=None, **kwargs):
         target_pk = pk or session_id
         try:
-            task = get_object_or_404(TaskMaster, pk=target_pk)
+            workplace = get_current_workplace(request)
+            task = get_object_or_404(TaskMaster, pk=target_pk, site=workplace)
             task.delete()
             messages.success(request, f"데이터 '{task.work_order}'가 삭제되었습니다.")
         except Exception as e:
@@ -1857,7 +1972,7 @@ class WorkerIndirectView(SimpleLoginRequiredMixin, View):
         return get_or_create_common_item(session, KANBI_WO)
 
     def get(self, request, session_id, worker_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         worker = get_object_or_404(Worker, id=worker_id, session=session)
         kanbi_item = self._get_kanbi_item(session)
 
@@ -1877,7 +1992,7 @@ class WorkerIndirectView(SimpleLoginRequiredMixin, View):
         )
 
     def post(self, request, session_id, worker_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         worker = get_object_or_404(Worker, id=worker_id, session=session)
         kanbi_item = self._get_kanbi_item(session)
 
@@ -1948,7 +2063,7 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
         return redirect("manage_items", session_id=session_id)
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         gibun = request.POST.get("gibun", "").strip()
         wo = request.POST.get("wo", "").strip()
@@ -2017,7 +2132,7 @@ class ResetSessionView(SimpleLoginRequiredMixin, View):
             messages.error(request, "관리자 권한이 필요합니다.")
             return redirect("index")
 
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
         session.is_active = False
         session.save()
         messages.success(request, f"'{session.name}' 세션이 종료되었습니다.")
@@ -2026,9 +2141,10 @@ class ResetSessionView(SimpleLoginRequiredMixin, View):
 
 class ResetAllSessionsView(SimpleLoginRequiredMixin, View):
     def post(self, request):
-        updated_count = WorkSession.objects.filter(is_active=True).update(
-            is_active=False
-        )
+        workplace = get_current_workplace(request)
+        updated_count = WorkSession.objects.filter(
+            is_active=True, site=workplace
+        ).update(is_active=False)
         if updated_count > 0:
             messages.success(request, f"총 {updated_count}개의 세션이 종료되었습니다.")
         return redirect("index")
@@ -2041,7 +2157,8 @@ class CheckGibunView(View):
         if not gibun:
             return JsonResponse({"exists": False})
 
-        exists = TaskMaster.objects.filter(gibun_code=gibun).exists()
+        workplace = get_current_workplace(request)
+        exists = TaskMaster.objects.filter(gibun_code=gibun, site=workplace).exists()
 
         return JsonResponse({"exists": exists})
 
@@ -2052,7 +2169,11 @@ class MasterDataListView(SimpleLoginRequiredMixin, ListView):
     context_object_name = "taskmasters"
 
     def get_queryset(self):
-        return TaskMaster.objects.all().order_by("gibun_code", "work_order", "op")
+        purge_expired_taskmasters()
+        workplace = get_current_workplace(self.request)
+        return TaskMaster.objects.filter(site=workplace).order_by(
+            "gibun_code", "work_order", "op"
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2064,6 +2185,10 @@ class MasterDataListView(SimpleLoginRequiredMixin, ListView):
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
     model = TaskMaster
     success_url = reverse_lazy("paste_data")  # 기본값
+
+    def get_queryset(self):
+        workplace = get_current_workplace(self.request)
+        return super().get_queryset().filter(site=workplace)
 
     def form_valid(self, form):
         self.object = self.get_object()
@@ -2079,9 +2204,10 @@ class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
 
 class TaskMasterDeleteAllView(SimpleLoginRequiredMixin, View):
     def post(self, request):
-        count = TaskMaster.objects.count()
+        workplace = get_current_workplace(request)
+        count = TaskMaster.objects.filter(site=workplace).count()
         if count > 0:
-            TaskMaster.objects.all().delete()
+            TaskMaster.objects.filter(site=workplace).delete()
             messages.warning(request, f"총 {count}개의 데이터가 모두 삭제되었습니다.")
         else:
             messages.info(request, "삭제할 데이터가 없습니다.")
@@ -2094,7 +2220,7 @@ class TaskMasterDeleteAllView(SimpleLoginRequiredMixin, View):
 class ReorderItemView(SimpleLoginRequiredMixin, View):
     def get(self, request, item_id, direction):
         # 1. 이동할 대상 아이템과 세션 찾기
-        target_item = get_object_or_404(WorkItem, pk=item_id)
+        target_item = get_item_or_404(request, item_id)
         session = target_item.session  # ✅ 세션 정보를 여기서 가져옵니다.
 
         # 2. 같은 기번(그룹) 내의 아이템들만 가져오기
@@ -2143,7 +2269,7 @@ class ReorderItemView(SimpleLoginRequiredMixin, View):
 
 class ReorderItemsView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         try:
             data = json.loads(request.body or "{}")
@@ -2200,7 +2326,7 @@ class ReorderItemsView(SimpleLoginRequiredMixin, View):
 
 class ReorderGibunView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id, gibun_name, direction):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = get_session_or_404(request, session_id)
 
         # 1. 현재 세션의 모든 기번 우선순위 객체를 순서대로 가져옴
         priorities = list(

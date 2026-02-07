@@ -1,7 +1,6 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
-{% block title %}배정
-결과 | {{ session.name }} {% endblock title %} 
+{% block title %}배정 결과 | {{ session.name }} {% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/result_view.css' %}" />
@@ -23,12 +22,13 @@
 </script>
 {% endblock js %} 
 
+
 {% block content %}
 <div class="" data-aos="fade-up" data-aos-duration="1000">
     <div
-        class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3"
+        class="d-flex flex-wrap justify-content-between align-items-center my-4 gap-3"
     >
-        <h2 class="fw-bold pt-3 mb-0 text-dark">
+        <h2 class="fw-bold mb-0 text-dark">
             📊 {{ session.name }} {% if not session.is_active %}
             <span class="badge text-bg-secondary ms-2" style="font-size: 1rem"
                 >작업 완료</span
@@ -42,7 +42,7 @@
     </div>
 
     <div
-        class="card border-0 shadow-lg rounded-4 mb-4 bg-white"
+        class="card border-0 shadow-lg rounded-4 mb-4 bg-white "
         data-aos="fade-up"
     >
         <div

@@ -1,10 +1,11 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
+
 {% load widget_tweaks %} 
 
 {% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
 
-{% block css %}
+{% block css %} 
 <link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
 {% endblock css %} 
 
@@ -18,9 +19,10 @@
 <script defer src="{% static 'js/manage_items.js' %}"></script>
 {% endblock js %} 
 
+
 {% block content %}
-<div class="ios-topbar">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="">
+    <div class="d-flex justify-content-between align-items-center my-4">
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="fw-bold mb-0 text-dark">
@@ -33,13 +35,19 @@
         <div class="d-flex gap-2">
             <button
                 type="button"
-                class="btn btn-primary fw-bold btn-sm rounded-pill px-3 shadow-sm"
+                class="btn btn-primary fw-bold btn-sm rounded-pill px-2 shadow-sm"
                 data-bs-toggle="modal"
                 data-bs-target="#pasteDataModal"
             >
                 <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
             </button>
         </div>
+    </div>
+    <div class="d-flex align-items-center text-dark small mb-3">
+        <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
+        <strong>모든 항목</strong>을 수정 또는 삭제 후&nbsp;
+        <span class="text-success fw-bold">"저장 및 재배정"</span>&nbsp;을
+        눌러주세요.
     </div>
 
     <form
@@ -55,8 +63,10 @@
                     <div
                         class="card-header bg-white fw-bold border-bottom py-2"
                     >
-                        <i class="bi bi-sort-numeric-down text-warning me-1"></i>
-                        기종 우선순위
+                        <i
+                            class="bi bi-sort-numeric-down text-warning me-1"
+                        ></i>
+                        기종(기번) 우선순위
                     </div>
                     <div class="card-body p-0">
                         <div
@@ -69,13 +79,13 @@
                                 <thead class="table-light sticky-top">
                                     <tr>
                                         <th>기종(기번)</th>
-                                        <th width="80">순위</th>
+                                        <th width="100">순위</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for p in gibun_priorities %}
                                     <tr>
-                                        <td class="fw-bold text-start ps-3">
+                                        <td class="fw-bold text-center ps-3">
                                             {{ p.gibun }}
                                         </td>
                                         <td>
@@ -116,7 +126,8 @@
                             class="form-control border-0 bg-light small font-monospace p-3 h-100"
                             style="min-height: 150px; resize: none"
                             placeholder="이름: 시간 (줄바꿈)"
-                        >{{ worker_names_str }}</textarea>
+                        >{{ worker_names_str }}</textarea
+                        >
                     </div>
                 </div>
             </div>
@@ -130,7 +141,7 @@
                 <div>
                     <h5 class="fw-bold mb-0 d-inline-block">📋 데이터 목록</h5>
                     <span class="badge bg-secondary ms-2 rounded-pill"
-                        >{{ formset|length }}건</span
+                        >{{ non_common_count }}건</span
                     >
                 </div>
                 <span class="text-danger small fw-bold"
@@ -162,9 +173,7 @@
                                 <th style="width: 8%" class="col-gibun">
                                     기번
                                 </th>
-                                <th style="width: 10%" class="col-wo">
-                                    Work Order
-                                </th>
+                                <th style="width: 10%" class="col-wo">W/O</th>
                                 <th style="width: 5%" class="col-op">OP</th>
                                 <th class="col-desc">작업 내용</th>
                                 <th style="width: 10%" class="col-mh">M/H</th>
@@ -178,8 +187,7 @@
                         </thead>
                         <tbody>
                             {% for form in formset %} {{ form.id }} 
-                            {% for hidden in form.hidden_fields %} {{ hidden }} 
-                            {% endfor %}
+                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
 
                             <input
                                 type="hidden"
@@ -201,6 +209,7 @@
                                                 class="bi bi-airplane-engines-fill me-2"
                                             ></i
                                             >{{ form.instance.gibun_input|default:"(기번 없음)" }}
+                                    
                                         </div>
 
                                         <div>
@@ -292,7 +301,7 @@
                                 </td>
 
                                 <td class="col-gibun">
-                                    {% render_field form.gibun_input class="table-input fw-bold"   placeholder="기번" %}
+                                    {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
                                 </td>
                                 <td class="col-wo">
                                     {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
@@ -301,7 +310,7 @@
                                     {% render_field form.op class="table-input" placeholder="OP" %}
                                 </td>
                                 <td class="col-desc">
-                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
+                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}    
                                 </td>
                                 <td class="col-mh">
                                     {% render_field form.work_mh class="table-input text-end fw-bold text-primary" step="0.1" %}
@@ -328,24 +337,17 @@
     </form>
 </div>
 
-<nav class="navbar navbar-expand-lg fixed-bottom py-3 shadow-lg">
-    <div class="container justify-content-between align-items-center">
-        <div class="d-flex align-items-center text-muted small">
-            <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
-            <span
-                >이름 입력 시 <strong>고정 배정</strong>. 삭제하려면
-                체크하세요.</span
-            >
-        </div>
+<nav class="navbar navbar-expand-lg fixed-bottom py-3">
+    <div class="container justify-content-end align-items-center manage-footer">
         <div class="d-flex gap-2">
             <a
                 href="{% url 'result_view' session.id %}"
-                class="btn btn-secondary px-4"
+                class="btn btn-secondary px-2"
                 >취소</a
             >
             <button
                 type="button"
-                class="btn btn-outline-danger px-4"
+                class="btn btn-outline-danger px-2"
                 id="btn-clear-assigned"
             >
                 고정 배정 전체 삭제
@@ -353,7 +355,7 @@
             <button
                 type="submit"
                 form="manage-form"
-                class="btn btn-success fw-bold px-5 shadow"
+                class="btn btn-success fw-bold px-2 shadow"
             >
                 <i class="bi bi-check-lg me-1"></i>저장 및 재배정
             </button>

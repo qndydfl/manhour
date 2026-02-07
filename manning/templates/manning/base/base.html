@@ -36,23 +36,29 @@
         ></script>
 
         <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-        
-        <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script> 
 
-        <link rel="stylesheet" href="{% static 'css/ios_ipad.css' %}" />
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+        ></script>
+
+        <link rel="stylesheet" href="{% static 'css/base.css' %}" />
         <script defer src="{% static 'js/base.js' %}"></script>
 
         {% block css %}{% endblock css %} {% block js %}{% endblock js %}
     </head>
     <body>
-        {% include navbar_template|default:"manning/navbar/navbar_base.html" %}
+        {% block background_image %} 
+        {% endblock background_image %}
 
-        <div class="ios-wrap">
-            {% block content %} {% endblock content %}
+        <div class="page-content">
+            {% include navbar_template|default:"manning/navbar/navbar_base.html" %}
+
+            <div class="ios-wrap">
+                {% block content %} {% endblock content %}
+            </div>
+
+            {% block footer %} {% endblock footer %}
         </div>
-
-        {% block footer %}
-        
-        {% endblock footer %}
     </body>
 </html>

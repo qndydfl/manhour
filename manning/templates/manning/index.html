@@ -8,47 +8,21 @@
 {% endblock css %} 
 
 {% block js %}
-<script src="{% static 'js/index.js' %}"></script>
+<script defer src="{% static 'js/index.js' %}"></script>
 {% endblock js %} 
 
-{% block navbar %}
-    {% include "manning/navbar/navbar_base.html" %}  
-{% endblock navbar %}
+{% block background_image %} 
+    {% include "manning/image/background_main.html" %}
+{% endblock background_image %}
 
 {% block content %}
-<div class="row g-4 mb-5" data-aos="fade-up" data-aos-duration="1000">
+<div class="row g-4 my-4" data-aos="fade-up" data-aos-duration="1000">
     <div class="col-lg-7 d-flex flex-column justify-content-center">
         <div class="ps-2">
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <span
-                    class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold border border-primary border-opacity-10"
-                >
-                    <i class="bi bi-calendar-check me-1"></i> {{ today|date:"Y년 m월 d일 (D)" }}
-                </span>
-                {% if active_count > 0 %}
-                <span
-                    class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold border border-success border-opacity-10"
-                >
-                    <span
-                        class="spinner-grow spinner-grow-sm me-1"
-                        role="status"
-                        aria-hidden="true"
-                    ></span>
-                    가동 중
-                </span>
-                {% else %}
-                <span
-                    class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill border border-secondary border-opacity-10"
-                >
-                    대기 중
-                </span>
-                {% endif %}
-            </div>
-
-            <h1 class="display-6 fw-bold mb-3 text-gradient">
+            <h1 class="display-6 fw-bold mb-3 text-dark opacity-75">
                 Work Smart, <br />Manage Better.
             </h1>
-            <p class="text-muted fs-6 mb-4">
+            <p class="text-white mb-4">
                 작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
                 효율적인 업무 배정이 여기서 시작됩니다.
             </p>
@@ -56,20 +30,20 @@
             <div class="d-flex flex-wrap gap-3">
                 <a
                     href="{% url 'create_session' %}"
-                    class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold"
+                    class="btn btn-primary btn-md rounded-3 px-2 shadow-sm fw-bold"
                 >
                     <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
                 </a>
 
                 <a
                     href="{% url 'session_list' %}"
-                    class="btn btn-dark btn-lg rounded-pill px-4 shadow-sm fw-bold"
+                    class="btn btn-dark btn-md rounded-3 px-2 shadow-sm fw-bold"
                 >
                     <i class="bi bi-grid-fill me-1"></i> 현황판 입장
                 </a>
                 <a
                     href="{% url 'master_data_list' %}"
-                    class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm fw-bold"
+                    class="btn btn-secondary btn-md rounded-3 px-2 shadow-sm fw-bold"
                 >
                     <i class="bi bi-database-add"></i> 데이터 등록 현황
                 </a>
@@ -79,10 +53,10 @@
 
     <div class="col-lg-5">
         <div
-            class="card bg-dark text-white border-0 shadow-lg rounded-4 overflow-hidden position-relative h-100"
+            class="card opacity-75 bg-dark border-0 shadow-lg rounded-4 overflow-hidden position-relative h-100"
         >
             <div
-                class="position-absolute opacity-25"
+                class="position-absolute "
                 style="top: -20px; right: -20px"
             >
                 <i
@@ -92,7 +66,7 @@
             </div>
 
             <div
-                class="card-body p-4 d-flex flex-column justify-content-center position-relative z-1"
+                class="card-body p-4 d-flex flex-column justify-content-center position-relative z-1  rounded-4 h-100"
             >
                 <div
                     class="d-flex justify-content-between align-items-center mb-4"
@@ -103,15 +77,15 @@
                     <span class="badge bg-danger rounded-pill px-3">LIVE</span>
                 </div>
 
-                <div class="row align-items-end g-0">
+                <div class="row align-items-end g-0 fw-bold">
                     <div class="col-7">
                         <small
-                            class="text-white-50 text-uppercase fw-bold"
+                            class="text-white text-uppercase"
                             style="letter-spacing: 1px"
                             >Local Time</small
                         >
                         <div
-                            class="display-5 fw-bold my-1"
+                            class="display-5 fw-bold my-1 text-white"
                             id="digital-time"
                             style="
                                 font-family: &quot;Courier New&quot;, monospace;
@@ -119,7 +93,7 @@
                         >
                             00:00:00
                         </div>
-                        <small class="text-white-50" id="digital-date"
+                        <small class="text-white" id="digital-date"
                             >Loading...</small
                         >
                     </div>
@@ -128,7 +102,7 @@
                         class="col-5 text-end border-start border-secondary ps-3"
                     >
                         <small
-                            class="text-white-50 text-uppercase fw-bold"
+                            class="text-white text-uppercase fw-bold"
                             style="letter-spacing: 1px"
                             >UTC</small
                         >
@@ -141,7 +115,7 @@
                         >
                             00:00
                         </div>
-                        <small class="text-white-50">Universal</small>
+                        <small class="text-white">Universal</small>
                     </div>
                 </div>
             </div>
@@ -149,9 +123,9 @@
     </div>
 </div>
 
-<hr class="my-5 opacity-10" />
+{% comment %} <hr class="my-5 opacity-10" /> {% endcomment %}
 
-<div class="row g-4 mb-5">
+<div class="row g-4 my-5 opacity-75" data-aos="fade-down" data-aos-duration="1000">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift">
             <div class="card-body p-4 d-flex align-items-center">
@@ -215,10 +189,9 @@
         </div>
     </div>
 </div>
+{% comment %} </div> {% endcomment %}
 
-<footer
-    class="text-center text-white py-3 mt-4 bg-secondary fixed-bottom"
->
+<footer class="text-center text-white py-3 mt-4 bg-secondary fixed-bottom">
     <small class="opacity-50">
         &copy; 2026 Man Hour Calculator System. All rights reserved.
     </small>

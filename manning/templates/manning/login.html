@@ -1,43 +1,69 @@
-{% extends "manning/base/base.html" %}
-{% load static %}
+{% extends "manning/base/base.html" %} 
+{% load static %} 
 
-{% block title %}로그인{% endblock title %}
+{% block title %}로그인{% endblock title %} 
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'css/login.css' %}" />
-{% endblock css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+{% endblock css %} 
 
-{% block navbar %}{% endblock navbar %}
+
 {% block content %}
-    <div class="login-container">
-        <div class="login-card">
-            <div class="mb-4 text-primary">
-                <i class="bi bi-shield-lock-fill" style="font-size: 4.5rem;"></i>
-            </div>
-            <h3 class="fw-bold mb-2">Login Page</h3>
-            <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
-
-            <form method="POST">
-                {% csrf_token %}
-                
-                <div class="mb-4">
-                    <input type="password" 
-                        name="password" 
-                        class="form-control form-control-lg text-center bg-light border-0" 
-                        placeholder="Password" 
-                        autocomplete="new-password" 
-                        required 
-                        autofocus>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-md fw-bold py-3 rounded-4 shadow-sm transition-btn">
-                        접속하기 <i class="bi bi-chevron-right ms-1"></i>
-                    </button>
-                </div>
-            </form>
+<div class="login-container">
+    <div class="login-card">
+        <div class="mb-4 text-primary">
+            <i class="bi bi-shield-lock-fill" style="font-size: 4.5rem"></i>
         </div>
-    </div>
-{% endblock content %}
+        <h3 class="fw-bold mb-2">Login Page</h3>
+        <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
 
-{% block footer %}{% endblock footer %}
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label fw-bold text-primary mb-2"
+                    >근무지 선택</label
+                >
+                <select
+                    name="workplace"
+                    class="form-select form-select-lg text-center bg-light fw-bold border-2 border-primary shadow-sm"
+                    style="font-size: 0.9rem;"
+                    required
+                >
+                    {% for value, label in workplace_options %}
+                    <option
+                        value="{{ value }}"
+                        {% if value == current_workplace %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <input
+                    type="password"
+                    name="password"
+                    class="form-control form-control-lg text-center bg-light border-0"
+                    placeholder="Password"
+                    autocomplete="new-password"
+                    required
+                    autofocus
+                />
+            </div>
+
+            <div class="d-grid">
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-md fw-bold py-3 rounded-4 shadow-sm transition-btn"
+                >
+                    접속하기 <i class="bi bi-chevron-right ms-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %} {% block footer %}{% endblock footer %}

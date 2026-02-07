@@ -7,17 +7,38 @@ from django.db.models import Q
 class TaskMaster(models.Model):
     """기본 데이터 (엑셀 붙여넣기 원본)"""
 
+    SITE_GIMPO = "GIMPO"
+    SITE_INCHEON = "INCHEON"
+    SITE_CHOICES = [
+        (SITE_GIMPO, "GIMPO"),
+        (SITE_INCHEON, "INCHEON"),
+    ]
+
     gibun_code = models.CharField(max_length=50, verbose_name="기번")
     work_order = models.CharField(max_length=100)
     op = models.CharField(max_length=50)
     description = models.TextField()
     default_mh = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    site = models.CharField(
+        max_length=20,
+        choices=SITE_CHOICES,
+        default=SITE_INCHEON,
+        verbose_name="근무지",
+    )
 
     def __str__(self):
-        return f"{self.gibun_code} - {self.work_order}"
+        return f"{self.gibun_code} - {self.work_order} ({self.site})"
 
 
 class WorkSession(models.Model):
+    SITE_GIMPO = "GIMPO"
+    SITE_INCHEON = "INCHEON"
+    SITE_CHOICES = [
+        (SITE_GIMPO, "GIMPO"),
+        (SITE_INCHEON, "INCHEON"),
+    ]
+
     SHIFT_DAY = "DAY"
     SHIFT_NIGHT = "NIGHT"
     SHIFT_CHOICES = [
@@ -28,6 +49,12 @@ class WorkSession(models.Model):
     name = models.CharField(max_length=100, verbose_name="세션 이름")
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    site = models.CharField(
+        max_length=20,
+        choices=SITE_CHOICES,
+        default=SITE_INCHEON,
+        verbose_name="근무지",
+    )
 
     # [추가] 근무 타입 (기본값: 주간)
     shift_type = models.CharField(
@@ -42,7 +69,9 @@ class WorkSession(models.Model):
         return self.shift_type == self.SHIFT_NIGHT
 
     def __str__(self):
-        return f"{self.name} ({self.get_shift_type_display()})"
+        return (
+            f"{self.name} ({self.get_shift_type_display()}, {self.get_site_display()})"
+        )
 
 
 class Worker(models.Model):

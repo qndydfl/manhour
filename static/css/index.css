@@ -57,7 +57,7 @@
 
 /* [핵심] 마우스 올렸을 때 부드럽게 떠오르는 효과 */
 .hover-lift {
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
     will-change: transform, box-shadow;
 }
 

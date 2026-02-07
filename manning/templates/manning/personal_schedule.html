@@ -39,14 +39,14 @@
 {% endblock js %}
 
 {% block content %}
-<div class="container" style="max-width: 900px;">
+<div class="container my-4" style="max-width: 1000px;">
     <div
-        class="d-flex justify-content-between align-items-center mb-4"
+        class="d-flex justify-content-between align-items-center my-4"
         data-aos="fade-down"
     >
         <h4 class="fw-bold mb-0 text-dark">
             {{ worker_name }}
-            <span class="fw-normal text-muted fs-6">님의 시간표</span>
+            <span class="fw-normal fw-bold text-muted fs-6">님의 시간표</span>
         </h4>
         <div class="d-flex gap-2">
             <button
@@ -68,7 +68,7 @@
     </div>
 
     {% if schedule %}
-    <div class="row g-3 mb-4" data-aos="fade-up">
+    <div class="row g-3 my-4" data-aos="fade-up">
         <div class="col-6">
             <div class="widget-card d-flex align-items-center gap-3 py-3">
                 <div class="bg-soft-primary p-3 rounded-circle text-primary">
@@ -226,7 +226,7 @@
                             <thead class="small text-muted border-bottom">
                                 <tr>
                                     <th width="30%">시작 (HHMM)</th>
-                                    <th width="30%">내용 (숫자)</th>
+                                    <th width="30%">간비 (숫자)</th>
                                     <th width="30%">종료 (HHMM)</th>
                                     <th width="10%"></th>
                                 </tr>

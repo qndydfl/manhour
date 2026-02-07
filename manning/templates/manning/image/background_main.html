@@ -1,0 +1,16 @@
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/background_image.css' %}" />
+{% endblock css %}
+
+
+<div
+    class="bg-image-layer"
+    style="background-image: url({% static 'img/default.jpg' %});
+        background-size: cover;
+        background-position: center;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    "
+></div>

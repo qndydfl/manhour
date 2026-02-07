@@ -79,7 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
       </td>
       <td>
         <input type="text" class="form-control form-control-sm input-code text-center"
-          maxlength="20" value="${code}" placeholder="내용">
+          maxlength="4" value="${code}" placeholder="0000" inputmode="numeric"
+            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
       </td>
       <td>
         <input type="text" class="form-control form-control-sm text-center input-end"
