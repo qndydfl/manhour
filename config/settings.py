@@ -23,13 +23,13 @@ allowed_hosts = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
 )
-ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
+# ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
+# DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
-# ALLOWDED_HOSTS = ["*"]  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
+ALLOWED_HOSTS = ["*"]  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
 # Application definition
-# DEBUG = True  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
+DEBUG = True  # 배포 시에는 위의 주석 처리된 코드를 사용하세요.
 
 INSTALLED_APPS = [
     "django.contrib.admin",

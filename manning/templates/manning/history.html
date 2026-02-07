@@ -5,9 +5,7 @@
 
 {% block content %}
 <div class="container" style="max-width: 1000px">
-    <div
-        class="d-flex justify-content-between align-items-center my-4 pb-2"
-    >
+    <div class="d-flex justify-content-between align-items-center my-4 pb-2">
         <h4 class="fw-bold mb-0 text-dark">
             <i class="bi bi-clock-history text-primary me-2"></i>작업 이력
             (History)
@@ -32,6 +30,11 @@
             </button>
         </form>
         {% endif %}
+    </div>
+
+    <div class="alert alert-info py-2 mb-3" role="alert">
+        <i class="bi bi-info-circle me-2"></i>
+        최근 48시간 이내 기록만 표시됩니다.
     </div>
 
     <div class="row justify-content-end mb-4">

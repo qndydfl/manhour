@@ -51,6 +51,7 @@ WORKPLACE_SESSION_KEY = "workplace"
 WORKPLACE_LABEL_SESSION_KEY = "workplace_label"
 
 TASKMASTER_RETENTION_HOURS = 12
+HISTORY_VISIBILITY_HOURS = 48
 
 
 def normalize_workplace(workplace: str | None) -> str:
@@ -197,10 +198,9 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
         active_qs = WorkSession.objects.filter(is_active=True, site=workplace)
         active_count = active_qs.count()
 
-        # 이력 통계 (최근 7일 기준 예시)
-        cutoff = timezone.now() - timedelta(days=7)
+        history_cutoff = timezone.now() - timedelta(hours=HISTORY_VISIBILITY_HOURS)
         history_count = WorkSession.objects.filter(
-            is_active=False, site=workplace
+            is_active=False, site=workplace, created_at__gte=history_cutoff
         ).count()
 
         context.update(
@@ -1098,9 +1098,10 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
 
     def get_queryset(self):
         workplace = get_current_workplace(self.request)
-        qs = WorkSession.objects.filter(is_active=False, site=workplace).order_by(
-            "-created_at"
-        )
+        cutoff = timezone.now() - timedelta(hours=HISTORY_VISIBILITY_HOURS)
+        qs = WorkSession.objects.filter(
+            is_active=False, site=workplace, created_at__gte=cutoff
+        ).order_by("-created_at")
         query = self.request.GET.get("q")
         if query:
             qs = qs.filter(
