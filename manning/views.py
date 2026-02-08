@@ -58,11 +58,15 @@ def normalize_workplace(workplace: str | None) -> str:
     valid = {choice[0] for choice in WorkSession.SITE_CHOICES}
     if workplace in valid:
         return workplace
-    return WorkSession.SITE_INCHEON
+    return ""
 
 
 def set_workplace_in_session(request, workplace: str | None) -> str:
     normalized = normalize_workplace(workplace)
+    if not normalized:
+        request.session.pop(WORKPLACE_SESSION_KEY, None)
+        request.session.pop(WORKPLACE_LABEL_SESSION_KEY, None)
+        return ""
     request.session[WORKPLACE_SESSION_KEY] = normalized
     request.session[WORKPLACE_LABEL_SESSION_KEY] = dict(WorkSession.SITE_CHOICES).get(
         normalized, normalized
@@ -72,7 +76,10 @@ def set_workplace_in_session(request, workplace: str | None) -> str:
 
 def get_current_workplace(request) -> str:
     current = request.session.get(WORKPLACE_SESSION_KEY)
-    return set_workplace_in_session(request, current)
+    normalized = normalize_workplace(current)
+    if not normalized:
+        return ""
+    return set_workplace_in_session(request, normalized)
 
 
 def get_session_or_404(request, session_id: int, **kwargs):
@@ -125,7 +132,9 @@ class SimpleLoginRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.session.get("is_authenticated"):
             return redirect("login")
-        get_current_workplace(request)
+        if not get_current_workplace(request):
+            messages.error(request, "근무지를 선택해주세요.")
+            return redirect("login")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -133,7 +142,9 @@ class SimpleLoginView(View):
     def get(self, request):
         if request.session.get("is_authenticated"):
             return redirect("index")
-        current_workplace = get_current_workplace(request)
+        request.session.pop(WORKPLACE_SESSION_KEY, None)
+        request.session.pop(WORKPLACE_LABEL_SESSION_KEY, None)
+        current_workplace = ""
         return render(
             request,
             "manning/login.html",
@@ -145,7 +156,18 @@ class SimpleLoginView(View):
 
     def post(self, request):
         password = request.POST.get("password")
-        workplace = request.POST.get("workplace")
+        workplace = request.POST.get("workplace") or ""
+
+        if not workplace:
+            messages.error(request, "근무지를 선택해주세요.")
+            return render(
+                request,
+                "manning/login.html",
+                {
+                    "workplace_options": WorkSession.SITE_CHOICES,
+                    "current_workplace": "",
+                },
+            )
 
         if password == settings.SIMPLE_PASSWORD_ADMIN:
             request.session["is_authenticated"] = True
@@ -161,13 +183,12 @@ class SimpleLoginView(View):
 
         else:
             messages.error(request, "비밀번호가 올바르지 않습니다.")
-            current_workplace = set_workplace_in_session(request, workplace)
             return render(
                 request,
                 "manning/login.html",
                 {
                     "workplace_options": WorkSession.SITE_CHOICES,
-                    "current_workplace": current_workplace,
+                    "current_workplace": workplace,
                 },
             )
 

@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}">
 {% endblock css %}
 
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="assigned_summary" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
+
 {% block content %}
 <div class="container" style="max-width: 1000px; ">   
 

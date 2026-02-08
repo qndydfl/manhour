@@ -18,6 +18,10 @@
 
 {% with navbar_template="manning/navbar/navbar_back_paste.html" %}{% endwith %}
 
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="paste_data" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
+
 {% block content %}
 <div class="container" style="max-width: 1000px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center my-4 gap-3" data-aos="fade-down">

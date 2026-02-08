@@ -2,6 +2,7 @@
 {% load static %} 
 
 {% block title %}작업슬롯 현황 | Manning System{% endblock %} 
+
 {% block css %}
 <style>
     .card-hover:hover {
@@ -22,8 +23,11 @@
     }
 </style>
 
-{% comment %} <link rel="stylesheet" href="{% static 'css/base.css' %}" /> {% endcomment %}
 {% endblock css %} 
+
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
 
 {% block content %}
 <div
@@ -33,7 +37,9 @@
         <h3 class="fw-bold mb-1 text-dark">
             <i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황
         </h3>
-        <p class="text-muted my-4 ms-2 small">현재 활성화된 작업 세션 목록입니다.</p>
+        <p class="text-muted my-4 ms-2 small">
+            현재 활성화된 작업 세션 목록입니다.
+        </p>
     </div>
     <div class="d-flex gap-2">
         <div class="input-group shadow-sm">
@@ -90,7 +96,8 @@
                     {{ session.name }}
                 </h5>
                 <p class="text-muted small mb-4">
-                    작업자 {{ session.worker_count }}명 • 아이템 {{ session.item_count }}개
+                    작업자 {{ session.worker_count }}명 • 아이템 {{
+                    session.item_count }}개
                 </p>
 
                 <div
@@ -124,7 +131,7 @@
                         class="btn btn-primary fw-bold shadow-sm"
                     >
                         입장하기
-                    </a>                    
+                    </a>
                 </div>
             </div>
         </div>

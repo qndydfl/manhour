@@ -19,6 +19,9 @@
 <script defer src="{% static 'js/manage_items.js' %}"></script>
 {% endblock js %} 
 
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="manage_items" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
 
 {% block content %}
 <div class="">

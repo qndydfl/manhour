@@ -38,6 +38,10 @@
 <script defer src="{% static 'js/personal_schedule.js' %}"></script>
 {% endblock js %}
 
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="personal_schedule" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
+
 {% block content %}
 <div class="container my-4" style="max-width: 1000px;">
     <div

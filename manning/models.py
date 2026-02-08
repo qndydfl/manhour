@@ -7,11 +7,19 @@ from django.db.models import Q
 class TaskMaster(models.Model):
     """기본 데이터 (엑셀 붙여넣기 원본)"""
 
-    SITE_GIMPO = "GIMPO"
-    SITE_INCHEON = "INCHEON"
+    SITE_ICN_1 = "ICN-1"
+    SITE_ICN_2 = "ICN-2"
+    SITE_ICN_3 = "ICN-3"
+    SITE_GMP_1 = "GMP-1"
+    SITE_GMP_2 = "GMP-2"
+    SITE_GMP_3 = "GMP-3"
     SITE_CHOICES = [
-        (SITE_GIMPO, "GIMPO"),
-        (SITE_INCHEON, "INCHEON"),
+        (SITE_ICN_1, "ICN-1"),
+        (SITE_ICN_2, "ICN-2"),
+        (SITE_ICN_3, "ICN-3"),
+        (SITE_GMP_1, "GMP-1"),
+        (SITE_GMP_2, "GMP-2"),
+        (SITE_GMP_3, "GMP-3"),
     ]
 
     gibun_code = models.CharField(max_length=50, verbose_name="기번")
@@ -23,7 +31,6 @@ class TaskMaster(models.Model):
     site = models.CharField(
         max_length=20,
         choices=SITE_CHOICES,
-        default=SITE_INCHEON,
         verbose_name="근무지",
     )
 
@@ -32,11 +39,19 @@ class TaskMaster(models.Model):
 
 
 class WorkSession(models.Model):
-    SITE_GIMPO = "GIMPO"
-    SITE_INCHEON = "INCHEON"
+    SITE_ICN_1 = "ICN-1"
+    SITE_ICN_2 = "ICN-2"
+    SITE_ICN_3 = "ICN-3"
+    SITE_GMP_1 = "GMP-1"
+    SITE_GMP_2 = "GMP-2"
+    SITE_GMP_3 = "GMP-3"
     SITE_CHOICES = [
-        (SITE_GIMPO, "GIMPO"),
-        (SITE_INCHEON, "INCHEON"),
+        (SITE_ICN_1, "ICN-1"),
+        (SITE_ICN_2, "ICN-2"),
+        (SITE_ICN_3, "ICN-3"),
+        (SITE_GMP_1, "GMP-1"),
+        (SITE_GMP_2, "GMP-2"),
+        (SITE_GMP_3, "GMP-3"),
     ]
 
     SHIFT_DAY = "DAY"
@@ -52,7 +67,6 @@ class WorkSession(models.Model):
     site = models.CharField(
         max_length=20,
         choices=SITE_CHOICES,
-        default=SITE_INCHEON,
         verbose_name="근무지",
     )
 
@@ -168,3 +182,20 @@ class GibunTeam(models.Model):
 
     def __str__(self):
         return f"{self.session.name} / {self.gibun}"
+
+
+class BackgroundImage(models.Model):
+    key = models.CharField(max_length=50, unique=True)
+    image_url = models.URLField(blank=True)
+    image_file = models.ImageField(
+        upload_to="backgrounds/",
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = "Background image"
+        verbose_name_plural = "Background images"
+
+    def __str__(self):
+        return f"{self.key}"

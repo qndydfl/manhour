@@ -1,8 +1,11 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
 
-{% block title %}마스터
-데이터 관리 | Manning System{% endblock title %} 
+{% block title %}마스터 데이터 관리 | Manning System{% endblock title %} 
+
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="master_data_list" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
 
 {% block content %}
 <div class="container mt-4 mb-5" style="max-width: 1000px">

@@ -42,7 +42,7 @@
             {% endif %}
 
             <div class="text-light small me-2">
-                근무지: {{ request.session.workplace_label|default:"INCHEON" }}
+                근무지: {{ request.session.workplace_label}}
             </div>
 
             <form
@@ -59,31 +59,43 @@
                 {% if request.session.user_role == "admin" %}
                 <select
                     name="workplace"
-                    class="form-select form-select-sm bg-primary text-white border-primary"
+                    class="form-select form-select-sm bg-light text-dark"
                 >
                     <option
-                        value="GIMPO"
-                        {%
-                        if
-                        request.session.workplace=""
-                        ="GIMPO"
-                        %}selected{%
-                        endif
-                        %}
+                        value="GMP-1"
+                        {% if request.session.workplace == "GMP-1" %}selected{% endif %}
                     >
-                        GIMPO
+                        GMP-1
                     </option>
                     <option
-                        value="INCHEON"
-                        {%
-                        if
-                        request.session.workplace=""
-                        ="INCHEON"
-                        %}selected{%
-                        endif
-                        %}
+                        value="GMP-2"
+                        {% if request.session.workplace == "GMP-2" %}selected{% endif %}
                     >
-                        INCHEON
+                        GMP-2
+                    </option>
+                    <option
+                        value="GMP-3"
+                        {% if request.session.workplace == "GMP-3" %}selected{% endif %}
+                    >
+                        GMP-3
+                    </option>
+                    <option
+                        value="ICN-1"
+                        {% if request.session.workplace == "ICN-1" %}selected{% endif %}
+                    >
+                        ICN-1
+                    </option>
+                    <option
+                        value="ICN-2"
+                        {% if request.session.workplace == "ICN-2" %}selected{% endif %}
+                    >
+                        ICN-2
+                    </option>
+                    <option
+                        value="ICN-3"
+                        {% if request.session.workplace == "ICN-3" %}selected{% endif %}
+                    >
+                        ICN-3
                     </option>
                 </select>
                 <button

@@ -1,7 +1,7 @@
 .bg-image-layer {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -9,7 +9,29 @@
     pointer-events: none;
 }
 
+.bg-image-layer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* background: linear-gradient(135deg, rgba(15, 23, 42, 0.55), rgba(59, 130, 246, 0.25)); */
+    /* backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px); */
+}
+
+.bg-image-layer > * {
+    position: relative;
+}
+
 .page-content {
     position: relative;
     min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .bg-image-layer {
+        background-attachment: scroll;
+        background-position: center center;
+        background-size: cover;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8));
+    }
 }

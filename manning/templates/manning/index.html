@@ -12,7 +12,8 @@
 {% endblock js %} 
 
 {% block background_image %} 
-    {% include "manning/image/background_main.html" %}
+    {% static "img/default.jpg" as index_bg %}
+    {% include "manning/image/background_url.html" with bg_key="index" bg_default=index_bg %}
 {% endblock background_image %}
 
 {% block content %}

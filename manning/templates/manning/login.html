@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="{% static 'css/login.css' %}" />
 {% endblock css %} 
 
-
 {% block content %}
 <div class="login-container">
     <div class="login-card">
@@ -17,19 +16,36 @@
         <h3 class="fw-bold mb-2">Login Page</h3>
         <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
 
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="login-alert" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <form method="POST">
             {% csrf_token %}
 
             <div class="mb-3">
-                <label class="form-label fw-bold text-primary mb-2"
-                    >근무지 선택</label
-                >
+                <label class="form-label fw-bold text-primary mb-2">
+                    근무지 선택
+                </label>
                 <select
                     name="workplace"
-                    class="form-select form-select-lg text-center bg-light fw-bold border-2 border-primary shadow-sm"
-                    style="font-size: 0.9rem;"
+                    class="form-select form-select-lg text-center text-primary bg-light border-2 border-primary shadow-sm"
+                    style="font-size: 0.9rem"
                     required
                 >
+                    <option
+                        value="" disabled
+                        {% if not current_workplace %}selected{% endif %}
+                    >
+                        근무지를 선택해 주세요.
+                    </option>
                     {% for value, label in workplace_options %}
                     <option
                         value="{{ value }}"

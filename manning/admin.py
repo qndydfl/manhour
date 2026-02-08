@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TaskMaster, WorkSession, Worker, WorkItem
+from .models import TaskMaster, WorkSession, Worker, WorkItem, BackgroundImage
 
 
 # 관리자 페이지에서 표를 예쁘게 보여주는 설정 (선택사항이지만 추천!)
@@ -26,7 +26,13 @@ class WorkSessionAdmin(admin.ModelAdmin):
 
 
 # 장고 관리소에 등록!
+class BackgroundImageAdmin(admin.ModelAdmin):
+    list_display = ("key", "image_url", "image_file")
+    search_fields = ("key",)
+
+
 admin.site.register(TaskMaster, TaskMasterAdmin)
 admin.site.register(WorkSession, WorkSessionAdmin)
 admin.site.register(Worker)
 admin.site.register(WorkItem)
+admin.site.register(BackgroundImage, BackgroundImageAdmin)

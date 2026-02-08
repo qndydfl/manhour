@@ -3,6 +3,11 @@
 
 {% block title %}작업 이력 (History)| Manning System{% endblock title %} 
 
+{% block background_image %} 
+{% include "manning/image/background_url.html" with bg_key="history" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
+
+
 {% block content %}
 <div class="container" style="max-width: 1000px">
     <div class="d-flex justify-content-between align-items-center my-4 pb-2">
