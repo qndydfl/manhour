@@ -2,77 +2,82 @@
 
 /* 1. 상단 통계 위젯 */
 .widget-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border: 1px solid #f0f0f0;
-    transition: transform 0.2s;
+    transition:
+        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        background 0.2s;
 }
 .widget-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.6) !important;
 }
 
-/* 2. 시간표 테이블 스타일 (복사 친화적) */
+/* 2. 시간표 테이블 스타일 */
 .table-schedule {
-    border-collapse: separate; 
+    border-collapse: separate;
     border-spacing: 0;
-    width: 100%;
 }
 .table-schedule thead th {
-    background-color: #f8f9fa;
     color: #495057;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.85rem;
-    padding: 12px;
-    border-bottom: 2px solid #dee2e6;
+    font-size: 0.8rem;
+    padding: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-.table-schedule tbody tr {
-    transition: background-color 0.2s;
-}
-.table-schedule tbody tr:hover {
-    background-color: #f1f3f5;
-}
+
 .table-schedule td {
-    padding: 12px;
-    border-bottom: 1px solid #f1f3f5;
-    vertical-align: middle;
+    padding: 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    background: transparent !important;
 }
 
-/* WO가 있는 행 (일반 작업) */
-.row-work {
-    background-color: #fff;
+/* 행별 스타일 및 포인트 */
+.row-work:hover {
+    background-color: rgba(13, 110, 253, 0.05) !important;
 }
-.row-work td {
-    border-left: 3px solid transparent;
-}
-.row-work:hover td:first-child {
-    border-left-color: #0d6efd; /* 파란색 포인트 */
-}
-
-/* 간비 행 (Break) */
 .row-break {
-    background-color: #fdfdfe;
-    color: #6c757d;
+    background-color: rgba(255, 255, 255, 0.2) !important;
 }
 .row-break td {
-    border-left: 3px solid transparent;
+    color: #6c757d;
 }
-.row-break:hover td:first-child {
-    border-left-color: #ffc107; /* 노란색 포인트 */
+.row-break:hover {
+    background-color: rgba(255, 193, 7, 0.05) !important;
 }
 
-/* 3. 모달 입력창 스타일 (기존 유지) */
+/* 3. 모달 내부 입력창 보정 */
 .modal-input {
     border: none;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid #eee;
     border-radius: 0;
     text-align: center;
     background: transparent;
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-weight: bold;
 }
 .modal-input:focus {
     box-shadow: none;
     border-color: #0d6efd;
-    background: #f8f9fa;
+    background: rgba(13, 110, 253, 0.03);
+}
+
+/* 복사 버튼 등 아이콘 강조 */
+.bi-clipboard-check {
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.1));
+}
+
+@media (max-width: 576px) {
+    .table-schedule thead th {
+        font-size: 0.85rem;
+        padding: 10px;
+    }
+
+    .table-schedule td {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+
+    .modal-input {
+        font-size: 1rem;
+    }
 }

@@ -2391,3 +2391,7 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
 
         # 6. 관리 페이지로 복귀
         return redirect("manage_items", session_id=session.id)
+
+
+def custom_404(request, exception):
+    return render(request, "manning/404_page/404.html", status=404)

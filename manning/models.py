@@ -39,19 +39,19 @@ class TaskMaster(models.Model):
 
 
 class WorkSession(models.Model):
-    SITE_ICN_1 = "ICN-1"
-    SITE_ICN_2 = "ICN-2"
-    SITE_ICN_3 = "ICN-3"
-    SITE_GMP_1 = "GMP-1"
-    SITE_GMP_2 = "GMP-2"
-    SITE_GMP_3 = "GMP-3"
+    SITE_ICN_1 = "ICN-1그룹"
+    SITE_ICN_2 = "ICN-2그룹"
+    SITE_ICN_3 = "ICN-3그룹"
+    SITE_GMP_1 = "GMP-1그룹"
+    SITE_GMP_2 = "GMP-2그룹"
+    SITE_GMP_3 = "GMP-3그룹"
     SITE_CHOICES = [
-        (SITE_ICN_1, "ICN-1"),
-        (SITE_ICN_2, "ICN-2"),
-        (SITE_ICN_3, "ICN-3"),
-        (SITE_GMP_1, "GMP-1"),
-        (SITE_GMP_2, "GMP-2"),
-        (SITE_GMP_3, "GMP-3"),
+        (SITE_ICN_1, "ICN-1그룹"),
+        (SITE_ICN_2, "ICN-2그룹"),
+        (SITE_ICN_3, "ICN-3그룹"),
+        (SITE_GMP_1, "GMP-1그룹"),
+        (SITE_GMP_2, "GMP-2그룹"),
+        (SITE_GMP_3, "GMP-3그룹"),
     ]
 
     SHIFT_DAY = "DAY"
@@ -192,6 +192,7 @@ class BackgroundImage(models.Model):
         blank=True,
         null=True,
     )
+    youtube_url = models.URLField(blank=True, help_text="Full YouTube URL")
 
     class Meta:
         verbose_name = "Background image"

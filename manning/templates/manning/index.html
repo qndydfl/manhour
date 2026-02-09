@@ -12,18 +12,20 @@
 {% endblock js %} 
 
 {% block background_image %} 
-    {% static "img/default.jpg" as index_bg %}
-    {% include "manning/image/background_url.html" with bg_key="index" bg_default=index_bg %}
+    <div class="index-bg">
+        {% static "img/default.jpg" as index_bg %}
+        {% include "manning/image/background_url.html" with bg_key="index" bg_default=index_bg %}
+    </div>
 {% endblock background_image %}
 
 {% block content %}
-<div class="row g-4 my-4" data-aos="fade-up" data-aos-duration="1000">
-    <div class="col-lg-7 d-flex flex-column justify-content-center">
+<div class="row g-4 my-4 glass-panel h-100 rounded-3" data-aos="fade-up" data-aos-duration="1000">
+    <div class="col-lg-7 d-flex flex-column justify-content-center mb-4">
         <div class="ps-2">
-            <h1 class="display-6 fw-bold mb-3 text-dark opacity-75">
+            <h1 class="display-6 fw-bold text-dark">
                 Work Smart, <br />Manage Better.
             </h1>
-            <p class="text-white mb-4">
+            <p class="text-dark mb-4">
                 작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
                 효율적인 업무 배정이 여기서 시작됩니다.
             </p>
@@ -38,13 +40,13 @@
 
                 <a
                     href="{% url 'session_list' %}"
-                    class="btn btn-dark btn-md rounded-3 px-2 shadow-sm fw-bold"
+                    class="btn btn-dark btn-md rounded-3 px-2 shadow-sm fw-bold pt-2"
                 >
                     <i class="bi bi-grid-fill me-1"></i> 현황판 입장
                 </a>
                 <a
                     href="{% url 'master_data_list' %}"
-                    class="btn btn-secondary btn-md rounded-3 px-2 shadow-sm fw-bold"
+                    class="btn btn-secondary btn-md rounded-3 px-2 shadow-sm fw-bold pt-2"
                 >
                     <i class="bi bi-database-add"></i> 데이터 등록 현황
                 </a>
@@ -52,9 +54,9 @@
         </div>
     </div>
 
-    <div class="col-lg-5">
+    <div class="col-lg-5 mb-4">
         <div
-            class="card opacity-75 bg-dark border-0 shadow-lg rounded-4 overflow-hidden position-relative h-100"
+            class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 " style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
         >
             <div
                 class="position-absolute "
@@ -67,7 +69,7 @@
             </div>
 
             <div
-                class="card-body p-4 d-flex flex-column justify-content-center position-relative z-1  rounded-4 h-100"
+                class="card-body p-4 d-flex flex-column justify-content-center z-1  rounded-4 h-100 "
             >
                 <div
                     class="d-flex justify-content-between align-items-center mb-4"
@@ -124,7 +126,6 @@
     </div>
 </div>
 
-{% comment %} <hr class="my-5 opacity-10" /> {% endcomment %}
 
 <div class="row g-4 my-5 opacity-75" data-aos="fade-down" data-aos-duration="1000">
     <div class="col-md-4">
@@ -140,9 +141,7 @@
                         Active Sessions
                     </h6>
                     <h2 class="fw-bold text-dark mb-0">
-                        {{ active_count }}<span class="fs-6 text-muted ms-1"
-                            >개</span
-                        >
+                        <span class="active-count-num">{{ active_count }}</span><span class="fs-6 text-muted ms-1">개</span>                       
                     </h2>
                 </div>
                 <a href="{% url 'session_list' %}" class="stretched-link"></a>
@@ -163,9 +162,7 @@
                         History Archive
                     </h6>
                     <h2 class="fw-bold text-dark mb-0">
-                        {{ history_count }}<span class="fs-6 text-muted ms-1"
-                            >건</span
-                        >
+                        <span class="history-count-num">{{ history_count }}</span><span class="fs-6 text-muted ms-1">건</span>                       
                     </h2>
                 </div>
                 <a href="{% url 'history' %}" class="stretched-link"></a>
@@ -192,7 +189,8 @@
 </div>
 {% comment %} </div> {% endcomment %}
 
-<footer class="text-center text-white py-3 mt-4 bg-secondary fixed-bottom">
+<div class="index-footer-spacer"></div>
+<footer class="text-center text-white py-3 mt-4 bg-secondary index-footer-fixed">
     <small class="opacity-50">
         &copy; 2026 Man Hour Calculator System. All rights reserved.
     </small>

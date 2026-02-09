@@ -1,46 +1,111 @@
-/* 엑셀 데이터 붙여넣기 전용 스타일 */
-.paste-area {
-    font-family: "D2Coding", "Consolas", "Monaco", monospace; /* 고정폭 폰트 */
-    font-size: 0.9rem;
-    line-height: 1.6;
-    background-color: #f8f9fa;
-    border: 2px dashed #dee2e6;
-    transition: all 0.2s ease;
-    resize: vertical;
-}
-.paste-area:focus {
-    background-color: #ffffff;
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-}
+/* static/css/paste_data.css */
+
+/* 1. 데이터 안내 박스 (유리 느낌 강조) */
 .instruction-box {
-    background-color: rgba(13, 110, 253, 0.05);
-    border-left: 4px solid #0d6efd;
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(5px);
+    border-left: 4px solid #0d6efd !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* 테이블 입력 전용 스타일 */
+/* 2. 테이블 입력 셀 스타일 */
 .input-cell {
     width: 100%;
     border: none;
     background: transparent;
     text-align: center;
     outline: none;
-    padding: 8px 0;
+    padding: 12px 5px;
     font-size: 0.95rem;
+    color: #212529;
+    transition: all 0.2s ease;
+    font-family: "D2Coding", "Consolas", monospace; /* 고정폭 폰트 유지 */
 }
+
+/* 셀에 포커스가 갔을 때 (유리 광택 효과) */
 .input-cell:focus {
-    background-color: #e3f2fd; /* 포커스 시 연한 파란색 */
+    background-color: rgba(13, 110, 253, 0.1) !important;
     font-weight: bold;
+    color: #0d6efd;
+    box-shadow: inset 0 0 8px rgba(13, 110, 253, 0.1);
 }
-/* 테이블 헤더 고정 및 스타일 */
+
+/* 3. 스마트 테이블 스타일 보정 */
+.smart-table {
+    border-collapse: collapse;
+}
+
 .smart-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.85rem;
-    color: #6c757d;
+    font-size: 0.8rem;
+    color: #495057;
+    letter-spacing: 0.5px;
+    padding: 12px !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
 }
+
 .smart-table td {
-    padding: 0 !important; /* 인풋이 셀을 가득 채우도록 */
+    padding: 0 !important; /* 입력 필드가 셀을 꽉 채우도록 */
     vertical-align: middle;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    background: transparent !important;
+}
+
+/* 행 호버 시 줄 전체 강조 */
+.smart-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 4. 엑셀 붙여넣기 전용 영역 (Textarea 사용 시) */
+.paste-area {
+    font-family: "D2Coding", "Consolas", monospace;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    border: 2px dashed rgba(255, 255, 255, 0.5) !important;
+    color: #212529;
+    border-radius: 12px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.paste-area:focus {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    outline: none;
+}
+
+/* 5. 애니메이션 및 버튼 보정 */
+.btn-primary {
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-light.glass-panel:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .instruction-box {
+        font-size: 0.95rem;
+    }
+
+    .input-cell {
+        font-size: 1rem;
+        padding: 12px 8px;
+    }
+
+    .smart-table th {
+        font-size: 0.85rem;
+        padding: 10px !important;
+    }
+
+    .paste-area {
+        font-size: 1rem;
+    }
 }

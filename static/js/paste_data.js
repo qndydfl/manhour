@@ -23,7 +23,8 @@ function createRow() {
 
         if (j === 2) {
             input.inputMode = "numeric";
-            input.maxLength = 2;
+            input.maxLength = 4;
+            input.addEventListener("blur", handleOpBlur);
         }
 
         input.addEventListener("paste", handlePaste);
@@ -43,7 +44,7 @@ function handleCellInput(e, colIndex) {
     if (colIndex === 0) {
         input.value = normalizeGibun(input.value);
     } else if (colIndex === 2) {
-        input.value = normalizeOp(input.value);
+        input.value = normalizeOpRaw(input.value);
     }
 }
 
@@ -65,7 +66,19 @@ function normalizeGibun(value) {
 function normalizeOp(value) {
     const raw = String(value || "");
     const digits = raw.replace(/\D/g, "");
-    return digits.slice(0, 2);
+    if (!digits) return "";
+    return digits.slice(0, 4).padStart(4, "0");
+}
+
+function normalizeOpRaw(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    return digits.slice(0, 4);
+}
+
+function handleOpBlur(e) {
+    const input = e.target;
+    if (!input) return;
+    input.value = normalizeOp(input.value);
 }
 
 window.addRow = function () {
@@ -115,7 +128,14 @@ function handlePaste(e) {
 
             // cols에 없는 열은 "" 처리 (공란 유지)
             const v = cols[cIndex] != null ? String(cols[cIndex]) : "";
-            input.value = v.trim();
+            const trimmed = v.trim();
+            if (cIndex === 2) {
+                input.value = normalizeOpRaw(trimmed);
+            } else if (cIndex === 0) {
+                input.value = normalizeGibun(trimmed);
+            } else {
+                input.value = trimmed;
+            }
 
             input.style.backgroundColor = "#e8f5e9";
             setTimeout(

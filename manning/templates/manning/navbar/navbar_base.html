@@ -1,4 +1,116 @@
 <nav
+    class="navbar navbar-expand-lg navbar-dark py-2 fixed-top w-100 border-bottom border-white border-opacity-10"
+    style="
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+    "
+>
+    <div
+        class="container-fluid px-4 d-flex justify-content-between align-items-center"
+    >
+        <a
+            class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-5"
+            href="{% url 'index' %}"
+        >
+            <div
+                class="icon-circle bg-warning bg-opacity-20 text-warning"
+                style="width: 35px; height: 35px; font-size: 1.2rem"
+            >
+                <i class="bi bi-airplane-engines-fill"></i>
+            </div>
+            <span class="ls-1">Manning System</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+            {% if request.session.user_role == "admin" %}
+            <a
+                href="/admin/"
+                class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm fw-bold border-0"
+            >
+                <i class="bi bi-shield-lock me-1"></i> ADMIN
+            </a>
+            {% endif %} {% if active_count|default:"" != "" %} {% if active_count > 0 %}
+            <span
+                class="badge bg-success bg-opacity-20 text-white px-3 pb-2 rounded-pill fw-bold border border-success border-opacity-20 animate__animated animate__fadeIn"
+            >
+                <span
+                    class="spinner-grow spinner-grow-sm me-1 text-warning"
+                    role="status"
+                ></span>
+                가동 중
+            </span>
+            {% else %}
+            <span
+                class="badge bg-secondary bg-opacity-20 text-white px-3 py-2 rounded-pill border border-white border-opacity-10"
+            >
+                대기 중
+            </span>
+            {% endif %} {% endif %}
+
+            <div
+                class="d-none d-lg-flex align-items-center gap-2 bg-white bg-opacity-10 p-1 ps-3 rounded-pill border border-white border-opacity-10"
+            >
+                <small class="text-white-50">근무지:</small>
+                <span class="text-white fw-bold me-2"
+                    >{{ request.session.workplace_label }}</span
+                >
+
+                {% if request.session.user_role == "admin" %}
+                <form
+                    method="post"
+                    action="{% url 'change_workplace' %}"
+                    class="d-flex align-items-center gap-1"
+                >
+                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ request.get_full_path }}"
+                    />
+                    <select
+                        name="workplace"
+                        class="form-select form-select-sm bg-dark text-white border-0 rounded-pill px-3"
+                        style="font-size: 0.8rem; width: auto"
+                    >
+                        {% with groups="GMP-1그룹 GMP-2그룹 GMP-3그룹 ICN-1그룹 ICN-2그룹 ICN-3그룹" %} {% for group in groups.split %}
+                        <option
+                            value="{{ group }}"
+                            {%
+                            if
+                            request.session.workplace==group
+                            %}selected{%
+                            endif
+                            %}
+                        >
+                            {{ group }}
+                        </option>
+                        {% endfor %} {% endwith %}
+                    </select>
+                    <button
+                        type="submit"
+                        class="btn btn-link btn-sm text-warning p-0 px-2 fw-bold text-decoration-none"
+                    >
+                        변경
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            {% block nav_return %}
+            <a
+                href="{% url 'logout' %}"
+                class="btn btn-outline-light btn-sm px-3 rounded-pill border-opacity-25 hover-lift"
+            >
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+            {% endblock nav_return %}
+        </div>
+    </div>
+</nav>
+
+{% comment %}
+<nav
     class="navbar navbar-expand-lg navbar-dark bg-dark py-3 mb-4 shadow-sm fixed-top w-100"
 >
     <div
@@ -19,9 +131,8 @@
             >
                 <i class="bi bi-shield-lock me-1"></i> 관리자 모드(rev.2)
             </a>
-            {% endif %} 
-            {% if active_count|default:"" != "" %} 
-            {% if active_count > 0 %}
+            {% endif %} {% if active_count|default:"" != "" %} {% if
+            active_count > 0 %}
             <span
                 class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold border border-success border-opacity-10"
             >
@@ -38,8 +149,7 @@
             >
                 대기 중
             </span>
-            {% endif %} 
-            {% endif %}
+            {% endif %} {% endif %}
 
             <div class="text-light small me-2">
                 근무지: {{ request.session.workplace_label}}
@@ -62,40 +172,76 @@
                     class="form-select form-select-sm bg-light text-dark"
                 >
                     <option
-                        value="GMP-1"
-                        {% if request.session.workplace == "GMP-1" %}selected{% endif %}
+                        value="GMP-1그룹"
+                        {%
+                        if
+                        request.session.workplace=""
+                        ="GMP-1그룹"
+                        %}selected{%
+                        endif
+                        %}
                     >
-                        GMP-1
+                        GMP-1그룹
                     </option>
                     <option
-                        value="GMP-2"
-                        {% if request.session.workplace == "GMP-2" %}selected{% endif %}
+                        value="GMP-2그룹"
+                        {%
+                        if
+                        request.session.workplace=""
+                        ="GMP-2그룹"
+                        %}selected{%
+                        endif
+                        %}
                     >
-                        GMP-2
+                        GMP-2그룹
                     </option>
                     <option
-                        value="GMP-3"
-                        {% if request.session.workplace == "GMP-3" %}selected{% endif %}
+                        value="GMP-3그룹"
+                        {%
+                        if
+                        request.session.workplace=""
+                        ="GMP-3그룹"
+                        %}selected{%
+                        endif
+                        %}
                     >
-                        GMP-3
+                        GMP-3그룹
                     </option>
                     <option
-                        value="ICN-1"
-                        {% if request.session.workplace == "ICN-1" %}selected{% endif %}
+                        value="ICN-1그룹"
+                        {%
+                        if
+                        request.session.workplace=""
+                        ="ICN-1그룹"
+                        %}selected{%
+                        endif
+                        %}
                     >
-                        ICN-1
+                        ICN-1그룹
                     </option>
                     <option
-                        value="ICN-2"
-                        {% if request.session.workplace == "ICN-2" %}selected{% endif %}
+                        value="ICN-2그룹"
+                        {%
+                        if
+                        request.session.workplace=""
+                        ="ICN-2그룹"
+                        %}selected{%
+                        endif
+                        %}
                     >
-                        ICN-2
+                        ICN-2그룹
                     </option>
                     <option
-                        value="ICN-3"
-                        {% if request.session.workplace == "ICN-3" %}selected{% endif %}
+                        value="ICN-3그룹"
+                        {%
+                        if
+                        request.session.workplace=""
+                        ="ICN-3그룹"
+                        %}selected{%
+                        endif
+                        %}
                     >
-                        ICN-3
+                        ICN-3그룹
                     </option>
                 </select>
                 <button
@@ -118,3 +264,4 @@
         </div>
     </div>
 </nav>
+{% endcomment %}

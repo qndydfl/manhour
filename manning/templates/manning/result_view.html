@@ -23,17 +23,19 @@
 {% endblock js %} 
 
 {% block background_image %} 
-{% include "manning/image/background_url.html" with bg_key="result_view" bg_default="https://picsum.photos/id/400/1600/900?grayscale&blur=2" %} 
+    {% include "manning/image/background_url.html" with bg_key="result_view" bg_default="https://picsum.photos/id/400/1600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
 
 {% block content %}
-<div class="" data-aos="fade-up" data-aos-duration="1000">
+<div class="rounded-3 glass-panel" data-aos="fade-up" data-aos-duration="1000">
     <div
-        class="d-flex flex-wrap justify-content-between align-items-center my-4 gap-3"
+        class="d-flex flex-wrap justify-content-between align-items-center py-4 gap-3"
     >
-        <h2 class="fw-bold mb-0 text-dark">
-            📊 {{ session.name }} {% if not session.is_active %}
-            <span class="badge text-bg-secondary ms-2" style="font-size: 1rem"
+        <h2 class="fw-bold text-dark">
+            📊 {{ session.name }} 
+            
+            {% if not session.is_active %}
+            <span class="badge text-bg-secondary ms-2 " style="font-size: 1rem"
                 >작업 완료</span
             >
             {% else %}
@@ -45,7 +47,7 @@
     </div>
 
     <div
-        class="card border-0 shadow-lg rounded-4 mb-4 bg-white "
+        class="card border-0 shadow-lg rounded-3 mb-4 bg-white glass-panel"
         data-aos="fade-up"
     >
         <div
@@ -99,7 +101,7 @@
     </div>
 
     <div
-        class="card border-0 shadow-lg rounded-4 mb-5 overflow-hidden"
+        class="card border-0 shadow-lg rounded-3 mb-5 overflow-hidden glass-panel"
         data-aos="fade-up"
         data-aos-delay="100"
     >
@@ -123,7 +125,7 @@
                     {% for worker in workers %}
                     <div class="col-6 col-md-4 col-lg-2">
                         <div
-                            class="worker-card p-2 rounded-3 h-100 position-relative border border-primary"
+                            class="worker-card p-2 rounded-3 h-100 position-relative border border-primary glass-panel"
                         >
                             <div
                                 class="d-flex justify-content-between align-items-start mb-1"
@@ -197,21 +199,21 @@
         </h5>
         <a
             href="{% url 'assigned_summary' session.id %}"
-            class="btn btn-outline-primary btn-md rounded-4 fw-bold px-3"
+            class="btn btn-outline-primary btn-md rounded-3 glass-panel fw-bold px-3"
         >
             <i class="bi bi-calendar-range me-1"></i> 시간별 보기
         </a>
     </div>
 
     <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5"
+        class="card border-0 shadow-lg rounded-3 overflow-hidden glass-panel"
         data-aos="fade-up"
         data-aos-delay="200"
     >
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table
-                    class="table table-custom table-sticky table-hover mb-0 text-center w-100"
+                    class="table table-custom table-sticky table-hover mb-0 text-center w-100" style="font-size: 0.9rem"
                 >
                     <thead class="bg-light">
                         <tr>

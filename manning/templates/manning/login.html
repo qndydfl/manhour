@@ -17,9 +17,9 @@
         <p class="text-muted small mb-4">어서 오세요. 환영합니다.</p>
 
         {% if messages %}
-        <div class="mb-3">
+        <div class="mb-3 text-danger text-center">
             {% for message in messages %}
-            <div class="login-alert" role="alert">
+            <div class="login-alert " role="alert">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 {{ message }}
             </div>
@@ -82,4 +82,5 @@
         </form>
     </div>
 </div>
-{% endblock content %} {% block footer %}{% endblock footer %}
+{% endblock content %} 
+{% block footer %}{% endblock footer %}

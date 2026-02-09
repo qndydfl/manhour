@@ -8,37 +8,65 @@ document.addEventListener("DOMContentLoaded", function() {
     // ==========================================
     // 1. AOS (Animate On Scroll) 초기화
     // ==========================================
-    // 라이브러리가 로드되었는지 확인 후 실행
     if (typeof AOS !== 'undefined') {
         AOS.init({
-            duration: 800,    // 애니메이션 지속 시간 (ms)
-            once: true,       // 스크롤 내릴 때 한 번만 실행
-            offset: 30,       // 화면 하단에서 30px 올라왔을 때 실행
-            easing: 'ease-out-cubic' // 부드러운 감속 효과
+            duration: 800,
+            once: true,
+            offset: 30,
+            easing: 'ease-out-cubic'
         });
     }
 
     // ==========================================
-    // 2. Bootstrap Tooltip 활성화 (전역)
+    // 2. Bootstrap 요소 활성화 (Tooltip & Toast)
     // ==========================================
-    // data-bs-toggle="tooltip" 속성이 있는 모든 요소를 찾아서 활성화
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    if (typeof bootstrap !== 'undefined' && tooltipTriggerList.length > 0) {
-        tooltipTriggerList.map(function (tooltipEl) {
-            return new bootstrap.Tooltip(tooltipEl);
+    if (typeof bootstrap !== 'undefined') {
+        // Tooltip
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        [...tooltips].map(el => new bootstrap.Tooltip(el));
+
+        // Toast (자동 실행)
+        const toasts = document.querySelectorAll('.toast');
+        [...toasts].map(el => new bootstrap.Toast(el, { delay: 3000 }).show());
+    }
+
+    // ==========================================
+    // 3. 숫자 카운팅 애니메이션 (Global Counter)
+    // ==========================================
+    // 클래스가 .count-up 인 요소의 텍스트를 숫자로 올려줌
+    const countElements = document.querySelectorAll('.count-up');
+    
+    if (countElements.length > 0) {
+        countElements.forEach(el => {
+            const target = parseInt(el.innerText) || 0;
+            let current = 0;
+            const duration = 1500;
+            const stepTime = 20;
+            const increment = target / (duration / stepTime);
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    el.innerText = target.toLocaleString(); // 콤마 추가 (예: 1,000)
+                    clearInterval(timer);
+                } else {
+                    el.innerText = Math.floor(current).toLocaleString();
+                }
+            }, stepTime);
         });
     }
 
     // ==========================================
-    // 3. Bootstrap Toast 자동 표시 (전역)
+    // 4. 네비게이션 바 스크롤 효과
     // ==========================================
-    // 어느 페이지든 메시지가 넘어오면 띄워줍니다.
-    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-    if (typeof bootstrap !== 'undefined' && toastElList.length > 0) {
-        toastElList.map(function (toastEl) {
-            // delay: 3000 (3초 후 사라짐)
-            return new bootstrap.Toast(toastEl, { delay: 3000 }).show();
-        });
-    }
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 10) {
+            navbar.classList.add('shadow-sm');
+            navbar.style.background = "rgba(30, 41, 59, 0.95)"; // 스크롤 시 더 진하게
+        } else {
+            navbar.style.background = "rgba(30, 41, 59, 0.8)";
+        }
+    });
 
 });

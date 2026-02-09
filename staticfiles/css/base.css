@@ -1,4 +1,17 @@
-/* 1. 기본 설정 (통합) */
+/* =========================================
+   1. Design Tokens & Root Variables
+   ========================================= */
+:root {
+    --ios-bg: #f2f2f7;
+    --ios-card: #ffffff;
+    --ios-border: rgba(0, 0, 0, 0.08);
+    --ios-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* =========================================
+   2. Base & Typography
+   ========================================= */
 body {
     font-family:
         "Pretendard",
@@ -6,254 +19,268 @@ body {
         BlinkMacSystemFont,
         system-ui,
         Roboto,
-        "Helvetica Neue",
-        "Segoe UI",
-        "Apple SD Gothic Neo",
-        "Noto Sans KR",
-        "Malgun Gothic",
-        "Apple Color Emoji",
-        "Segoe UI Emoji",
-        "Segoe UI Symbol",
         sans-serif;
-    background-color: #f4f6f9; /* 눈이 편안한 연회색 */
+    background-color: var(--ios-bg);
     color: #495057;
-    padding-bottom: 60px; /* 하단 고정 바 여백 확보 */
     margin: 0;
-    padding: 0;
+    line-height: 1.6;
 }
 
-.navbar::--webkit-scrollbar {
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #343a40;
+}
+::-webkit-scrollbar-thumb {
+    background: #495057;
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #212529;
+}
+
+/* Navbar Scroll Hide */
+.navbar::-webkit-scrollbar {
     display: none;
 }
 
+/* =========================================
+   3. Layout Components
+   ========================================= */
 .bg-image-layer {
     position: fixed;
     inset: 0;
     z-index: 0;
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
     pointer-events: none;
 }
 
 .page-content {
     position: relative;
+    z-index: 1;
     min-height: 100vh;
+    overflow: visible;
 }
 
-/* 스크롤바 전체 영역 */
-::-webkit-scrollbar {
-    width: 8px; /* 스크롤바 너비 */
+/* Ensure Bootstrap modals render above page layers */
+.modal {
+    z-index: 1055;
 }
 
-/* 스크롤바 트랙 (배경) */
-::-webkit-scrollbar-track {
-    background: #343a40; /* 헤더/푸터 색상과 맞추기 */
+.modal-backdrop {
+    z-index: 1050;
 }
 
-/* 스크롤바 핸들 (움직이는 부분) */
-::-webkit-scrollbar-thumb {
-    background: #495057; /* 조금 더 진한 색상 */
-    border-radius: 6px;
+/* iOS-like Wrapper */
+.ios-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 110px 18px 24px;
 }
 
-/* hover 시 색상 */
-::-webkit-scrollbar-thumb:hover {
-    background: #212529;
+/* Sticky Header with Blur */
+.ios-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020; /* Bootstrap fixed-top 수준 */
+    background: rgba(242, 242, 247, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--ios-border);
 }
 
-/* 2. 카드 공통 스타일 (둥글고 그림자 있게) */
-.card {
-    border: none;
-    border-radius: 16px;
-    background: #ffffff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 아주 연한 그림자 */
+/* =========================================
+   4. UI Elements (Cards, Buttons, Badges)
+   ========================================= */
+
+/* Base Card Style */
+.card,
+.ios-card {
+    border: none !important;
+    border-radius: 20px !important;
+    background: var(--ios-card);
+    box-shadow: var(--ios-shadow);
     transition:
         transform 0.3s ease,
         box-shadow 0.3s ease;
     overflow: hidden;
 }
 
-/* 마우스 올렸을 때 붕 뜨는 효과 */
-.card-hover:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
+/* Hover Effect (Only for Mouse users) */
+@media (hover: hover) {
+    .card-hover:hover,
+    .ios-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
 }
 
-/* 3. 빈 슬롯 스타일 (점선) */
+/* Dashed Card (Empty Slots) */
 .card-dashed {
-    border: 2px dashed #dee2e6;
-    background-color: transparent;
+    border: 2px dashed #dee2e6 !important;
+    background: transparent;
     box-shadow: none;
 }
-.card-dashed:hover {
-    border-color: #adb5bd;
-    background-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-3px);
-}
 
-/* 4. 버튼 스타일 */
+/* Primary Button */
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
+    padding: 10px 20px;
     font-weight: 600;
-    color: #ffffff; /* 글자색 흰색 고정 */
     transition: all 0.2s ease;
 }
 .btn-primary:hover {
-    filter: brightness(1.1); /* 10% 밝게 */
-    transform: scale(1.02); /* 살짝 커짐 */
-    color: #ffffff;
-}
-.btn-primary:active {
-    transform: scale(0.98); /* 클릭 시 눌림 효과 */
+    filter: brightness(1.1);
+    transform: scale(1.02);
 }
 
-/* 5. 뱃지(Badge) & 색상 유틸리티 스타일 */
+/* Soft Badges */
 .badge-soft {
-    padding: 6px 10px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 0.75rem;
-    letter-spacing: 0.5px;
 }
-
-/* 색상별 정의 (HTML에서 사용된 클래스들) */
 .bg-soft-primary {
-    background-color: rgba(13, 110, 253, 0.1);
+    background: rgba(13, 110, 253, 0.1);
     color: #0d6efd;
 }
 .bg-soft-success {
-    background-color: rgba(25, 135, 84, 0.1);
+    background: rgba(25, 135, 84, 0.1);
     color: #198754;
 }
 .bg-soft-warning {
-    background-color: rgba(255, 193, 7, 0.15);
+    background: rgba(255, 193, 7, 0.15);
     color: #b48608;
-} /* 주간용 */
-.bg-soft-dark {
-    background-color: rgba(33, 37, 41, 0.1);
-    color: #212529;
 }
-.bg-soft-secondary {
-    background-color: rgba(108, 117, 125, 0.1);
-    color: #6c757d;
-} /* 대기용 */
 .bg-soft-indigo {
-    background-color: rgba(102, 16, 242, 0.1);
+    background: rgba(102, 16, 242, 0.1);
     color: #6610f2;
-} /* 야간용 */
-
-/* 텍스트 색상 유틸리티 */
-.text-indigo {
-    color: #6610f2 !important;
 }
 
-/* 6. 기타 유틸리티 */
-/* 자간 넓게 (Letter Spacing) */
-.ls-1 {
-    letter-spacing: 1px;
-}
-
-/* 그림자 유틸리티 (필요시 추가 강조) */
-.shadow-soft {
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-}
-
-/* 모바일 화면 적용 */
+/* =========================================
+   5. Mobile Optimization (Responsive)
+   ========================================= */
 @media (max-width: 767.98px) {
-    /* 1. 컨테이너의 양옆 여백을 강제로 제거 */
-    .container,
-    .container-fluid,
-    .container-lg,
-    .container-md,
-    .container-sm,
-    .container-xl {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
+    .ios-wrap {
+        padding: 80px 16px 20px; /* 양옆 여백 16px 확보 */
     }
 
-    /* 2. 카드(Card)의 둥근 모서리를 직각으로 변경 (선택사항) */
-    /* 화면에 꽉 차는데 모서리만 둥글면 어색할 수 있어서 보통 0으로 만듭니다. */
+    .display-5 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        font-size: 1rem;
+    }
+
+    .btn,
+    .btn-primary,
+    .btn-outline-primary,
+    .btn-outline-danger,
+    .btn-outline-secondary,
+    .btn-secondary,
+    .btn-light,
+    .btn-dark {
+        padding: 12px 16px;
+        font-size: 1rem;
+        border-radius: 14px;
+    }
+
+    .form-control,
+    .form-select,
+    .input-group-text {
+        font-size: 1rem;
+        min-height: 44px;
+    }
+
     .card {
-        border-radius: 0 !important;
-        border-left: 0 !important;
-        border-right: 0 !important;
+        border-radius: 16px !important;
+    }
+
+    .badge,
+    .badge-soft {
+        font-size: 0.85rem;
     }
 }
 
-/* iPad/PC iOS-like */
-:root {
-    --ios-bg: #f2f2f7;
-    --ios-card: #ffffff;
-    --ios-border: rgba(0, 0, 0, 0.08);
-    --ios-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+@media (max-width: 360px) {
+    body {
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+
+    .ios-wrap {
+        padding: 72px 12px 16px;
+    }
+
+    .display-6 {
+        font-size: 1.6rem;
+    }
+
+    .display-5 {
+        font-size: 1.8rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    h2 {
+        font-size: 1.4rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    h4 {
+        font-size: 1.15rem;
+    }
+
+    .btn,
+    .btn-primary,
+    .btn-outline-primary,
+    .btn-outline-danger,
+    .btn-outline-secondary,
+    .btn-secondary,
+    .btn-light,
+    .btn-dark {
+        font-size: 1.05rem;
+        padding: 12px 16px;
+    }
+
+    .form-control,
+    .form-select,
+    .input-group-text {
+        font-size: 1.05rem;
+        min-height: 46px;
+    }
 }
 
-* {
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    background: var(--ios-bg);
-}
-
-/* container */
-.ios-wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 110px 18px 60px; /* header + bottom */
-}
-
-/* sticky header blur */
-.ios-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: rgba(242, 242, 247, 0.75);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--ios-border);
-}
-
-/* cards */
-.ios-card {
-    background: var(--ios-card);
-    border: 0 !important;
-    border-radius: 20px !important;
-    box-shadow: var(--ios-shadow);
-}
-
-.ios-card .card-header {
-    background: transparent;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* iOS inputs */
-.ios-input,
-.ios-input:focus {
+/* iOS Inputs */
+.ios-input {
     background: #f2f2f7 !important;
-    border: 0 !important;
+    border: 1px solid transparent !important;
     border-radius: 14px !important;
-    box-shadow: none !important;
+    padding: 12px !important;
+}
+.ios-input:focus {
+    border-color: #667eea !important;
 }
 
-/* tables inside cards */
-.ios-table thead th {
-    background: #f6f6fa !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-.ios-table tbody td {
-    border-top: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-/* subtle action bar */
-.ios-actionbar {
-    background: rgba(255, 255, 255, 0.86);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid var(--ios-border);
+.glass-panel {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(15px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15) !important;
 }

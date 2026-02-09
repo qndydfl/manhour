@@ -24,346 +24,345 @@
 {% endblock background_image %} 
 
 {% block content %}
-<div class="">
-    <div class="d-flex justify-content-between align-items-center my-4">
-        <div class="d-flex align-items-center gap-3">
+<div class="d-flex justify-content-between align-items-center my-4 glass-panel rounded-3 p-4" style="max-width: 1000px;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-gear-wide-connected text-primary me-2"></i>
+                데이터 통합 관리
+            </h4>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button
+            type="button"
+            class="btn btn-primary fw-bold btn-sm rounded-pill px-2 shadow-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#pasteDataModal"
+        >
+            <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
+        </button>
+    </div>
+</div>
+<div class="d-flex align-items-center text-dark small mb-3">
+    <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
+    <strong>모든 항목</strong>을 수정 또는 삭제 후&nbsp;
+    <span class="text-success fw-bold">"저장 및 재배정"</span>&nbsp;을
+    눌러주세요.
+</div>
+
+<form
+    method="POST"
+    id="manage-form"
+    action="{% url 'manage_items' session.id %}"
+>
+    {% csrf_token %} {{ formset.management_form }}
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div
+                    class="card-header bg-white fw-bold border-bottom py-2"
+                >
+                    <i
+                        class="bi bi-sort-numeric-down text-warning me-1"
+                    ></i>
+                    기종(기번) 우선순위
+                </div>
+                <div class="card-body p-0">
+                    <div
+                        class="table-responsive"
+                        style="max-height: 200px; overflow-y: auto"
+                    >
+                        <table
+                            class="table ios-table table-sm table-hover mb-0 text-center align-middle small"
+                        >
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>기종(기번)</th>
+                                    <th width="100">순위</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in gibun_priorities %}
+                                <tr>
+                                    <td class="fw-bold text-center ps-3">
+                                        {{ p.gibun }}
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="prio_{{ p.id }}"
+                                            value="{{ p.order }}"
+                                            class="form-control form-control-sm text-center fw-bold bg-light p-0 border-0"
+                                            min="1"
+                                        />
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-muted py-3">
+                                        데이터 없음
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div
+                    class="card-header bg-white fw-bold border-bottom py-2"
+                >
+                    <i class="bi bi-person-gear text-secondary me-1"></i>
+                    근무 한도(M/H)
+                </div>
+                <div class="card-body p-0">
+                    <textarea
+                        name="worker_names_str"
+                        class="form-control border-0 bg-light small font-monospace p-3 h-100"
+                        style="min-height: 150px; resize: none"
+                        placeholder="이름: 시간 (줄바꿈)"
+                    >{{ worker_names_str }}</textarea
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-5">
+        <div
+            class="card-header bg-white py-3 d-flex justify-content-between align-items-center sticky-top"
+            style="z-index: 5; top: 0"
+        >
             <div>
-                <h4 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-gear-wide-connected text-primary me-2"></i>
-                    데이터 통합 관리
-                </h4>
-            </div>
-        </div>
-
-        <div class="d-flex gap-2">
-            <button
-                type="button"
-                class="btn btn-primary fw-bold btn-sm rounded-pill px-2 shadow-sm"
-                data-bs-toggle="modal"
-                data-bs-target="#pasteDataModal"
-            >
-                <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
-            </button>
-        </div>
-    </div>
-    <div class="d-flex align-items-center text-dark small mb-3">
-        <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
-        <strong>모든 항목</strong>을 수정 또는 삭제 후&nbsp;
-        <span class="text-success fw-bold">"저장 및 재배정"</span>&nbsp;을
-        눌러주세요.
-    </div>
-
-    <form
-        method="POST"
-        id="manage-form"
-        action="{% url 'manage_items' session.id %}"
-    >
-        {% csrf_token %} {{ formset.management_form }}
-
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div
-                        class="card-header bg-white fw-bold border-bottom py-2"
-                    >
-                        <i
-                            class="bi bi-sort-numeric-down text-warning me-1"
-                        ></i>
-                        기종(기번) 우선순위
-                    </div>
-                    <div class="card-body p-0">
-                        <div
-                            class="table-responsive"
-                            style="max-height: 200px; overflow-y: auto"
-                        >
-                            <table
-                                class="table ios-table table-sm table-hover mb-0 text-center align-middle small"
-                            >
-                                <thead class="table-light sticky-top">
-                                    <tr>
-                                        <th>기종(기번)</th>
-                                        <th width="100">순위</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for p in gibun_priorities %}
-                                    <tr>
-                                        <td class="fw-bold text-center ps-3">
-                                            {{ p.gibun }}
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="number"
-                                                name="prio_{{ p.id }}"
-                                                value="{{ p.order }}"
-                                                class="form-control form-control-sm text-center fw-bold bg-light p-0 border-0"
-                                                min="1"
-                                            />
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2" class="text-muted py-3">
-                                            데이터 없음
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div
-                        class="card-header bg-white fw-bold border-bottom py-2"
-                    >
-                        <i class="bi bi-person-gear text-secondary me-1"></i>
-                        근무 한도(M/H)
-                    </div>
-                    <div class="card-body p-0">
-                        <textarea
-                            name="worker_names_str"
-                            class="form-control border-0 bg-light small font-monospace p-3 h-100"
-                            style="min-height: 150px; resize: none"
-                            placeholder="이름: 시간 (줄바꿈)"
-                        >{{ worker_names_str }}</textarea
-                        >
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-5">
-            <div
-                class="card-header bg-white py-3 d-flex justify-content-between align-items-center sticky-top"
-                style="z-index: 5; top: 0"
-            >
-                <div>
-                    <h5 class="fw-bold mb-0 d-inline-block">📋 데이터 목록</h5>
-                    <span class="badge bg-secondary ms-2 rounded-pill"
-                        >{{ non_common_count }}건</span
-                    >
-                </div>
-                <span class="text-danger small fw-bold"
-                    ><i class="bi bi-check-square me-1"></i>체크박스 선택 후
-                    저장 시 삭제됩니다.</span
+                <h5 class="fw-bold mb-0 d-inline-block">📋 데이터 목록</h5>
+                <span class="badge bg-secondary ms-2 rounded-pill"
+                    >{{ non_common_count }}건</span
                 >
             </div>
+            <span class="text-danger small fw-bold"
+                ><i class="bi bi-check-square me-1"></i>체크박스 선택 후
+                저장 시 삭제됩니다.</span
+            >
+        </div>
 
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table
-                        id="manageItemsTable"
-                        class="table table-hover mb-0 align-middle text-center"
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table
+                    id="manageItemsTable"
+                    class="table table-hover mb-0 align-middle text-center"
+                >
+                    <thead
+                        class="table-light sticky-top"
+                        style="z-index: 4"
                     >
-                        <thead
-                            class="table-light sticky-top"
-                            style="z-index: 4"
+                        <tr class="text-secondary small">
+                            <th
+                                style="width: 5%"
+                                class="text-danger col-delete"
+                            >
+                                <i class="bi bi-trash3-fill"></i>
+                            </th>
+                            <th style="width: 5%" class="col-order">
+                                순서
+                            </th>
+                            <th style="width: 10%" class="col-gibun">
+                                기번
+                            </th>
+                            <th style="width: 14%" class="col-wo">W/O</th>
+                            <th style="width: 6%" class="col-op">OP</th>
+                            <th style="width: 10%" class="col-desc">작업 내용</th>
+                            <th style="width: 10%" class="col-mh">M/H</th>
+                            <th
+                                style="width: 40%"
+                                class="bg-primary bg-opacity-10 text-primary col-assign"
+                            >
+                                고정 배정 (이름)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %} {{ form.id }} 
+                        {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+
+                        <input
+                            type="hidden"
+                            name="{{ form.prefix }}-ordering"
+                            value="{{ form.instance.ordering|default:0 }}"
+                        />
+
+                        {% ifchanged form.instance.gibun_input %}
+                        <tr
+                            class="table-secondary border-bottom border-secondary group-header"
+                            data-gibun="{{ form.instance.gibun_input|escape }}"
                         >
-                            <tr class="text-secondary small">
-                                <th
-                                    style="width: 5%"
-                                    class="text-danger col-delete"
+                            <td colspan="8" class="text-start py-2 px-3">
+                                <div
+                                    class="d-flex align-items-center justify-content-between"
                                 >
-                                    <i class="bi bi-trash3-fill"></i>
-                                </th>
-                                <th style="width: 5%" class="col-order">
-                                    순서
-                                </th>
-                                <th style="width: 8%" class="col-gibun">
-                                    기번
-                                </th>
-                                <th style="width: 10%" class="col-wo">W/O</th>
-                                <th style="width: 5%" class="col-op">OP</th>
-                                <th class="col-desc">작업 내용</th>
-                                <th style="width: 10%" class="col-mh">M/H</th>
-                                <th
-                                    style="width: 40%"
-                                    class="bg-primary bg-opacity-10 text-primary col-assign"
-                                >
-                                    고정 배정 (이름)
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for form in formset %} {{ form.id }} 
-                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
-
-                            <input
-                                type="hidden"
-                                name="{{ form.prefix }}-ordering"
-                                value="{{ form.instance.ordering|default:0 }}"
-                            />
-
-                            {% ifchanged form.instance.gibun_input %}
-                            <tr
-                                class="table-secondary border-bottom border-secondary group-header"
-                                data-gibun="{{ form.instance.gibun_input|escape }}"
-                            >
-                                <td colspan="8" class="text-start py-2 px-3">
-                                    <div
-                                        class="d-flex align-items-center justify-content-between"
-                                    >
-                                        <div class="fw-bold text-dark fs-6">
-                                            <i
-                                                class="bi bi-airplane-engines-fill me-2"
-                                            ></i
-                                            >{{ form.instance.gibun_input|default:"(기번 없음)" }}
-                                    
-                                        </div>
-
-                                        <div>
-                                            <a
-                                                href="{% url 'reorder_gibun' session.id form.instance.gibun_input 'up' %}"
-                                                class="btn btn-sm btn-outline-secondary border-0 p-0 me-1"
-                                                title="기번 위로 이동"
-                                            >
-                                                <i
-                                                    class="bi bi-arrow-up-circle-fill fs-5"
-                                                ></i>
-                                            </a>
-
-                                            <a
-                                                href="{% url 'reorder_gibun' session.id form.instance.gibun_input 'down' %}"
-                                                class="btn btn-sm btn-outline-secondary border-0 p-0"
-                                                title="기번 아래로 이동"
-                                            >
-                                                <i
-                                                    class="bi bi-arrow-down-circle-fill fs-5"
-                                                ></i>
-                                            </a>
-                                        </div>
-
-                                        <div
-                                            class="form-check form-switch mb-0"
-                                        >
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="chk_group_{{ forloop.counter }}"
-                                                data-gibun="{{ form.instance.gibun_input|escape }}"
-                                                onclick="
-                                                    toggleGroupDelete(this)
-                                                "
-                                                aria-label="그룹 전체 삭제 토글"
-                                            />
-                                            <label
-                                                class="form-check-label small fw-bold text-danger"
-                                                for="chk_group_{{ forloop.counter }}"
-                                                >그룹 전체 삭제</label
-                                            >
-                                        </div>
+                                    <div class="fw-bold text-dark fs-6">
+                                        <i
+                                            class="bi bi-airplane-engines-fill me-2"
+                                        ></i
+                                        >{{ form.instance.gibun_input|default:"(기번 없음)" }}
+                                
                                     </div>
-                                </td>
-                            </tr>
-                            {% endifchanged %}
 
-                            <tr
-                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row"
-                                data-item-id="{{ form.instance.pk }}"
-                                data-gibun="{{ form.instance.gibun_input|escape }}"
-                            >
-                                <td class="text-danger col-delete">
-                                    {% if form.instance.pk %}
-                                    <div class="d-flex justify-content-center">
-                                        <div class="d-none">
-                                            {{ form.DELETE }}
-                                        </div>
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input delete-trigger item-chk-{{ form.instance.gibun_input|escape }}"
-                                            data-gibun="{{ form.instance.gibun_input|escape }}"
-                                            onchange="toggleDeleteRow(this)"
-                                        />
-                                    </div>
-                                    {% endif %}
-                                </td>
-                                <td
-                                    class="text-danger col-order"
-                                    style="width: 40px"
-                                >
-                                    {% if form.instance.pk %}
-                                    <div
-                                        class="d-flex flex-column align-items-center lh-1"
-                                    >
-                                        <span
-                                            class="drag-handle text-muted mb-1"
-                                            role="button"
-                                            title="여기를 잡아 드래그하세요"
-                                            style="cursor: grab"
+                                    <div>
+                                        <a
+                                            href="{% url 'reorder_gibun' session.id form.instance.gibun_input 'up' %}"
+                                            class="btn btn-sm btn-outline-secondary border-0 p-0 me-1"
+                                            title="기번 위로 이동"
                                         >
                                             <i
-                                                class="bi bi-grip-vertical fs-4"
+                                                class="bi bi-arrow-up-circle-fill fs-5"
                                             ></i>
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                </td>
+                                        </a>
 
-                                <td class="col-gibun">
-                                    {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
-                                </td>
-                                <td class="col-wo">
-                                    {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
-                                </td>
-                                <td class="col-op">
-                                    {% render_field form.op class="table-input" placeholder="OP" %}
-                                </td>
-                                <td class="col-desc">
-                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}    
-                                </td>
-                                <td class="col-mh">
-                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary" step="0.1" %}
-                                </td>
-                                <td class="bg-primary bg-opacity-10 col-assign">
-                                    {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td
-                                    colspan="8"
-                                    class="py-5 text-center text-muted"
+                                        <a
+                                            href="{% url 'reorder_gibun' session.id form.instance.gibun_input 'down' %}"
+                                            class="btn btn-sm btn-outline-secondary border-0 p-0"
+                                            title="기번 아래로 이동"
+                                        >
+                                            <i
+                                                class="bi bi-arrow-down-circle-fill fs-5"
+                                            ></i>
+                                        </a>
+                                    </div>
+
+                                    <div
+                                        class="form-check form-switch mb-0"
+                                    >
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="chk_group_{{ forloop.counter }}"
+                                            data-gibun="{{ form.instance.gibun_input|escape }}"
+                                            onclick="
+                                                toggleGroupDelete(this)
+                                            "
+                                            aria-label="그룹 전체 삭제 토글"
+                                        />
+                                        <label
+                                            class="form-check-label small fw-bold text-danger"
+                                            for="chk_group_{{ forloop.counter }}"
+                                            >그룹 전체 삭제</label
+                                        >
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endifchanged %}
+
+                        <tr
+                            class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row"
+                            data-item-id="{{ form.instance.pk }}"
+                            data-gibun="{{ form.instance.gibun_input|escape }}"
+                        >
+                            <td class="text-danger col-delete">
+                                {% if form.instance.pk %}
+                                <div class="d-flex justify-content-center">
+                                    <div class="d-none">
+                                        {{ form.DELETE }}
+                                    </div>
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input delete-trigger item-chk-{{ form.instance.gibun_input|escape }}"
+                                        data-gibun="{{ form.instance.gibun_input|escape }}"
+                                        onchange="toggleDeleteRow(this)"
+                                    />
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td
+                                class="text-danger col-order"
+                                style="width: 40px"
+                            >
+                                {% if form.instance.pk %}
+                                <div
+                                    class="d-flex flex-column align-items-center lh-1"
                                 >
-                                    등록된 데이터가 없습니다.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                    <span
+                                        class="drag-handle text-muted mb-1"
+                                        role="button"
+                                        title="여기를 잡아 드래그하세요"
+                                        style="cursor: grab"
+                                    >
+                                        <i
+                                            class="bi bi-grip-vertical fs-4"
+                                        ></i>
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <td class="col-gibun">
+                                {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
+                            </td>
+                            <td class="col-wo">
+                                {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
+                            </td>
+                            <td class="col-op">
+                                {% render_field form.op class="table-input" placeholder="OP" %}
+                            </td>
+                            <td class="col-desc">
+                                {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}    
+                            </td>
+                            <td class="col-mh">
+                                {% render_field form.work_mh class="table-input text-end fw-bold text-primary" step="0.1" %}
+                            </td>
+                            <td class="bg-primary bg-opacity-10 col-assign">
+                                {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td
+                                colspan="8"
+                                class="py-5 text-center text-muted"
+                            >
+                                등록된 데이터가 없습니다.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </form>
+    </div>
+</form>
 </div>
 
 <nav class="navbar navbar-expand-lg fixed-bottom py-3">
-    <div class="container justify-content-end align-items-center manage-footer">
-        <div class="d-flex gap-2">
-            <a
-                href="{% url 'result_view' session.id %}"
-                class="btn btn-secondary px-2"
-                >취소</a
-            >
-            <button
-                type="button"
-                class="btn btn-outline-danger px-2"
-                id="btn-clear-assigned"
-            >
-                고정 배정 전체 삭제
-            </button>
-            <button
-                type="submit"
-                form="manage-form"
-                class="btn btn-success fw-bold px-2 shadow"
-            >
-                <i class="bi bi-check-lg me-1"></i>저장 및 재배정
-            </button>
-        </div>
+<div class="container justify-content-end align-items-center manage-footer">
+    <div class="d-flex gap-2">
+        <a
+            href="{% url 'result_view' session.id %}"
+            class="btn btn-secondary px-2"
+            >취소</a
+        >
+        <button
+            type="button"
+            class="btn btn-outline-danger px-2"
+            id="btn-clear-assigned"
+        >
+            고정 배정 전체 삭제
+        </button>
+        <button
+            type="submit"
+            form="manage-form"
+            class="btn btn-success fw-bold px-2 shadow"
+        >
+            <i class="bi bi-check-lg me-1"></i>저장 및 재배정
+        </button>
     </div>
+</div>
 </nav>
 
 <div class="modal fade" id="pasteDataModal" tabindex="-1" aria-hidden="true">
@@ -460,7 +459,7 @@
                                 onclick="saveData()"
                                 class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
                             >
-                                <i class="bi bi-save me-1"></i> 저장만 하기
+                                <i class="bi bi-save me-1"></i> 저장 하기
                             </button>
                         </div>
                     </div>
@@ -469,5 +468,6 @@
         </div>
     </div>
 </div>
+
 
 {% endblock content %} {% block footer %}{% endblock footer %}

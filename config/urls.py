@@ -19,8 +19,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import RedirectView
+from manning import views as manning_views
+
+handler404 = "manning.views.custom_404"
 
 urlpatterns = [
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="/static/favicon.svg", permanent=False),
+    ),
     path("admin/", admin.site.urls),
     path("", include("manning.urls")),
 ]

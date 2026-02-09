@@ -159,7 +159,8 @@ tr.deleted-row .table-input {
 }
 
 /* 드래그 시 자리가 비어있는 곳의 스타일 */
-.bg-light, .col-assign {
+.bg-light,
+.col-assign {
     background-color: #f0f7ff !important;
     border: 2px dashed #007bff !important;
 }
@@ -171,7 +172,7 @@ tr.deleted-row .table-input {
     #manageItemsTable thead tr,
     #manageItemsTable tbody tr.sortable-row {
         display: grid;
-        grid-template-columns: 0.7fr 1.4fr 1fr 0.9fr 1fr;
+        grid-template-columns: 0.7fr 1.2fr 1.9fr 0.8fr 0.9fr;
         grid-template-areas:
             "delete gibun wo op mh"
             "assign assign assign assign assign";
@@ -193,6 +194,11 @@ tr.deleted-row .table-input {
     }
     #manageItemsTable .col-wo {
         grid-area: wo;
+        min-width: 0;
+    }
+
+    #manageItemsTable .col-wo .table-input {
+        font-size: 0.85rem;
     }
     #manageItemsTable .col-op {
         grid-area: op;
@@ -212,8 +218,21 @@ tr.deleted-row .table-input {
         word-break: break-word;
         overflow-wrap: anywhere;
     }
-}
 
+    .table-input {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+
+    .js-assigned-text {
+        min-height: 2.6rem;
+        font-size: 1rem;
+    }
+
+    .drag-handle {
+        padding: 6px;
+    }
+}
 
 .manage-footer {
     padding-right: 80px;

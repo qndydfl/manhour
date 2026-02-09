@@ -1,133 +1,113 @@
 /* =========================================
-   1. Typography & Base
+   1. Typography & Global (전역 설정)
    ========================================= */
 
-/* 스크롤바 전체 영역 */
+/* 스크롤바 커스텀 */
 ::-webkit-scrollbar {
-    width: 12px; /* 스크롤바 너비 */
+    width: 10px;
 }
-
-/* 스크롤바 트랙 (배경) */
 ::-webkit-scrollbar-track {
-    background: #343a40; /* 헤더/푸터 색상과 맞추기 */
+    background: #1e293b;
 }
-
-/* 스크롤바 핸들 (움직이는 부분) */
 ::-webkit-scrollbar-thumb {
-    background: #495057; /* 조금 더 진한 색상 */
-    border-radius: 6px;
+    background: #475569;
+    border-radius: 10px;
+    border: 2px solid #1e293b;
 }
-
-/* hover 시 색상 */
 ::-webkit-scrollbar-thumb:hover {
-    background: #212529;
+    background: #64748b;
 }
 
-/* 환영 문구 그라데이션 (조금 더 세련된 색감 적용) */
+/* 텍스트 그라데이션 - 더 선명하고 트렌디하게 */
 .text-gradient {
-    background: linear-gradient(135deg, #212529 0%, #6c757d 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    display: inline-block; /* 그라데이션 잘림 방지 */
+    display: inline-block;
 }
 
-/* 시계용 고정폭 폰트 (HTML 인라인 스타일 제거용) */
+/* 디지털 시계 폰트 최적화 */
 .font-digital {
-    font-family: "Courier New", Courier, monospace;
+    font-family:
+        "JetBrains Mono", "Courier New", monospace; /* 가독성 좋은 개발용 폰트 우선 */
     letter-spacing: -1px;
-    font-variant-numeric: tabular-nums; /* 숫자 간격 일정하게 */
-}
-
-/* 네비게이션 브랜드 아이콘 정렬 */
-.navbar-brand i {
-    transform: translateY(-2px);
+    font-variant-numeric: tabular-nums;
 }
 
 /* =========================================
-   2. Card Styles (카드 & 호버 효과)
+   2. Glassmorphism & Cards (카드 스타일)
    ========================================= */
 
-/* 모든 대시보드 카드 공통 둥글기 */
-.card,
-.hero-card,
-.stat-card {
-    border-radius: 1rem !important; /* 부트스트랩 rounded-4와 동일 */
+/* 메인 유리 효과 패널 */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 }
 
-/* [핵심] 마우스 올렸을 때 부드럽게 떠오르는 효과 */
+/* 마우스 호버 리프트 (기존 중복 제거 및 통합) */
 .hover-lift {
-    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-    will-change: transform, box-shadow;
+    transition:
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.4s ease;
 }
 
 .hover-lift:hover {
-    transform: translateY(-5px);
-    /* 그림자를 더 부드럽고 깊게 설정 */
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-}
-
-/* Stretched Link 사용 시 카드 z-index 이슈 방지 */
-.card {
-    position: relative;
-    overflow: hidden; /* 배경 데코레이션 삐침 방지 */
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
 }
 
 /* =========================================
-   3. Components (아이콘, 위젯 등)
+   3. Interactive Elements (아이콘 및 버튼 애니메이션)
    ========================================= */
 
-/* 아이콘 배경 원형 스타일 */
+/* 아이콘 원형 컨테이너 */
 .icon-circle {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    font-size: 1.75rem;
-    flex-shrink: 0; /* 찌그러짐 방지 */
-    transition: transform 0.3s ease;
+    border-radius: 16px; /* 완전 원형보다 최근엔 부드러운 사각형이 트렌드 */
+    transition: all 0.3s ease;
 }
 
-/* 카드 호버 시 아이콘도 살짝 커지게 (선택사항) */
 .hover-lift:hover .icon-circle {
-    transform: scale(1.1) rotate(5deg);
+    transform: scale(1.1) rotate(-5deg); /* 반대 방향 회전으로 생동감 부여 */
 }
 
-/* 시계 위젯 배경 데코레이션 아이콘 */
-.bg-deco-icon {
-    position: absolute;
-    top: -20px;
-    right: -20px;
-    font-size: 10rem;
-    color: rgba(255, 255, 255, 0.08); /* 은은하게 */
-    pointer-events: none;
-    transform: rotate(15deg);
+/* 버튼 아이콘 애니메이션 */
+.btn:hover i {
+    display: inline-block;
+    animation: pulse 0.8s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
 }
 
 /* =========================================
-   4. Animations (등장 애니메이션)
+   4. Entrance Animations (페이지 로드 효과)
    ========================================= */
 
-/* 페이지 로드 시 요소들이 아래에서 위로 등장 */
 .js-animate-in {
-    animation: fadeUp 600ms cubic-bezier(0.165, 0.84, 0.44, 1) both;
-}
-
-/* 딜레이를 주어 순차적으로 등장하게 하고 싶을 때 사용 */
-.delay-100 {
-    animation-delay: 100ms;
-}
-.delay-200 {
-    animation-delay: 200ms;
+    animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
-        filter: blur(4px);
+        transform: translateY(30px);
+        filter: blur(8px);
     }
     to {
         opacity: 1;
@@ -136,39 +116,106 @@
     }
 }
 
+/* 순차 등장용 딜레이 클래스 */
+.delay-1 {
+    animation-delay: 0.1s;
+}
+.delay-2 {
+    animation-delay: 0.2s;
+}
+.delay-3 {
+    animation-delay: 0.3s;
+}
+
 /* =========================================
-   5. Legacy Support (이전 버전 호환성)
+   5. Responsive (모바일 최적화)
    ========================================= */
-/* 혹시 session_list.html 등에서 여전히 쓰일 수 있는 스타일들 */
-
-.slot-card {
-    border-radius: 16px;
-    transition:
-        transform 0.14s ease,
-        box-shadow 0.14s ease;
-}
-.slot-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
-}
-
-.search-group {
-    min-width: 240px;
-}
-.sort-select {
-    min-width: 160px;
-}
-
-/* 모바일 대응 */
 @media (max-width: 576px) {
-    .search-group,
-    .sort-select {
-        min-width: 100%;
+    .hover-lift:hover {
+        transform: none; /* 터치 기기에서는 튀어오르는 현상 방지 */
+    }
+    .glass-panel {
+        background: rgba(
+            255,
+            255,
+            255,
+            0.9
+        ) !important; /* 모바일 성능 고려 블러 약화 */
+    }
+}
+
+/* 1. 터치 시 'Hover' 상태 고착 문제 해결 */
+@media (hover: hover) {
+    /* 마우스가 있는 기기에서만 호버 효과 작동 */
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
     }
 
-    /* 모바일에서는 hover 효과 끄기 (터치 시 이상 동작 방지) */
-    .hover-lift:hover {
-        transform: none;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    .btn:hover i {
+        animation: pulse 0.8s infinite ease-in-out;
+    }
+}
+
+/* 2. 모바일에서 Glassmorphism 성능 최적화 */
+@media (max-width: 768px) {
+    .glass-panel {
+        /* 모바일 브라우저에서 backdrop-filter는 배터리 소모와 버벅임의 원인이 될 수 있음 */
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background: rgba(
+            255,
+            255,
+            255,
+            0.85
+        ) !important; /* 불투명도를 높여 가독성 확보 */
+    }
+
+    /* 3. 모바일에서 너무 큰 폰트 크기 조정 */
+    .display-5 {
+        font-size: calc(1.5rem + 3.3vw); /* 화면 폭에 따라 유동적으로 변함 */
+    }
+
+    /* 4. 카드 내부 여백 조정 (작은 화면에서 공간 확보) */
+    .card-body {
+        padding: 1.25rem !important;
+    }
+
+    /* 5. 아이콘 크기 축소 */
+    .icon-circle {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+    }
+}
+
+/* 6. 가로 모드 및 작은 기기에서 시계 레이아웃 깨짐 방지 */
+@media (max-width: 400px) {
+    .font-digital {
+        font-size: 1.8rem !important; /* 시계가 밖으로 삐져나가지 않게 */
+    }
+}
+
+.index-footer-fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+.index-footer-spacer {
+    height: 56px;
+}
+
+.index-bg .bg-image-layer {
+    border-radius: 0;
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .index-bg .bg-image-layer {
+        background-size: cover;
+        background-position: center;
     }
 }
