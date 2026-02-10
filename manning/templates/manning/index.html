@@ -11,17 +11,17 @@
 <script defer src="{% static 'js/index.js' %}"></script>
 {% endblock js %} 
 
-{% block background_image %} 
-    <div class="index-bg">
-        {% static "img/default.jpg" as index_bg %}
-        {% include "manning/image/background_url.html" with bg_key="index" bg_default=index_bg %}
-    </div>
-{% endblock background_image %}
+{% block background_image %}
+<div class="index-bg">
+    {% static "img/default.jpg" as index_bg %} 
+    {% include "manning/image/background_url.html" with bg_key="index" bg_default=index_bg %}
+</div>
+{% endblock background_image %} 
 
 {% block content %}
-<div class="row g-4 my-4 glass-panel h-100 rounded-3" data-aos="fade-up" data-aos-duration="1000">
-    <div class="col-lg-7 d-flex flex-column justify-content-center mb-4">
-        <div class="ps-2">
+<div class="row g-4 my-4" data-aos="fade-up" data-aos-duration="1000">
+    <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div class="p-3 glass-panel glass-panel rounded-3">
             <h1 class="display-6 fw-bold text-dark">
                 Work Smart, <br />Manage Better.
             </h1>
@@ -54,14 +54,14 @@
         </div>
     </div>
 
-    <div class="col-lg-5 mb-4">
+    <div class="col-lg-5">
         <div
-            class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 " style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+            class="card shadow-lg h-100"
+            style="
+                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            "
         >
-            <div
-                class="position-absolute "
-                style="top: -20px; right: -20px"
-            >
+            <div class="position-absolute" style="top: -20px; right: -20px">
                 <i
                     class="bi bi-clock"
                     style="font-size: 10rem; color: rgba(255, 255, 255, 0.1)"
@@ -69,7 +69,8 @@
             </div>
 
             <div
-                class="card-body p-4 d-flex flex-column justify-content-center z-1  rounded-4 h-100 "
+                class="card-body border-0 p-4 d-flex flex-column justify-content-center z-1 h-100"
+                style="background: rgba(15, 23, 42, 0.55)"
             >
                 <div
                     class="d-flex justify-content-between align-items-center mb-4"
@@ -126,8 +127,11 @@
     </div>
 </div>
 
-
-<div class="row g-4 my-5 opacity-75" data-aos="fade-down" data-aos-duration="1000">
+<div
+    class="row g-4 my-5 opacity-75"
+    data-aos="fade-down"
+    data-aos-duration="1000"
+>
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift">
             <div class="card-body p-4 d-flex align-items-center">
@@ -141,7 +145,8 @@
                         Active Sessions
                     </h6>
                     <h2 class="fw-bold text-dark mb-0">
-                        <span class="active-count-num">{{ active_count }}</span><span class="fs-6 text-muted ms-1">개</span>                       
+                        <span class="active-count-num">{{ active_count }}</span
+                        ><span class="fs-6 text-muted ms-1">개</span>
                     </h2>
                 </div>
                 <a href="{% url 'session_list' %}" class="stretched-link"></a>
@@ -162,7 +167,9 @@
                         History Archive
                     </h6>
                     <h2 class="fw-bold text-dark mb-0">
-                        <span class="history-count-num">{{ history_count }}</span><span class="fs-6 text-muted ms-1">건</span>                       
+                        <span class="history-count-num"
+                            >{{ history_count }}</span
+                        ><span class="fs-6 text-muted ms-1">건</span>
                     </h2>
                 </div>
                 <a href="{% url 'history' %}" class="stretched-link"></a>
@@ -187,10 +194,11 @@
         </div>
     </div>
 </div>
-{% comment %} </div> {% endcomment %}
 
 <div class="index-footer-spacer"></div>
-<footer class="text-center text-white py-3 mt-4 bg-secondary index-footer-fixed">
+<footer
+    class="text-center text-white py-3 mt-4 bg-secondary index-footer-fixed"
+>
     <small class="opacity-50">
         &copy; 2026 Man Hour Calculator System. All rights reserved.
     </small>

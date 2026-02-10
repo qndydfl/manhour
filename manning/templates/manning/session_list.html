@@ -1,73 +1,16 @@
 {% extends 'manning/base/base.html' %} 
 {% load static %} 
+
 {% block title %}작업슬롯 현황 | Manning System{% endblock %} 
 
 {% block css %}
-<style>
-    /* 유리 효과가 모달 위를 덮지 못하도록 설정 */
-    .modal-backdrop {
-        z-index: 1060 !important; /* 배경 레이어 */
-    }
+<link rel="stylesheet" href="{% static 'css/session_list.css' %}" />
+{% endblock css %} 
 
-    .modal {
-        z-index: 1070 !important; /* 모달 본체 */
-    }
-
-    /* 유리 패널의 스태킹 컨텍스트 간섭 방지 */
-    .glass-panel {
-        position: relative;
-        z-index: 1;
-    }
-
-    @media (max-width: 576px) {
-        .app-content {
-            gap: 12px !important;
-        }
-
-        .container.glass-panel {
-            padding: 12px !important;
-        }
-
-        .input-group {
-            width: 100%;
-        }
-
-        .app-content .d-flex.gap-2 {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .session-col .card-body {
-            padding: 1.25rem !important;
-        }
-
-        .session-col .btn {
-            width: 100%;
-        }
-
-        .session-col h5 {
-            font-size: 1.05rem;
-        }
-
-        .session-col p {
-            margin-bottom: 0.75rem !important;
-        }
-    }
-
-    @media (max-width: 360px) {
-        .session-col h5 {
-            font-size: 1rem;
-        }
-
-        .session-col .badge {
-            font-size: 0.85rem;
-        }
-    }
-</style>
-
-{% endblock css %} {% block background_image %} 
+{% block background_image %} 
     {% include "manning/image/background_url.html" with bg_key="result_view" bg_default="https://picsum.photos/id/400/600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
+
 
 {% block content %}
 <div
@@ -78,10 +21,10 @@
         class="app-content d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4"
     >
         <div>
-            <h3 class="fw-bold mb-0 text-dark">
+            <h3 class="mb-0 text-warning">
                 <i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황
             </h3>
-            <p class="text-muted my-4 ms-2 small">
+            <p class="text-white my-4 ms-2 small">
                 현재 활성화된 작업 세션 목록입니다.
             </p>
         </div>
@@ -120,7 +63,7 @@
                     style="height: 6px"
                 ></div>
 
-                <div class="card-body p-4 d-flex flex-column">
+                <div class="card-body p-4 d-flex flex-column bg-light">
                     <div
                         class="d-flex justify-content-between align-items-start mb-3"
                     >

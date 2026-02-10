@@ -133,6 +133,30 @@ tr.deleted-row .table-input {
     display: none;
 }
 
+/* Keep the bulk paste modal clickable above fixed bars/overlays */
+#pasteDataModal {
+    z-index: 2050 !important;
+}
+
+#pasteDataModal .modal-dialog,
+#pasteDataModal .modal-content {
+    pointer-events: auto;
+}
+
+.modal {
+    z-index: 2050 !important;
+}
+
+.modal-backdrop.show {
+    z-index: 2040 !important;
+}
+
+/* Prevent fixed bottom bar from blocking modal clicks */
+.modal-open .navbar.fixed-bottom {
+    pointer-events: none;
+    z-index: 1000;
+}
+
 /* 드래그 정렬용 커서 */
 /* 드래그 핸들에 마우스 커서 모양 변경 */
 /* 드래그 핸들 영역 확대 및 강조 */
@@ -234,6 +258,22 @@ tr.deleted-row .table-input {
     }
 }
 
-.manage-footer {
-    padding-right: 80px;
+/* 1. 모달 배경과 본체의 레이어 순서 강제 조정 */
+.modal {
+    z-index: 2051 !important; /* 모달 본체 */
+}
+
+.modal-backdrop {
+    z-index: 2050 !important; /* 모달 배경 */
+}
+
+/* 2. 모달이 열렸을 때 fixed-bottom 네비바가 클릭을 방해하지 않도록 처리 */
+body.modal-open .fixed-bottom {
+    pointer-events: none; 
+    z-index: 1000;
+}
+
+/* 3. 모달 내부 콘텐츠는 다시 클릭이 가능해야 함 */
+.modal-content {
+    pointer-events: auto !important;
 }

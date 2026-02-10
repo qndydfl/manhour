@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reassigned") === "1") {
+        const el = document.getElementById("reassignSuccessModal");
+        if (el) {
+            // 부트스트랩 인스턴스가 생성되지 않았을 경우를 대비
+            const modal = bootstrap.Modal.getOrCreateInstance(el); 
+            modal.show();
+        }
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
     const els = document.querySelectorAll(".fade-up");
     els.forEach((el, idx) => {
         setTimeout(() => el.classList.add("is-visible"), 60 * idx);

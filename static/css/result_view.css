@@ -197,19 +197,18 @@
     }
 }
 
-/* ============================================================
-   8) 모달 레이어 수정 (안보임 현상 방지)
-   ============================================================ */
 .modal-backdrop {
-    z-index: 1060 !important;
+    z-index: 2040 !important;
+    pointer-events: none;
 }
 
 .modal {
-    z-index: 1070 !important;
+    z-index: 2050 !important;
+    pointer-events: auto;
 }
 
 .modal-content {
-    background: #ffffff !important; /* 모달은 유리효과보다 가독성 우선 */
+    background: #ffffff !important;
     border: none;
     box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
 }

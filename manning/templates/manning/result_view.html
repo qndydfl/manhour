@@ -26,12 +26,13 @@
     {% include "manning/image/background_url.html" with bg_key="result_view" bg_default="https://picsum.photos/id/400/1600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
 
+
 {% block content %}
-<div class="rounded-3 glass-panel" data-aos="fade-up" data-aos-duration="1000">
+<div class="rounded-3 glass-panel p-2" data-aos="fade-up" data-aos-duration="1000">
     <div
         class="d-flex flex-wrap justify-content-between align-items-center py-4 gap-3"
     >
-        <h2 class="fw-bold text-dark">
+        <h2 class="fw-bold text-warning">
             📊 {{ session.name }} 
             
             {% if not session.is_active %}
@@ -54,8 +55,8 @@
             class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 p-4"
         >
             <div>
-                <h5 class="fw-bold mb-1">🚀 작업 배정 컨트롤</h5>
-                <p class="text-muted small mb-0">
+                <h5 class="fw-bold mb-3">작업 배정 컨트롤 &nbsp;🚀</h5>
+                <p class="text-primary small mb-0">
                     작업 완료 시 기록 보관소로 이동합니다.
                 </p>
             </div>
@@ -188,7 +189,7 @@
         data-aos="fade-up"
         data-aos-delay="200"
     >
-        <h5 class="fw-bold mb-0 text-dark">
+        <h5 class="fw-bold mb-0 text-warning">
             📋 작업 상세 내역
             <span
                 class="badge bg-secondary rounded-pill text-white border ms-2"
@@ -328,4 +329,5 @@
         </div>
     </div>
 </div>
+
 {% endblock content %}

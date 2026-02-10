@@ -81,3 +81,8 @@
         font-size: 1rem;
     }
 }
+
+.bg-light {
+    background-color: #f0f7ff !important;
+    border: 2px dashed #007bff !important;
+}
