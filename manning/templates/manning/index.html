@@ -19,34 +19,34 @@
 {% endblock background_image %} 
 
 {% block content %}
-<div class="row g-4 my-4" data-aos="fade-up" data-aos-duration="1000">
+<div class="row g-4" data-aos="fade-up" data-aos-duration="1000">
     <div class="col-lg-7 d-flex flex-column justify-content-center">
         <div class="p-3 glass-panel glass-panel rounded-3">
-            <h1 class="display-6 fw-bold text-dark">
+            <h1 class="h3 fw-bold text-dark">
                 Work Smart, <br />Manage Better.
             </h1>
-            <p class="text-dark mb-4">
+            <p class="text-secondary my-4" style="font-size: 0.9rem">
                 작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
                 효율적인 업무 배정이 여기서 시작됩니다.
             </p>
 
-            <div class="d-flex flex-wrap gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-center">
                 <a
                     href="{% url 'create_session' %}"
-                    class="btn btn-primary btn-md rounded-3 px-2 shadow-sm fw-bold"
+                    class="btn btn-info btn-sm rounded-4 px-2 shadow-sm fw-bold"
                 >
                     <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
                 </a>
 
                 <a
                     href="{% url 'session_list' %}"
-                    class="btn btn-dark btn-md rounded-3 px-2 shadow-sm fw-bold pt-2"
+                    class="btn btn-dark btn-sm rounded-4 px-2 shadow-sm fw-bold"
                 >
                     <i class="bi bi-grid-fill me-1"></i> 현황판 입장
                 </a>
                 <a
                     href="{% url 'master_data_list' %}"
-                    class="btn btn-secondary btn-md rounded-3 px-2 shadow-sm fw-bold pt-2"
+                    class="btn btn-danger btn-sm rounded-4 px-2 shadow-sm fw-bold"
                 >
                     <i class="bi bi-database-add"></i> 데이터 등록 현황
                 </a>
@@ -89,7 +89,7 @@
                             >Local Time</small
                         >
                         <div
-                            class="display-5 fw-bold my-1 text-white"
+                            class="h2 fw-bold my-1 text-white"
                             id="digital-time"
                             style="
                                 font-family: &quot;Courier New&quot;, monospace;
@@ -98,6 +98,9 @@
                             00:00:00
                         </div>
                         <small class="text-white" id="digital-date"
+                            >Loading...</small
+                        >
+                        <small class="text-white" id="digital-weekday"
                             >Loading...</small
                         >
                     </div>
@@ -111,7 +114,7 @@
                             >UTC</small
                         >
                         <div
-                            class="fs-2 fw-bold my-1 text-warning"
+                            class="h2 fw-bold my-1 text-warning"
                             id="digital-time-utc"
                             style="
                                 font-family: &quot;Courier New&quot;, monospace;
@@ -119,7 +122,12 @@
                         >
                             00:00
                         </div>
-                        <small class="text-white">Universal</small>
+                        <small class="text-white" id="digital-date-utc"
+                            >Loading...</small
+                        >
+                        <small class="text-white" id="digital-weekday-utc"
+                            >Loading...</small
+                        >
                     </div>
                 </div>
             </div>
@@ -128,7 +136,91 @@
 </div>
 
 <div
-    class="row g-4 my-5 opacity-75"
+    class="row g-4 mt-4 opacity-75 d-flex justify-content-center align-items-center"
+    data-aos="fade-down"
+    data-aos-duration="1000"
+>
+    <div
+        class="d-flex flex-wrap gap-2 justify-content-center align-items-center"
+    >
+        {% if index_videos %}
+        <div class="dropdown d-inline-block">
+            <button
+                type="button"
+                class="btn btn-warning btn-sm rounded-4 px-2 shadow-sm fw-bold dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                <i class="bi bi-play-btn-fill me-1"></i> 유튜브 동영상
+            </button>
+            <ul class="dropdown-menu">
+                {% for video in index_videos %}
+                <li>
+                    <button
+                        type="button"
+                        class="dropdown-item"
+                        data-bs-toggle="modal"
+                        data-bs-target="#videoModal"
+                        data-video-url="{{ video.youtube_url }}"
+                        data-video-title="{{ video.title }}"
+                    >
+                        {{ video.title }}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <button
+            type="button"
+            class="btn btn-warning btn-sm rounded-4 px-2 shadow-sm fw-bold"
+            disabled
+            title="관리자에서 영상을 등록하세요"
+        >
+            <i class="bi bi-play-btn-fill me-1"></i> 유튜브 동영상
+        </button>
+        {% endif %} {% if index_shorts %}
+        <div class="dropdown d-inline-block">
+            <button
+                type="button"
+                class="btn btn-outline-warning btn-sm rounded-4 px-2 shadow-sm fw-bold dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                <i class="bi bi-youtube me-1"></i> Shorts
+            </button>
+            <ul class="dropdown-menu">
+                {% for video in index_shorts %}
+                <li>
+                    <button
+                        type="button"
+                        class="dropdown-item"
+                        data-bs-toggle="modal"
+                        data-bs-target="#videoModal"
+                        data-video-url="{{ video.youtube_url }}"
+                        data-video-title="{{ video.title }}"
+                    >
+                        {{ video.title }}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <button
+            type="button"
+            class="btn btn-outline-warning btn-sm rounded-4 px-2 shadow-sm fw-bold"
+            disabled
+            title="관리자에서 쇼츠를 등록하세요"
+        >
+            <i class="bi bi-youtube me-1"></i> Shorts
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<div
+    class="row g-4 mt-4 opacity-75"
     data-aos="fade-down"
     data-aos-duration="1000"
 >
@@ -195,7 +287,66 @@
     </div>
 </div>
 
+<div
+    class="modal fade"
+    id="videoModal"
+    tabindex="-1"
+    aria-labelledby="videoModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="videoModalLabel">
+                    <i class="bi bi-play-circle me-1"></i> Video
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+
+            <div class="modal-body p-0 bg-black">
+                <div class="ratio ratio-16x9">
+                    <iframe
+                        id="youtubeFrame"
+                        src=""
+                        referrerpolicy="origin-when-cross-origin"
+                        title="YouTube video player"
+                        allow="
+                            accelerometer;
+                            autoplay;
+                            clipboard-write;
+                            encrypted-media;
+                            gyroscope;
+                            picture-in-picture;
+                            web-share;
+                        "
+                        allowfullscreen
+                    ></iframe>
+                </div>
+                <div class="p-3 d-flex justify-content-end gap-2 bg-dark">
+                    <a
+                        id="openOnYoutube"
+                        class="btn btn-sm btn-danger"
+                        href="#"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <i class="bi bi-youtube me-1"></i> YouTube에서 열기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="index-footer-spacer"></div>
+
+{% block footer %}
 <footer
     class="text-center text-white py-3 mt-4 bg-secondary index-footer-fixed"
 >
@@ -203,5 +354,5 @@
         &copy; 2026 Man Hour Calculator System. All rights reserved.
     </small>
 </footer>
-
+{% endblock footer %}
 {% endblock content %}

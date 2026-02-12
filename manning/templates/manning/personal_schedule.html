@@ -1,13 +1,7 @@
-{% extends "manning/base/base.html" %} 
-{% load static %} 
-
-{% block title %}{{worker_name }}님의 시간표 | Manning {% endblock title %} 
-
-{% block css %}
+{% extends "manning/base/base.html" %} {% load static %} {% block title
+%}{{worker_name }}님의 시간표 | Manning {% endblock title %} {% block css %}
 <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
-{% endblock css %} 
-
-{% block js %}
+{% endblock css %} {% block js %}
 <script>
     window.SESSION_ID = "{{ session.id }}";
     window.CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
@@ -28,15 +22,14 @@
     }
 </script>
 <script defer src="{% static 'js/personal_schedule.js' %}"></script>
-{% endblock js %} 
-
-{% block background_image %} 
-    {% include "manning/image/background_url.html" with bg_key="personal_schedule" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
-{% endblock background_image %} 
-
-
-{% block content %}
-<div class="container glass-panel rounded-3 pt-3 pb-0" style="max-width: 1000px">
+{% endblock js %} {% block background_image %} {% include
+"manning/image/background_url.html" with bg_key="personal_schedule"
+bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} {%
+endblock background_image %} {% block content %}
+<div
+    class="container glass-panel rounded-3 pt-3 pb-0"
+    style="max-width: 1000px"
+>
     <div
         class="d-flex justify-content-between align-items-center my-4"
         data-aos="fade-down"
@@ -134,22 +127,29 @@
                 <tbody>
                     {% for item in schedule %} {% if item.wo != 'EMPTY_SLOT' %}
                     <tr
-                        class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}" style="font-size: 0.9rem;"
+                        class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
+                        style="font-size: 0.9rem"
                     >
                         <td class="fw-bold text-dark">
-                            {% if item.wo != '간비' %}{{ item.wo }}{% else %}&nbsp;{% endif %}
+                            {% if item.wo != '간비' %}{{ item.wo }}{% else
+                            %}&nbsp;{% endif %}
                         </td>
                         <td>
-                            {% if item.op %}{{ item.op }}{% else %}&nbsp;{% endif %}
+                            {% if item.op %}{{ item.op }}{% else %}&nbsp;{%
+                            endif %}
                         </td>
                         <td class="fw-bold text-primary">
-                            {% if item.wo == '간비' and item.desc and item.desc != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif %}
+                            {% if item.wo == '간비' and item.desc and item.desc
+                            != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif
+                            %}
                         </td>
                         <td class="fw-bold font-monospace text-secondary">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% endif %}
+                            {% if item.wo != '간비' or item.desc != '0' %}{{
+                            item.start_str }}{% endif %}
                         </td>
                         <td class="fw-bold font-monospace text-secondary">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}
+                            {% if item.wo != '간비' or item.desc != '0' %}{{
+                            item.end_str }}{% endif %}
                         </td>
                     </tr>
                     {% endif %} {% endfor %}
@@ -215,7 +215,7 @@
 
                 <div class="card border bg-light mb-3">
                     <div
-                        class="card-header bg-white fw-bold small text-primary text-uppercase border-bottom"
+                        class="card-header bg-white fw-bold small text-center text-danger text-uppercase border-bottom"
                     >
                         4자리 숫자를 입력하세요
                     </div>
@@ -225,8 +225,13 @@
                         >
                             <thead class="small text-muted border-bottom">
                                 <tr>
+                                    <th
+                                        width="30%"
+                                        class="text-primary fw-bold"
+                                    >
+                                        간비 (숫자)
+                                    </th>
                                     <th width="30%">시작 (HHMM)</th>
-                                    <th width="30%">간비 (숫자)</th>
                                     <th width="30%">종료 (HHMM)</th>
                                     <th width="10%"></th>
                                 </tr>
@@ -344,4 +349,4 @@
     });
 </script>
 
-{% endblock content %} 
+{% endblock content %}

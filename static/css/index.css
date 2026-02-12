@@ -85,6 +85,15 @@
     animation: pulse 0.8s infinite ease-in-out;
 }
 
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+
 @keyframes pulse {
     0%,
     100% {
@@ -206,6 +215,12 @@
 
 .index-footer-spacer {
     height: 56px;
+}
+
+@media (max-width: 576px) {
+    .index-footer-spacer {
+        height: 4rem;
+    }
 }
 
 .index-bg .bg-image-layer {

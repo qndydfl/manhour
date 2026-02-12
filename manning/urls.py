@@ -49,4 +49,7 @@ urlpatterns = [
         name="delete_taskmaster_legacy",),
     path("master-data/delete-all/", views.TaskMasterDeleteAllView.as_view(),
         name="delete_all_taskmasters",),
+
+    # 동영상
+    path('video-page/', views.video_page, name='video_page'),
 ]

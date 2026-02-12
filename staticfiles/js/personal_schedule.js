@@ -66,33 +66,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------
     // Row UI
     // -------------------------
-    function createRow(start = "", code = "", end = "") {
+    function createRow(code = "", start = "", end = "") {
         const tr = document.createElement("tr");
         const cleanStart = start ? String(start).replace(/:/g, "") : "";
         const cleanEnd = end ? String(end).replace(/:/g, "") : "";
 
         tr.innerHTML = `
-      <td>
-        <input type="text" class="form-control form-control-sm text-center input-start"
-          maxlength="4" value="${cleanStart}" placeholder="0000" inputmode="numeric"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      </td>
-      <td>
-        <input type="text" class="form-control form-control-sm input-code text-center"
-          maxlength="4" value="${code}" placeholder="0000" inputmode="numeric"
-            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      </td>
-      <td>
-        <input type="text" class="form-control form-control-sm text-center input-end"
-          maxlength="4" value="${cleanEnd}" placeholder="0000" inputmode="numeric"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      </td>
-      <td>
-        <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 btn-del-row">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </td>
-    `;
+            <td>
+                <input type="text" class="form-control form-control-sm input-code text-center"
+                    maxlength="4" value="${code}" placeholder="0000" inputmode="numeric"
+                        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm text-center input-start"
+                    maxlength="4" value="${cleanStart}" placeholder="0000" inputmode="numeric"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm text-center input-end"
+                    maxlength="4" value="${cleanEnd}" placeholder="0000" inputmode="numeric"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 btn-del-row">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </td>
+        `;
 
         modalBody.appendChild(tr);
 
@@ -111,8 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const rows = [];
         modalBody.querySelectorAll("tr").forEach((tr) => {
             rows.push({
-                start: tr.querySelector(".input-start")?.value || "",
                 code: tr.querySelector(".input-code")?.value || "",
+                start: tr.querySelector(".input-start")?.value || "",
                 end: tr.querySelector(".input-end")?.value || "",
             });
         });
@@ -120,6 +120,23 @@ document.addEventListener("DOMContentLoaded", () => {
             STORAGE_KEY,
             JSON.stringify({ workerId: workerSelect.value, rows }),
         );
+    }
+
+    function normalizeRowData(row) {
+        if (!row) return { code: "", start: "", end: "" };
+        if (Array.isArray(row)) {
+            const [code, start, end] = row;
+            return {
+                code: code ?? "",
+                start: start ?? "",
+                end: end ?? "",
+            };
+        }
+        return {
+            code: row.code ?? "",
+            start: row.start ?? "",
+            end: row.end ?? "",
+        };
     }
 
     function loadFromStorageOrServer() {
@@ -143,7 +160,10 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (SERVER_DATA.length) rowsData = SERVER_DATA;
 
         if (rowsData.length) {
-            rowsData.forEach((r) => createRow(r.start, r.code, r.end));
+            rowsData.forEach((r) => {
+                const normalized = normalizeRowData(r);
+                createRow(normalized.code, normalized.start, normalized.end);
+            });
             if (rowsData.length < DEFAULT_ROWS) {
                 Array.from({ length: DEFAULT_ROWS - rowsData.length }, () =>
                     createRow(),

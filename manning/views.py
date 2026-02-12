@@ -34,6 +34,7 @@ from .models import (
     Assignment,
     TaskMaster,
     GibunPriority,
+    FeaturedVideo,
 )
 from .forms import KanbiAssignmentForm, ManageItemForm, WorkItemForm, WorkerIndirectForm
 from .services import run_auto_assign, refresh_worker_totals, run_sync_schedule
@@ -224,6 +225,13 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
             is_active=False, site=workplace, created_at__gte=history_cutoff
         ).count()
 
+        video_qs = FeaturedVideo.objects.filter(is_active=True)
+        if workplace:
+            video_qs = video_qs.filter(Q(site=workplace) | Q(site=""))
+
+        index_videos = list(video_qs.filter(kind=FeaturedVideo.VideoKind.VIDEO))
+        index_shorts = list(video_qs.filter(kind=FeaturedVideo.VideoKind.SHORTS))
+
         context.update(
             {
                 "today": timezone.localdate(),
@@ -231,6 +239,8 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
                 "day_count": active_qs.filter(shift_type="DAY").count(),
                 "night_count": active_qs.filter(shift_type="NIGHT").count(),
                 "history_count": history_count,
+                "index_videos": index_videos,
+                "index_shorts": index_shorts,
             }
         )
         return context
@@ -1844,7 +1854,7 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                     s_hhmm = format_min_to_time(a.start_min).replace(":", "")
                     e_hhmm = format_min_to_time(a.end_min).replace(":", "")
                     manual_edit_list.append(
-                        {"id": wi.id, "start": s_hhmm, "code": desc_disp, "end": e_hhmm}
+                        {"id": wi.id, "code": desc_disp, "start": s_hhmm, "end": e_hhmm}
                     )
 
             if is_fixed_anchor:
@@ -2395,3 +2405,7 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
 
 def custom_404(request, exception):
     return render(request, "manning/404_page/404.html", status=404)
+
+
+def video_page(request):
+    return render(request, "manning/video_page.html")
