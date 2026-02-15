@@ -36,7 +36,13 @@ from .models import (
     GibunPriority,
     FeaturedVideo,
 )
-from .forms import KanbiAssignmentForm, ManageItemForm, WorkItemForm, WorkerIndirectForm
+from .forms import (
+    KanbiAssignmentForm,
+    ManageItemForm,
+    WorkItemForm,
+    WorkerIndirectForm,
+    TaskMasterForm,
+)
 from .services import run_auto_assign, refresh_worker_totals, run_sync_schedule
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
@@ -246,6 +252,10 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
         return context
 
 
+class SettingsView(SimpleLoginRequiredMixin, TemplateView):
+    template_name = "manning/settings.html"
+
+
 class SessionListView(SimpleLoginRequiredMixin, ListView):
     model = WorkSession
     template_name = "manning/session_list.html"
@@ -272,7 +282,6 @@ class SessionListView(SimpleLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_count"] = self.object_list.count()
-        context["navbar_template"] = "manning/navbar/navbar_back_session.html"
         return context
 
 
@@ -285,7 +294,6 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
             # navbar
             {
                 "slot": slot_name,
-                "navbar_template": "manning/navbar/navbar_back_create.html",
             },
         )
 
@@ -430,7 +438,6 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
             {
                 "session": session,
                 "worker_names_str": worker_names,
-                "navbar_template": "manning/navbar/navbar_back_edit.html",
             },
         )
 
@@ -626,7 +633,6 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
                 "items": items,  # 가공된 items 리스트 전달
                 "filter_worker": filter_worker or "",
                 "wo_total": wo_total,
-                "navbar_template": "manning/navbar/navbar_back_result.html",
             }
         )
         return context
@@ -786,7 +792,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 "non_common_count": WorkItem.objects.filter(session=session)
                 .exclude(gibun_input="COMMON")
                 .count(),
-                "navbar_template": "manning/navbar/navbar_back_manage.html",
             },
         )
 
@@ -991,13 +996,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 # @method_decorator(csrf_exempt, name="dispatch")
 class PasteDataView(SimpleLoginRequiredMixin, View):
     def get(self, request):
-        return render(
-            request,
-            "manning/paste_data.html",
-            {
-                "navbar_template": "manning/navbar/navbar_back_paste.html",
-            },
-        )
+        return render(request, "manning/paste_data.html")
 
     def post(self, request):
         try:
@@ -1144,7 +1143,6 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["navbar_template"] = "manning/navbar/navbar_back_history.html"
         return context
 
 
@@ -1409,7 +1407,6 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
             {
                 "session": session,
                 "taskmasters": taskmasters,
-                "navbar_template": "manning/navbar/navbar_back_paste.html",
             },
         )
 
@@ -1775,7 +1772,6 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
                 "session": session,
                 "workers_schedule": workers_schedule,
                 "common_schedule": common_schedule,
-                "navbar_template": "manning/navbar/navbar_back_assign.html",
             },
         )
 
@@ -1798,7 +1794,6 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
         prio_map = {gp.gibun: gp.order for gp in gibun_priorities}
 
         if not worker_id:
-            context["navbar_template"] = "manning/navbar/navbar_back_personal.html"
             return context
 
         session = self.object
@@ -1966,7 +1961,6 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                 "total_mh": round(total_mh, 1),
                 "task_count": task_count,
                 "manual_data_json": manual_edit_list,
-                "navbar_template": "manning/navbar/navbar_back_personal.html",
             }
         )
 
@@ -2210,8 +2204,46 @@ class MasterDataListView(SimpleLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["total_count"] = self.object_list.count()
-        context["navbar_template"] = "manning/navbar/navbar_back_master.html"
         return context
+
+
+class MasterDataBulkEditView(SimpleLoginRequiredMixin, View):
+    template_name = "manning/master_data_edit.html"
+
+    def get_queryset(self, request):
+        workplace = get_current_workplace(request)
+        return TaskMaster.objects.filter(site=workplace).order_by(
+            "gibun_code", "work_order", "op"
+        )
+
+    def get(self, request):
+        TaskMasterFormSet = modelformset_factory(
+            TaskMaster, form=TaskMasterForm, extra=0
+        )
+        queryset = self.get_queryset(request)
+        formset = TaskMasterFormSet(queryset=queryset)
+        context = {
+            "formset": formset,
+            "total_count": queryset.count(),
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        TaskMasterFormSet = modelformset_factory(
+            TaskMaster, form=TaskMasterForm, extra=0
+        )
+        queryset = self.get_queryset(request)
+        formset = TaskMasterFormSet(request.POST, queryset=queryset)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "마스터 데이터가 업데이트되었습니다.")
+            return redirect("master_data_list")
+
+        context = {
+            "formset": formset,
+            "total_count": queryset.count(),
+        }
+        return render(request, self.template_name, context)
 
 
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
@@ -2231,6 +2263,8 @@ class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
         next_page = self.request.POST.get("next")
         if next_page == "master_data_list":
             return redirect("master_data_list")
+        if next_page == "master_data_edit":
+            return redirect("master_data_edit")
         return redirect(self.success_url)
 
 
@@ -2244,8 +2278,11 @@ class TaskMasterDeleteAllView(SimpleLoginRequiredMixin, View):
         else:
             messages.info(request, "삭제할 데이터가 없습니다.")
 
-        if request.POST.get("next") == "master_data_list":
+        next_page = request.POST.get("next")
+        if next_page == "master_data_list":
             return redirect("master_data_list")
+        if next_page == "master_data_edit":
+            return redirect("master_data_edit")
         return redirect("paste_data")
 
 

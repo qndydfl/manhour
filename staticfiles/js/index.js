@@ -148,32 +148,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const toEmbedUrl = (url) => {
         try {
+            // Shorts: https://www.youtube.com/shorts/VIDEO_ID
             if (url.includes("/shorts/")) {
                 const id = url.split("/shorts/")[1].split(/[?&/]/)[0];
                 return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
             }
 
+            // 일반 watch: https://www.youtube.com/watch?v=VIDEO_ID
             if (url.includes("watch?v=")) {
                 const u = new URL(url);
                 const id = u.searchParams.get("v");
                 return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
             }
 
+            // 이미 embed 형태면 그대로 autoplay만 붙이기
             if (url.includes("/embed/")) {
                 return url.includes("?")
                     ? `${url}&autoplay=1`
                     : `${url}?autoplay=1`;
             }
 
+            // youtu.be 단축링크: https://youtu.be/VIDEO_ID
             if (url.includes("youtu.be/")) {
                 const id = url.split("youtu.be/")[1].split(/[?&/]/)[0];
                 return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
             }
         } catch (e) {}
 
+        // fallback
         return url;
     };
 
+    // 모달 열릴 때: 버튼의 data-video-url 읽어서 iframe src 설정
     modalEl.addEventListener("show.bs.modal", (event) => {
         const btn = event.relatedTarget;
         const videoUrl = btn?.getAttribute("data-video-url");
@@ -189,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         frameEl.src = toEmbedUrl(videoUrl);
     });
 
+    // 모달 닫힐 때: iframe src 비우기(재생 중지)
     modalEl.addEventListener("hidden.bs.modal", () => {
         frameEl.src = "";
         if (titleEl) {
@@ -200,120 +207,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// document.addEventListener("DOMContentLoaded", () => {
-//     // ==========================================
-//     // 1. Toast 알림 자동 실행
-//     // ==========================================
-//     // HTML에 .toast 클래스가 있으면 자동으로 띄움 (없으면 무시됨)
-//     const toastEls = document.querySelectorAll(".toast");
-//     if (toastEls.length > 0 && window.bootstrap) {
-//         toastEls.forEach(function (toastEl) {
-//             const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-//             toast.show();
-//         });
-//     }
 
-//     // ==========================================
-//     // 2. 실시간 시계 (Clock)
-//     // ==========================================
-//     function updateClock() {
-//         const now = new Date();
+// video 플레이어
+document.addEventListener("DOMContentLoaded", () => {
+    const video = document.getElementById("hoverDanceVideo");
+    if (!video) return;
 
-//         // 1) Local Time
-//         const timeEl = document.getElementById("digital-time");
-//         const dateEl = document.getElementById("digital-date");
+    const wrapper = video.closest(".video-hover-wrapper");
 
-//         if (timeEl) {
-//             timeEl.textContent = now.toLocaleTimeString("en-US", {
-//                 hour12: false,
-//             });
-//         }
-//         if (dateEl) {
-//             const yyyy = now.getFullYear();
-//             const mm = String(now.getMonth() + 1).padStart(2, "0");
-//             const dd = String(now.getDate()).padStart(2, "0");
-//             dateEl.textContent = `${yyyy}-${mm}-${dd}`;
-//         }
+    wrapper.addEventListener("mouseenter", () => {
+        video.currentTime = 0; // 항상 처음부터
+        video.play();
+    });
 
-//         // 2) UTC Time
-//         const utcEl = document.getElementById("digital-time-utc");
-//         if (utcEl) {
-//             const utcHour = String(now.getUTCHours()).padStart(2, "0");
-//             const utcMin = String(now.getUTCMinutes()).padStart(2, "0");
-//             utcEl.textContent = `${utcHour}:${utcMin}`;
-//         }
-//     }
-
-//     // 요소가 있을 때만 시계 실행
-//     if (document.getElementById("digital-time")) {
-//         setInterval(updateClock, 1000);
-//         updateClock(); // 즉시 1회 실행
-//     }
-
-//     // ==========================================
-//     // 3. 검색 및 필터링 (Search & Filter)
-//     // ==========================================
-//     const searchInput = document.getElementById("sessionSearch");
-//     const clearBtn = document.getElementById("clearSearch");
-//     const filterBtns = document.querySelectorAll("[data-filter]");
-//     const sessionCols = document.querySelectorAll(".session-col");
-
-//     // 검색창이 존재하는 페이지에서만 실행 (오류 방지)
-//     if (searchInput) {
-//         let currentFilter = "all";
-
-//         // 필터링 로직 함수
-//         function filterSessions() {
-//             const query = searchInput.value.toLowerCase().trim();
-
-//             sessionCols.forEach((col) => {
-//                 const shift = col.dataset.shift; // data-shift 속성값
-//                 const name = col.dataset.name; // data-name 속성값
-
-//                 const matchesSearch = name.includes(query);
-//                 const matchesFilter =
-//                     currentFilter === "all" || shift === currentFilter;
-
-//                 // 검색어와 필터 모두 만족하면 보이기
-//                 if (matchesSearch && matchesFilter) {
-//                     col.style.display = ""; // 원래 display 속성으로 복구 (보임)
-//                 } else {
-//                     col.style.display = "none"; // 숨김
-//                 }
-//             });
-//         }
-
-//         // [이벤트] 검색어 입력 시
-//         searchInput.addEventListener("input", filterSessions);
-
-//         // [이벤트] 초기화 버튼 클릭 시
-//         if (clearBtn) {
-//             clearBtn.addEventListener("click", () => {
-//                 searchInput.value = "";
-//                 filterSessions();
-//                 searchInput.focus();
-//             });
-//         }
-
-//         // [이벤트] 주간/야간/전체 버튼 클릭 시
-//         filterBtns.forEach((btn) => {
-//             btn.addEventListener("click", () => {
-//                 // 1. 모든 버튼 스타일 초기화 (비활성 상태로)
-//                 filterBtns.forEach((b) => {
-//                     b.classList.remove("active", "btn-dark");
-//                     if (b.classList.contains("btn-sm")) {
-//                         b.classList.add("btn-outline-secondary");
-//                     }
-//                 });
-
-//                 // 2. 클릭한 버튼 스타일 활성화
-//                 btn.classList.remove("btn-outline-secondary");
-//                 btn.classList.add("active", "btn-dark");
-
-//                 // 3. 필터 적용
-//                 currentFilter = btn.dataset.filter;
-//                 filterSessions();
-//             });
-//         });
-//     }
-// });
+    wrapper.addEventListener("mouseleave", () => {
+        video.pause();
+        video.currentTime = 0;
+    });
+});

@@ -206,3 +206,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+
+// video 플레이어
+document.addEventListener("DOMContentLoaded", () => {
+    const video = document.getElementById("hoverDanceVideo");
+    if (!video) return;
+
+    const wrapper = video.closest(".video-hover-wrapper");
+
+    wrapper.addEventListener("mouseenter", () => {
+        video.currentTime = 0; // 항상 처음부터
+        video.play();
+    });
+
+    wrapper.addEventListener("mouseleave", () => {
+        video.pause();
+        video.currentTime = 0;
+    });
+});

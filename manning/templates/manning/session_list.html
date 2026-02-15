@@ -8,44 +8,70 @@
 {% endblock css %} 
 
 {% block background_image %} 
-{% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/400/600/900?grayscale&blur=2" %}
+    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/400/600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
-
 
 
 {% block content %}
 <div
-    class="container my-4 py-2 glass-panel rounded-3"
+    class="container my-4 py-4 glass-panel rounded-3"
     style="max-width: 1000px"
 >
     <div
-        class="app-content d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4"
+        class="app-content d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
     >
-        <div>
+        <div class="d-flex align-items-center gap-2">
             <h3 class="mb-0 text-warning">
                 <i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황
             </h3>
-            <p class="text-dark my-4 ms-2 small">
-                현재 활성화된 작업 세션 목록입니다.
-            </p>
         </div>
-        <div class="d-flex gap-2 mb-4">
-            <div class="input-group shadow-sm">
-                <span class="input-group-text bg-light border-end-0"
-                    ><i class="bi bi-search"></i
-                ></span>
+
+        <div class="d-flex gap-2 align-items-center">
+            <a
+                href="{% url 'create_session' %}"
+                class="btn btn-info btn-sm fw-bold rounded-pill"
+            >
+                <i class="bi bi-plus-lg me-1"></i> 세션 추가
+            </a>
+
+            <a
+                href="{% url 'index' %}"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
+        </div>
+    </div>
+
+    <div
+        class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 my-4"
+    >
+        <p class="mb-0 small text-muted ms-md-2">
+            현재 활성화된 작업 세션 목록입니다.
+        </p>
+
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group shadow-sm" style="max-width: 320px">
+                <span
+                    class="input-group-text bg-light border-end-0 rounded-start-3"
+                >
+                    <i class="bi bi-search"></i>
+                </span>
                 <input
                     type="text"
-                    class="form-control border-start-0"
+                    class="form-control border-start-0 rounded-end-3"
                     placeholder="세션 검색..."
                     id="sessionSearch"
                 />
             </div>
+
             {% if request.session.user_role == 'admin' and active_count > 0 %}
             <button
                 class="btn btn-outline-danger fw-bold"
                 data-bs-toggle="modal"
                 data-bs-target="#resetAllModal"
+                title="전체 초기화"
             >
                 <i class="bi bi-trash3-fill"></i>
             </button>
@@ -53,7 +79,7 @@
         </div>
     </div>
 
-    <div class="row g-4 mb-4" id="sessionsGrid" data-aos="fade-up">
+    <div class="row g-4" id="sessionsGrid" data-aos="fade-up">
         {% for session in active_sessions %}
         <div class="col-12 col-md-6 col-lg-3 session-col">
             <div

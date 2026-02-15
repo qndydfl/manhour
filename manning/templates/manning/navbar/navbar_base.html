@@ -1,24 +1,48 @@
-<nav
-    class="navbar navbar-expand-lg navbar-dark py-2 fixed-top w-100 border-bottom border-white border-opacity-10"
-    style="
-        background: rgba(30, 41, 59, 0.8);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-    "
->
+<nav class="navbar navbar-expand-lg navbar-dark py-3 fixed-top w-100 bg-dark">
     <div class="container-fluid px-4">
+        {% if request.session.user_role == "admin" %} 
+            {% if request.resolver_match.url_name != "login" %}
+            <button
+                type="button"
+                class="btn btn-light btn-sm rounded-pill sidebar-toggle js-sidebar-toggle text-primary fw-bold d-none d-md-block"
+                data-sidebar-action="toggle"
+                aria-label="Toggle sidebar"
+            >
+                <i class="bi bi-list"></i>
+                사이드바
+            </button>
+            {% endif %} 
+        {% endif %}
         <a
             class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-5"
             href="{% url 'index' %}"
         >
             <div
-                class="icon-circle bg-warning bg-opacity-20 text-warning"
-                style="width: 35px; height: 35px; font-size: 1.2rem"
+                class="icon-circle bg-warning bg-opacity-20 text-white"
+                style="width: 1.5rem; height: 1.5rem; font-size: 1.2rem"
             >
                 <i class="bi bi-airplane-engines-fill"></i>
             </div>
             <span class="ls-1">Manning System</span>
         </a>
+
+        {% if active_count > 0 %}
+        <span
+            class="badge bg-success bg-opacity-20 text-white px-3 pb-2 rounded-pill fw-bold border border-success border-opacity-10 animate__animated animate__fadeIn d-none d-lg-block"
+        >
+            <span
+                class="spinner-grow spinner-grow-sm me-1 text-warning"
+                role="status"
+            ></span>
+            가동 중
+        </span>
+        {% else %}
+        <span
+            class="badge bg-secondary bg-opacity-20 text-white px-3 py-2 rounded-pill border border-white border-opacity-10 d-none d-lg-block"
+        >
+            대기 중
+        </span>
+        {% endif %}
 
         <button
             class="navbar-toggler border-0"
@@ -33,7 +57,7 @@
         </button>
 
         <div
-            class="collapse navbar-collapse justify-content-end"
+            class="collapse navbar-collapse justify-content-end nav-actinons"
             id="mainNavbar"
         >
             <div
@@ -46,23 +70,123 @@
                 >
                     <i class="bi bi-shield-lock me-1"></i> ADMIN
                 </a>
-                {% endif %} {% if active_count|default:"" != "" %} 
-                {% if active_count > 0 %}
-                <span
-                    class="badge bg-success bg-opacity-20 text-white px-3 pb-2 rounded-pill fw-bold border border-success border-opacity-20 animate__animated animate__fadeIn"
-                >
-                    <span
-                        class="spinner-grow spinner-grow-sm me-1 text-warning"
-                        role="status"
-                    ></span>
-                    가동 중
-                </span>
-                {% else %}
-                <span
-                    class="badge bg-secondary bg-opacity-20 text-white px-3 py-2 rounded-pill border border-white border-opacity-10"
-                >
-                    대기 중
-                </span>
+                {% endif %} 
+                
+                {% if request.resolver_match.url_name != "login" %}
+                <div class="dropdown">
+                    <button
+                        class="btn btn-outline-light btn-sm rounded-pill dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <i class="bi bi-list"></i> Menu
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'index' %}">
+                                <i class="bi bi-house me-2"></i>Dash Board(Home)
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                href="{% url 'session_list' %}"
+                            >
+                                <i class="bi bi-grid me-2"></i>Session List
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                href="{% url 'create_session' %}"
+                            >
+                                <i class="bi bi-plus-circle me-2"></i>New
+                                Session
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'history' %}">
+                                <i class="bi bi-clock-history me-2"></i>History
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                href="{% url 'master_data_list' %}"
+                            >
+                                <i class="bi bi-database me-2"></i>Master Data
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                href="{% url 'paste_data' %}"
+                            >
+                                <i class="bi bi-clipboard-plus me-2"></i>Data
+                                Registration
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                href="{% url 'settings' %}"
+                            >
+                                <i class="bi bi-gear me-2"></i>Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %} 
+                {% if request.resolver_match.url_name == "index" %}
+                {% if index_videos or index_shorts %}
+                <div class="dropdown">
+                    <button
+                        class="btn btn-warning btn-sm rounded-pill dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <i class="bi bi-play-btn-fill me-1"></i>동영상
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        {% if index_videos %}
+                        <li><h6 class="dropdown-header">YouTube Videos</h6></li>
+                            {% for video in index_videos %}
+                            <li>
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#videoModal"
+                                    data-video-url="{{ video.youtube_url }}"
+                                    data-video-title="{{ video.title }}"
+                                >
+                                    {{ video.title }}
+                                </button>
+                            </li>
+                            {% endfor %} 
+                        {% endif %} 
+                        {% if index_shorts %}
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><h6 class="dropdown-header">Shorts</h6></li>
+                        {% for short in index_shorts %}
+                        <li>
+                            <button
+                                type="button"
+                                class="dropdown-item"
+                                data-bs-toggle="modal"
+                                data-bs-target="#videoModal"
+                                data-video-url="{{ short.youtube_url }}"
+                                data-video-title="{{ short.title }}"
+                            >
+                                {{ short.title }}
+                            </button>
+                        </li>
+                        {% endfor %} 
+                        {% endif %}
+                    </ul>
+                </div>
                 {% endif %} 
                 {% endif %}
 
@@ -92,20 +216,20 @@
                             style="font-size: 0.8rem; width: auto"
                         >
                             {% with groups="GMP-1그룹 GMP-2그룹 GMP-3그룹 ICN-1그룹 ICN-2그룹 ICN-3그룹" %} 
-                                {% for group in groups.split %}
-                                <option
-                                    value="{{ group }}"
-                                    {%
-                                    if
-                                    request.session.workplace=="group"
-                                    %}selected{%
-                                    endif
-                                    %}
-                                >
-                                    {{ group }}
-                                </option>
-                                {% endfor %} 
-                            {% endwith %}
+                            {% for group in groups.split %}
+                            <option
+                                value="{{ group }}"
+                                {%
+                                if
+                                request.session.workplace=""
+                                ="group"
+                                %}selected{%
+                                endif
+                                %}
+                            >
+                                {{ group }}
+                            </option>
+                            {% endfor %} {% endwith %}
                         </select>
                         <button
                             type="submit"
@@ -120,7 +244,7 @@
                 {% block nav_return %}
                 <a
                     href="{% url 'logout' %}"
-                    class="btn btn-outline-danger btn-sm px-3 rounded-pill border-opacity-25 hover-lift fw-bold"
+                    class="btn btn-outline-danger btn-sm px-3 rounded-pill border-opacity-25 hover-lift fw-bold me-3"
                 >
                     <i class="bi bi-box-arrow-right"></i>
                     로그아웃

@@ -56,10 +56,46 @@
     </head>
     <body>
         {% block background_image %}{% endblock background_image %}
-
+        {% with url_name=request.resolver_match.url_name %}
+        {% if url_name != "login" and url_name != "index" %}
+        <div class="app-shell">
+            <aside class="app-sidebar" aria-label="Primary">
+                <div class="app-sidebar__brand">Menu</div>
+                <nav class="app-sidebar__nav">
+                    <a class="app-sidebar__link" href="{% url 'index' %}">
+                        <i class="bi bi-house"></i> Dash Board(Home)
+                    </a>
+                    <a class="app-sidebar__link" href="{% url 'session_list' %}">
+                        <i class="bi bi-grid"></i> Session List
+                    </a>
+                    <a class="app-sidebar__link" href="{% url 'create_session' %}">
+                        <i class="bi bi-plus-circle"></i> New Session
+                    </a>
+                    <a class="app-sidebar__link" href="{% url 'history' %}">
+                        <i class="bi bi-clock-history"></i> History
+                    </a>
+                    <a class="app-sidebar__link" href="{% url 'master_data_list' %}">
+                        <i class="bi bi-database"></i> Master Data
+                    </a>
+                    <a class="app-sidebar__link" href="{% url 'paste_data' %}">
+                        <i class="bi bi-clipboard-plus"></i> Data Registration
+                    </a>
+                    <a class="app-sidebar__link" href="{% url 'settings' %}">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                </nav>
+            </aside>
+            <div
+                class="sidebar-overlay js-sidebar-toggle"
+                data-sidebar-action="close"
+                aria-hidden="true"
+            ></div>
+            <div class="page-content has-sidebar">
+        {% else %}
         <div class="page-content">
+        {% endif %}
             <header class="ios-topbar">
-                {% include navbar_template|default:"manning/navbar/navbar_base.html" %}
+                {% include "manning/navbar/navbar_base.html" %}
             </header>
 
             <main class="ios-wrap">
@@ -89,6 +125,10 @@
 
             {% block footer %}{% endblock footer %}
         </div>
+        {% if url_name != "login" and url_name != "index" %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -100,6 +140,17 @@
                     });
                 }
             });
+            
+            // 사이드 바 위치 설정을 세션 스토리지에서 읽어와 적용
+            (function() {
+                const sidePos = sessionStorage.getItem('sidebarPosition') || 'left';
+                if (sidePos === 'right') {
+                    document.body.classList.add('sidebar-right');
+                }
+                // 사이드바를 기본적으로 숨긴 상태로 시작하려면 미리 클래스 추가
+                document.body.classList.remove('sidebar-open');
+            })();
+
         </script>
     </body>
 </html>

@@ -24,29 +24,37 @@
 {% endblock background_image %} 
 
 {% block content %}
-<div class="container glass-panel mb-5 rounded-3" >
-    <div class="d-flex justify-content-between align-items-center my-4" >
+<div class="container glass-panel my-4 py-4 rounded-3" >
+    <div class="d-flex justify-content-between align-items-center" >
         <div class="d-flex align-items-center gap-3">
             <div>
-                <h4 class="mb-0 text-danger fw-bold">
+                <h4 class="mb-0 text-dark fw-bold">
                     <i class="bi bi-gear-wide-connected text-primary me-2"></i>
                     데이터 통합 관리
                 </h4>
             </div>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
             <button
                 type="button"
-                class="btn btn-primary fw-bold btn-sm rounded-pill px-2 shadow-sm"
+                class="btn btn-info fw-bold btn-sm rounded-pill px-2 shadow-sm"
                 data-bs-toggle="modal"
                 data-bs-target="#pasteDataModal"
             >
                 <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
             </button>
+            <a
+                href="{% url 'result_view' session.id %}"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
         </div>
+        
     </div>
-    <div class="d-flex align-items-center text-dark small mb-3">
+    <div class="d-flex align-items-center text-dark small my-3">
         <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
         <strong>모든 항목</strong>을 수정 또는 삭제 후&nbsp;
         <span class="text-success fw-bold">"저장 및 재배정"</span>&nbsp;을

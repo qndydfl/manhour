@@ -1,7 +1,13 @@
-{% extends "manning/base/base.html" %} {% load static %} {% block title
-%}{{worker_name }}님의 시간표 | Manning {% endblock title %} {% block css %}
+{% extends "manning/base/base.html" %} 
+{% load static %} 
+
+{% block title %}{{worker_name }}님의 시간표 | Manning {% endblock title %} 
+
+{% block css %}
 <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
-{% endblock css %} {% block js %}
+{% endblock css %} 
+
+{% block js %}
 <script>
     window.SESSION_ID = "{{ session.id }}";
     window.CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
@@ -22,23 +28,27 @@
     }
 </script>
 <script defer src="{% static 'js/personal_schedule.js' %}"></script>
-{% endblock js %} {% block background_image %} {% include
-"manning/image/background_url.html" with bg_key="personal_schedule"
-bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} {%
-endblock background_image %} {% block content %}
+{% endblock js %} 
+
+{% block background_image %} 
+    {% include "manning/image/background_url.html" with bg_key="personal_schedule" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+{% endblock background_image %} 
+
+
+{% block content %}
 <div
-    class="container glass-panel rounded-3 pt-3 pb-0"
+    class="container glass-panel rounded-3 my-4 py-4"
     style="max-width: 1000px"
 >
     <div
-        class="d-flex justify-content-between align-items-center my-4"
+        class="d-flex justify-content-between align-items-center"
         data-aos="fade-down"
     >
         <h4 class="fw-bold mb-0 text-dark">
             <span class="text-primary">{{ worker_name }}</span>
             <span class="fw-normal text-muted fs-6 ms-2">님의 시간표</span>
         </h4>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
             <button
                 type="button"
                 class="btn btn-light glass-panel border-0 rounded-pill px-3 fw-bold shadow-sm"
@@ -54,12 +64,19 @@ endblock background_image %} {% block content %}
             >
                 <i class="bi bi-pencil-square me-1"></i> 수동 입력
             </button>
+            <a
+                href="{% url 'assigned_summary' session.id %}"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-2"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
         </div>
     </div>
 
     {% if schedule %}
-    <div class="row g-3 mb-4" data-aos="fade-up">
-        <div class="col-6">
+    <div class="row g-3 py-4 p-0" data-aos="fade-up">
+        <div class="col-md-6">
             <div
                 class="widget-card glass-panel d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
             >
@@ -81,7 +98,7 @@ endblock background_image %} {% block content %}
                 </div>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-md-6">
             <div
                 class="widget-card glass-panel d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
             >
@@ -106,7 +123,7 @@ endblock background_image %} {% block content %}
     </div>
 
     <div
-        class="card glass-panel border-0 shadow-lg rounded-3 overflow-hidden mb-5"
+        class="card glass-panel border-0 shadow-lg rounded-3 overflow-hidden"
         data-aos="fade-up"
         data-aos-delay="100"
     >
@@ -125,34 +142,30 @@ endblock background_image %} {% block content %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in schedule %} {% if item.wo != 'EMPTY_SLOT' %}
+                    {% for item in schedule %} 
+                    {% if item.wo != 'EMPTY_SLOT' %}
                     <tr
                         class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
                         style="font-size: 0.9rem"
                     >
                         <td class="fw-bold text-dark">
-                            {% if item.wo != '간비' %}{{ item.wo }}{% else
-                            %}&nbsp;{% endif %}
+                            {% if item.wo != '간비' %}{{ item.wo }}{% else %}&nbsp;{% endif %}
                         </td>
                         <td>
-                            {% if item.op %}{{ item.op }}{% else %}&nbsp;{%
-                            endif %}
+                            {% if item.op %}{{ item.op }}{% else %}&nbsp;{% endif %}
                         </td>
                         <td class="fw-bold text-primary">
-                            {% if item.wo == '간비' and item.desc and item.desc
-                            != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif
-                            %}
+                            {% if item.wo == '간비' and item.desc and item.desc != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif %}
                         </td>
                         <td class="fw-bold font-monospace text-secondary">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{
-                            item.start_str }}{% endif %}
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% endif %}
                         </td>
                         <td class="fw-bold font-monospace text-secondary">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{
-                            item.end_str }}{% endif %}
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}
                         </td>
                     </tr>
-                    {% endif %} {% endfor %}
+                    {% endif %} 
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -160,14 +173,13 @@ endblock background_image %} {% block content %}
             class="card-footer bg-white bg-opacity-25 border-0 text-center py-3"
         >
             <small class="text-dark opacity-75"
-                ><i class="bi bi-info-circle me-1"></i>표 내용을 드래그하거나
-                상단 [복사] 버튼을 사용하세요.</small
+                ><i class="bi bi-info-circle me-1"></i>표 내용을 드래그하거나 상단 [복사] 버튼을 사용하세요.</small
             >
         </div>
     </div>
 
     {% else %}
-    <div class="text-center py-5 glass-panel rounded-3" data-aos="zoom-in">
+    <div class="text-center my-5 py-5 glass-panel rounded-3" data-aos="zoom-in">
         <i class="bi bi-calendar-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
         <h6 class="text-muted fw-bold">배정된 작업이 없습니다.</h6>
     </div>
@@ -254,8 +266,7 @@ endblock background_image %} {% block content %}
                 >
                     <i class="bi bi-info-circle-fill text-primary mt-1"></i>
                     <div>
-                        <strong>작성 요령:</strong> 시간은 4자리 숫자(0900)로
-                        입력하세요.<br />
+                        <strong>작성 요령:</strong> 시간은 4자리 숫자(0900)로 입력하세요.<br />
                         내용에 '0'을 입력하면 해당 줄은 저장되지 않습니다.
                     </div>
                 </div>

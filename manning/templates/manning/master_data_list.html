@@ -4,13 +4,17 @@
 {% block title %}마스터 데이터 관리 | Manning System{% endblock title %} 
 
 {% block background_image %} 
-{% include "manning/image/background_url.html" with bg_key="master_data_list" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+    {% include "manning/image/background_url.html" with bg_key="master_data_list" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
 
+
 {% block content %}
-<div class="container glass-panel rounded-3 mt-4 py-4" style="max-width: 1000px">
+<div
+    class="container glass-panel rounded-3 my-4 py-4"
+    style="max-width: 1000px"
+>
     <div
-        class="d-flex justify-content-between align-items-center mb-4"
+        class="d-flex justify-content align-items-center my-4"
         data-aos="fade-down"
     >
         <div class="d-flex align-items-center gap-2">
@@ -18,30 +22,26 @@
         </div>
 
         {% if taskmasters %}
-        <form
-            action="{% url 'delete_all_taskmasters' %}"
-            method="POST"
-            class="d-inline"
-        >
-            {% csrf_token %}
-            <input type="hidden" name="next" value="master_data_list" />
-            <button
-                type="submit"
-                class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-sm"
-                onclick="
-                    return confirm(
-                        '⚠️ 경고: 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
-                    );
-                "
+        <div class="d-flex gap-2 ms-auto">
+            <a
+                href="{% url 'master_data_edit' %}"
+                class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold shadow-sm me-2"
             >
-                <i class="bi bi-trash3-fill me-1"></i> 전체 삭제
-            </button>
-        </form>
+                <i class="bi bi-pencil-square me-1"></i> 전체 수정
+            </a>
+        </div>
         {% endif %}
+        <a
+                href="{% url 'index' %}"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
     </div>
 
     <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel"
+        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel my-4"
         data-aos="fade-up"
     >
         <div class="card-header bg-white border-bottom pt-4 pb-3 px-4">
@@ -74,14 +74,11 @@
                             <th class="py-3" style="width: 10%">OP</th>
                             <th class="py-3" style="width: 32%">
                                 설명 (Description)
-                            </th>                            
+                            </th>
                             <th class="py-3 text-center" style="width: 10%">
                                 기준 M/H
                             </th>
                             <th class="py-3" style="width: 13%">생성 시간</th>
-                            <th class="py-3 text-center" style="width: 10%">
-                                삭제
-                            </th>
                         </tr>
                     </thead>
                     <tbody class="border-top-0">
@@ -107,7 +104,7 @@
                                 >
                                     {{ t.description }}
                                 </div>
-                            </td>                            
+                            </td>
                             <td class="text-center fw-bold text-primary">
                                 {{ t.default_mh }}
                             </td>
@@ -115,34 +112,6 @@
                                 <span class="text-muted small"
                                     >{{ t.created_at|date:"Y-m-d H:i" }}</span
                                 >
-                            </td>
-                            <td class="text-center">
-                                <form
-                                    action="{% url 'delete_taskmaster' t.id %}"
-                                    method="POST"
-                                    class="d-inline"
-                                >
-                                    {% csrf_token %}
-                                    <input
-                                        type="hidden"
-                                        name="next"
-                                        value="master_data_list"
-                                    />
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm btn-light text-danger border-0 rounded-circle"
-                                        style="width: 32px; height: 32px"
-                                        onclick="
-                                            return confirm(
-                                                '이 항목을 삭제하시겠습니까?',
-                                            );
-                                        "
-                                        data-bs-toggle="tooltip"
-                                        title="삭제"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                         {% endfor %}

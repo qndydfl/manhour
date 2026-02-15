@@ -1,0 +1,73 @@
+.master-data-edit {
+    max-width: 1200px;
+}
+
+.master-data-edit .table.text-nowrap {
+    white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+    .master-data-edit {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .master-data-edit .table-responsive {
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .master-data-edit {
+        max-width: 100%;
+        margin-top: 12px;
+        padding: 16px;
+    }
+
+    .master-data-edit .card-header {
+        padding: 16px;
+    }
+
+    .master-data-edit .table.text-nowrap {
+        white-space: normal;
+    }
+
+    .master-data-edit .table th,
+    .master-data-edit .table td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+
+    .master-data-edit .table td .form-control,
+    .master-data-edit .table td .form-control-sm {
+        font-size: 0.85rem;
+        padding: 4px 8px;
+    }
+
+    .master-data-edit .btn {
+        padding: 6px 14px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .master-data-edit .table th,
+    .master-data-edit .table td {
+        font-size: 0.8rem;
+    }
+
+    .master-data-edit .table td .form-control,
+    .master-data-edit .table td .form-control-sm {
+        font-size: 0.8rem;
+        padding: 3px 6px;
+    }
+
+    .master-data-edit .d-flex.gap-2 {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .master-data-edit .d-flex.gap-2 > * {
+        width: auto;
+    }
+}

@@ -72,6 +72,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.debug",
+                "manning.context_processors.active_session_status",
             ],
         },
     },
@@ -156,3 +157,7 @@ SESSION_COOKIE_SAMESITE = "Strict"  # CSRF 공격 방지
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# 유튜브 보안 설정
+SECURE_REFERRER_POLICY = "origin-when-cross-origin"

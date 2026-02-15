@@ -1,0 +1,85 @@
+{% extends "manning/base/base.html" %}
+{% load static %}
+
+{% block title %}설정 | Manning System{% endblock %} 
+
+{% block content %}
+<div class="container" style="max-width: 820px">
+    <div class="card shadow-sm p-4">
+        <div class="mb-4">
+            <h1 class="h4 fw-bold mb-2">UI 설정</h1>
+            <p class="text-muted mb-0">
+                이 설정은 현재 브라우저 세션에만 저장됩니다.
+            </p>
+        </div>
+
+        <div class="mb-4">
+            <h2 class="h6 fw-bold mb-3">사이드바 위치</h2>
+            <div class="d-flex flex-wrap gap-4">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="sidebar-position"
+                        id="sidebar-left"
+                        value="left"
+                        data-setting="sidebarPosition"
+                    />
+                    <label class="form-check-label" for="sidebar-left">
+                        좌측
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="sidebar-position"
+                        id="sidebar-right"
+                        value="right"
+                        data-setting="sidebarPosition"
+                    />
+                    <label class="form-check-label" for="sidebar-right">
+                        우측
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h2 class="h6 fw-bold mb-3">Navbar 토글 버튼 위치</h2>
+            <div class="d-flex flex-wrap gap-4">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="navbar-toggle-position"
+                        id="navbar-toggle-left"
+                        value="left"
+                        data-setting="navbarTogglePosition"
+                    />
+                    <label class="form-check-label" for="navbar-toggle-left">
+                        좌측
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="navbar-toggle-position"
+                        id="navbar-toggle-right"
+                        value="right"
+                        data-setting="navbarTogglePosition"
+                    />
+                    <label class="form-check-label" for="navbar-toggle-right">
+                        우측
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-secondary mb-0" role="alert">
+            추후 더 많은 설정 항목을 이 페이지에 추가할 수 있습니다.
+        </div>
+    </div>
+</div>
+{% endblock content %}

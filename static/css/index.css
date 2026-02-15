@@ -234,3 +234,12 @@
         background-position: center;
     }
 }
+
+
+.video-hover-wrapper video {
+    transition: transform 0.4s ease;
+}
+
+.video-hover-wrapper:hover video {
+    transform: scale(1.05);
+}

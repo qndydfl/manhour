@@ -1,5 +1,7 @@
+import re
+
 from django import forms
-from .models import WorkItem, Assignment
+from .models import WorkItem, Assignment, TaskMaster
 
 
 class WorkItemForm(forms.ModelForm):
@@ -8,10 +10,10 @@ class WorkItemForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(
             attrs={
-            "class": "table-input fw-bold text-dark bg-transparent js-assigned-text",
-            "placeholder": "이름 입력",
-            "rows": 1,          # 기본 1줄
-            "style": "resize: vertical; min-height: 2.4rem;",
+                "class": "table-input fw-bold text-dark bg-transparent js-assigned-text",
+                "placeholder": "이름 입력",
+                "rows": 1,  # 기본 1줄
+                "style": "resize: vertical; min-height: 2.4rem;",
             }
         ),
     )
@@ -61,6 +63,77 @@ class WorkerForm(forms.Form):
 
 class PasteDataForm(forms.Form):
     excel_data = forms.CharField(widget=forms.Textarea)
+
+
+class TaskMasterForm(forms.ModelForm):
+    class Meta:
+        model = TaskMaster
+        fields = [
+            "gibun_code",
+            "work_order",
+            "op",
+            "description",
+            "default_mh",
+        ]
+        widgets = {
+            "gibun_code": forms.TextInput(
+                attrs={
+                    "class": "form-control form-control-sm js-gibun-code",
+                    "autocomplete": "off",
+                }
+            ),
+            "work_order": forms.TextInput(
+                attrs={
+                    "class": "form-control form-control-sm js-numeric-only",
+                    "inputmode": "numeric",
+                    "pattern": "\\d*",
+                    "autocomplete": "off",
+                }
+            ),
+            "op": forms.TextInput(
+                attrs={
+                    "class": "form-control form-control-sm js-numeric-only",
+                    "inputmode": "numeric",
+                    "pattern": "\\d*",
+                    "autocomplete": "off",
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={"class": "form-control form-control-sm", "rows": 1}
+            ),
+            "default_mh": forms.NumberInput(
+                attrs={
+                    "class": "form-control form-control-sm js-decimal-only",
+                    "step": "0.1",
+                    "inputmode": "decimal",
+                }
+            ),
+        }
+
+    def clean_gibun_code(self):
+        value = (self.cleaned_data.get("gibun_code") or "").strip().upper()
+        if value.isdigit():
+            value = f"HL{value}"
+        return value
+
+    def clean_work_order(self):
+        value = (self.cleaned_data.get("work_order") or "").strip()
+        if value and not value.isdigit():
+            raise forms.ValidationError("Work Order는 숫자만 입력할 수 있습니다.")
+        return value
+
+    def clean_op(self):
+        value = (self.cleaned_data.get("op") or "").strip()
+        if value and not value.isdigit():
+            raise forms.ValidationError("OP는 숫자만 입력할 수 있습니다.")
+        return value
+
+    def clean_default_mh(self):
+        raw_key = self.add_prefix("default_mh")
+        raw_value = (self.data.get(raw_key) or "").strip()
+        if raw_value and not re.match(r"^\d+(\.\d+)?$", raw_value):
+            raise forms.ValidationError("기준 M/H는 숫자만 입력할 수 있습니다.")
+        return self.cleaned_data.get("default_mh")
 
 
 class EditAllForm(forms.ModelForm):
