@@ -19,7 +19,7 @@ SLOT_UNIT = 0.1  # 0.1시간(6분) 단위
 # 1) 자동 배정 서비스 (단순화: 팀 지정 -> 공용 풀 fallback)
 # -----------------------------------------------------------
 class AutoAssignService:
-    def __init__(self, session_id: int):
+    def __init__(self, session_id: int, adjusted_mh_map=None):
         self.session = WorkSession.objects.get(id=session_id)
         # ✅ 입력 순서(ID)대로 작업자를 가져옵니다.
         self.workers = list(self.session.worker_set.all().order_by("id"))
@@ -28,6 +28,14 @@ class AutoAssignService:
         self.temp_load = {w.id: 0.0 for w in self.workers}
         self.target_load = None
         self.ignore_existing_loads = False
+        self.adjusted_mh_map = {}
+        if isinstance(adjusted_mh_map, dict):
+            for key, value in adjusted_mh_map.items():
+                try:
+                    item_id = int(key)
+                    self.adjusted_mh_map[item_id] = float(value)
+                except Exception:
+                    continue
 
         # ❌ self.team_workers_map 삭제됨 (여기서 에러가 났었음)
 
@@ -49,7 +57,7 @@ class AutoAssignService:
             if not self.ignore_existing_loads:
                 self._load_base_assignments()
             total_base = sum(self.temp_load.values())
-            total_auto = sum(float(it.work_mh or 0.0) for it in self.auto_items)
+            total_auto = sum(self._get_item_mh(it) for it in self.auto_items)
             if self.workers:
                 self.target_load = (total_base + total_auto) / len(self.workers)
             Assignment.objects.filter(
@@ -125,7 +133,7 @@ class AutoAssignService:
         cand_ids = [w.id for w in candidates]
 
         for item in items:
-            needed = float(item.work_mh or 0.0)
+            needed = self._get_item_mh(item)
             if needed <= 0:
                 continue
 
@@ -184,6 +192,11 @@ class AutoAssignService:
                     )
 
         return created, []
+
+    def _get_item_mh(self, item):
+        if self.adjusted_mh_map and item.id in self.adjusted_mh_map:
+            return float(self.adjusted_mh_map[item.id])
+        return float(item.work_mh or 0.0)
 
 
 # (ScheduleSyncService 및 helper 함수들은 이전과 동일하여 생략, 위 코드에 포함됨)
@@ -281,8 +294,8 @@ class ScheduleSyncService:
         return None
 
 
-def run_auto_assign(session_id):
-    AutoAssignService(session_id).run()
+def run_auto_assign(session_id, adjusted_mh_map=None):
+    AutoAssignService(session_id, adjusted_mh_map=adjusted_mh_map).run()
 
 
 def run_sync_schedule(session_id):

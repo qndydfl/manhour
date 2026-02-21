@@ -1,4 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark py-3 fixed-top w-100 bg-dark">
+<nav
+    class="navbar navbar-expand-lg navbar-dark py-3 fixed-top w-100 bg-dark shadow-sm"
+>
     <div class="container-fluid px-4">
         {% if request.session.user_role == "admin" %} 
             {% if request.resolver_match.url_name != "login" %}
@@ -13,79 +15,88 @@
             </button>
             {% endif %} 
         {% endif %}
-        <a
-            class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-5"
-            href="{% url 'index' %}"
-        >
-            <div
-                class="icon-circle bg-warning bg-opacity-20 text-white"
-                style="width: 1.5rem; height: 1.5rem; font-size: 1.2rem"
-            >
-                <i class="bi bi-airplane-engines-fill"></i>
-            </div>
-            <span class="ls-1">Manning System</span>
-        </a>
 
-        {% if active_count > 0 %}
-        <span
-            class="badge bg-success bg-opacity-20 text-white px-3 pb-2 rounded-pill fw-bold border border-success border-opacity-10 animate__animated animate__fadeIn d-none d-lg-block"
-        >
+        <div class="d-flex align-items-center gap-2">
+            <a
+                class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-5"
+                href="{% url 'index' %}"
+            >
+                <div
+                    class="icon-circle bg-warning bg-opacity-20 text-white"
+                    style="
+                        width: 1.5rem;
+                        height: 1.5rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    "
+                >
+                    <i class="bi bi-airplane-engines-fill"></i>
+                </div>
+                <span class="paste_data">Manning System</span>
+            </a>
+        </div>
+
+        {# 로그인 페이지가 아닐 때만 오른쪽 메뉴들 표시 #} 
+        {% if request.resolver_match.url_name != "login" %} {# 상태 표시 배지 #}
+        <div class="d-none d-lg-block ms-auto me-3">
+            {% if active_count > 0 %}
             <span
-                class="spinner-grow spinner-grow-sm me-1 text-warning"
-                role="status"
-            ></span>
-            가동 중
-        </span>
-        {% else %}
-        <span
-            class="badge bg-secondary bg-opacity-20 text-white px-3 py-2 rounded-pill border border-white border-opacity-10 d-none d-lg-block"
-        >
-            대기 중
-        </span>
-        {% endif %}
+                class="badge bg-success bg-opacity-20 text-white px-3 py-2 rounded-pill fw-bold border border-success border-opacity-10"
+            >
+                <span
+                    class="spinner-grow spinner-grow-sm me-1 text-warning"
+                ></span>
+                가동 중
+            </span>
+            {% else %}
+            <span
+                class="badge bg-secondary bg-opacity-20 text-white px-3 py-2 rounded-pill border border-white border-opacity-10"
+                >대기 중</span
+            >
+            {% endif %}
+        </div>
 
         <button
             class="navbar-toggler border-0"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#mainNavbar"
-            aria-controls="mainNavbar"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
         >
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div
-            class="collapse navbar-collapse justify-content-end nav-actinons"
+            class="collapse navbar-collapse justify-content-end"
             id="mainNavbar"
         >
             <div
-                class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 mt-3 mt-lg-0"
+                class="d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0"
             >
+                {# 관리자 메뉴 #} 
                 {% if request.session.user_role == "admin" %}
                 <a
                     href="/admin/"
-                    class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm fw-bold border-0"
+                    class="btn btn-danger btn-sm rounded-pill px-3 fw-bold"
+                    >ADMIN</a
                 >
-                    <i class="bi bi-shield-lock me-1"></i> ADMIN
-                </a>
-                {% endif %} 
-                
+                {% endif %} {# 드롭다운 메뉴 (조건부 동영상 포함) #}
+
                 {% if request.resolver_match.url_name != "login" %}
                 <div class="dropdown">
                     <button
                         class="btn btn-outline-light btn-sm rounded-pill dropdown-toggle"
                         type="button"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false"
                     >
                         <i class="bi bi-list"></i> Menu
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark">
+                    <ul
+                        class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg"
+                    >
                         <li>
                             <a class="dropdown-item" href="{% url 'index' %}">
-                                <i class="bi bi-house me-2"></i>Dash Board(Home)
+                                <i class="bi bi-house me-2"></i>Home
                             </a>
                         </li>
                         <li>
@@ -137,7 +148,8 @@
                         </li>
                     </ul>
                 </div>
-                {% endif %} 
+                {% endif %}
+
                 {% if request.resolver_match.url_name == "index" %}
                 {% if index_videos or index_shorts %}
                 <div class="dropdown">
@@ -190,67 +202,47 @@
                 {% endif %} 
                 {% endif %}
 
+                {# 근무지 표시/변경 (Admin용) #}
                 <div
-                    class="d-none d-lg-flex align-items-center gap-2 bg-white bg-opacity-10 p-1 ps-3 rounded-pill border border-white border-opacity-10"
+                    class="d-flex align-items-center gap-2 bg-white bg-opacity-10 p-1 ps-3 rounded-pill border border-white border-opacity-10"
                 >
                     <small class="text-white-50">근무지:</small>
-                    <span class="text-white fw-bold me-2"
+                    <span class="text-white fw-bold me-1"
                         >{{ request.session.workplace_label }}</span
                     >
-
                     {% if request.session.user_role == "admin" %}
                     <form
                         method="post"
                         action="{% url 'change_workplace' %}"
-                        class="d-flex align-items-center gap-1"
+                        class="d-flex align-items-center"
                     >
                         {% csrf_token %}
-                        <input
-                            type="hidden"
-                            name="next"
-                            value="{{ request.get_full_path }}"
-                        />
                         <select
                             name="workplace"
-                            class="form-select form-select-sm bg-dark text-white border-0 rounded-pill px-3"
-                            style="font-size: 0.8rem; width: auto"
+                            class="form-select form-select-sm bg-dark text-white border-0 rounded-pill"
+                            onchange="this.form.submit()"
                         >
                             {% with groups="GMP-1그룹 GMP-2그룹 GMP-3그룹 ICN-1그룹 ICN-2그룹 ICN-3그룹" %} 
                             {% for group in groups.split %}
                             <option
                                 value="{{ group }}"
-                                {%
-                                if
-                                request.session.workplace=""
-                                ="group"
-                                %}selected{%
-                                endif
-                                %}
-                            >
+                                {% if request.session.workplace == group %}selected{% endif %}>
                                 {{ group }}
                             </option>
-                            {% endfor %} {% endwith %}
+                            {% endfor %}
+                            {% endwith %}
                         </select>
-                        <button
-                            type="submit"
-                            class="btn btn-link btn-sm text-warning p-0 px-2 fw-bold text-decoration-none"
-                        >
-                            변경
-                        </button>
                     </form>
                     {% endif %}
                 </div>
 
-                {% block nav_return %}
                 <a
                     href="{% url 'logout' %}"
-                    class="btn btn-outline-danger btn-sm px-3 rounded-pill border-opacity-25 hover-lift fw-bold me-3"
+                    class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-bold"
+                    >로그아웃</a
                 >
-                    <i class="bi bi-box-arrow-right"></i>
-                    로그아웃
-                </a>
-                {% endblock nav_return %}
             </div>
         </div>
+        {% endif %}
     </div>
 </nav>

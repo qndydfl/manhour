@@ -1,11 +1,9 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
-
-{% load widget_tweaks %} 
-
+{% load widget_tweaks %}
 {% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
 
-{% block css %} 
+{% block css %}
 <link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
 {% endblock css %} 
 
@@ -14,8 +12,15 @@
     const PASTE_DATA_POST_URL = "{% url 'paste_items' session.id %}";
     const MASTER_DATA_LIST_URL = "{% url 'manage_items' session.id %}";
     const REORDER_ITEMS_URL = "{% url 'reorder_items' session.id %}";
+    const MASTER_ITEMS_URL = "{% url 'master_items' session.id %}";
+    const DUPLICATE_MASTER_ITEMS_URL = "{% url 'duplicate_master_items' session.id %}";
 </script>
 <script defer src="{% static 'js/paste_data.js' %}"></script>
+<script>
+    window.lastMhPercent = "{{ lastMhPercent|default:'0'|escapejs }}";
+    window.adjustedMhCustomIds =
+        "{{ lastAdjustedCustomIds|join:','|escapejs }}";
+</script>
 <script defer src="{% static 'js/manage_items.js' %}"></script>
 {% endblock js %} 
 
@@ -23,14 +28,15 @@
     {% include "manning/image/background_url.html" with bg_key="manage_items" bg_default="https://picsum.photos/id/400/1600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
 
+
 {% block content %}
-<div class="container glass-panel my-4 py-4 rounded-3" >
-    <div class="d-flex justify-content-between align-items-center" >
+<div class="container glass-panel my-4 py-4 rounded-3">
+    <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="mb-0 text-dark fw-bold">
                     <i class="bi bi-gear-wide-connected text-primary me-2"></i>
-                    데이터 통합 관리
+                    데이터 전체 수정
                 </h4>
             </div>
         </div>
@@ -52,7 +58,6 @@
                 <span class="d-none d-md-inline">이전 화면으로</span>
             </a>
         </div>
-        
     </div>
     <div class="d-flex align-items-center text-dark small my-3">
         <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
@@ -137,8 +142,7 @@
                             class="form-control border-0 bg-light small font-monospace p-3 h-100"
                             style="min-height: 150px; resize: none"
                             placeholder="이름: 시간 (줄바꿈)"
-                        >{{ worker_names_str }}</textarea
-                        >
+                        >{{ worker_names_str }}</textarea> 
                     </div>
                 </div>
             </div>
@@ -156,7 +160,8 @@
                     >
                 </div>
                 <span class="text-danger small fw-bold"
-                    ><i class="bi bi-check-square me-1"></i>체크박스 선택 후 저장 시 삭제됩니다.</span
+                    ><i class="bi bi-check-square me-1"></i>체크박스 선택 후
+                    저장 시 삭제됩니다.</span
                 >
             </div>
 
@@ -184,9 +189,35 @@
                                     기번
                                 </th>
                                 <th style="width: 14%" class="col-wo">W/O</th>
-                                <th style="width: 6%" class="col-op">OP</th>
-                                <th style="width: 10%" class="col-desc">작업 내용</th>
-                                <th style="width: 10%" class="col-mh">M/H</th>
+                                <th style="width: 5%" class="col-op">OP</th>
+                                <th style="width: 10%" class="col-desc">
+                                    작업 내용
+                                </th>
+                                <th style="width: 10%" class="col-mh">
+                                    Plan M/H
+                                </th>
+                                <th style="width: 13%" class="col-mh-adjust">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-2"
+                                    >
+                                        <span>조정 M/H</span>
+                                        <select
+                                            class="form-select form-select-sm w-auto mh-adjust-select text-primary fw-bold"
+                                            style="
+                                                min-width: 100px;
+                                                display: inline-block;
+                                            "
+                                        >
+                                            <option value="0">원래값</option>
+                                            <option value="10">+10%</option>
+                                            <option value="20">+20%</option>
+                                            <option value="30">+30%</option>
+                                            <option value="custom">
+                                                개별 수정
+                                            </option>
+                                        </select>
+                                    </div>
+                                </th>
                                 <th
                                     style="width: 40%"
                                     class="bg-primary bg-opacity-10 text-primary col-assign"
@@ -197,7 +228,8 @@
                         </thead>
                         <tbody>
                             {% for form in formset %} {{ form.id }} 
-                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+                            {% for hidden in form.hidden_fields %} {{ hidden }} 
+                            {% endfor %}
 
                             <input
                                 type="hidden"
@@ -219,7 +251,6 @@
                                                 class="bi bi-airplane-engines-fill me-2"
                                             ></i
                                             >{{ form.instance.gibun_input|default:"(기번 없음)" }}
-                                    
                                         </div>
 
                                         <div>
@@ -320,10 +351,25 @@
                                     {% render_field form.op class="table-input" placeholder="OP" %}
                                 </td>
                                 <td class="col-desc">
-                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}    
+                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
                                 </td>
                                 <td class="col-mh">
-                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary" step="0.1" %}
+                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" readonly="readonly" tabindex="-1" aria-readonly="true" %}
+                                </td>
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        name="adjusted_mh"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value="{{ form.initial.adjusted_mh|default:'' }}"
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #f8f9fa;
+                                            pointer-events: none;
+                                        "
+                                    />
                                 </td>
                                 <td class="bg-primary bg-opacity-10 col-assign">
                                     {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
@@ -348,7 +394,9 @@
 </div>
 
 <nav class="navbar navbar-expand-lg fixed-bottom pb-0">
-    <div class="d-flex justify-content-center align-items-center w-100 bg-dark py-3">
+    <div
+        class="d-flex justify-content-center align-items-center w-100 bg-dark py-3"
+    >
         <div class="d-flex gap-2">
             <a
                 href="{% url 'result_view' session.id %}"
@@ -388,106 +436,200 @@
                 ></button>
             </div>
             <div class="modal-body p-4">
-                <div class="instruction-box p-3 rounded-3 mb-4 bg-light border">
-                    <h6 class="fw-bold text-primary mb-2">
-                        <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀
-                        컬럼)
-                    </h6>
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link active"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pasteTab"
+                            type="button"
+                            role="tab"
+                        >
+                            붙여넣기
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link"
+                            data-bs-toggle="tab"
+                            data-bs-target="#masterItemsTab"
+                            type="button"
+                            role="tab"
+                        >
+                            등록된 데이터
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
                     <div
-                        class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
+                        class="tab-pane fade show active"
+                        id="pasteTab"
+                        role="tabpanel"
                     >
-                        <span
-                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                            >1. 기번 (HLxxxx)</span
+                        <div
+                            class="instruction-box p-3 rounded-3 mb-4 bg-light border"
                         >
-                        <i class="bi bi-arrow-right text-muted"></i>
-                        <span
-                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                            >2. Work Order</span
-                        >
-                        <i class="bi bi-arrow-right text-muted"></i>
-                        <span
-                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                            >3. OP</span
-                        >
-                        <i class="bi bi-arrow-right text-muted"></i>
-                        <span
-                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                            >4. Description</span
-                        >
-                        <i class="bi bi-arrow-right text-muted"></i>
-                        <span
-                            class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                            >5. Work (M/H)</span
-                        >
+                            <h6 class="fw-bold text-primary mb-2">
+                                <i class="bi bi-info-circle me-1"></i>데이터
+                                순서 (엑셀 컬럼)
+                            </h6>
+                            <div
+                                class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
+                            >
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >1. 기번 (HLxxxx)</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >2. Work Order</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >3. OP</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >4. Description</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >5. Work (M/H)</span
+                                >
+                            </div>
+                        </div>
+
+                        <form id="pasteForm">
+                            {% csrf_token %}
+
+                            <div class="table-responsive mb-4 border rounded-3">
+                                <table
+                                    class="table table-bordered text-center align-middle mb-0 smart-table"
+                                    id="gridTable"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 15%">
+                                                기번 (Gibun)
+                                            </th>
+                                            <th style="width: 15%">
+                                                Work Order
+                                            </th>
+                                            <th style="width: 10%">OP</th>
+                                            <th style="width: 45%">
+                                                설명 (Description)
+                                            </th>
+                                            <th style="width: 15%">기준 M/H</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <button
+                                        type="button"
+                                        onclick="addRow()"
+                                        class="btn btn-light w-100 fw-bold border text-muted rounded-pill"
+                                    >
+                                        <i class="bi bi-plus-lg"></i> 줄 추가
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button
+                                        type="reset"
+                                        class="btn btn-light w-100 fw-bold text-secondary rounded-pill"
+                                    >
+                                        초기화
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button
+                                        type="button"
+                                        onclick="saveData()"
+                                        class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
+                                    >
+                                        <i class="bi bi-save me-1"></i> 저장
+                                        하기
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+
+                    <div class="tab-pane fade" id="masterItemsTab" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="input-group" style="max-width: 320px">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="masterItemsSearch"
+                                    placeholder="등록 데이터 검색..."
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                id="masterItemsAddBtn"
+                            >
+                                선택 추가
+                            </button>
+                        </div>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40px">
+                                            <input
+                                                type="checkbox"
+                                                id="masterItemsSelectAll"
+                                            />
+                                        </th>
+                                        <th style="width: 12%">기번</th>
+                                        <th style="width: 14%">W/O</th>
+                                        <th style="width: 10%">OP</th>
+                                        <th>작업 내용</th>
+                                        <th style="width: 10%">M/H</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="masterItemsTableBody">
+                                    <tr>
+                                        <td
+                                            colspan="6"
+                                            class="text-center text-muted py-4"
+                                        >
+                                            불러오는 중...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-
-                <form id="pasteForm">
-                    {% csrf_token %}
-
-                    <div class="table-responsive mb-4 border rounded-3">
-                        <table
-                            class="table table-bordered text-center align-middle mb-0 smart-table"
-                            id="gridTable"
-                        >
-                            <thead>
-                                <tr>
-                                    <th style="width: 15%">기번 (Gibun)</th>
-                                    <th style="width: 15%">Work Order</th>
-                                    <th style="width: 10%">OP</th>
-                                    <th style="width: 45%">
-                                        설명 (Description)
-                                    </th>
-                                    <th style="width: 15%">기준 M/H</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <button
-                                type="button"
-                                onclick="addRow()"
-                                class="btn btn-light w-100 fw-bold border text-muted rounded-pill"
-                            >
-                                <i class="bi bi-plus-lg"></i> 줄 추가
-                            </button>
-                        </div>
-                        <div class="col-md-3">
-                            <button
-                                type="reset"
-                                class="btn btn-light w-100 fw-bold text-secondary rounded-pill"
-                            >
-                                초기화
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <button
-                                type="button"
-                                onclick="saveData()"
-                                class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
-                            >
-                                <i class="bi bi-save me-1"></i> 저장 하기
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const pasteModal = document.getElementById('pasteDataModal');
-    if (pasteModal) {
-        // 모달 엘리먼트를 body 태그의 가장 마지막으로 이동시켜 레이어 간섭 제거
-        document.body.appendChild(pasteModal);
-    }
-});
+    document.addEventListener("DOMContentLoaded", function () {
+        const pasteModal = document.getElementById("pasteDataModal");
+        if (pasteModal) {
+            // 모달 엘리먼트를 body 태그의 가장 마지막으로 이동시켜 레이어 간섭 제거
+            document.body.appendChild(pasteModal);
+        }
+    });
 </script>
 
 {% endblock content %} {% block footer %}{% endblock footer %}

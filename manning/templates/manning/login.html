@@ -49,10 +49,7 @@
                     {% for value, label in workplace_options %}
                     <option
                         value="{{ value }}"
-                        {% if value == current_workplace %}
-                        selected
-                        {% endif %}
-                    >
+                        {% if value == current_workplace %}selected{% endif %}>
                         {{ label }}
                     </option>
                     {% endfor %}

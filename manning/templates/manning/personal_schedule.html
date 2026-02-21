@@ -37,7 +37,7 @@
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 my-4 py-4"
+    class="container glass-panel rounded-3 my-3 py-4"
     style="max-width: 1000px"
 >
     <div
@@ -62,7 +62,7 @@
                 data-bs-toggle="modal"
                 data-bs-target="#manualInputModal"
             >
-                <i class="bi bi-pencil-square me-1"></i> 수동 입력
+                <i class="bi bi-pencil-square me-1"></i> 간비 입력
             </button>
             <a
                 href="{% url 'assigned_summary' session.id %}"
@@ -206,7 +206,7 @@
                 ></button>
             </div>
 
-            <div class="modal-body p-4">
+            <div class="modal-body p-4 pb-0">
                 <div class="mb-4">
                     <label
                         class="form-label fw-bold small text-uppercase text-muted"
@@ -266,8 +266,11 @@
                 >
                     <i class="bi bi-info-circle-fill text-primary mt-1"></i>
                     <div>
-                        <strong>작성 요령:</strong> 시간은 4자리 숫자(0900)로 입력하세요.<br />
-                        내용에 '0'을 입력하면 해당 줄은 저장되지 않습니다.
+                        <strong>작성 요령:</strong><br />
+                        1.시간은 4자리 숫자(0900)로 입력하세요.<br />
+                        2.0을 입력한 줄은 시간표에서 빈 칸으로 표시됩니다. <br />
+                        <strong class="text-danger">3.야간일 경우 0, 0100, 0200, 주간일 경우 0, 1200, 1300 default 값으로 설정함.</strong><br />
+                        4.작업자 선택 후 저장하면 해당 작업자의 시간표에만 적용됩니다. 전체 작업자 일괄 적용 선택 시 모든 작업자에게 동일한 간비 시간이 적용됩니다.
                     </div>
                 </div>
             </div>

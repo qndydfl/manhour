@@ -3,16 +3,20 @@
 
 {% block title %}작업 이력 (History)| Manning System{% endblock title %} 
 
-{% block background_image %} 
+{% block background_image %}
     {% include "manning/image/background_url.html" with bg_key="history" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
 {% endblock background_image %} 
 
 
 {% block content %}
-<div class="container glass-panel rounded-3 my-4 py-4" style="max-width: 1000px">
+<div
+    class="container glass-panel rounded-3 my-4 py-4"
+    style="max-width: 1000px"
+>
     <div class="d-flex justify-content-between align-items-center my-4 pb-2">
         <h4 class="fw-bold mb-0 text-dark">
-            <i class="bi bi-clock-history text-primary me-2"></i>작업 이력 (History)
+            <i class="bi bi-clock-history text-primary me-2"></i>작업 이력
+            (History)
         </h4>
 
         <div class="d-flex align-items-center gap-2">
@@ -31,7 +35,8 @@
                     type="submit"
                     class="btn btn-sm btn-outline-danger fw-bold hover-shadow rounded-pill px-3"
                 >
-                    <i class="bi bi-trash-fill me-1"></i>모든 기록 초기화
+                    <i class="bi bi-trash-fill me-1"></i>
+                    <span class="d-none d-md-inline">모든 기록 초기화</span>
                 </button>
             </form>
             {% endif %}
@@ -43,7 +48,7 @@
                 <span class="d-none d-md-inline">이전 화면으로</span>
             </a>
         </div>
-    </div>    
+    </div>
 
     <div class="row justify-content-end mb-3">
         <div class="col-md-6 col-lg-4">
@@ -64,7 +69,7 @@
 
     <div class="alert alert-info py-2 mb-3" role="alert">
         <i class="bi bi-info-circle me-2"></i>
-        최근 48시간 이내 기록만 표시됩니다.
+        최근 24시간 이내 기록만 표시됩니다.
     </div>
 
     <div class="card shadow-sm border-0 my-4">
@@ -87,12 +92,10 @@
                     </div>
                     <div class="small text-muted">
                         <span class="me-2"
-                            ><i class="bi bi-people me-1"></i>작업자 
-                            {{ session.worker_set.count }}명
+                            ><i class="bi bi-people me-1"></i>작업자 {{ session.worker_set.count }}명
                         </span>
                         <span
-                            ><i class="bi bi-airplane me-1"></i>아이템 
-                            {{ session.workitem_set.count }}개
+                            ><i class="bi bi-airplane me-1"></i>아이템 {{ session.workitem_set.count }}개
                         </span>
                     </div>
                 </div>

@@ -24,6 +24,7 @@ allowed_hosts = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
 )
+
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")

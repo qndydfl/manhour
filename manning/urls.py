@@ -27,6 +27,11 @@ urlpatterns = [
         views.FinishSessionView.as_view(),
         name="finish_session",
     ),
+    path(
+        "session/<int:session_id>/delete/",
+        views.DeleteSessionView.as_view(),
+        name="delete_session",
+    ),
     # 데이터 관리
     path(
         "session/<int:session_id>/manage/",
@@ -42,6 +47,26 @@ urlpatterns = [
         "session/<int:session_id>/paste-items/",
         views.PasteItemsView.as_view(),
         name="paste_items",
+    ),
+    path(
+        "session/<int:session_id>/existing-items/",
+        views.ExistingItemsView.as_view(),
+        name="existing_items",
+    ),
+    path(
+        "session/<int:session_id>/duplicate-items/",
+        views.DuplicateItemsView.as_view(),
+        name="duplicate_items",
+    ),
+    path(
+        "session/<int:session_id>/master-items/",
+        views.MasterItemsView.as_view(),
+        name="master_items",
+    ),
+    path(
+        "session/<int:session_id>/master-items/duplicate/",
+        views.DuplicateMasterItemsView.as_view(),
+        name="duplicate_master_items",
     ),
     path(
         "session/<int:session_id>/upload/",

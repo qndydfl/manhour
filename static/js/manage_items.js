@@ -3,6 +3,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[manage_items] script loaded");
 
+    initPlanMhAdjust();
+    initMasterItemsTab();
+
     // 1. 기존 체크 상태 동기화
     document.querySelectorAll(".delete-trigger").forEach((chk) => {
         syncDeleteState(chk);
@@ -37,6 +40,300 @@ document.addEventListener("DOMContentLoaded", () => {
     // 드래그 정렬 초기화
     initSortableRows();
 });
+
+function initMasterItemsTab() {
+    const tabButton = document.querySelector(
+        '[data-bs-target="#masterItemsTab"]',
+    );
+    const tableBody = document.getElementById("masterItemsTableBody");
+    const searchInput = document.getElementById("masterItemsSearch");
+    const addBtn = document.getElementById("masterItemsAddBtn");
+    const selectAll = document.getElementById("masterItemsSelectAll");
+
+    if (!tabButton || !tableBody || !addBtn) return;
+
+    let loaded = false;
+
+    const getCsrfToken = () => {
+        const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
+        return csrfInput ? csrfInput.value : "";
+    };
+
+    const renderRows = (items) => {
+        tableBody.innerHTML = "";
+        if (!items.length) {
+            tableBody.innerHTML =
+                '<tr><td colspan="6" class="text-center text-muted py-4">데이터가 없습니다.</td></tr>';
+            return;
+        }
+
+        items.forEach((item) => {
+            const tr = document.createElement("tr");
+            tr.dataset.search =
+                `${item.gibun || ""} ${item.work_order || ""} ${item.op || ""} ${item.description || ""}`.toLowerCase();
+            tr.innerHTML = `
+                <td><input type="checkbox" class="master-item-check" value="${item.id}"></td>
+                <td>${item.gibun || ""}</td>
+                <td>${item.work_order || ""}</td>
+                <td>${item.op || ""}</td>
+                <td class="text-start">${item.description || ""}</td>
+                <td class="text-end">${Number(item.work_mh || 0).toFixed(1)}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    };
+
+    const loadItems = async () => {
+        if (loaded) return;
+        if (typeof MASTER_ITEMS_URL === "undefined") return;
+        try {
+            const res = await fetch(MASTER_ITEMS_URL, {
+                credentials: "same-origin",
+            });
+            const data = await res.json();
+            if (!res.ok || data.status !== "success") {
+                throw new Error(data.message || "load failed");
+            }
+            renderRows(data.items || []);
+            loaded = true;
+        } catch (err) {
+            console.error(err);
+            tableBody.innerHTML =
+                '<tr><td colspan="6" class="text-center text-danger py-4">불러오기 실패</td></tr>';
+        }
+    };
+
+    tabButton.addEventListener("shown.bs.tab", loadItems);
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.trim().toLowerCase();
+            tableBody.querySelectorAll("tr").forEach((row) => {
+                const hay = row.dataset.search || "";
+                row.style.display = hay.includes(query) ? "" : "none";
+            });
+        });
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", () => {
+            const checked = selectAll.checked;
+            tableBody
+                .querySelectorAll(".master-item-check")
+                .forEach((chk) => (chk.checked = checked));
+        });
+    }
+
+    addBtn.addEventListener("click", async () => {
+        const checked = Array.from(
+            tableBody.querySelectorAll(".master-item-check:checked"),
+        ).map((el) => parseInt(el.value, 10));
+
+        if (!checked.length) {
+            alert("추가할 항목을 선택해주세요.");
+            return;
+        }
+
+        if (typeof DUPLICATE_MASTER_ITEMS_URL === "undefined") return;
+
+        try {
+            const res = await fetch(DUPLICATE_MASTER_ITEMS_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCsrfToken(),
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({ item_ids: checked }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || data.status !== "success") {
+                throw new Error(data.message || "duplicate failed");
+            }
+            alert(`선택한 ${data.count}건을 추가했습니다.`);
+            location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("추가 실패: " + err.message);
+        }
+    });
+}
+
+function initPlanMhAdjust() {
+    const select = document.querySelector(".mh-adjust-select");
+    if (!select) return;
+
+    const planInputs = Array.from(document.querySelectorAll(".plan-mh-input"));
+    const adjustedInputs = Array.from(
+        document.querySelectorAll(".adjusted-mh-input"),
+    );
+
+    const editedIds = new Set(
+        (window.adjustedMhCustomIds || "")
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean),
+    );
+
+    const isNumericPercent = (value) => /^-?\d+(\.\d+)?$/.test(value);
+
+    const setAdjustedEditable = (isEditable) => {
+        adjustedInputs.forEach((input) => {
+            input.readOnly = !isEditable;
+            input.setAttribute("aria-readonly", (!isEditable).toString());
+            input.style.pointerEvents = isEditable ? "auto" : "none";
+            input.style.background = isEditable ? "#fff" : "#f8f9fa";
+            input.tabIndex = isEditable ? 0 : -1;
+            if (!isEditable) {
+                input.classList.remove("adjusted-mh-custom");
+                input.dataset.baseAdjusted = "";
+            }
+        });
+    };
+
+    const normalizeNumber = (value) => {
+        const parsed = parseFloat(String(value || "").trim());
+        if (!Number.isFinite(parsed)) return "";
+        return parsed.toFixed(1);
+    };
+
+    const setCustomBaseline = () => {
+        adjustedInputs.forEach((input) => {
+            input.dataset.baseAdjusted = normalizeNumber(input.value);
+            input.classList.remove("adjusted-mh-custom");
+        });
+    };
+
+    const refreshCustomHighlight = (input) => {
+        const base = input.dataset.baseAdjusted || "";
+        const current = normalizeNumber(input.value);
+        const isEdited = current !== base;
+        input.classList.toggle("adjusted-mh-custom", isEdited);
+        const row = input.closest("tr");
+        const itemId = row ? row.dataset.itemId : "";
+        if (itemId) {
+            if (isEdited) {
+                editedIds.add(itemId);
+            } else {
+                editedIds.delete(itemId);
+            }
+        }
+    };
+
+    // 기준값 저장
+    const setBaseValue = (input) => {
+        const raw = (input.value || "").toString().trim();
+        const parsed = parseFloat(raw);
+        input.dataset.baseMh = Number.isFinite(parsed)
+            ? parsed.toString()
+            : "0";
+    };
+
+    planInputs.forEach((input) => {
+        setBaseValue(input);
+        input.addEventListener("input", () => {
+            setBaseValue(input);
+            if (select.value === "custom") return;
+            updateAdjustedAll(lastPercent); // 입력 바뀌면 조정값도 즉시 반영
+        });
+    });
+
+    // 폼 제출 시 percent 값을 hidden으로 추가
+    const form = document.getElementById("manage-form");
+    if (form) {
+        form.addEventListener("submit", function () {
+            let hidden = form.querySelector('input[name="mh_percent"]');
+            if (!hidden) {
+                hidden = document.createElement("input");
+                hidden.type = "hidden";
+                hidden.name = "mh_percent";
+                form.appendChild(hidden);
+            }
+            hidden.value = select.value;
+
+            let editedHidden = form.querySelector(
+                'input[name="adjusted_mh_custom_ids"]',
+            );
+            if (!editedHidden) {
+                editedHidden = document.createElement("input");
+                editedHidden.type = "hidden";
+                editedHidden.name = "adjusted_mh_custom_ids";
+                form.appendChild(editedHidden);
+            }
+            editedHidden.value = Array.from(editedIds).join(",");
+        });
+    }
+
+    const lastPercentRaw =
+        window.lastMhPercent !== undefined ? String(window.lastMhPercent) : "0";
+    let lastPercent = isNumericPercent(lastPercentRaw)
+        ? parseFloat(lastPercentRaw)
+        : 0;
+
+    if (lastPercentRaw === "custom") {
+        select.value = "custom";
+        setAdjustedEditable(true);
+        setCustomBaseline();
+        adjustedInputs.forEach((input) => {
+            const row = input.closest("tr");
+            const itemId = row ? row.dataset.itemId : "";
+            if (itemId && editedIds.has(itemId)) {
+                input.classList.add("adjusted-mh-custom");
+            }
+        });
+    } else if (isNumericPercent(lastPercentRaw)) {
+        if (select.value !== String(lastPercent)) {
+            select.value = String(lastPercent);
+        }
+        setAdjustedEditable(false);
+        updateAdjustedAll(lastPercent);
+    }
+
+    function updateAdjustedAll(percent) {
+        const multiplier = 1 + percent / 100;
+        planInputs.forEach((planInput, idx) => {
+            const base = parseFloat(planInput.dataset.baseMh || "0");
+            const adjusted = Math.round(base * multiplier * 10) / 10;
+            if (adjustedInputs[idx]) {
+                adjustedInputs[idx].value =
+                    percent === 0 ? "" : adjusted.toFixed(1);
+            }
+        });
+    }
+
+    select.addEventListener("change", function () {
+        if (this.value === "custom") {
+            setAdjustedEditable(true);
+            setCustomBaseline();
+            adjustedInputs.forEach((input) => {
+                const row = input.closest("tr");
+                const itemId = row ? row.dataset.itemId : "";
+                if (itemId && editedIds.has(itemId)) {
+                    input.classList.add("adjusted-mh-custom");
+                }
+            });
+            return;
+        }
+        const percent = parseFloat(this.value || "0");
+        if (!Number.isFinite(percent)) return;
+        lastPercent = percent;
+        setAdjustedEditable(false);
+        updateAdjustedAll(percent);
+    });
+
+    adjustedInputs.forEach((input) => {
+        input.addEventListener("input", () => {
+            if (select.value !== "custom") return;
+            refreshCustomHighlight(input);
+        });
+        input.addEventListener("blur", () => {
+            if (select.value !== "custom") return;
+            const normalized = normalizeNumber(input.value);
+            input.value = normalized;
+            refreshCustomHighlight(input);
+        });
+    });
+}
 
 window.addEventListener("load", () => {
     refreshAssignedTextLayout();
@@ -156,7 +453,6 @@ function getCsrfToken() {
     const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
     return csrfInput ? csrfInput.value : "";
 }
-
 
 function initSortableRows() {
     const tbody = document.querySelector("#manageItemsTable tbody");

@@ -41,7 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const SHIFT_TYPE = (window.SHIFT_TYPE || "DAY").toUpperCase();
 
     const DEFAULT_ROWS = 5;
-    const STORAGE_KEY = "manning_input_personal_" + String(SESSION_ID);
+    const DEFAULT_ROW_VALUES =
+        SHIFT_TYPE === "NIGHT"
+            ? { code: "0", start: "0100", end: "0200" }
+            : { code: "0", start: "1200", end: "1300" };
+    const getStorageKey = (workerId) =>
+        `manning_input_personal_${String(SESSION_ID)}_${workerId || ""}`;
+    const getActiveStorageKey = () => getStorageKey(workerSelect.value);
 
     // -------------------------
     // CSRF
@@ -66,25 +72,29 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------
     // Row UI
     // -------------------------
-    function createRow(code = "", start = "", end = "") {
+    function createRow(code = "", start = "", end = "", useDefaults = false) {
+        const shouldUseDefaults = useDefaults && !code && !start && !end;
+        const nextCode = shouldUseDefaults ? DEFAULT_ROW_VALUES.code : code;
+        const nextStart = shouldUseDefaults ? DEFAULT_ROW_VALUES.start : start;
+        const nextEnd = shouldUseDefaults ? DEFAULT_ROW_VALUES.end : end;
         const tr = document.createElement("tr");
-        const cleanStart = start ? String(start).replace(/:/g, "") : "";
-        const cleanEnd = end ? String(end).replace(/:/g, "") : "";
+        const cleanStart = nextStart ? String(nextStart).replace(/:/g, "") : "";
+        const cleanEnd = nextEnd ? String(nextEnd).replace(/:/g, "") : "";
 
         tr.innerHTML = `
             <td>
-                <input type="text" class="form-control form-control-sm input-code text-center"
-                    maxlength="4" value="${code}" placeholder="0000" inputmode="numeric"
+                <input type="text" class="form-control form-control-sm input-code text-center text-primary fw-bold"
+                    maxlength="4" value="${nextCode}" placeholder="" inputmode="numeric"
                         oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </td>
             <td>
                 <input type="text" class="form-control form-control-sm text-center input-start"
-                    maxlength="4" value="${cleanStart}" placeholder="0000" inputmode="numeric"
+                    maxlength="4" value="${cleanStart}" placeholder="" inputmode="numeric"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </td>
             <td>
                 <input type="text" class="form-control form-control-sm text-center input-end"
-                    maxlength="4" value="${cleanEnd}" placeholder="0000" inputmode="numeric"
+                    maxlength="4" value="${cleanEnd}" placeholder="" inputmode="numeric"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </td>
             <td>
@@ -107,7 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function saveToStorage() {
+    function saveToStorage(isAutoDefaults = false) {
+        const storageKey = getActiveStorageKey();
         const rows = [];
         modalBody.querySelectorAll("tr").forEach((tr) => {
             rows.push({
@@ -117,8 +128,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
         localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({ workerId: workerSelect.value, rows }),
+            storageKey,
+            JSON.stringify({
+                workerId: workerSelect.value,
+                rows,
+                autoDefaults: isAutoDefaults,
+            }),
         );
     }
 
@@ -141,23 +156,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function loadFromStorageOrServer() {
         let data = {};
-        try {
-            data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-        } catch (e) {}
-
-        // worker 선택 복원
-        if (data.workerId) {
-            workerSelect.value = data.workerId;
-        } else if (window.CURRENT_WORKER_ID) {
+        if (window.CURRENT_WORKER_ID) {
             workerSelect.value = window.CURRENT_WORKER_ID;
         }
+        try {
+            data = JSON.parse(
+                localStorage.getItem(getActiveStorageKey()) || "{}",
+            );
+        } catch (e) {}
 
         modalBody.innerHTML = "";
 
         // 우선순위: 로컬 > 서버 > 기본
         let rowsData = [];
-        if (Array.isArray(data.rows) && data.rows.length) rowsData = data.rows;
-        else if (SERVER_DATA.length) rowsData = SERVER_DATA;
+        if (
+            data.autoDefaults !== true &&
+            Array.isArray(data.rows) &&
+            data.rows.length
+        ) {
+            rowsData = data.rows;
+        } else if (SERVER_DATA.length) {
+            rowsData = SERVER_DATA;
+        }
 
         if (rowsData.length) {
             rowsData.forEach((r) => {
@@ -169,11 +189,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     createRow(),
                 );
             }
+            saveToStorage(false);
         } else {
-            Array.from({ length: DEFAULT_ROWS }, () => createRow());
+            Array.from({ length: DEFAULT_ROWS }, (_, idx) =>
+                createRow("", "", "", idx === 0),
+            );
+            saveToStorage(true);
         }
-
-        saveToStorage();
     }
 
     // -------------------------
@@ -209,8 +231,10 @@ document.addEventListener("DOMContentLoaded", () => {
         let hasError = false;
         const seenStarts = new Map();
         const seenEnds = new Map();
+        const intervals = [];
 
         modalBody.querySelectorAll("tr").forEach((tr, idx) => {
+            if (hasError) return;
             const sStr = tr.querySelector(".input-start").value.trim();
             const cStr = tr.querySelector(".input-code").value.trim();
             const eStr = tr.querySelector(".input-end").value.trim();
@@ -288,6 +312,17 @@ document.addEventListener("DOMContentLoaded", () => {
             // 야간 보정
             if (eMin <= sMin) eMin += 1440;
 
+            for (const existing of intervals) {
+                if (sMin < existing.end && eMin > existing.start) {
+                    showDuplicateModal(
+                        `${idx + 1}번째 줄: 시간대가 겹칩니다. (${sStr}-${eStr})\n겹치는 줄: ${existing.row}번째 줄`,
+                    );
+                    hasError = true;
+                    return;
+                }
+            }
+            intervals.push({ start: sMin, end: eMin, row: idx + 1 });
+
             const pushOne = (wid) => {
                 assignments.push({
                     worker_id: parseInt(wid, 10),
@@ -332,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.status !== "success")
                     throw new Error(data.message || "save failed");
                 alert("저장되었습니다.");
-                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(getActiveStorageKey());
                 location.reload();
             })
             .catch((err) => {
@@ -351,10 +386,12 @@ document.addEventListener("DOMContentLoaded", () => {
             )
         )
             return;
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(getActiveStorageKey());
         modalBody.innerHTML = "";
-        Array.from({ length: DEFAULT_ROWS }, () => createRow());
-        saveToStorage();
+        Array.from({ length: DEFAULT_ROWS }, (_, idx) =>
+            createRow("", "", "", idx === 0),
+        );
+        saveToStorage(true);
     }
 
     // -------------------------
@@ -392,10 +429,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     throw new Error(data.message || "reset failed");
 
                 // 로컬/화면 즉시 초기화
-                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(getActiveStorageKey());
                 modalBody.innerHTML = "";
-                Array.from({ length: DEFAULT_ROWS }, () => createRow());
-                saveToStorage();
+                Array.from({ length: DEFAULT_ROWS }, (_, idx) =>
+                    createRow("", "", "", idx === 0),
+                );
+                saveToStorage(true);
 
                 alert("DB 리셋 완료!");
                 location.reload();

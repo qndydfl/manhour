@@ -9,7 +9,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta
             name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+            content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=yes"
         />
 
         <title>{% block title %}Manning System{% endblock title %}</title>
@@ -54,10 +54,11 @@
         <script defer src="{% static 'js/base.js' %}"></script>
         {% block js %}{% endblock js %}
     </head>
-    <body>
+
+    {% with url_name=request.resolver_match.url_name %}
+    <body class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %}">
         {% block background_image %}{% endblock background_image %}
-        {% with url_name=request.resolver_match.url_name %}
-        {% if url_name != "login" and url_name != "index" %}
+        {% if url_name != "login" and request.session.is_authenticated %}
         <div class="app-shell">
             <aside class="app-sidebar" aria-label="Primary">
                 <div class="app-sidebar__brand">Menu</div>
@@ -94,9 +95,11 @@
         {% else %}
         <div class="page-content">
         {% endif %}
+            {% if url_name != "login" %}
             <header class="ios-topbar">
                 {% include "manning/navbar/navbar_base.html" %}
             </header>
+            {% endif %}
 
             <main class="ios-wrap">
                 {% if messages %}
@@ -125,7 +128,7 @@
 
             {% block footer %}{% endblock footer %}
         </div>
-        {% if url_name != "login" and url_name != "index" %}
+        {% if url_name != "login" and request.session.is_authenticated %}
         </div>
         {% endif %}
         {% endwith %}
@@ -140,7 +143,7 @@
                     });
                 }
             });
-            
+
             // 사이드 바 위치 설정을 세션 스토리지에서 읽어와 적용
             (function() {
                 const sidePos = sessionStorage.getItem('sidebarPosition') || 'left';
