@@ -33,7 +33,7 @@
         {% endif %}
         <a
                 href="{% url 'index' %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-auto"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -53,10 +53,7 @@
                     <div>
                         <h5 class="fw-bold mb-1">등록된 작업 목록</h5>
                         <p class="text-muted small mb-0">
-                            총
-                            <strong class="text-primary">
-                                {{ total_count }}</strong
-                            >개의 데이터가 있습니다.
+                            총<strong class="text-primary">{{ total_count }}</strong>개의 데이터가 있습니다.
                         </p>
                     </div>
                 </div>
@@ -72,12 +69,8 @@
                             <th class="py-3 ps-4" style="width: 10%">기번</th>
                             <th class="py-3" style="width: 15%">Work Order</th>
                             <th class="py-3" style="width: 10%">OP</th>
-                            <th class="py-3" style="width: 32%">
-                                설명 (Description)
-                            </th>
-                            <th class="py-3 text-center" style="width: 10%">
-                                기준 M/H
-                            </th>
+                            <th class="py-3" style="width: 32%">설명 (Description)</th>
+                            <th class="py-3 text-center" style="width: 10%">기준 M/H</th>
                             <th class="py-3" style="width: 13%">생성 시간</th>
                         </tr>
                     </thead>

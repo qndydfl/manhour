@@ -2186,7 +2186,13 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                 if a.start_min is not None and a.end_min is not None:
                     dur = a.end_min - a.start_min
                     if dur > 0:
-                        total_mh += dur / 60.0
+                        mh_val = dur / 60.0
+                        if wo_raw == KANBI_WO:
+                            code_val = (a.code or "").strip()
+                            if code_val not in ("", "0"):
+                                total_mh += mh_val
+                        else:
+                            total_mh += mh_val
             else:
                 total_mh += float(a.allocated_mh or 0.0)
 

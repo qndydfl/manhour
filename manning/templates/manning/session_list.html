@@ -10,17 +10,19 @@
 
 {% block content %}
 <div
-    class="container my-3 py-4 glass-panel rounded-3"
+    class="container my-4 py-4 glass-panel rounded-3"
     style="max-width: 1200px"
 >
     <div
-        class="app-content d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
+        class="d-flex justify-content-between align-items-md-center gap-3"
     >
         <div class="d-flex align-items-center gap-2">
-            <h3 class="mb-0 text-dark fw-bold">
+            <h3 class="mb-0 text-dark fw-bold fs-4">
                 <i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황
             </h3>
         </div>
+
+        <hr class="mt-0 d-md-none border-3" />
 
         <div class="d-flex gap-2 align-items-center ms-auto">
             <a
@@ -40,14 +42,19 @@
         </div>
     </div>
 
+    <hr class="border-3 d-md-none" />
+    
     <div
-        class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 my-5"
+        class="d-flex align-items-md-center gap-3 my-5 justify-content-between"        
     >
-        <p class="mb-0 small text-muted ms-md-2">
-            현재 활성화된 작업 세션 목록입니다.
-        </p>
+        <div class="d-flex align-items-center gap-3 fs-5">
+            <h3 class="text-muted small">
+                총<strong class="text-primary">{{ active_count }}</strong>개의 활성 세션이 있습니다.
+            </h3>
+        </div>
 
-        <div class="d-flex align-items-center gap-2">
+        {% if active_count > 0 %}
+        <div class="d-flex gap-2 align-items-center justify-content-center">
             <div class="input-group shadow-sm" style="max-width: 100%">
                 <span
                     class="input-group-text bg-light border-end-0 rounded-start-3"
@@ -61,20 +68,26 @@
                     id="sessionSearch"
                 />
             </div>
+        </div>
+        {% endif %}
 
-            {% if request.session.user_role == 'admin' and active_count > 0 %}
+        {% if request.session.user_role == 'admin' and active_count > 0 %}
+        <div>
+            {% if active_sessions %}
             <button
                 class="btn btn-outline-danger fw-bold"
                 data-bs-toggle="modal"
                 data-bs-target="#resetAllModal"
-                title="전체 초기화"
+                title="전체 삭제"
             >
                 <i class="bi bi-trash3-fill"></i>
+                    <p class="mb-0 text-dark" style="display: inline;">전체 삭제</p>
             </button>
-            {% endif %}
+            {% endif %}            
         </div>
+        {% endif %}
     </div>
-
+    
     <div class="row g-4 justify-content-center" id="sessionsGrid" data-aos="fade-up">
         {% for session in active_sessions %}
         <div class="col-12 col-md-6 col-lg-3 session-col">

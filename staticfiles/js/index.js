@@ -58,14 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // 3. 숫자 카운팅 애니메이션 (새로 추가된 솔루션)
+    // 3. 숫자 카운팅 애니메이션
     // ==========================================
     function animateNumber(element) {
         if (!element) return;
 
-        const target = parseInt(element.innerText); // 현재 HTML에 적힌 숫자를 목표값으로 설정
+        const target = parseInt(element.innerText, 10);
+        if (Number.isNaN(target)) return;
+
         let current = 0;
-        const duration = 1500; // 1.5초 동안 애니메이션
+        const duration = 1500;
         const stepTime = 20;
         const totalSteps = duration / stepTime;
         const increment = target / totalSteps;
@@ -81,17 +83,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }, stepTime);
     }
 
-    // 대시보드의 숫자들을 찾아서 애니메이션 적용
     const activeCountEl = document.querySelector(".active-count-num");
     const historyCountEl = document.querySelector(".history-count-num");
-
     if (activeCountEl) animateNumber(activeCountEl);
     if (historyCountEl) animateNumber(historyCountEl);
 
     // ==========================================
     // 4. 검색 및 필터링 (세션 리스트 페이지용)
     // ==========================================
-    // 대시보드(index)에는 검색창이 없으므로, 요소 존재 여부를 먼저 확인합니다.
     const searchInput = document.getElementById("sessionSearch");
     if (searchInput) {
         const clearBtn = document.getElementById("clearSearch");
@@ -103,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const query = searchInput.value.toLowerCase().trim();
             sessionCols.forEach((col) => {
                 const shift = col.dataset.shift;
-                const name = col.dataset.name.toLowerCase();
+                const name = (col.dataset.name || "").toLowerCase();
                 const matchesSearch = name.includes(query);
                 const matchesFilter =
                     currentFilter === "all" || shift === currentFilter;
@@ -133,95 +132,121 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
+    // ==========================================
+    // 5. YouTube 모달
+    // ==========================================
     const modalEl = document.getElementById("videoModal");
     const frameEl = document.getElementById("youtubeFrame");
     const titleEl = document.getElementById("videoModalLabel");
     const openOnYoutubeEl = document.getElementById("openOnYoutube");
-    if (!modalEl || !frameEl) return;
 
-    if (modalEl.parentElement !== document.body) {
-        document.body.appendChild(modalEl);
+    if (modalEl && frameEl) {
+        // 모달이 body 밖에 있으면(특정 레이아웃) body로 이동
+        if (modalEl.parentElement !== document.body) {
+            document.body.appendChild(modalEl);
+        }
+
+        const toEmbedUrl = (url) => {
+            try {
+                if (url.includes("/shorts/")) {
+                    const id = url.split("/shorts/")[1].split(/[?&/]/)[0];
+                    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
+                }
+
+                if (url.includes("watch?v=")) {
+                    const u = new URL(url);
+                    const id = u.searchParams.get("v");
+                    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
+                }
+
+                if (url.includes("/embed/")) {
+                    return url.includes("?")
+                        ? `${url}&autoplay=1`
+                        : `${url}?autoplay=1`;
+                }
+
+                if (url.includes("youtu.be/")) {
+                    const id = url.split("youtu.be/")[1].split(/[?&/]/)[0];
+                    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
+                }
+            } catch (e) {}
+
+            return url;
+        };
+
+        modalEl.addEventListener("show.bs.modal", (event) => {
+            const btn = event.relatedTarget;
+            const videoUrl = btn?.getAttribute("data-video-url");
+            const videoTitle = btn?.getAttribute("data-video-title");
+            if (!videoUrl) return;
+
+            if (titleEl && videoTitle) {
+                titleEl.textContent = videoTitle;
+            }
+            if (openOnYoutubeEl) {
+                openOnYoutubeEl.href = videoUrl;
+            }
+            frameEl.src = toEmbedUrl(videoUrl);
+        });
+
+        modalEl.addEventListener("hidden.bs.modal", () => {
+            frameEl.src = "";
+            if (titleEl) titleEl.textContent = "Video";
+            if (openOnYoutubeEl) openOnYoutubeEl.href = "#";
+        });
     }
 
-    const toEmbedUrl = (url) => {
-        try {
-            // Shorts: https://www.youtube.com/shorts/VIDEO_ID
-            if (url.includes("/shorts/")) {
-                const id = url.split("/shorts/")[1].split(/[?&/]/)[0];
-                return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
-            }
-
-            // 일반 watch: https://www.youtube.com/watch?v=VIDEO_ID
-            if (url.includes("watch?v=")) {
-                const u = new URL(url);
-                const id = u.searchParams.get("v");
-                return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
-            }
-
-            // 이미 embed 형태면 그대로 autoplay만 붙이기
-            if (url.includes("/embed/")) {
-                return url.includes("?")
-                    ? `${url}&autoplay=1`
-                    : `${url}?autoplay=1`;
-            }
-
-            // youtu.be 단축링크: https://youtu.be/VIDEO_ID
-            if (url.includes("youtu.be/")) {
-                const id = url.split("youtu.be/")[1].split(/[?&/]/)[0];
-                return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
-            }
-        } catch (e) {}
-
-        // fallback
-        return url;
-    };
-
-    // 모달 열릴 때: 버튼의 data-video-url 읽어서 iframe src 설정
-    modalEl.addEventListener("show.bs.modal", (event) => {
-        const btn = event.relatedTarget;
-        const videoUrl = btn?.getAttribute("data-video-url");
-        const videoTitle = btn?.getAttribute("data-video-title");
-        if (!videoUrl) return;
-
-        if (titleEl && videoTitle) {
-            titleEl.textContent = videoTitle;
-        }
-        if (openOnYoutubeEl) {
-            openOnYoutubeEl.href = videoUrl;
-        }
-        frameEl.src = toEmbedUrl(videoUrl);
-    });
-
-    // 모달 닫힐 때: iframe src 비우기(재생 중지)
-    modalEl.addEventListener("hidden.bs.modal", () => {
-        frameEl.src = "";
-        if (titleEl) {
-            titleEl.textContent = "Video";
-        }
-        if (openOnYoutubeEl) {
-            openOnYoutubeEl.href = "#";
-        }
-    });
-});
-
-
-// video 플레이어
-document.addEventListener("DOMContentLoaded", () => {
+    // ==========================================
+    // 6. 카드 안의 MP4 hover 플레이어
+    // ==========================================
     const video = document.getElementById("hoverDanceVideo");
-    if (!video) return;
+    if (video) {
+        const wrapper = video.closest(".video-hover-wrapper");
+        if (wrapper) {
+            wrapper.addEventListener("mouseenter", () => {
+                video.currentTime = 0;
+                video.play();
+            });
 
-    const wrapper = video.closest(".video-hover-wrapper");
+            wrapper.addEventListener("mouseleave", () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        }
+    }
 
-    wrapper.addEventListener("mouseenter", () => {
-        video.currentTime = 0; // 항상 처음부터
-        video.play();
-    });
+    // ==========================================
+    // 7. macOS Dock 확대 효과
+    // ==========================================
+    const dock = document.querySelector(".dock-bar");
+    const items = [...document.querySelectorAll(".dock-item")];
 
-    wrapper.addEventListener("mouseleave", () => {
-        video.pause();
-        video.currentTime = 0;
-    });
+    if (dock && items.length) {
+        dock.addEventListener("mousemove", (e) => {
+            const rect = dock.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+
+            items.forEach((el) => {
+                const r = el.getBoundingClientRect();
+                const cx = (r.left + r.right) / 2 - rect.left;
+                const dist = Math.abs(x - cx);
+
+                // 최대/크기 범위 조절
+                const scale = Math.max(1, 1.6 - dist / 90);
+                // 튀어오르는 정도 조절
+                const lift = Math.max(0, 10 - dist / 7);
+
+                el.style.transform = `translateY(${-lift}px) scale(${scale})`;
+                el.style.zIndex = Math.round(scale * 10);
+            });
+        });
+
+        dock.addEventListener("mouseleave", () => {
+            items.forEach((el) => {
+                el.style.transform = "scale(1) translateY(0)";
+                el.style.zIndex = 1;
+            });
+        });
+    }
 });
