@@ -22,8 +22,7 @@
 }
 
 .font-digital {
-    font-family:
-        "JetBrains Mono", "Courier New", monospace; 
+    font-family: "JetBrains Mono", "Courier New", monospace;
     letter-spacing: -1px;
     font-variant-numeric: tabular-nums;
 }
@@ -53,12 +52,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 16px; 
+    border-radius: 16px;
     transition: all 0.3s ease;
 }
 
 .hover-lift:hover .icon-circle {
-    transform: scale(1.1) rotate(-5deg); 
+    transform: scale(1.1) rotate(-5deg);
 }
 
 .btn:hover i {
@@ -102,7 +101,6 @@
     }
 }
 
-
 .delay-1 {
     animation-delay: 0.1s;
 }
@@ -115,15 +113,10 @@
 
 @media (max-width: 576px) {
     .hover-lift:hover {
-        transform: none; 
+        transform: none;
     }
     .glass-panel {
-        background: rgba(
-            255,
-            255,
-            255,
-            0.9
-        ) !important;
+        background: rgba(255, 255, 255, 0.9) !important;
     }
 }
 
@@ -142,25 +135,17 @@
     .glass-panel {
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        background: rgba(
-            255,
-            255,
-            255,
-            0.85
-        ) !important;
+        background: rgba(255, 255, 255, 0.85) !important;
     }
 
-    
     .display-5 {
         font-size: calc(1.5rem + 3.3vw);
     }
 
-    
     .card-body {
         padding: 1.25rem !important;
     }
 
-    
     .icon-circle {
         width: 48px;
         height: 48px;
@@ -168,10 +153,9 @@
     }
 }
 
-
 @media (max-width: 400px) {
     .font-digital {
-        font-size: 1.8rem !important; 
+        font-size: 1.8rem !important;
     }
 }
 
@@ -213,21 +197,6 @@
     transform: scale(1.05);
 }
 
-
-/* .dock-bar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 18px;
-    padding: 12px 18px;
-    border-radius: 22px;
-    background: rgba(30, 30, 30, 0.25);
-    backdrop-filter: blur(16px);
-    z-index: 1030;
-} */
-
 .dock-item {
     /* width: 56px; */
     height: 3rem;
@@ -239,4 +208,24 @@
     position: relative;
     z-index: 1;
     will-change: transform;
+}
+
+/* 모바일/터치 환경에서는 dock 애니메이션 비활성화 */
+@media (hover: none), (pointer: coarse), (max-width: 567px) {
+    .dock-item {
+        transition: none !important;
+        transform: none !important;
+        will-change: auto !important;
+    }
+}
+
+@media (max-width: 567px) {
+    .hover-lift {
+        transition:none !important;
+    }
+
+    .hover-lift:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
 }
