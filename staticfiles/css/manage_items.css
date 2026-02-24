@@ -4,10 +4,20 @@
     background-color: transparent;
     width: 100%;
     text-align: center;
-    padding: 0.35rem;
+    padding: 0.25rem;
     font-size: 0.9rem;
     border-radius: 4px;
     transition: all 0.2s;
+}
+
+#manageItemsTable tbody tr.sortable-row td {
+    padding-top: 0.0rem;
+    padding-bottom: 0.0rem;
+}
+
+#manageItemsTable tbody tr td.col-desc {
+    padding-top: 0.5rem;
+    padding-bottom: 0.0rem;
 }
 
 /* 포커스 시 스타일: 입력창처럼 보이게 */
@@ -62,9 +72,9 @@ tr.deleted-row .table-input {
     height: auto;
     box-sizing: border-box;
 
-    padding: 0.25rem 0.5rem; /* 위아래 간격 줄이기 */
-    line-height: 1.25; /* 줄 간격 통일 */
-    min-height: 2.1rem; /* 1줄 최소 높이 */
+    padding: 0.6rem 0.1rem;
+    line-height: 1.25;
+    min-height: 2.1rem;
 }
 
 /* ---------메시지 생성 시작--------- */
@@ -116,8 +126,8 @@ tr.deleted-row .table-input {
 
 /* textarea든 뭐든 한 줄처럼 보이게 */
 .desc-one-line {
-    height: 2.2rem; /* 한 줄 높이 */
-    line-height: 2.2rem; /* 글자 세로 정렬 */
+    height: 1.5rem; /* 한 줄 높이 */
+    line-height: 1.5rem; /* 글자 세로 정렬 */
     padding-top: 0;
     padding-bottom: 0;
 
@@ -189,81 +199,13 @@ tr.deleted-row .table-input {
     box-shadow: inset 0 0 0 1px #ffe69c;
 }
 
-/* 드래그 시 자리가 비어있는 곳의 스타일 */
-.bg-light,
-.col-assign,
-.col-mh-adjust {
+/* ✅ (수정) 드래그 시 자리 비어있는 곳(ghost/placeholder)에만 적용
+   - 기존의 .bg-light, .col-assign, .col-mh-adjust 전역 오염 제거 */
+.sortable-ghost,
+.sortable-fallback,
+.sortable-chosen {
     background-color: #f0f7ff !important;
     border: 2px dashed #007bff !important;
-}
-
-/* ============================================================
-    모바일: 통합 관리 표 레이아웃
-   ============================================================ */
-@media (max-width: 576px) {
-    #manageItemsTable thead tr,
-    #manageItemsTable tbody tr.sortable-row {
-        display: grid;
-        grid-template-columns: 0.7fr 1.2fr 1.9fr 0.8fr 0.9fr;
-        grid-template-areas:
-            "delete gibun wo op mh"
-            "assign assign assign assign assign";
-        align-items: start;
-        row-gap: 6px;
-    }
-
-    /* 순서/작업내용 숨김 */
-    #manageItemsTable .col-order,
-    #manageItemsTable .col-desc {
-        display: none;
-    }
-
-    #manageItemsTable .col-delete {
-        grid-area: delete;
-    }
-    #manageItemsTable .col-gibun {
-        grid-area: gibun;
-    }
-    #manageItemsTable .col-wo {
-        grid-area: wo;
-        min-width: 0;
-    }
-
-    #manageItemsTable .col-wo .table-input {
-        font-size: 0.85rem;
-    }
-    #manageItemsTable .col-op {
-        grid-area: op;
-    }
-    #manageItemsTable .col-mh {
-        grid-area: mh;
-    }
-    #manageItemsTable .col-assign {
-        grid-area: assign;
-        width: 100%;
-    }
-
-    #manageItemsTable td,
-    #manageItemsTable th {
-        padding: 0.6rem 0.5rem;
-        white-space: normal;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-    }
-
-    .table-input {
-        font-size: 1rem;
-        padding: 0.5rem;
-    }
-
-    .js-assigned-text {
-        min-height: 2.6rem;
-        font-size: 1rem;
-    }
-
-    .drag-handle {
-        padding: 6px;
-    }
 }
 
 /* 1. 모달 배경과 본체의 레이어 순서 강제 조정 */
@@ -293,4 +235,123 @@ body.modal-open .fixed-bottom {
 
 .mh-adjust-select {
     border: 2px dashed #a767b8 !important;
+}
+
+/* ============================================================
+    모바일: 통합 관리 표 레이아웃
+   ============================================================ */
+@media (max-width: 576px) {
+    /* 기번 / WO / OP / 작업내용 입력칸을 더 컴팩트하게 */
+    #manageItemsTable .col-order .table-input,
+    #manageItemsTable .col-gibun .table-input,
+    #manageItemsTable .col-wo .table-input,
+    #manageItemsTable .col-op .table-input,
+    #manageItemsTable .col-desc .table-input,
+    #manageItemsTable .col-mh .table-input,
+    #manageItemsTable .col-mh-adjust .table-input {
+        font-size: 0.85rem; /* 기본 1rem → 축소 */
+        padding: 0.25rem 0.35rem;
+        line-height: 1.2;
+    }
+
+    /* ✅ 상단 row(각 칸)도 높이 맞추기 */
+    #manageItemsTable .col-delete,
+    #manageItemsTable .col-gibun,
+    #manageItemsTable .col-wo,
+    #manageItemsTable .col-op,
+    #manageItemsTable .col-mh-adjust {
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
+    }
+
+    /* ✅ 입력창 높이 통일 */
+    #manageItemsTable .col-gibun .table-input,
+    #manageItemsTable .col-wo .table-input,
+    #manageItemsTable .col-op .table-input,
+    #manageItemsTable .col-mh-adjust .adjusted-mh-input {
+        height: 2rem; /* col 높이보다 살짝 작게 */
+        padding: 0.2rem 0.35rem;
+        line-height: 1.2;
+    }
+
+    /* ✅ (수정) thead는 grid로 바꾸지 말고 숨기는 게 제일 안정적 */
+    #manageItemsTable thead {
+        display: none;
+    }
+
+    /* ✅ (중요) 실제 데이터 행만 grid로 */
+    #manageItemsTable tbody tr.sortable-row {
+        display: grid;
+        grid-template-columns: 0.7fr 1.2fr 1.9fr 0.8fr 1fr;
+        grid-template-areas:
+            "delete gibun wo op mhadj"
+            "assign assign assign assign assign";
+        align-items: start;
+        row-gap: 6px;
+        /* ✅ 상단 row 높이 고정 */
+        grid-template-rows: 2.4rem auto;
+    }
+
+    /* ✅ 그룹 헤더는 기존 테이블 행 유지(깨짐 방지) */
+    #manageItemsTable tbody tr.group-header {
+        display: table-row;
+    }
+    #manageItemsTable tbody tr.group-header td {
+        display: table-cell;
+    }
+
+    /* ✅ 모바일에서 숨길 컬럼:
+       - 순서(col-order), 작업내용(col-desc)
+       - Plan M/H(col-mh)는 숨기고 조정 M/H만 보여줌 */
+    #manageItemsTable .col-order,
+    #manageItemsTable .col-desc,
+    #manageItemsTable .col-mh,
+    #manageItemsTable .col-mh-adjust {
+        display: none;
+    }
+
+    /* grid 영역 매핑 */
+    #manageItemsTable .col-delete {
+        grid-area: delete;
+    }
+    #manageItemsTable .col-gibun {
+        grid-area: gibun;
+    }
+    #manageItemsTable .col-wo {
+        grid-area: wo;
+        min-width: 0;
+    }
+    #manageItemsTable .col-op {
+        grid-area: op;
+    }
+    #manageItemsTable .col-mh-adjust {
+        grid-area: mhadj;
+    }
+    #manageItemsTable .col-assign {
+        grid-area: assign;
+        width: 100%;
+    }
+
+    /* 셀 기본 스타일 */
+    #manageItemsTable td {
+        padding: 0.6rem 0.5rem;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .table-input {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+
+    .js-assigned-text {
+        min-height: 2.6rem;
+        font-size: 1rem;
+    }
+
+    .drag-handle {
+        padding: 6px;
+    }
 }

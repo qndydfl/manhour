@@ -35,6 +35,7 @@ from .models import (
     TaskMaster,
     GibunPriority,
     FeaturedVideo,
+    AppSetting,
 )
 from .forms import (
     KanbiAssignmentForm,
@@ -58,7 +59,9 @@ WORKPLACE_SESSION_KEY = "workplace"
 WORKPLACE_LABEL_SESSION_KEY = "workplace_label"
 
 TASKMASTER_RETENTION_HOURS = 12
-HISTORY_VISIBILITY_HOURS = 24
+DEFAULT_HISTORY_VISIBILITY_HOURS = 24
+DEFAULT_AUTO_ARCHIVE_HOURS = 12
+DEFAULT_SHOW_SETTINGS_MENU = True
 
 
 def normalize_workplace(workplace: str | None) -> str:
@@ -114,6 +117,53 @@ def purge_expired_taskmasters():
     TaskMaster.objects.filter(created_at__lt=cutoff).delete()
 
 
+def get_auto_archive_hours() -> int:
+    value = (
+        AppSetting.objects.filter(key="auto_archive_hours")
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    try:
+        return int(value) if value else DEFAULT_AUTO_ARCHIVE_HOURS
+    except (TypeError, ValueError):
+        return DEFAULT_AUTO_ARCHIVE_HOURS
+
+
+def get_history_visibility_hours() -> int:
+    value = (
+        AppSetting.objects.filter(key="history_visibility_hours")
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    try:
+        return int(value) if value else DEFAULT_HISTORY_VISIBILITY_HOURS
+    except (TypeError, ValueError):
+        return DEFAULT_HISTORY_VISIBILITY_HOURS
+
+
+def get_show_settings_menu() -> bool:
+    value = (
+        AppSetting.objects.filter(key="show_settings_menu")
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    if value is None:
+        return DEFAULT_SHOW_SETTINGS_MENU
+    try:
+        return bool(int(value))
+    except (TypeError, ValueError):
+        return DEFAULT_SHOW_SETTINGS_MENU
+
+
+def auto_archive_expired_sessions(workplace: str) -> None:
+    cutoff = timezone.now() - timedelta(hours=get_auto_archive_hours())
+    WorkSession.objects.filter(
+        is_active=True,
+        site=workplace,
+        created_at__lt=cutoff,
+    ).update(is_active=False, finished_at=timezone.now())
+
+
 def get_or_create_common_item(session, wo: str) -> WorkItem:
     defaults = {
         "gibun_input": "COMMON",
@@ -139,9 +189,11 @@ class SimpleLoginRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.session.get("is_authenticated"):
             return redirect("login")
-        if not get_current_workplace(request):
+        workplace = get_current_workplace(request)
+        if not workplace:
             messages.error(request, "근무지를 선택해주세요.")
             return redirect("login")
+        auto_archive_expired_sessions(workplace)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -226,10 +278,17 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
         active_qs = WorkSession.objects.filter(is_active=True, site=workplace)
         active_count = active_qs.count()
 
-        history_cutoff = timezone.now() - timedelta(hours=HISTORY_VISIBILITY_HOURS)
-        history_count = WorkSession.objects.filter(
-            is_active=False, site=workplace, created_at__gte=history_cutoff
-        ).count()
+        history_cutoff = timezone.now() - timedelta(
+            hours=get_history_visibility_hours()
+        )
+        history_count = (
+            WorkSession.objects.filter(is_active=False, site=workplace)
+            .filter(
+                Q(finished_at__gte=history_cutoff)
+                | Q(finished_at__isnull=True, created_at__gte=history_cutoff)
+            )
+            .count()
+        )
 
         video_qs = FeaturedVideo.objects.filter(is_active=True)
         if workplace:
@@ -252,8 +311,56 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
         return context
 
 
-class SettingsView(SimpleLoginRequiredMixin, TemplateView):
-    template_name = "manning/settings.html"
+class SettingsView(SimpleLoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        if (
+            request.session.get("user_role") != "admin"
+            and not request.user.is_superuser
+        ):
+            messages.error(request, "관리자 권한이 필요합니다.")
+            return redirect("index")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return render(
+            request,
+            "manning/settings.html",
+            {
+                "auto_archive_hours": get_auto_archive_hours(),
+                "history_visibility_hours": get_history_visibility_hours(),
+                "show_settings_menu": get_show_settings_menu(),
+            },
+        )
+
+    def post(self, request):
+        raw_hours = request.POST.get("auto_archive_hours", "").strip()
+        raw_history = request.POST.get("history_visibility_hours", "").strip()
+        show_settings_menu = request.POST.get("show_settings_menu") == "1"
+        try:
+            hours = int(raw_hours)
+            if hours <= 0:
+                raise ValueError("hours must be positive")
+            history_hours = int(raw_history)
+            if history_hours <= 0:
+                raise ValueError("history hours must be positive")
+        except ValueError:
+            messages.error(request, "유효한 시간(양의 정수)을 입력해주세요.")
+            return redirect("settings")
+
+        AppSetting.objects.update_or_create(
+            key="auto_archive_hours",
+            defaults={"int_value": hours},
+        )
+        AppSetting.objects.update_or_create(
+            key="history_visibility_hours",
+            defaults={"int_value": history_hours},
+        )
+        AppSetting.objects.update_or_create(
+            key="show_settings_menu",
+            defaults={"int_value": 1 if show_settings_menu else 0},
+        )
+        messages.success(request, "설정이 저장되었습니다.")
+        return redirect("settings")
 
 
 class SessionListView(SimpleLoginRequiredMixin, ListView):
@@ -1209,6 +1316,8 @@ class FinishSessionView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
         session = get_session_or_404(request, session_id)
         session.is_active = False
+        if session.finished_at is None:
+            session.finished_at = timezone.now()
         session.save()
 
         messages.success(
@@ -1234,10 +1343,15 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
 
     def get_queryset(self):
         workplace = get_current_workplace(self.request)
-        cutoff = timezone.now() - timedelta(hours=HISTORY_VISIBILITY_HOURS)
-        qs = WorkSession.objects.filter(
-            is_active=False, site=workplace, created_at__gte=cutoff
-        ).order_by("-created_at")
+        cutoff = timezone.now() - timedelta(hours=get_history_visibility_hours())
+        qs = (
+            WorkSession.objects.filter(is_active=False, site=workplace)
+            .filter(
+                Q(finished_at__gte=cutoff)
+                | Q(finished_at__isnull=True, created_at__gte=cutoff)
+            )
+            .order_by("-finished_at", "-created_at")
+        )
         query = self.request.GET.get("q")
         if query:
             qs = qs.filter(
@@ -1249,6 +1363,7 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["history_visibility_hours"] = get_history_visibility_hours()
         return context
 
 

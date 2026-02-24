@@ -1,0 +1,41 @@
+{% comment %} 사용 방법:
+
+폼: <form data-loading data-loading-title="..." data-loading-text="...">
+버튼/링크: <button data-loading ...> 또는 <a data-loading ...> {% endcomment %}
+
+<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    (function () {
+        const defaultTitle = "처리 중";
+        const defaultText = "잠시만 기다려 주세요";
+
+        function showLoading(target) {
+            if (!window.Swal) {
+                return;
+            }
+            const title = target?.dataset?.loadingTitle || defaultTitle;
+            const text = target?.dataset?.loadingText || defaultText;
+            Swal.fire({
+                title,
+                text,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+        }
+
+        document.addEventListener("submit", (event) => {
+            const form = event.target;
+            if (form && form.matches("form[data-loading]")) {
+                showLoading(form);
+            }
+        });
+
+        document.addEventListener("click", (event) => {
+            const target = event.target.closest("[data-loading]");
+            if (!target || target.matches("form")) {
+                return;
+            }
+            showLoading(target);
+        });
+    })();
+</script>

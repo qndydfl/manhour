@@ -31,7 +31,7 @@
 {% endblock js %} 
 
 {% block background_image %} 
-    {% include "manning/image/background_url.html" with bg_key="personal_schedule" bg_default="https://picsum.photos/id/500/1600/900?grayscale&blur=2" %} 
+    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
 {% endblock background_image %} 
 
 
@@ -45,8 +45,8 @@
         data-aos="fade-down"
     >
         <h4 class="fw-bold mb-0 text-dark">
-            <span class="text-primary">{{ worker_name }}</span>
-            <span class="fw-normal text-muted fs-6 ms-2">님의 시간표</span>
+            <span class="text-dark fw-bold">{{ worker_name }}</span>
+            <span class="text-muted fs-6 ms-2">님의 시간표</span>
         </h4>
         <div class="d-flex gap-2 align-items-center">
             <button
@@ -277,6 +277,7 @@
             </div>
 
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                {% if request.session.user_role == 'admin' or request.user.is_superuser %}
                 <button
                     type="button"
                     class="btn btn-outline-secondary fw-bold"
@@ -294,7 +295,7 @@
                 >
                     <i class="bi bi-trash3 me-1"></i> DB 리셋
                 </button>
-
+                {% endif %}
                 <button
                     type="button"
                     class="btn btn-light fw-bold"

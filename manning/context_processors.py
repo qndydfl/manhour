@@ -1,7 +1,7 @@
-# 모든 HTML에서 “가동 중/대기 중” 배지가 항상 보이도록 
+# 모든 HTML에서 “가동 중/대기 중” 배지가 항상 보이도록
 # navbar_base.html에서도 조건을 단순화했어요.
 
-from .models import WorkSession
+from .models import AppSetting, WorkSession
 
 WORKPLACE_SESSION_KEY = "workplace"
 WORKPLACE_LABEL_SESSION_KEY = "workplace_label"
@@ -44,4 +44,19 @@ def active_session_status(request):
             is_active=True,
             site=workplace,
         ).count()
-    return {"active_count": active_count}
+    show_settings_menu_value = (
+        AppSetting.objects.filter(key="show_settings_menu")
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    if show_settings_menu_value is None:
+        show_settings_menu = True
+    else:
+        try:
+            show_settings_menu = bool(int(show_settings_menu_value))
+        except (TypeError, ValueError):
+            show_settings_menu = True
+    return {
+        "active_count": active_count,
+        "show_settings_menu": show_settings_menu,
+    }

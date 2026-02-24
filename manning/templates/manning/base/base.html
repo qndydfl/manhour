@@ -81,9 +81,13 @@
                     <a class="app-sidebar__link" href="{% url 'paste_data' %}">
                         <i class="bi bi-clipboard-plus"></i> Data Registration
                     </a>
+                    {% if show_settings_menu %}
+                    {% if request.session.user_role == 'admin' or request.user.is_superuser %}
                     <a class="app-sidebar__link" href="{% url 'settings' %}">
                         <i class="bi bi-gear"></i> Settings
                     </a>
+                    {% endif %}
+                    {% endif %}
                 </nav>
             </aside>
             <div
@@ -155,5 +159,6 @@
             })();
 
         </script>
+        {% include "manning/loading/loading.html" %}
     </body>
 </html>

@@ -153,6 +153,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 브라우저 닫으면 세션 종료
 SESSION_COOKIE_HTTPS_ONLY = True  # HTTPS 사용 시에만 쿠키 전송
 SESSION_COOKIE_SECURE = True  # HTTPS 사용 시에만 쿠키 전송
 SESSION_COOKIE_SAMESITE = "Strict"  # CSRF 공격 방지
+CSRF_COOKIE_SECURE = True  # HTTPS 사용 시에만 CSRF 쿠키 전송
 
 
 # Default primary key field type

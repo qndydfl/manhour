@@ -63,6 +63,7 @@ class WorkSession(models.Model):
 
     name = models.CharField(max_length=100, verbose_name="세션 이름")
     created_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     site = models.CharField(
         max_length=20,
@@ -229,3 +230,13 @@ class FeaturedVideo(models.Model):
 
     def __str__(self):
         return f"{self.title}"
+
+
+class AppSetting(models.Model):
+    key = models.CharField(max_length=50, unique=True)
+    int_value = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.key}"

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{% static 'css/login.css' %}" />
 {% endblock css %} 
 
+
 {% block content %}
 <div class="login-container">
     <div class="login-card">
@@ -19,7 +20,7 @@
         {% if messages %}
         <div class="mb-3 text-danger text-center">
             {% for message in messages %}
-            <div class="login-alert " role="alert">
+            <div class="login-alert" role="alert">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 {{ message }}
             </div>
@@ -27,7 +28,12 @@
         </div>
         {% endif %}
 
-        <form method="POST">
+        <form
+            method="POST"
+            data-loading
+            data-loading-title="로그인 중"
+            data-loading-text="잠시만 기다려 주세요"
+        >
             {% csrf_token %}
 
             <div class="mb-3">
@@ -41,15 +47,21 @@
                     required
                 >
                     <option
-                        value="" disabled
-                        {% if not current_workplace %}selected{% endif %}
+                        value=""
+                        disabled
+                        {% if not current_workplace %}
+                        selected
+                        {% endif %}
                     >
                         근무지를 선택해 주세요.
                     </option>
                     {% for value, label in workplace_options %}
                     <option
                         value="{{ value }}"
-                        {% if value == current_workplace %}selected{% endif %}>
+                        {% if value == current_workplace %}
+                        selected
+                        {% endif %}
+                    >
                         {{ label }}
                     </option>
                     {% endfor %}
@@ -79,5 +91,4 @@
         </form>
     </div>
 </div>
-{% endblock content %} 
-{% block footer %}{% endblock footer %}
+{% endblock content %} {% block footer %}{% endblock footer %}

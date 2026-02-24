@@ -24,12 +24,13 @@
 {% endblock js %} 
 
 {% block background_image %} 
-    {% include "manning/image/background_url.html" with bg_key="result_view" bg_default="https://picsum.photos/id/400/1600/900?grayscale&blur=2" %} 
+    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
 {% endblock background_image %} 
+
 
 {% block content %}
 <div
-    class="container rounded-3 glass-panel my-4 py-4"
+    class="container rounded-3 glass-panel my-4 mb-5 py-4"
     data-aos="fade-up"
     data-aos-duration="1000"
 >
@@ -64,18 +65,19 @@
             class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"
         >
             <div>
-                <h5 class="fw-bold mb-3">작업 배정 컨트롤 &nbsp;🚀</h5>
+                <h5 class="fw-bold mb-2">작업 배정 컨트롤 🚀</h5>
                 <p class="text-primary small mb-0">
                     작업 완료 시 기록 보관소로 이동합니다.
                 </p>
             </div>
-            <div class="d-flex gap-3">
+            <div class="d-flex gap-3 mx-auto mx-md-0">
                 <div class="btn-group shadow-sm">
                     <a
                         href="{% url 'edit_session' session.id %}"
                         class="btn btn-secondary text-white fw-bold"
                     >
-                        <i class="bi bi-people me-1"></i> 명단 관리
+                        <i class="bi bi-people me-1"></i>
+                        명단<span class="d-none d-md-inline">관리</span>
                     </a>
                 </div>
                 <div class="btn-group shadow-sm">
@@ -83,7 +85,8 @@
                         href="{% url 'manage_items' session.id %}"
                         class="btn btn-info text-dark fw-bold"
                     >
-                        <i class="bi bi-list-task me-1"></i> 통합 관리
+                        <i class="bi bi-list-task me-1"></i>
+                        통합<span class="d-none d-md-inline"> 관리</span>
                     </a>
                 </div>
 
@@ -95,15 +98,15 @@
                     {% csrf_token %}
                     <button
                         type="submit"
-                        class="btn btn-dark btn-md rounded-3 fw-bold shadow-sm px-2"
+                        class="btn btn-dark btn-md fw-bold shadow-sm px-2"
                         onclick="
                             return confirm(
-                                '정말 작업을 완료하고 기록 보관소로 이동하시겠습니까?',
+                                '정말 작업을 완료하고 작업 이력(History)로 이동하시겠습니까?',
                             );
                         "
                     >
                         <i class="bi bi-check2-circle me-1"></i> 작업 완료
-                        (퇴실)
+                        <span class="d-none d-md-inline"> (퇴실)</span>
                     </button>
                 </form>
             </div>
@@ -118,7 +121,13 @@
         <div class="card-header bg-white border-bottom">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황 (M/H)
+                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황
+                    <span
+                        class="badge text-bg-primary rounded-pill text-white border ms-2"
+                        style="font-size: 0.8rem"
+                    >
+                        {{ workers|length }}명
+                    </span>
                 </h5>
             </div>
         </div>
@@ -301,7 +310,8 @@
                                 {% endfor %}
                             </td>
                         </tr>
-                        {% endif %} {% empty %}
+                        {% endif %} 
+                        {% empty %}
                         <tr>
                             <td colspan="7" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.
