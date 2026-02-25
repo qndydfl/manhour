@@ -343,7 +343,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (hasError) return;
-        if (!assignments.length) return alert("저장할 데이터가 없습니다.");
+        if (!assignments.length) {
+            const msg =
+                selectedValue === "all"
+                    ? "입력한 간비가 없습니다. 전체 작업자의 기존 간비를 삭제할까요?"
+                    : "입력한 간비가 없습니다. 선택한 작업자의 기존 간비를 삭제할까요?";
+            if (!confirm(msg)) return;
+            resetDB({ skipConfirm: true });
+            return;
+        }
 
         if (selectedValue === "all") {
             if (!confirm("모든 작업자에게 동일하게 적용하시겠습니까?")) return;
@@ -397,7 +405,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------
     // Reset DB
     // -------------------------
-    function resetDB() {
+    function resetDB(options = {}) {
+        const { skipConfirm = false } = options;
         const selectedValue = workerSelect.value;
         if (!selectedValue) return alert("리셋할 작업자를 선택해주세요.");
         if (!MANUAL_RESET_URL)
@@ -408,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? "전체 작업자의 수동입력(간비)을 모두 삭제할까요?"
                 : "선택한 작업자의 수동입력(간비)을 모두 삭제할까요?";
 
-        if (!confirm(msg)) return;
+        if (!skipConfirm && !confirm(msg)) return;
 
         fetch(MANUAL_RESET_URL, {
             method: "POST",

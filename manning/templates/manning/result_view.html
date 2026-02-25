@@ -24,7 +24,7 @@
 {% endblock js %} 
 
 {% block background_image %} 
-    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
+    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
 {% endblock background_image %} 
 
 
@@ -48,6 +48,15 @@
             >
             {% endif %}
         </h2>
+        {% if not session.is_active %}
+        <a
+            href="{% url 'history' %}"
+            class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+        >
+            <i class="bi bi-arrow-left"></i>
+            <span class="d-none d-md-inline">이전 화면으로</span>
+        </a>
+        {% else %}
         <a
             href="{% url 'session_list' %}"
             class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
@@ -55,7 +64,20 @@
             <i class="bi bi-arrow-left"></i>
             <span class="d-none d-md-inline">이전 화면으로</span>
         </a>
+        {% endif %}
     </div>
+
+    {% if strict_limit and unassigned_count %}
+    <div
+        class="alert alert-warning d-flex align-items-start gap-2 mt-4"
+        role="alert"
+    >
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            근무 한도 제한으로 {{ unassigned_count }}건이 미배정되었습니다.
+        </div>
+    </div>
+    {% endif %}
 
     <div
         class="card border-0 shadow-lg rounded-3 my-4 bg-white glass-panel p-2"
@@ -121,7 +143,8 @@
         <div class="card-header bg-white border-bottom">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황
+                    <i class="bi bi-person-gear text-primary me-2"></i>작업자
+                    현황
                     <span
                         class="badge text-bg-primary rounded-pill text-white border ms-2"
                         style="font-size: 0.8rem"
@@ -310,8 +333,7 @@
                                 {% endfor %}
                             </td>
                         </tr>
-                        {% endif %} 
-                        {% empty %}
+                        {% endif %} {% empty %}
                         <tr>
                             <td colspan="7" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.

@@ -1,8 +1,8 @@
 {% extends "manning/base/base.html" %} 
 {% load static %} 
-{% load widget_tweaks %}
-{% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
+{% load widget_tweaks %} 
 
+{% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
 {% endblock css %} 
@@ -13,7 +13,8 @@
     const MASTER_DATA_LIST_URL = "{% url 'manage_items' session.id %}";
     const REORDER_ITEMS_URL = "{% url 'reorder_items' session.id %}";
     const MASTER_ITEMS_URL = "{% url 'master_items' session.id %}";
-    const DUPLICATE_MASTER_ITEMS_URL = "{% url 'duplicate_master_items' session.id %}";
+    const DUPLICATE_MASTER_ITEMS_URL =
+        "{% url 'duplicate_master_items' session.id %}";
 </script>
 <script defer src="{% static 'js/paste_data.js' %}"></script>
 <script>
@@ -25,7 +26,7 @@
 {% endblock js %} 
 
 {% block background_image %} 
-    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
+    {% include "manning/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
 {% endblock background_image %} 
 
 
@@ -134,15 +135,27 @@
                         class="card-header bg-white fw-bold border-bottom py-2"
                     >
                         <i class="bi bi-person-gear text-secondary me-1"></i>
-                        근무 한도(M/H)
+                        근무 한도
+                        <button
+                            type="button"
+                            class="btn btn-secondary ms-1"
+                            style="font-size: 0.75rem; padding: 0.15rem 0.25rem"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            data-bs-custom-class="custom-tooltip"
+                            data-bs-title="근무 한도는 직비만 해당 됩니다."
+                        >
+                            안내서
+                        </button>
                     </div>
+
                     <div class="card-body p-0">
                         <textarea
                             name="worker_names_str"
                             class="form-control border-0 bg-light small font-monospace p-3 h-100"
                             style="min-height: 150px; resize: none"
                             placeholder="이름: 시간 (줄바꿈)"
-                        >{{ worker_names_str }}</textarea> 
+                        >{{ worker_names_str }}</textarea>
                     </div>
                 </div>
             </div>
@@ -182,12 +195,20 @@
                                 >
                                     <i class="bi bi-trash3-fill"></i>
                                 </th>
-                                <th style="width: 5%" class="col-order">순서</th>
-                                <th style="width: 10%" class="col-gibun">기번</th>
+                                <th style="width: 5%" class="col-order">
+                                    순서
+                                </th>
+                                <th style="width: 10%" class="col-gibun">
+                                    기번
+                                </th>
                                 <th style="width: 14%" class="col-wo">W/O</th>
                                 <th style="width: 5%" class="col-op">OP</th>
-                                <th style="width: 10%" class="col-desc">작업 내용</th>
-                                <th style="width: 10%" class="col-mh">Plan M/H</th>
+                                <th style="width: 10%" class="col-desc">
+                                    작업 내용
+                                </th>
+                                <th style="width: 10%" class="col-mh">
+                                    Plan M/H
+                                </th>
                                 <th style="width: 13%" class="col-mh-adjust">
                                     <div
                                         class="d-flex align-items-center justify-content-center gap-2"
@@ -204,7 +225,9 @@
                                             <option value="10">+10%</option>
                                             <option value="20">+20%</option>
                                             <option value="30">+30%</option>
-                                            <option value="custom">개별 수정</option>
+                                            <option value="custom">
+                                                개별 수정
+                                            </option>
                                         </select>
                                     </div>
                                 </th>
@@ -335,7 +358,7 @@
                                     {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
                                 </td>
                                 <td class="col-wo">
-                                    {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
+                                    {% render_field form.work_order class="table-input font-monospace"       placeholder="WO" %}
                                 </td>
                                 <td class="col-op">
                                     {% render_field form.op class="table-input" placeholder="OP" %}
@@ -361,7 +384,9 @@
                                         "
                                     />
                                 </td>
-                                <td class="bg-primary bg-opacity-10 col-assign mb-0">
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
                                     {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
                                 </td>
                             </tr>
@@ -545,17 +570,21 @@
                                         onclick="saveData()"
                                         class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
                                     >
-                                        <i class="bi bi-save me-1"></i> 저장
-                                        하기
+                                        <i class="bi bi-save me-1"></i> 저장 하기
                                     </button>
                                 </div>
                             </div>
                         </form>
                     </div>
 
-
-                    <div class="tab-pane fade" id="masterItemsTab" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div
+                        class="tab-pane fade"
+                        id="masterItemsTab"
+                        role="tabpanel"
+                    >
+                        <div
+                            class="d-flex justify-content-between align-items-center mb-3"
+                        >
                             <div class="input-group" style="max-width: 320px">
                                 <span class="input-group-text bg-light">
                                     <i class="bi bi-search"></i>

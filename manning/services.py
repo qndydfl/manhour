@@ -19,7 +19,7 @@ SLOT_UNIT = 0.1  # 0.1시간(6분) 단위
 # 1) 자동 배정 서비스 (단순화: 팀 지정 -> 공용 풀 fallback)
 # -----------------------------------------------------------
 class AutoAssignService:
-    def __init__(self, session_id: int, adjusted_mh_map=None):
+    def __init__(self, session_id: int, adjusted_mh_map=None, allow_over_limit=True):
         self.session = WorkSession.objects.get(id=session_id)
         # ✅ 입력 순서(ID)대로 작업자를 가져옵니다.
         self.workers = list(self.session.worker_set.all().order_by("id"))
@@ -28,6 +28,7 @@ class AutoAssignService:
         self.temp_load = {w.id: 0.0 for w in self.workers}
         self.target_load = None
         self.ignore_existing_loads = False
+        self.allow_over_limit = allow_over_limit
         self.adjusted_mh_map = {}
         if isinstance(adjusted_mh_map, dict):
             for key, value in adjusted_mh_map.items():
@@ -97,7 +98,7 @@ class AutoAssignService:
                 c_part, _ = self._assign_items_with_candidates(
                     team_items,
                     candidates=self.workers,  # 전체 인원 대상
-                    allow_over_limit=True,
+                    allow_over_limit=self.allow_over_limit,
                 )
                 new_assignments.extend(c_part)
 
@@ -110,6 +111,7 @@ class AutoAssignService:
         base_assignments = (
             Assignment.objects.filter(work_item__session=self.session)
             .exclude(work_item_id__in=self.auto_item_ids)
+            .exclude(work_item__work_order__in=[KANBI_WO, DIRECT_WO])
             .select_related("work_item")
         )
         for a in base_assignments:
@@ -148,6 +150,8 @@ class AutoAssignService:
                     w for w in candidates if self.temp_load[w.id] < w.limit_mh
                 ]
                 if not valid_cands:
+                    if not allow_over_limit:
+                        break
                     valid_cands = candidates
 
                 target = None
@@ -294,8 +298,12 @@ class ScheduleSyncService:
         return None
 
 
-def run_auto_assign(session_id, adjusted_mh_map=None):
-    AutoAssignService(session_id, adjusted_mh_map=adjusted_mh_map).run()
+def run_auto_assign(session_id, adjusted_mh_map=None, allow_over_limit=True):
+    AutoAssignService(
+        session_id,
+        adjusted_mh_map=adjusted_mh_map,
+        allow_over_limit=allow_over_limit,
+    ).run()
 
 
 def run_sync_schedule(session_id):

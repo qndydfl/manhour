@@ -2,9 +2,8 @@
 {% load static %} 
 
 {% block title %}설정 | Manning System{% endblock %} 
-
-{% block background_image %} 
-    {% include "manning/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %}    
+{% block background_image %}
+    {% include "manning/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %} 
 {% endblock background_image %} 
 
 
@@ -48,6 +47,20 @@
                         value="{{ history_visibility_hours }}"
                     />
                 </div>
+                <div class="col-12 col-sm-6">
+                    <label class="form-label" for="default-worker-limit">
+                        기본 근무 한도(M/H)
+                    </label>
+                    <input
+                        type="number"
+                        id="default-worker-limit"
+                        name="default_worker_limit_mh"
+                        class="form-control"
+                        min="0.1"
+                        step="0.1"
+                        value="{{ default_worker_limit_mh }}"
+                    />
+                </div>
                 <div class="col-12">
                     <div class="form-check mt-2">
                         <input
@@ -62,7 +75,7 @@
                             name="show_settings_menu"
                             value="1"
                             {% if show_settings_menu %}
-                                checked
+                            checked
                             {% endif %}
                         />
                         <label
@@ -78,7 +91,8 @@
                 </div>
             </div>
             <div class="form-text">
-                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다.
+                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본 근무
+                한도는 통합 관리 화면의 기본값에 적용됩니다.
             </div>
         </form>
 

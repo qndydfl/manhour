@@ -62,6 +62,7 @@ TASKMASTER_RETENTION_HOURS = 12
 DEFAULT_HISTORY_VISIBILITY_HOURS = 24
 DEFAULT_AUTO_ARCHIVE_HOURS = 12
 DEFAULT_SHOW_SETTINGS_MENU = True
+DEFAULT_WORKER_LIMIT_MH = 9.0
 
 
 def normalize_workplace(workplace: str | None) -> str:
@@ -153,6 +154,18 @@ def get_show_settings_menu() -> bool:
         return bool(int(value))
     except (TypeError, ValueError):
         return DEFAULT_SHOW_SETTINGS_MENU
+
+
+def get_default_worker_limit_mh() -> float:
+    value = (
+        AppSetting.objects.filter(key="default_worker_limit_mh_tenths")
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    try:
+        return (int(value) / 10.0) if value is not None else DEFAULT_WORKER_LIMIT_MH
+    except (TypeError, ValueError):
+        return DEFAULT_WORKER_LIMIT_MH
 
 
 def auto_archive_expired_sessions(workplace: str) -> None:
@@ -329,12 +342,14 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "auto_archive_hours": get_auto_archive_hours(),
                 "history_visibility_hours": get_history_visibility_hours(),
                 "show_settings_menu": get_show_settings_menu(),
+                "default_worker_limit_mh": get_default_worker_limit_mh(),
             },
         )
 
     def post(self, request):
         raw_hours = request.POST.get("auto_archive_hours", "").strip()
         raw_history = request.POST.get("history_visibility_hours", "").strip()
+        raw_default_limit = request.POST.get("default_worker_limit_mh", "").strip()
         show_settings_menu = request.POST.get("show_settings_menu") == "1"
         try:
             hours = int(raw_hours)
@@ -343,6 +358,9 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             history_hours = int(raw_history)
             if history_hours <= 0:
                 raise ValueError("history hours must be positive")
+            default_limit = float(raw_default_limit)
+            if default_limit <= 0:
+                raise ValueError("default limit must be positive")
         except ValueError:
             messages.error(request, "유효한 시간(양의 정수)을 입력해주세요.")
             return redirect("settings")
@@ -358,6 +376,10 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         AppSetting.objects.update_or_create(
             key="show_settings_menu",
             defaults={"int_value": 1 if show_settings_menu else 0},
+        )
+        AppSetting.objects.update_or_create(
+            key="default_worker_limit_mh_tenths",
+            defaults={"int_value": int(round(default_limit * 10))},
         )
         messages.success(request, "설정이 저장되었습니다.")
         return redirect("settings")
@@ -436,6 +458,8 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
             lines = worker_names.splitlines()
             seen_names = set()
 
+            default_limit_mh = get_default_worker_limit_mh()
+
             for line in lines:
                 # 쉼표, 탭, 공백 등으로 이름 분리
                 names = re.split(r"[,\t/;|\s]+", line)
@@ -444,7 +468,11 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
                 for name in names:
                     if name not in seen_names:
                         # 팀 정보 없이 이름만 저장 -> 입력 순서(ID)대로 저장됨
-                        Worker.objects.create(session=session, name=name)
+                        Worker.objects.create(
+                            session=session,
+                            name=name,
+                            limit_mh=default_limit_mh,
+                        )
                         seen_names.add(name)
 
             # -------------------------------------------------------------
@@ -579,10 +607,15 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         workers_to_delete.delete()
 
         # 신규 작업자 추가 (이미 있는 사람은 건너뜀)
+        default_limit_mh = get_default_worker_limit_mh()
         existing_names = session.worker_set.values_list("name", flat=True)
         for name in new_names:
             if name not in existing_names:
-                Worker.objects.create(session=session, name=name)
+                Worker.objects.create(
+                    session=session,
+                    name=name,
+                    limit_mh=default_limit_mh,
+                )
 
         adjusted_mh_map = request.session.get(f"adjusted_mh_map_{session.id}", {})
         run_auto_assign(session.id, adjusted_mh_map)
@@ -752,12 +785,28 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
 
         wo_total = sum(1 for item in items if item.work_order != KANBI_WO)
 
+        mh_percent = self.request.session.get(f"mh_percent_{session.id}", "0")
+        strict_limit = str(mh_percent).strip() not in ("", "0")
+        unassigned_count = 0
+        if strict_limit:
+            for item in items:
+                if item.work_order in [KANBI_WO, DIRECT_WO] or item.is_manual:
+                    continue
+                required_mh = float(item.adjusted_mh or 0.0)
+                allocated_mh = sum(
+                    float(a.allocated_mh or 0.0) for a in item.assignments.all()
+                )
+                if required_mh - allocated_mh > 0.01:
+                    unassigned_count += 1
+
         context.update(
             {
                 "workers": session.worker_set.all(),
                 "items": items,
                 "filter_worker": filter_worker or "",
                 "wo_total": wo_total,
+                "strict_limit": strict_limit,
+                "unassigned_count": unassigned_count,
             }
         )
         return context
@@ -898,6 +947,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         )
 
         workers = session.worker_set.all().order_by("id")
+        total_worker_count = workers.count()
         worker_names_list = []
         for w in workers:
             limit_str = (
@@ -940,6 +990,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 .count(),
                 "lastMhPercent": last_mh_percent,
                 "lastAdjustedCustomIds": last_adjusted_custom_ids,
+                "total_worker_count": total_worker_count,
             },
         )
 
@@ -1015,6 +1066,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             # -----------------------------------------------------
             worker_str = request.POST.get("worker_names_str", "")
             valid_names = set()
+            default_limit_mh = get_default_worker_limit_mh()
 
             lines = worker_str.splitlines()
             before_names = set(
@@ -1034,10 +1086,10 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     try:
                         limit_val = float(limit_part)
                     except ValueError:
-                        limit_val = 12.0
+                        limit_val = default_limit_mh
                 else:
                     name_part = line
-                    limit_val = 9.0
+                    limit_val = default_limit_mh
 
                 if name_part:
                     valid_names.add(name_part)
@@ -1191,7 +1243,25 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # ---------------------------------------------------------
         # 2. 자동 배정/스케줄 동기화 재실행
         # ---------------------------------------------------------
-        run_auto_assign(session.id, adjusted_mh_map)
+        strict_limit = str(mh_percent).strip() not in ("", "0")
+        run_auto_assign(
+            session.id,
+            adjusted_mh_map,
+            allow_over_limit=not strict_limit,
+        )
+        if strict_limit:
+            unassigned_count = (
+                WorkItem.objects.filter(session=session, is_manual=False)
+                .exclude(work_order__in=[KANBI_WO, DIRECT_WO])
+                .annotate(assign_count=Count("assignments"))
+                .filter(assign_count=0)
+                .count()
+            )
+            if unassigned_count:
+                messages.warning(
+                    request,
+                    f"근무 한도 제한으로 {unassigned_count}건이 미배정되었습니다.",
+                )
         run_sync_schedule(session.id)
 
         return redirect(f"{reverse('result_view', args=[session.id])}?reassigned=1")
@@ -2381,6 +2451,9 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
         if session.shift_type == "NIGHT":
             last_end_min = 20 * 60
 
+        def _format_start_min(value):
+            return "00:00" if value == 1440 else format_min_to_time(value)
+
         for item in raw_combined:
             s = item.get("start_min")
             e = item.get("end_min")
@@ -2397,7 +2470,7 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                         "wo": "EMPTY_SLOT",
                         "start_min": last_end_min,
                         "end_min": s,
-                        "start_str": format_min_to_time(last_end_min),
+                        "start_str": _format_start_min(last_end_min),
                         "end_str": format_min_to_time(s),
                     }
                 )
@@ -2423,7 +2496,7 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                 )
                 final_schedule.append(part2)
             else:
-                item["start_str"] = format_min_to_time(s)
+                item["start_str"] = _format_start_min(s)
                 item["end_str"] = format_min_to_time(e)
                 final_schedule.append(item)
 
@@ -2607,8 +2680,12 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
             # 3. 작업자 수동 배정 (있을 경우만)
             if worker_name:
                 worker, created = Worker.objects.get_or_create(
-                    session=session, name=worker_name
+                    session=session,
+                    name=worker_name,
                 )
+                if created:
+                    worker.limit_mh = get_default_worker_limit_mh()
+                    worker.save(update_fields=["limit_mh"])
 
                 # [수정] create -> update_or_create (IntegrityError 방지)
                 Assignment.objects.update_or_create(
