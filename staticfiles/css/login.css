@@ -1,12 +1,25 @@
 /* static/css/login.css */
 
-/* 화면 전체를 사용하여 내용을 정중앙에 배치 */
-.login-container {
-    min-height: 80vh; /* 화면 높이의 80% 확보 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent;
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        system-ui,
+        Roboto,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            1200px 600px at 10% 10%,
+            rgba(13, 110, 253, 0.12),
+            transparent 60%
+        ),
+        radial-gradient(
+            900px 500px at 90% 20%,
+            rgba(32, 201, 151, 0.1),
+            transparent 55%
+        ),
+        #f8fafc;
 }
 
 /* 로그인 카드 디자인 */
@@ -14,9 +27,9 @@
     background: white;
     padding: 3rem 2.5rem;
     width: 100%;
-    max-width: 420px; /* 카드 최대 너비 */
-    border-radius: 1.5rem; /* 둥근 모서리 */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* 부드러운 그림자 */
+    max-width: 420px;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     text-align: center;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }

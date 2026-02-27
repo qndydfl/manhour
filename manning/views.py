@@ -303,6 +303,8 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
             .count()
         )
 
+        master_data_count = TaskMaster.objects.filter(site=workplace).count()
+
         video_qs = FeaturedVideo.objects.filter(is_active=True)
         if workplace:
             video_qs = video_qs.filter(Q(site=workplace) | Q(site=""))
@@ -317,6 +319,7 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
                 "day_count": active_qs.filter(shift_type="DAY").count(),
                 "night_count": active_qs.filter(shift_type="NIGHT").count(),
                 "history_count": history_count,
+                "master_data_count": master_data_count,
                 "index_videos": index_videos,
                 "index_shorts": index_shorts,
             }
@@ -1340,6 +1343,34 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
                 key=lambda x: (x["gibun_code"], x["work_order"], op_sort_key(x["op"]))
             )
 
+            input_keys = {
+                (item["gibun_code"], item["work_order"], item["op"])
+                for item in normalized
+            }
+            existing_keys = set(
+                TaskMaster.objects.filter(
+                    site=workplace,
+                    gibun_code__in={k[0] for k in input_keys},
+                    work_order__in={k[1] for k in input_keys},
+                    op__in={k[2] for k in input_keys},
+                ).values_list("gibun_code", "work_order", "op")
+            )
+            duplicate_keys = sorted(input_keys & existing_keys)
+            if duplicate_keys:
+                preview = [
+                    f"{gibun}/{wo}/{op}" for gibun, wo, op in duplicate_keys[:10]
+                ]
+                return JsonResponse(
+                    {
+                        "status": "error",
+                        "message": (
+                            "이미 등록된 데이터가 있습니다. 중복을 제거하고 다시 시도하세요."
+                        ),
+                        "duplicates": preview,
+                    },
+                    status=409,
+                )
+
             saved_count = 0
             with transaction.atomic():
                 for item in normalized:
@@ -1523,6 +1554,7 @@ class SaveManualInputView(SimpleLoginRequiredMixin, View):
         try:
             data = json.loads(request.body or "{}")
             raw_assignments = data.get("assignments", [])
+            apply_all = bool(data.get("apply_all"))
 
             session = get_session_or_404(request, session_id)
 
@@ -1530,33 +1562,71 @@ class SaveManualInputView(SimpleLoginRequiredMixin, View):
             # 1) 들어온 간비 리스트 정리
             # -----------------------------
             kanbi_list = []
-            for row in raw_assignments:
-                worker_id = _norm_int(row.get("worker_id"))
-                s = _norm_int(row.get("start_min"))
-                e = _norm_int(row.get("end_min"))
-                code = (row.get("code") or "").strip()
+            if apply_all:
+                worker_ids_all = list(session.worker_set.values_list("id", flat=True))
+                row_templates = []
+                seen_rows = set()
 
-                if worker_id is None or s is None or e is None:
-                    continue
-                if not code:
-                    continue
+                for row in raw_assignments:
+                    s = _norm_int(row.get("start_min"))
+                    e = _norm_int(row.get("end_min"))
+                    code = (row.get("code") or "").strip()
 
-                # 야간 보정은 JS에서 했지만 혹시 몰라 서버에서도 보강
-                if e <= s:
-                    e += 1440
+                    if s is None or e is None:
+                        continue
+                    if not code:
+                        continue
 
-                # 시간 유효성
-                if _clip_if_invalid_time(s, e) is None:
-                    continue
+                    if e <= s:
+                        e += 1440
 
-                kanbi_list.append(
-                    {
-                        "worker_id": worker_id,
-                        "start_min": s,
-                        "end_min": e,
-                        "code": code,
-                    }
-                )
+                    if _clip_if_invalid_time(s, e) is None:
+                        continue
+
+                    key = (code, s, e)
+                    if key in seen_rows:
+                        continue
+                    seen_rows.add(key)
+                    row_templates.append({"start_min": s, "end_min": e, "code": code})
+
+                for worker_id in worker_ids_all:
+                    for row in row_templates:
+                        kanbi_list.append(
+                            {
+                                "worker_id": worker_id,
+                                "start_min": row["start_min"],
+                                "end_min": row["end_min"],
+                                "code": row["code"],
+                            }
+                        )
+            else:
+                for row in raw_assignments:
+                    worker_id = _norm_int(row.get("worker_id"))
+                    s = _norm_int(row.get("start_min"))
+                    e = _norm_int(row.get("end_min"))
+                    code = (row.get("code") or "").strip()
+
+                    if worker_id is None or s is None or e is None:
+                        continue
+                    if not code:
+                        continue
+
+                    # 야간 보정은 JS에서 했지만 혹시 몰라 서버에서도 보강
+                    if e <= s:
+                        e += 1440
+
+                    # 시간 유효성
+                    if _clip_if_invalid_time(s, e) is None:
+                        continue
+
+                    kanbi_list.append(
+                        {
+                            "worker_id": worker_id,
+                            "start_min": s,
+                            "end_min": e,
+                            "code": code,
+                        }
+                    )
 
             if not kanbi_list:
                 return JsonResponse(
@@ -2761,6 +2831,14 @@ class MasterDataListView(SimpleLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["total_count"] = self.object_list.count()
+        source = self.request.GET.get("from")
+        if source == "index":
+            back_url = reverse("index")
+        elif source == "paste_data":
+            back_url = reverse("paste_data")
+        else:
+            back_url = reverse("paste_data")
+        context["back_url"] = back_url
         return context
 
 
@@ -2791,10 +2869,46 @@ class MasterDataBulkEditView(SimpleLoginRequiredMixin, View):
         )
         queryset = self.get_queryset(request)
         formset = TaskMasterFormSet(request.POST, queryset=queryset)
-        if formset.is_valid():
-            formset.save()
-            messages.success(request, "마스터 데이터가 업데이트되었습니다.")
-            return redirect("master_data_list")
+
+        action = request.POST.get("action")
+        selected_ids = request.POST.getlist("selected_ids")
+        selected_ids = {int(item_id) for item_id in selected_ids if item_id.isdigit()}
+
+        if action == "delete_selected":
+            if not selected_ids:
+                messages.info(request, "삭제할 항목을 선택해주세요.")
+                return redirect("master_data_edit")
+
+            workplace = get_current_workplace(request)
+            deleted_count, _ = TaskMaster.objects.filter(
+                site=workplace, id__in=selected_ids
+            ).delete()
+            if deleted_count > 0:
+                messages.warning(
+                    request, f"선택한 {deleted_count}개의 데이터를 삭제했습니다."
+                )
+            else:
+                messages.info(request, "삭제할 데이터가 없습니다.")
+            return redirect("master_data_edit")
+
+        if not selected_ids:
+            if formset.is_valid():
+                formset.save()
+                messages.success(request, "마스터 데이터가 업데이트되었습니다.")
+                return redirect("master_data_list")
+        else:
+            has_errors = False
+            for form in formset.forms:
+                if not form.instance or form.instance.pk not in selected_ids:
+                    continue
+                if form.is_valid():
+                    form.save()
+                else:
+                    has_errors = True
+
+            if not has_errors:
+                messages.success(request, "선택한 마스터 데이터가 업데이트되었습니다.")
+                return redirect("master_data_list")
 
         context = {
             "formset": formset,

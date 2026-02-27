@@ -1,7 +1,7 @@
 {% extends 'manning/base/base.html' %} 
 {% load static %} 
 
-{% block title %}대시보드 | Manning System{% endblock %} 
+{% block title %}대시보드 | Manning System{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/index.css' %}" />
@@ -33,7 +33,7 @@
                     <p class="text-secondary my-3" style="font-size: 0.9rem">
                         작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
                         효율적인 업무 배정이 여기서 시작됩니다.
-                    </p>                    
+                    </p>
                 </div>
                 <div class="col-md-6">
                     <div
@@ -56,7 +56,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="col-lg-4">
@@ -155,10 +154,15 @@
             <i class="bi bi-grid-fill me-1"></i> 현황판 입장
         </a>
         <a
-            href="{% url 'master_data_list' %}"
+            href="{% url 'master_data_list' %}?from=index"
             class="dock-item d-flex btn btn-danger btn-md rounded-4 px-2 shadow-lg fw-bold"
         >
-            <i class="bi bi-database-add me-1"></i> 데이터 등록 현황
+            <i class="bi bi-database-add me-1"></i> 데이터 등록 현황 
+            {% if master_data_count > 0 %}
+            <span class="dock-badge" aria-label="등록 데이터 수">
+                {{ master_data_count }}
+            </span>
+            {% endif %}
         </a>
     </div>
 </div>
@@ -203,7 +207,8 @@
                         History Archive
                     </h6>
                     <h2 class="fw-bold text-dark mb-0">
-                        <span class="history-count-num">{{ history_count }}</span
+                        <span class="history-count-num"
+                            >{{ history_count }}</span
                         ><span class="fs-6 text-muted ms-1">건</span>
                     </h2>
                 </div>
@@ -296,6 +301,4 @@
         &copy; 2026 Man Hour Calculator System. All rights reserved.
     </small>
 </footer>
-{% endblock footer %} 
-
-{% endblock content %}
+{% endblock footer %} {% endblock content %}

@@ -192,14 +192,15 @@ window.saveData = function () {
         return;
     }
 
-    // ✅ WO+OP 중복 체크
+    // ✅ 기번+WO+OP 중복 체크
     const pairMap = new Map();
     const duplicates = [];
     data.forEach((row, idx) => {
+        const gibun = (row.gibun_code || "").trim().toUpperCase();
         const wo = (row.work_order || "").trim().toUpperCase();
         const op = (row.op || "").trim().toUpperCase();
-        const key = `${wo}::${op}`;
-        if (!wo || !op) return;
+        const key = `${gibun}::${wo}::${op}`;
+        if (!gibun || !wo || !op) return;
 
         if (pairMap.has(key)) {
             duplicates.push({
@@ -215,10 +216,10 @@ window.saveData = function () {
     if (duplicates.length > 0) {
         const preview = duplicates
             .slice(0, 5)
-            .map((d) => `WO+OP(${d.key}) 행 ${d.firstRow} ↔ ${d.dupRow}`)
+            .map((d) => `기번+WO+OP(${d.key}) 행 ${d.firstRow} ↔ ${d.dupRow}`)
             .join("\n");
         alert(
-            `중복된 Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`,
+            `중복된 기번/Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`,
         );
         return;
     }
@@ -250,7 +251,15 @@ window.saveData = function () {
                 let message = "";
                 try {
                     const data = await response.json();
-                    message = data?.message || JSON.stringify(data);
+                    if (response.status === 409 && data?.duplicates?.length) {
+                        const preview = data.duplicates
+                            .slice(0, 10)
+                            .map((key) => `- ${key}`)
+                            .join("\n");
+                        message = `${data.message}\n\n${preview}`;
+                    } else {
+                        message = data?.message || JSON.stringify(data);
+                    }
                 } catch (e) {
                     message = await response.text();
                 }

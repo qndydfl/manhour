@@ -210,6 +210,25 @@
     will-change: transform;
 }
 
+.dock-badge {
+    position: absolute;
+    top: -0.45rem;
+    right: -0.45rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: #fbbf24;
+    color: #111827;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+    border: 2px solid #ffffff;
+}
+
 /* 모바일/터치 환경에서는 dock 애니메이션 비활성화 */
 @media (hover: none), (pointer: coarse), (max-width: 567px) {
     .dock-item {
@@ -221,7 +240,7 @@
 
 @media (max-width: 567px) {
     .hover-lift {
-        transition:none !important;
+        transition: none !important;
     }
 
     .hover-lift:hover {

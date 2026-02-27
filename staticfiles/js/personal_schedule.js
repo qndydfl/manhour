@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const manualModal = document.getElementById("manualInputModal");
     const modalBody = document.getElementById("modal-rows-body");
     const workerSelect = document.getElementById("modal-worker-select");
+    const applyAllCheckbox = document.getElementById("apply-all-workers");
 
     const addRowBtn = document.getElementById("btn-add-row");
     const saveBtn = document.getElementById("btn-save-manual");
@@ -33,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ✅ 전역 값들 (템플릿에서 window로 올렸기 때문에 안전)
     const SESSION_ID = window.SESSION_ID;
+    const ALL_WORKER_IDS = Array.isArray(window.ALL_WORKER_IDS)
+        ? window.ALL_WORKER_IDS
+        : [];
     const SERVER_DATA = Array.isArray(window.SERVER_DATA)
         ? window.SERVER_DATA
         : [];
@@ -47,7 +51,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : { code: "0", start: "1200", end: "1300" };
     const getStorageKey = (workerId) =>
         `manning_input_personal_${String(SESSION_ID)}_${workerId || ""}`;
-    const getActiveStorageKey = () => getStorageKey(workerSelect.value);
+    const getTargetWorkerId = () =>
+        applyAllCheckbox && applyAllCheckbox.checked
+            ? "all"
+            : workerSelect.value;
+    const getActiveStorageKey = () => getStorageKey(getTargetWorkerId());
 
     // -------------------------
     // CSRF
@@ -130,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(
             storageKey,
             JSON.stringify({
-                workerId: workerSelect.value,
+                workerId: getTargetWorkerId(),
                 rows,
                 autoDefaults: isAutoDefaults,
             }),
@@ -156,7 +164,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function loadFromStorageOrServer() {
         let data = {};
-        if (window.CURRENT_WORKER_ID) {
+        if (
+            window.CURRENT_WORKER_ID &&
+            !(applyAllCheckbox && applyAllCheckbox.checked)
+        ) {
             workerSelect.value = window.CURRENT_WORKER_ID;
         }
         try {
@@ -223,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Save
     // -------------------------
     function handleSaveManual() {
-        const selectedValue = workerSelect.value;
+        const selectedValue = getTargetWorkerId();
         if (!selectedValue) return alert("작업자를 선택해주세요.");
         if (!SAVE_URL) return alert("SAVE_URL이 설정되지 않았습니다.");
 
@@ -333,9 +344,13 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             if (selectedValue === "all") {
-                for (let i = 0; i < workerSelect.options.length; i++) {
-                    const optVal = workerSelect.options[i].value;
-                    if (optVal && optVal !== "all") pushOne(optVal);
+                if (ALL_WORKER_IDS.length) {
+                    ALL_WORKER_IDS.forEach((workerId) => pushOne(workerId));
+                } else {
+                    for (let i = 0; i < workerSelect.options.length; i++) {
+                        const optVal = workerSelect.options[i].value;
+                        if (optVal) pushOne(optVal);
+                    }
                 }
             } else {
                 pushOne(selectedValue);
@@ -364,7 +379,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 "X-CSRFToken": getCookie("csrftoken"),
             },
             credentials: "same-origin", // ✅ 이거 꼭!
-            body: JSON.stringify({ assignments }),
+            body: JSON.stringify({
+                assignments,
+                apply_all: selectedValue === "all",
+            }),
         })
             .then(async (r) => {
                 const j = await r.json().catch(() => ({}));
@@ -407,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------
     function resetDB(options = {}) {
         const { skipConfirm = false } = options;
-        const selectedValue = workerSelect.value;
+        const selectedValue = getTargetWorkerId();
         if (!selectedValue) return alert("리셋할 작업자를 선택해주세요.");
         if (!MANUAL_RESET_URL)
             return alert("MANUAL_RESET_URL이 설정되지 않았습니다.");
@@ -457,7 +475,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------
     // Event bindings (여기서 1회만)
     // -------------------------
-    manualModal.addEventListener("show.bs.modal", loadFromStorageOrServer);
+    function syncWorkerSelectState() {
+        const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
+        workerSelect.disabled = !!isApplyAll;
+        workerSelect.classList.toggle("d-none", !!isApplyAll);
+        if (!isApplyAll && !workerSelect.value) {
+            if (window.CURRENT_WORKER_ID) {
+                workerSelect.value = window.CURRENT_WORKER_ID;
+            } else if (workerSelect.options.length > 1) {
+                workerSelect.selectedIndex = 1;
+            }
+        }
+    }
+
+    manualModal.addEventListener("show.bs.modal", () => {
+        syncWorkerSelectState();
+        loadFromStorageOrServer();
+    });
 
     if (addRowBtn)
         addRowBtn.addEventListener("click", () => {
@@ -466,7 +500,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     if (saveBtn) saveBtn.addEventListener("click", handleSaveManual);
 
-    workerSelect.addEventListener("change", saveToStorage);
+    if (applyAllCheckbox) {
+        applyAllCheckbox.addEventListener("change", () => {
+            syncWorkerSelectState();
+            loadFromStorageOrServer();
+        });
+    }
+
+    workerSelect.addEventListener("change", () => {
+        loadFromStorageOrServer();
+        saveToStorage();
+    });
 
     if (resetUiBtn) resetUiBtn.addEventListener("click", resetUI);
     if (resetDbBtn) resetDbBtn.addEventListener("click", resetDB);
