@@ -175,6 +175,12 @@ window.saveData = function () {
         // ✅ 완전 공란 행은 스킵
         if (!gibun && !wo && !op && !desc && !mh) return;
 
+        // ✅ 최소 3개 열이 입력되어야 저장
+        const filledCount = [gibun, wo, op, desc, mh].filter(
+            (v) => String(v || "").trim() !== "",
+        ).length;
+        if (filledCount < 3) return;
+
         // ✅ 기번은 최소한 있어야 저장(업무 기준)
         if (!gibun) return;
 
@@ -188,7 +194,9 @@ window.saveData = function () {
     });
 
     if (data.length === 0) {
-        alert("저장할 데이터가 없습니다.\n(기번이 있는 행만 저장됩니다)");
+        alert(
+            "저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 필요)",
+        );
         return;
     }
 

@@ -1,5 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
+    // 0. BFCache 복원 시 강제 새로고침 (대시보드 최신화)
+    // ==========================================
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            location.reload();
+        }
+    });
+
+    // ==========================================
     // 1. Toast 알림 자동 실행 (공통)
     // ==========================================
     const toastEls = document.querySelectorAll(".toast");

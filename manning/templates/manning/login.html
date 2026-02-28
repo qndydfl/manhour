@@ -47,6 +47,7 @@
                 </div>
 
                 <h3 class="fw-bold mb-1 text-center">Login</h3>
+                <br class="my-3" />
                 <p class="text-muted small mb-4 text-center">
                     근무지 선택 후 비밀번호를 입력하세요.
                 </p>
@@ -73,12 +74,12 @@
                 >
                     {% csrf_token %}
 
-                    <label class="form-label fw-bold text-primary mb-2"
+                    {% comment %} <label class="form-label fw-bold text-primary mb-2"
                         >근무지 선택</label
-                    >
+                    > {% endcomment %}
                     <select
                         name="workplace"
-                        class="form-select form-select-lg text-center bg-light border-2 shadow-sm mb-3"
+                        class="form-select form-select-lg text-center bg-light border-1 shadow-lg mb-3 text-primary"
                         style="font-size: 0.95rem"
                         required
                     >
@@ -89,7 +90,7 @@
                             selected
                             {% endif %}
                         >
-                            근무지를 선택해 주세요.
+                            근무지 선택
                         </option>
                         {% for value, label in workplace_options %}
                         <option
@@ -100,14 +101,14 @@
                         </option>
                         {% endfor %}
                     </select>
-                    <label class="form-label fw-bold text-primary mb-2"
+                    {% comment %} <label class="form-label fw-bold text-primary mb-2"
                         >비밀번호 입력
-                    </label>
+                    </label> {% endcomment %}
                     <input
                         type="password"
                         name="password"
-                        class="form-control form-control-lg text-center bg-light border-0 mb-4"
-                        placeholder="Password"
+                        class="form-control form-control-lg text-center bg-light border-1 mb-4 password-input shadow-lg"
+                        placeholder="비밀 번호 입력"
                         autocomplete="new-password"
                         required
                         autofocus

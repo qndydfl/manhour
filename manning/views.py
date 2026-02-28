@@ -1304,6 +1304,15 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
                 if not any([gibun, wo, op, desc, str(mh_raw or "").strip()]):
                     continue
 
+                # 최소 3개 열이 입력된 경우만 저장
+                filled_count = sum(
+                    1
+                    for v in [gibun, wo, op, desc, mh_raw]
+                    if str(v or "").strip() != ""
+                )
+                if filled_count < 3:
+                    continue
+
                 # ✅ 기번은 필수
                 if not gibun:
                     continue

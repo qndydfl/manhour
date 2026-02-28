@@ -86,3 +86,8 @@ body {
         font-size: 1rem;
     }
 }
+
+.password-input::placeholder {
+    color: #77218d;
+    font-size: 0.95rem;
+}
