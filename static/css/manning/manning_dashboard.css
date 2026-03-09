@@ -1,0 +1,27 @@
+.modal {
+    z-index: 1200 !important;
+}
+
+.modal-backdrop {
+    z-index: 1190 !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 1070;
+    background-color: #fff;
+}
+
+.page-content {
+    z-index: auto;
+}
+
+textarea[name="area_workers"] {
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.ios-wrap {
+    width: 100% !important;
+    max-width: none !important;
+}

@@ -31,6 +31,7 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls),
     path("", include("manning.urls")),
+    path("manhour/", include("manhour.urls")),
 ]
 
 if settings.DEBUG:

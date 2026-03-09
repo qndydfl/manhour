@@ -1,0 +1,197 @@
+{% extends 'manhour/base/base.html' %} 
+{% load static %} 
+
+{% block title %}정비 세션 목록 | Manning{% endblock %} 
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/manning/manning_list.css' %}" />
+{% endblock css %} 
+
+{% block js %}
+<script src="{% static 'js/manning/manning_list.js' %}"></script>
+{% endblock js %}
+
+{% block background_image %}
+    {% include "manhour/image/background_url.html" with bg_key="manning_list" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
+{% endblock background_image %}
+
+{% block content %}
+<div class="container-fluid py-4 glass-panel rounded-4" data-aos="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5 px-3">
+        <div>
+            <h3 class="fw-bold text-dark mb-0">Maintenance Sessions</h3>
+            <p class="text-muted">
+                현재 가동 중인 항공기 정비 세션 목록입니다.
+            </p>
+        </div>
+        <button
+            type="button"
+            class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold"
+            data-bs-toggle="modal"
+            data-bs-target="#createSessionModal"
+        >
+            <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
+        </button>
+    </div>
+
+    <div class="row g-4">
+        {% for session in active_sessions %}
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 session-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span
+                            class="badge bg-primary-subtle text-primary rounded-pill px-3 pb-0"
+                            >{{ session.aircraft_reg }}</span
+                        >
+                        <small class="text-muted"
+                            >{{ session.created_at|date:"Y-m-d" }}</small
+                        >
+                    </div>
+                    <h5 class="fw-bold mb-1">
+                        {{ session.work_package_name }}
+                    </h5>
+                    <p class="text-muted small mb-4">
+                        Shift: {{ session.get_shift_type_display }}
+                    </p>
+
+                    <div
+                        class="d-flex justify-content-between align-items-center"
+                    >
+                        <div class="text-muted small">
+                            <i class="bi bi-people me-1"></i> 
+                            {{ session.areas.count }} Areas
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a
+                                href="{% url 'manning:manning_dashboard' session.id %}"
+                                class="btn btn-dark btn-sm rounded-pill px-3"
+                            >
+                                매닝 관리 <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                            <form
+                                method="POST"
+                                action="{% url 'manning:delete_session' session.id %}"
+                                class="d-inline"
+                            >
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                    onclick="return confirm('이 세션을 삭제할까요?');"
+                                >
+                                    삭제
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">진행 중인 정비 세션이 없습니다.</p>
+        </div>
+        {% endfor %}
+    </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block footer %}
+<div
+    class="modal fade"
+    id="createSessionModal"
+    tabindex="-1"
+    aria-hidden="true"
+    data-bs-backdrop="static"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <form method="POST" action="{% url 'manning:create_session' %}">
+                {% csrf_token %}
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="fw-bold">새 정비 세션 시작</h5>
+                </div>
+                <div class="modal-body px-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">1. 작업 패키지 명칭</label>
+                        <input
+                            type="text"
+                            name="work_package_name"
+                            class="form-control rounded-3"
+                            placeholder="예: C-Check / Engine Change"
+                            required
+                        >
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-primary small fw-bold d-block">KJ A_CHECK시 선택해 주세요</span>
+                        <label class="form-label small fw-bold">2. B747 A Check (KJ) - Block Check</label>
+                        <select
+                            name="block_check"
+                            class="form-select rounded-3"
+                            {% if not manhour_data_available %}disabled{% endif %}                            
+                        >
+                            <option value="" selected disabled>선택해 주세요</option>
+                            <option value="1A">1A Block Check</option>
+                            <option value="2A">2A Block Check</option>
+                            <option value="3A">3A Check Block</option>
+                            <option value="4A">4A Block Check</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-primary small fw-bold d-block">KJ A_CHECK시 선택해 주세요</span>
+                        <label class="form-label small fw-bold">3. Shift</label>
+                        <select
+                            name="shift_type"
+                            class="form-select rounded-3"
+                            {% if not manhour_data_available %}disabled{% endif %}
+                        >
+                            <option value="" selected disabled>선택해 주세요</option>   
+                            <option value="1" {% if "1" in used_shifts %}disabled{% endif %}>1_Shift</option>
+                            <option value="2" {% if "2" in used_shifts %}disabled{% endif %}>2_Shift</option>
+                            <option value="3" {% if "3" in used_shifts %}disabled{% endif %}>3_Shift</option>
+                            <option value="4" {% if "4" in used_shifts %}disabled{% endif %}>4_Shift</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">4. 항공기 기번 (A/C Reg)</label>
+                        <input
+                            type="text"
+                            name="aircraft_reg"
+                            class="form-control rounded-3"
+                            placeholder="예: HL1234"
+                            inputmode="numeric"
+                            
+                            {% if not manhour_data_available %}disabled{% endif %}
+                            required
+                        >
+                        {% if not manhour_data_available %}
+                        <div class="form-text text-muted">
+                            manhour 데이터 등록 후 입력할 수 있습니다.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3"
+                        data-bs-dismiss="modal"
+                    >
+                        취소
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary rounded-3 px-4"
+                        {% if not manhour_data_available %}disabled{% endif %}
+                    >
+                        세션 생성
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock footer %}

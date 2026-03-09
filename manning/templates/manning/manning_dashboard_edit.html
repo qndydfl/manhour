@@ -1,0 +1,397 @@
+{% extends 'manhour/base/base.html' %} 
+{% load static %} 
+{% load widget_tweaks %} 
+
+{% block title %}구역 일괄 편집 | {{ session.aircraft_reg }}{% endblock %} 
+
+{% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}"
+/>
+{% endblock css %} 
+
+{% block js %}
+<link
+    href="{% static 'js/manning/manning_dashboard_edit.js' %}"
+    rel="preload"
+    as="script"
+/>
+<script
+    defer
+    src="{% static 'js/manning/manning_dashboard_edit.js' %}"
+></script>
+{{ worker_names|json_script:"manhourWorkers" }} 
+{% endblock js %} 
+{% block background_image %} 
+{% include "manhour/image/background_url.html" with bg_key="manning_dashboard_edit" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
+{% endblock background_image %} 
+
+{% block content %}
+<div class="container py-4 glass-panel rounded-4" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-3 px-3">
+        <div>
+            <h5 class="fw-bold text-dark">구역 일괄 편집</h5>
+            <p class="text-muted mb-0">
+                {{ session.aircraft_reg }} · {{ session.work_package_name }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button
+                type="button"
+                id="loadWorkersBtn"
+                class="btn btn-outline-dark rounded-pill px-4 fw-bold shadow-sm"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#loadWorkersPanel"
+            >
+                작업자 명단 보기
+            </button>
+            <button
+                type="button"
+                id="addAreaRowBtn"
+                class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#addAreaModal"
+            >
+                <i class="bi bi-plus-circle me-1"></i> 행 추가
+            </button>
+            <a
+                href="{% url 'manning:manning_dashboard' session.id %}"
+                class="btn btn-light rounded-pill px-4 fw-bold shadow-sm"
+            >
+                <i class="bi bi-arrow-left me-1"></i> 대시보드로
+            </a>
+        </div>
+    </div>
+
+    {% comment %} {% if errors %}
+    <div class="alert alert-danger mx-3">
+        {% for error in errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %} {% endcomment %} {% comment %}
+    <div
+        id="workerDuplicateMessage"
+        class="alert alert-warning mx-3 d-none"
+        role="alert"
+    ></div>
+    {% endcomment %}
+
+    <form method="POST" class="px-3" id="areaEditForm">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 20%">구역 이름</th>
+                        <th style="width: 15%">위치</th>
+                        <th style="width: 55%">작업자 이름</th>
+                        <th style="width: 10%" class="text-center">삭제</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for area in session_areas %}
+                    <tr>
+                        <td>
+                            <input
+                                type="hidden"
+                                name="area_id"
+                                value="{{ area.id }}"
+                            />
+                            <input
+                                type="text"
+                                name="area_name"
+                                class="form-control"
+                                value="{{ area.name }}"
+                                required
+                            />
+                        </td>
+                        <td>
+                            <select name="area_position" class="form-select">
+                                <option
+                                    value="LEFT"
+                                    {% if area.position == "LEFT" %}selected{% endif %}
+                                >
+                                    LEFT SIDE
+                                </option>
+                                <option
+                                    value="RIGHT"
+                                    {% if area.position == "RIGHT" %}selected{% endif %}
+                                >
+                                    RIGHT SIDE
+                                </option>
+                                <option
+                                    value="NONE"
+                                    {% if area.position == "NONE" %}selected{% endif %}
+                                >
+                                    N/A
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <textarea
+                                name="area_workers"
+                                class="form-control"
+                                rows="1"
+                                placeholder="예: 홍길동, 김철수"
+                            >
+{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}{% if forloop.counter|divisibleby:6 %}{% else %}, {% endif %}{% endif %}{% endfor %}</textarea
+                            >
+                        </td>
+                        <td class="text-center">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="area_delete"
+                                value="{{ area.id }}"
+                            />
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            등록된 구역이 없습니다.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tbody id="newAreaContainer"></tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="addAreaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold">새 구역 추가</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body px-4">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">구역 이름</label>
+                    <input
+                        type="text"
+                        id="newAreaNameInput"
+                        class="form-control"
+                        placeholder="구역 이름"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">위치</label>
+                    <select id="newAreaPositionInput" class="form-select">
+                        <option value="LEFT">LEFT SIDE</option>
+                        <option value="RIGHT">RIGHT SIDE</option>
+                        <option value="NONE">N/A</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">작업자 이름</label>
+                    <input
+                        type="text"
+                        id="newAreaWorkersInput"
+                        class="form-control"
+                        placeholder="예: 홍길동, 김철수"
+                    />
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4">
+                <button
+                    type="button"
+                    class="btn btn-light rounded-3"
+                    data-bs-dismiss="modal"
+                >
+                    취소
+                </button>
+                <button
+                    type="button"
+                    id="addAreaConfirmBtn"
+                    class="btn btn-primary rounded-3 px-4"
+                >
+                    추가
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    class="offcanvas offcanvas-start"
+    tabindex="-1"
+    id="loadWorkersPanel"
+    aria-labelledby="loadWorkersPanelLabel"
+    data-bs-backdrop="false"
+    data-bs-scroll="true"
+>
+    <div class="offcanvas-header">
+        <div>
+            <h5 class="offcanvas-title fw-bold" id="loadWorkersPanelLabel">
+                작업자 명단
+            </h5>
+            <div class="text-muted small">
+                총 <span id="workerCount">0</span>명
+            </div>
+            <div id="workerUsageMessage" class="text-danger small d-none"></div>
+        </div>
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+        ></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="d-flex gap-2 mb-3">
+            <button
+                type="button"
+                id="selectAllWorkersBtn"
+                class="btn btn-outline-secondary btn-sm"
+            >
+                모두 선택
+            </button>
+            <button
+                type="button"
+                id="deleteSelectedWorkersBtn"
+                class="btn btn-outline-danger btn-sm"
+            >
+                선택 삭제
+            </button>
+        </div>
+        <div
+            id="workerListPanel"
+            class="row g-2"
+            style="max-height: 100vh; overflow-y: auto"
+        >
+            {% for name in worker_names %}
+            <div class="col-6">
+                <div
+                    class="d-flex align-items-center gap-2 border rounded-3 px-3 bg-light"
+                    style="font-size: 0.875rem"
+                    data-worker-name="{{ name }}"
+                >
+                    <input
+                        class="form-check-input worker-select"
+                        type="checkbox"
+                    />
+                    <div class="flex-grow-1">{{ name }}</div>
+                    <span
+                        class="badge bg-success-subtle text-success worker-status d-none"
+                    >
+                        사용중
+                    </span>
+                    <span
+                        class="badge bg-danger-subtle text-danger worker-dup-status d-none"
+                    >
+                        중복
+                    </span>
+                    {% comment %}
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger btn-sm worker-remove"
+                        style="font-size: 0.75rem"
+                    >
+                        삭제
+                    </button>
+                    {% endcomment %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-4">
+                등록된 작업자가 없습니다.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="offcanvas-footer p-3 border-top">
+        <div class="d-flex gap-2 justify-content-end">
+            <button
+                type="button"
+                class="btn btn-light rounded-3"
+                data-bs-dismiss="offcanvas"
+            >
+                닫기
+            </button>
+            <button
+                type="button"
+                id="applyWorkersBtn"
+                class="btn btn-primary rounded-3 px-4"
+            >
+                입력칸에 적용
+            </button>
+        </div>
+    </div>
+</div>
+
+<template id="newAreaTemplate">
+    <tr class="new-area-row">
+        <td>
+            <input
+                type="text"
+                name="new_area_name"
+                class="form-control"
+                placeholder="구역 이름"
+            />
+        </td>
+        <td>
+            <select name="new_area_position" class="form-select">
+                <option value="LEFT">LEFT SIDE</option>
+                <option value="RIGHT">RIGHT SIDE</option>
+                <option value="NONE">N/A</option>
+            </select>
+        </td>
+        <td>
+            <input
+                type="text"
+                name="new_area_workers"
+                class="form-control"
+                placeholder="예: 홍길동, 김철수"
+            />
+        </td>
+        <td class="text-center">
+            <input
+                class="form-check-input new-area-remove"
+                type="checkbox"
+                aria-label="새 구역 삭제"
+            />
+        </td>
+    </tr>
+</template>
+
+<nav class="navbar navbar-expand-lg fixed-bottom pb-0">
+    <div
+        class="d-flex justify-content-center align-items-center w-100 bg-dark py-3"
+    >
+        <div class="d-flex gap-2">
+            <a
+                href="{% url 'manning:manning_dashboard' session.id %}"
+                class="btn btn-light rounded-3"
+                >취소
+            </a>
+            <button
+                type="button"
+                class="btn btn-outline-danger px-2"
+                style="font-size: 0.9rem"
+                id="btn-clear-assigned"
+            >
+                전체 삭제
+            </button>
+            <button
+                type="submit"
+                class="btn btn-success fw-bold px-2 shadow"
+                style="font-size: 0.9rem"
+                form="areaEditForm"
+            >
+                <i class="bi bi-check-lg me-1"></i>저장
+            </button>
+        </div>
+    </div>
+</nav>
+
+{% endblock content %}

@@ -1,0 +1,202 @@
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
+
+{% block title %}세션 생성 | manhour System{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/create_session.css' %}" />
+{% endblock css %} 
+
+{% block js %}
+<script>
+    const CHECK_GIBUN_URL = "{% url 'manhour:check_gibun' %}";
+</script>
+<script defer src="{% static 'js/create_session.js' %}"></script>
+{% endblock js %} 
+
+{% block background_image %} 
+    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
+{% endblock background_image %}
+
+
+{% block content %}
+<div class="container my-4 py-4 rounded-3" style="max-width: 1000px">
+    <div
+        class="card border-0 shadow-lg rounded-4 overflow-hidden"
+        data-aos="fade-up"
+    >
+        <div
+            class="d-flex align-items-center card-header border-0 py-4 px-4 px-md-5 text-center"
+        >
+            <h4 class="fw-bold text-dark mb-1">작업 세션 시작</h4>
+
+            <i class="bi bi-rocket-takeoff-fill fs-3 text-primary ms-2"></i>
+            <a
+                href="{% url 'manhour:index' %}"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-auto"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
+        </div>
+
+        <div class="card-body px-4 px-md-5 pb-2 pt-3">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <label
+                            class="form-label fw-bold text-dark small text-uppercase ls-1"
+                            >1. 세션 이름</label
+                        >
+                        <input
+                            type="text"
+                            name="session_name"
+                            class="form-control form-control-md bg-light border-0"
+                            placeholder="예: 엔진 교환"
+                            value="{{ slot }}"
+                            required
+                        />
+                    </div>
+
+                    <div class="col-12">
+                        <label
+                            class="form-label fw-bold text-dark small text-uppercase ls-1"
+                            >2. 근무 형태</label
+                        >
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input
+                                    type="radio"
+                                    class="btn-check"
+                                    name="shift_type"
+                                    id="shiftDay"
+                                    value="DAY"
+                                    required
+                                />
+                                <label
+                                    class="btn btn-outline-warning w-100 py-3 rounded-3 border-2 fw-bold"
+                                    for="shiftDay"
+                                >
+                                    <i class="bi bi-sun-fill me-1"></i> 주간
+                                    <div
+                                        class="small fw-normal opacity-75"
+                                        style="font-size: 0.75rem"
+                                    >
+                                        08:00 ~ 20:00
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input
+                                    type="radio"
+                                    class="btn-check"
+                                    name="shift_type"
+                                    id="shiftNight"
+                                    value="NIGHT"
+                                />
+                                <label
+                                    class="btn btn-outline-dark w-100 py-3 rounded-3 border-2 fw-bold"
+                                    for="shiftNight"
+                                >
+                                    <i class="bi bi-moon-stars-fill me-1"></i>
+                                    야간
+                                    <div
+                                        class="small fw-normal opacity-75"
+                                        style="font-size: 0.75rem"
+                                    >
+                                        20:00 ~ 08:00
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-3">
+                    <div class="col-md-6">
+                        <label
+                            class="form-label fw-bold text-dark small text-uppercase ls-1"
+                            >3. 항공기 기번 등록</label
+                        >
+
+                        <div
+                            id="gibunContainer"
+                            class="tag-input-container d-flex flex-wrap gap-2 align-items-center p-2"
+                        >
+                            <input
+                                type="text"
+                                id="gibunInput"
+                                class="border-0 bg-transparent flex-grow-1"
+                                style="outline: none; min-width: 100px"
+                                placeholder="기번 입력 후 엔터"
+                            />
+                        </div>
+
+                        <div class="form-text small text-muted mt-1 ms-1">
+                            <i class="bi bi-info-circle me-1"></i>작업 대상
+                            항공기를 모두 입력해주세요.
+                        </div>
+
+                        <div
+                            id="gibunWarning"
+                            class="alert alert-warning d-flex align-items-center mt-2 py-2 px-3 small fade show"
+                            style="display: none !important"
+                        >
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>등록되지 않은 기번입니다.</div>
+                        </div>
+
+                        <input
+                            type="hidden"
+                            name="gibun_input"
+                            id="realGibunField"
+                        />
+                    </div>                    
+                    <div class="col-md-6">
+                        <label
+                            class="form-label fw-bold text-dark small text-uppercase ls-1"
+                            >4. 작업자 명단</label
+                        >
+
+                        <textarea
+                            id="workerNames"
+                            name="worker_names"
+                            class="form-control bg-light border-0"
+                            rows="3"
+                            placeholder="쉼표로 구분하여 입력하세요."
+                            style="resize: none"
+                            required
+                        ></textarea>
+
+                        <div class="form-text small text-muted mt-1 ms-1">
+                            <i class="bi bi-pencil-fill me-1"></i>
+                            쉼표로 구분하여 여러 명 입력 가능
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 py-3">
+                    <div
+                        id="form_requirements"
+                        class="text-center text-danger small fw-bold mb-1 fade show"
+                    >
+                        <i class="bi bi-exclamation-circle me-1"></i>필수 항목을
+                        모두 입력해주세요
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="submitBtn"
+                        class="btn btn-primary btn-md py-3 rounded-4 fw-bold shadow-sm"
+                        disabled
+                    >
+                        🚀 작업 세션 생성하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

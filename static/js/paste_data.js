@@ -120,7 +120,8 @@ function handlePaste(e) {
 
         // ✅ 5열 전체(공란 포함) 채움: cIndex는 0~(COL_COUNT-1)까지만
         for (let cIndex = 0; cIndex < COL_COUNT; cIndex++) {
-            const targetCell = targetRow.children[startColIndex + cIndex];
+            const absoluteColIndex = startColIndex + cIndex;
+            const targetCell = targetRow.children[absoluteColIndex];
             if (!targetCell) continue;
 
             const input = targetCell.querySelector("input");
@@ -129,9 +130,9 @@ function handlePaste(e) {
             // cols에 없는 열은 "" 처리 (공란 유지)
             const v = cols[cIndex] != null ? String(cols[cIndex]) : "";
             const trimmed = v.trim();
-            if (cIndex === 2) {
+            if (absoluteColIndex === 2) {
                 input.value = normalizeOpRaw(trimmed);
-            } else if (cIndex === 0) {
+            } else if (absoluteColIndex === 0) {
                 input.value = normalizeGibun(trimmed);
             } else {
                 input.value = trimmed;

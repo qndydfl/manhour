@@ -1,0 +1,649 @@
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
+{% load widget_tweaks %} 
+
+{% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
+{% endblock css %} 
+
+{% block js %}
+<script>
+    const PASTE_DATA_POST_URL = "{% url 'manhour:paste_items' session.id %}";
+    const MASTER_DATA_LIST_URL = "{% url 'manhour:manage_items' session.id %}";
+    const REORDER_ITEMS_URL = "{% url 'manhour:reorder_items' session.id %}";
+    const MASTER_ITEMS_URL = "{% url 'manhour:master_items' session.id %}";
+    const DUPLICATE_MASTER_ITEMS_URL =
+        "{% url 'manhour:duplicate_master_items' session.id %}";
+</script>
+<script defer src="{% static 'js/paste_data.js' %}"></script>
+<script>
+    window.lastMhPercent = "{{ lastMhPercent|default:'0'|escapejs }}";
+    window.adjustedMhCustomIds =
+        "{{ lastAdjustedCustomIds|join:','|escapejs }}";
+</script>
+<script defer src="{% static 'js/manage_items.js' %}"></script>
+{% endblock js %} 
+
+{% block background_image %} 
+    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
+{% endblock background_image %} 
+
+{% block content %}
+<div class="container glass-panel my-4 mb-5 py-4 rounded-3">
+    <div class="d-flex justify-content-between align-items-center py-2">
+        <div class="d-flex align-items-center gap-3">
+            <div>
+                <h4 class="mb-0 text-dark fw-bold">
+                    <i class="bi bi-gear-wide-connected text-primary me-2"></i>
+                    데이터 전체 수정
+                </h4>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+            <button
+                type="button"
+                class="btn btn-info fw-bold btn-sm rounded-pill px-2 shadow-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#pasteDataModal"
+            >
+                <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
+            </button>
+            <a
+                href="{% url 'manhour:result_view' session.id %}"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
+        </div>
+    </div>
+    <div class="d-flex align-items-center text-dark small my-3">
+        <i class="bi bi-lightbulb-fill text-warning me-2 fs-5"></i>
+        <strong>모든 항목</strong>을 수정 또는 삭제 후&nbsp;
+        <span class="text-success fw-bold">"저장 및 재배정"</span>&nbsp;을
+        눌러주세요.
+    </div>
+
+    <form
+        method="POST"
+        id="manage-form"
+        action="{% url 'manhour:manage_items' session.id %}"
+    >
+        {% csrf_token %} {{ formset.management_form }}
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div
+                        class="card-header bg-white fw-bold border-bottom py-2"
+                    >
+                        <i
+                            class="bi bi-sort-numeric-down text-warning me-1"
+                        ></i>
+                        기종(기번) 우선순위
+                    </div>
+                    <div class="card-body p-0">
+                        <div
+                            class="table-responsive"
+                            style="max-height: 200px; overflow-y: auto"
+                        >
+                            <table
+                                class="table ios-table table-sm table-hover mb-0 text-center align-middle small"
+                            >
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>기종(기번)</th>
+                                        <th width="100">순위</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in gibun_priorities %}
+                                    <tr>
+                                        <td class="fw-bold text-center ps-3">
+                                            {{ p.gibun }}
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                name="prio_{{ p.id }}"
+                                                value="{{ p.order }}"
+                                                class="form-control form-control-sm text-center fw-bold bg-light p-0 border-0"
+                                                min="1"
+                                            />
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted py-3">
+                                            데이터 없음
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div
+                        class="card-header bg-white fw-bold border-bottom py-2"
+                    >
+                        <i class="bi bi-person-gear text-secondary me-1"></i>
+                        근무 한도
+                        <span
+                            class="text-white btn btn-primary ms-2"
+                            style="font-size: 0.75rem; padding: 0.15rem 0.5rem"
+                            >근무 한도는 직비만 해당 됩니다.</span
+                        >
+                    </div>
+
+                    <div class="card-body p-0">
+                        <textarea
+                            name="worker_names_str"
+                            class="form-control border-0 bg-light small font-monospace p-3 h-100"
+                            style="min-height: 150px; resize: none"
+                            placeholder="이름: 시간 (줄바꿈)"
+                        >{{ worker_names_str }}</textarea
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div
+                class="card-header bg-white py-3 d-flex justify-content-between align-items-center sticky-top"
+                style="z-index: 5; top: 0"
+            >
+                <div>
+                    <h5 class="fw-bold mb-0 d-inline-block">📋 데이터 목록</h5>
+                    <span class="badge bg-secondary ms-2 rounded-pill"
+                        >{{ non_common_count }}건</span
+                    >
+                </div>
+                <span class="text-danger small fw-bold"
+                    ><i class="bi bi-check-square me-1"></i>체크박스 선택 후
+                    저장 시 삭제됩니다.</span
+                >
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table
+                        id="manageItemsTable"
+                        class="table table-hover mb-0 align-middle text-center"
+                    >
+                        <thead
+                            class="table-light sticky-top"
+                            style="z-index: 4"
+                        >
+                            <tr class="text-secondary small">
+                                <th
+                                    style="width: 5%"
+                                    class="text-danger col-delete"
+                                >
+                                    <i class="bi bi-trash3-fill"></i>
+                                </th>
+                                <th style="width: 5%" class="col-order">
+                                    순서
+                                </th>
+                                <th style="width: 10%" class="col-gibun">
+                                    기번
+                                </th>
+                                <th style="width: 14%" class="col-wo">W/O</th>
+                                <th style="width: 5%" class="col-op">OP</th>
+                                <th style="width: 10%" class="col-desc">
+                                    작업 내용
+                                </th>
+                                <th style="width: 10%" class="col-mh">
+                                    Plan M/H
+                                </th>
+                                <th style="width: 13%" class="col-mh-adjust">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-2"
+                                    >
+                                        <span>조정 M/H</span>
+                                        <select
+                                            class="form-select form-select-sm w-auto mh-adjust-select text-primary fw-bold"
+                                            style="
+                                                min-width: 100px;
+                                                display: inline-block;
+                                            "
+                                        >
+                                            <option value="0">원래값</option>
+                                            <option value="10">+10%</option>
+                                            <option value="20">+20%</option>
+                                            <option value="30">+30%</option>
+                                            <option value="custom">
+                                                개별 수정
+                                            </option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th
+                                    style="width: 40%"
+                                    class="bg-primary bg-opacity-10 text-primary col-assign"
+                                >
+                                    고정 배정 (이름)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form in formset %} {{ form.id }} 
+                            {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+
+                            <input
+                                type="hidden"
+                                name="{{ form.prefix }}-ordering"
+                                value="{{ form.instance.ordering|default:0 }}"
+                            />
+
+                            {% ifchanged form.instance.gibun_input %}
+                            <tr
+                                class="table-secondary border-bottom border-secondary group-header"
+                                data-gibun="{{ form.instance.gibun_input|escape }}"
+                            >
+                                <td colspan="8" class="text-start py-2 px-3">
+                                    <div
+                                        class="d-flex align-items-center justify-content-between"
+                                    >
+                                        <div class="fw-bold text-dark fs-6">
+                                            <i
+                                                class="bi bi-airplane-engines-fill me-2"
+                                            ></i
+                                            >{{ form.instance.gibun_input|default:"(기번 없음)" }}
+                                        </div>
+
+                                        <div>
+                                            <a
+                                                href="{% url 'manhour:reorder_gibun' session.id form.instance.gibun_input 'up' %}"
+                                                class="btn btn-sm btn-outline-secondary border-0 p-0 me-1"
+                                                title="기번 위로 이동"
+                                            >
+                                                <i
+                                                    class="bi bi-arrow-up-circle-fill fs-5"
+                                                ></i>
+                                            </a>
+
+                                            <a
+                                                href="{% url 'manhour:reorder_gibun' session.id form.instance.gibun_input 'down' %}"
+                                                class="btn btn-sm btn-outline-secondary border-0 p-0"
+                                                title="기번 아래로 이동"
+                                            >
+                                                <i
+                                                    class="bi bi-arrow-down-circle-fill fs-5"
+                                                ></i>
+                                            </a>
+                                        </div>
+
+                                        <div
+                                            class="form-check form-switch mb-0"
+                                        >
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="chk_group_{{ forloop.counter }}"
+                                                data-gibun="{{ form.instance.gibun_input|escape }}"
+                                                onclick="
+                                                    toggleGroupDelete(this)
+                                                "
+                                                aria-label="그룹 전체 삭제 토글"
+                                            />
+                                            <label
+                                                class="form-check-label small fw-bold text-danger"
+                                                for="chk_group_{{ forloop.counter }}"
+                                                >그룹 전체 삭제</label
+                                            >
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endifchanged %}
+
+                            <tr
+                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row"
+                                data-item-id="{{ form.instance.pk }}"
+                                data-gibun="{{ form.instance.gibun_input|escape }}"
+                            >
+                                <td class="text-danger col-delete">
+                                    {% if form.instance.pk %}
+                                    <div class="d-flex justify-content-center">
+                                        <div class="d-none">
+                                            {{ form.DELETE }}
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger item-chk-{{ form.instance.gibun_input|escape }}"
+                                            data-gibun="{{ form.instance.gibun_input|escape }}"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td
+                                    class="text-danger col-order"
+                                    style="width: 40px"
+                                >
+                                    {% if form.instance.pk %}
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </td>
+
+                                <td class="col-gibun">
+                                    {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
+                                </td>
+                                <td class="col-wo">
+                                    {% render_field form.work_order class="table-input font-monospace" placeholder="WO" %}
+                                </td>
+                                <td class="col-op">
+                                    {% render_field form.op class="table-input" placeholder="OP" %}
+                                </td>
+                                <td class="col-desc">
+                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
+                                </td>
+                                <td class="col-mh">
+                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" readonly="readonly" tabindex="-1" area-readonly="true" %}
+                                </td>
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        name="adjusted_mh"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value="{{ form.initial.adjusted_mh|default_if_none:'' }}"
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #f8f9fa;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td
+                                    colspan="8"
+                                    class="py-5 text-center text-muted"
+                                >
+                                    등록된 데이터가 없습니다.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<nav class="navbar navbar-expand-lg fixed-bottom pb-0">
+    <div
+        class="d-flex justify-content-center align-items-center w-100 bg-dark py-3"
+    >
+        <div class="d-flex gap-2">
+            <a
+                href="{% url 'manhour:result_view' session.id %}"
+                class="btn btn-secondary px-2"
+                style="font-size: 0.9rem"
+                >취소
+            </a>
+            <button
+                type="button"
+                class="btn btn-outline-danger px-2"
+                style="font-size: 0.9rem"
+                id="btn-clear-assigned"
+            >
+                고정 배정 전체 삭제
+            </button>
+            <button
+                type="submit"
+                form="manage-form"
+                class="btn btn-success fw-bold px-2 shadow"
+                style="font-size: 0.9rem"
+            >
+                <i class="bi bi-check-lg me-1"></i>저장 및 재배정
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div class="modal fade" id="pasteDataModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">📋 데이터 일괄 등록</h5>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+            <div class="modal-body p-4">
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link active"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pasteTab"
+                            type="button"
+                            role="tab"
+                        >
+                            붙여넣기
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link"
+                            data-bs-toggle="tab"
+                            data-bs-target="#masterItemsTab"
+                            type="button"
+                            role="tab"
+                        >
+                            등록된 데이터
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div
+                        class="tab-pane fade show active"
+                        id="pasteTab"
+                        role="tabpanel"
+                    >
+                        <div
+                            class="instruction-box p-3 rounded-3 mb-4 bg-light border"
+                        >
+                            <h6 class="fw-bold text-primary mb-2">
+                                <i class="bi bi-info-circle me-1"></i>데이터
+                                순서 (엑셀 컬럼)
+                            </h6>
+                            <div
+                                class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
+                            >
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >1. 기번 (HLxxxx)</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >2. Work Order</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >3. OP</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >4. Description</span
+                                >
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                    >5. Work (M/H)</span
+                                >
+                            </div>
+                        </div>
+
+                        <form id="pasteForm">
+                            {% csrf_token %}
+
+                            <div class="table-responsive mb-4 border rounded-3">
+                                <table
+                                    class="table table-bordered text-center align-middle mb-0 smart-table"
+                                    id="gridTable"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 15%">
+                                                기번 (Gibun)
+                                            </th>
+                                            <th style="width: 15%">
+                                                Work Order
+                                            </th>
+                                            <th style="width: 10%">OP</th>
+                                            <th style="width: 45%">
+                                                설명 (Description)
+                                            </th>
+                                            <th style="width: 15%">기준 M/H</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <button
+                                        type="button"
+                                        onclick="addRow()"
+                                        class="btn btn-light w-100 fw-bold border text-muted rounded-pill"
+                                    >
+                                        <i class="bi bi-plus-lg"></i> 줄 추가
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button
+                                        type="reset"
+                                        class="btn btn-light w-100 fw-bold text-secondary rounded-pill"
+                                    >
+                                        초기화
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button
+                                        type="button"
+                                        onclick="saveData()"
+                                        class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
+                                    >
+                                        <i class="bi bi-save me-1"></i> 저장
+                                        하기
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div
+                        class="tab-pane fade"
+                        id="masterItemsTab"
+                        role="tabpanel"
+                    >
+                        <div
+                            class="d-flex justify-content-between align-items-center mb-3"
+                        >
+                            <div class="input-group" style="max-width: 320px">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="masterItemsSearch"
+                                    placeholder="등록 데이터 검색..."
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                id="masterItemsAddBtn"
+                            >
+                                선택 추가
+                            </button>
+                        </div>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40px">
+                                            <input
+                                                type="checkbox"
+                                                id="masterItemsSelectAll"
+                                            />
+                                        </th>
+                                        <th style="width: 12%">기번</th>
+                                        <th style="width: 14%">W/O</th>
+                                        <th style="width: 10%">OP</th>
+                                        <th>작업 내용</th>
+                                        <th style="width: 10%">M/H</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="masterItemsTableBody">
+                                    <tr>
+                                        <td
+                                            colspan="6"
+                                            class="text-center text-muted py-4"
+                                        >
+                                            불러오는 중...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const pasteModal = document.getElementById("pasteDataModal");
+        if (pasteModal) {
+            // 모달 엘리먼트를 body 태그의 가장 마지막으로 이동시켜 레이어 간섭 제거
+            document.body.appendChild(pasteModal);
+        }
+    });
+</script>
+
+{% endblock content %} {% block footer %}{% endblock footer %}
