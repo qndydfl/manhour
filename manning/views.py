@@ -34,6 +34,16 @@ DEFAULT_AREAS = [
     ("NONE", "SE"),
 ]
 
+WORKPLACE_SESSION_KEY = "workplace"
+
+
+def _get_current_workplace(request):
+    current = request.session.get(WORKPLACE_SESSION_KEY)
+    valid = {choice[0] for choice in WorkSession.SITE_CHOICES}
+    if current in valid:
+        return current
+    return ""
+
 
 def ensure_default_areas(session):
     if session.areas.exists():
@@ -47,8 +57,10 @@ def ensure_default_areas(session):
     return True
 
 
-def _find_matching_manhour_session(manning_session):
+def _find_matching_manhour_session(manning_session, workplace=""):
     qs = ManhourWorkSession.objects.all()
+    if workplace:
+        qs = qs.filter(site=workplace)
     if manning_session.aircraft_reg:
         qs = qs.filter(name__icontains=manning_session.aircraft_reg)
     if manning_session.work_package_name:
@@ -60,13 +72,19 @@ class ManningSessionRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.session.get("is_authenticated"):
             raise Http404
+        workplace = _get_current_workplace(request)
+        if not workplace:
+            messages.error(request, "근무지를 선택해주세요.")
+            return redirect("manhour:login")
         return super().dispatch(request, *args, **kwargs)
 
 
 class ManningListView(ManningSessionRequiredMixin, View):
     def get(self, request):
+        workplace = _get_current_workplace(request)
         active_sessions = WorkSession.objects.filter(is_active=True).order_by(
-            "-created_at"
+            "shift_type",
+            "-created_at",
         )
         used_shifts = list(
             active_sessions.values_list("shift_type", flat=True).distinct()
@@ -86,9 +104,17 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request):
+        workplace = _get_current_workplace(request)
+        if not workplace:
+            messages.error(request, "근무지를 선택해주세요.")
+            return redirect("manhour:login")
         form = WorkSessionCreateForm(request.POST)
         if form.is_valid():
             session = form.save(commit=False)
+            raw_block_check = (request.POST.get("block_check") or "").strip()
+            raw_shift_type = (request.POST.get("shift_type") or "").strip()
+            if raw_block_check and raw_shift_type:
+                session.site = workplace
             if not session.name:
                 session.name = session.work_package_name or "Maintenance Session"
             session.is_active = True
@@ -98,7 +124,8 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
 
         messages.error(request, "세션 생성에 실패했습니다. 입력값을 확인해주세요.")
         active_sessions = WorkSession.objects.filter(is_active=True).order_by(
-            "-created_at"
+            "shift_type",
+            "-created_at",
         )
         used_shifts = list(
             active_sessions.values_list("shift_type", flat=True).distinct()
@@ -127,6 +154,7 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
 
 class ManningDashboardView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
+        workplace = _get_current_workplace(request)
         session = get_object_or_404(WorkSession, id=session_id)
         created_defaults = ensure_default_areas(session)
         if created_defaults:
@@ -144,7 +172,11 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
             )
             .order_by("position_order", "id")
         )
-        manhour_session = _find_matching_manhour_session(session)
+        target_workplace = session.site or workplace
+        manhour_session = _find_matching_manhour_session(
+            session,
+            workplace=target_workplace,
+        )
         manhour_hours = {}
         if manhour_session:
             manhour_hours = {
@@ -160,7 +192,8 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
             for manning in area.manning_set.all():
                 manning.display_hours = manhour_hours.get(manning.worker_name)
         worker_names = (
-            ManhourWorker.objects.values_list("name", flat=True)
+            ManhourWorker.objects.filter(session__site=target_workplace)
+            .values_list("name", flat=True)
             .distinct()
             .order_by("name")
         )
@@ -172,14 +205,20 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
                 "session": session,
                 "session_areas": session_areas,
                 "all_workers": all_workers,
+                "is_same_site": session.site == workplace,
             },
         )
 
 
 class AssignmentRedirectView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
+        workplace = _get_current_workplace(request)
         manning_session = get_object_or_404(WorkSession, id=session_id)
-        target = _find_matching_manhour_session(manning_session)
+        target_workplace = manning_session.site or workplace
+        target = _find_matching_manhour_session(
+            manning_session,
+            workplace=target_workplace,
+        )
         if not target:
             messages.error(
                 request,
@@ -220,7 +259,10 @@ class UpdateAreaView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, area_id):
-        area = get_object_or_404(SessionArea, id=area_id)
+        area = get_object_or_404(
+            SessionArea,
+            id=area_id,
+        )
         form = SessionAreaForm(request.POST, instance=area)
         if form.is_valid():
             form.save()
@@ -240,7 +282,10 @@ class DeleteAreaView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, area_id):
-        area = get_object_or_404(SessionArea, id=area_id)
+        area = get_object_or_404(
+            SessionArea,
+            id=area_id,
+        )
         session_id = area.session_id
         area.delete()
         messages.success(request, "구역이 삭제되었습니다.")
@@ -265,7 +310,10 @@ class BatchManningView(ManningSessionRequiredMixin, View):
                 {"status": "error", "message": "Invalid data"}, status=400
             )
 
-        area = get_object_or_404(SessionArea, id=area_id)
+        area = get_object_or_404(
+            SessionArea,
+            id=area_id,
+        )
         cleaned = [name.strip() for name in worker_names if name and name.strip()]
 
         if not cleaned:
@@ -286,7 +334,10 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, manning_id):
-        manning = get_object_or_404(Manning, id=manning_id)
+        manning = get_object_or_404(
+            Manning,
+            id=manning_id,
+        )
         raw_hours = (request.POST.get("hours") or "").strip()
         try:
             hours_value = float(raw_hours)
@@ -301,13 +352,14 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
 
 class AreaBulkEditView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
+        workplace = _get_current_workplace(request)
         session = get_object_or_404(WorkSession, id=session_id)
         session_areas = (
             session.areas.all()
             .prefetch_related("manning_set")
             .annotate(
                 position_order=Case(
-                    When(position=SessionArea.POSITION_LEFT, then=0),                    
+                    When(position=SessionArea.POSITION_LEFT, then=0),
                     When(position=SessionArea.POSITION_RIGHT, then=1),
                     When(position=SessionArea.POSITION_NONE, then=2),
                     default=3,
@@ -316,8 +368,10 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
             )
             .order_by("position_order", "id")
         )
+        target_workplace = session.site or workplace
         worker_names = (
-            ManhourWorker.objects.values_list("name", flat=True)
+            ManhourWorker.objects.filter(session__site=target_workplace)
+            .values_list("name", flat=True)
             .distinct()
             .order_by("name")
         )

@@ -23,6 +23,7 @@
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }} 
 {% endblock js %} 
+
 {% block background_image %} 
 {% include "manhour/image/background_url.html" with bg_key="manning_dashboard_edit" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
 {% endblock background_image %} 
@@ -64,19 +65,7 @@
         </div>
     </div>
 
-    {% comment %} {% if errors %}
-    <div class="alert alert-danger mx-3">
-        {% for error in errors %}
-        <div>{{ error }}</div>
-        {% endfor %}
-    </div>
-    {% endif %} {% endcomment %} {% comment %}
-    <div
-        id="workerDuplicateMessage"
-        class="alert alert-warning mx-3 d-none"
-        role="alert"
-    ></div>
-    {% endcomment %}
+    {% include "messages/worker_validation_modal.html" %}
 
     <form method="POST" class="px-3" id="areaEditForm">
         {% csrf_token %}
@@ -132,7 +121,7 @@
                         <td>
                             <textarea
                                 name="area_workers"
-                                class="form-control"
+                                class="form-control worker-drop-target"
                                 rows="1"
                                 placeholder="예: 홍길동, 김철수"
                             >
@@ -197,7 +186,7 @@
                     <input
                         type="text"
                         id="newAreaWorkersInput"
-                        class="form-control"
+                        class="form-control worker-drop-target"
                         placeholder="예: 홍길동, 김철수"
                     />
                 </div>
@@ -272,9 +261,10 @@
             {% for name in worker_names %}
             <div class="col-6">
                 <div
-                    class="d-flex align-items-center gap-2 border rounded-3 px-3 bg-light"
-                    style="font-size: 0.875rem"
+                    class="d-flex align-items-center gap-2 border rounded-3 px-3 bg-light worker-item"
+                    style="font-size: 0.875rem; cursor: grab"
                     data-worker-name="{{ name }}"
+                    draggable="true"
                 >
                     <input
                         class="form-check-input worker-select"
@@ -291,15 +281,6 @@
                     >
                         중복
                     </span>
-                    {% comment %}
-                    <button
-                        type="button"
-                        class="btn btn-outline-danger btn-sm worker-remove"
-                        style="font-size: 0.75rem"
-                    >
-                        삭제
-                    </button>
-                    {% endcomment %}
                 </div>
             </div>
             {% empty %}
@@ -350,7 +331,7 @@
             <input
                 type="text"
                 name="new_area_workers"
-                class="form-control"
+                class="form-control worker-drop-target"
                 placeholder="예: 홍길동, 김철수"
             />
         </td>

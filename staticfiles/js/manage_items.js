@@ -270,17 +270,30 @@ function initPlanMhAdjust() {
         ? parseFloat(lastPercentRaw)
         : 0;
 
-    if (lastPercentRaw === "custom") {
+    const hasAdjustedValues = adjustedInputs.some(
+        (input) => (input.value || "").trim() !== "",
+    );
+
+    if (lastPercentRaw === "custom" || (!lastPercentRaw && hasAdjustedValues)) {
         select.value = "custom";
         setAdjustedEditable(true);
         setCustomBaseline();
         adjustedInputs.forEach((input) => {
             const row = input.closest("tr");
             const itemId = row ? row.dataset.itemId : "";
-            if (itemId && editedIds.has(itemId)) {
+            if (itemId && (editedIds.has(itemId) || hasAdjustedValues)) {
                 input.classList.add("adjusted-mh-custom");
             }
         });
+        if (hasAdjustedValues) {
+            adjustedInputs.forEach((input) => {
+                const row = input.closest("tr");
+                const itemId = row ? row.dataset.itemId : "";
+                if (itemId) {
+                    editedIds.add(itemId);
+                }
+            });
+        }
     } else if (isNumericPercent(lastPercentRaw)) {
         if (select.value !== String(lastPercent)) {
             select.value = String(lastPercent);

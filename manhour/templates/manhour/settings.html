@@ -1,12 +1,11 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/base.html" %}
+{% load static %}
 
-{% block title %}설정 | manhour System{% endblock %} 
+{% block title %}설정 | manhour System{% endblock %}
 
-{% block background_image %} 
-    {% include "manhour/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %} 
-{% endblock background_image %} 
-
+{% block background_image %}
+{% include "manhour/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %}
+{% endblock background_image %}
 
 {% block content %}
 <div class="container" style="max-width: 820px">
@@ -20,8 +19,9 @@
 
         <form method="POST" class="mb-4">
             {% csrf_token %}
+
             <h2 class="h6 fw-bold mb-3">자동 아카이브 이동 시간</h2>
-            <div class="row g-2 align-items-center">
+            <div class="row g-2 align-items-center mb-4">
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="auto-archive-hours">
                         생성 후 작업 이력 아카이브(시간)
@@ -35,6 +35,7 @@
                         value="{{ auto_archive_hours }}"
                     />
                 </div>
+
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="history-visibility-hours">
                         작업 이력 표시 시간(시간)
@@ -48,6 +49,7 @@
                         value="{{ history_visibility_hours }}"
                     />
                 </div>
+
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="default-worker-limit">
                         기본 근무 한도(M/H)
@@ -62,6 +64,7 @@
                         value="{{ default_worker_limit_mh }}"
                     />
                 </div>
+
                 <div class="col-12">
                     <div class="form-check mt-2">
                         <input
@@ -75,9 +78,7 @@
                             id="show-settings-menu"
                             name="show_settings_menu"
                             value="1"
-                            {% if show_settings_menu %}
-                            checked
-                            {% endif %}
+                            {% if show_settings_menu %}checked{% endif %}
                         />
                         <label
                             class="form-check-label"
@@ -87,82 +88,92 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="h6 fw-bold mb-3">사이드바 위치</h2>
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="sidebar_position"
+                            id="sidebar-left"
+                            value="left"
+                            data-setting="sidebarPosition"
+                            {% if sidebar_position == "left" %}checked{% endif %}
+                        />
+                        <label class="form-check-label" for="sidebar-left">
+                            좌측
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="sidebar_position"
+                            id="sidebar-right"
+                            value="right"
+                            data-setting="sidebarPosition"
+                            {% if sidebar_position == "right" %}checked{% endif %}
+                        />
+                        <label class="form-check-label" for="sidebar-right">
+                            우측
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="form-text">
-                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본 근무 한도는 통합 관리 화면의 기본값에 적용됩니다.
+
+            <div class="mb-4">
+                <h2 class="h6 fw-bold mb-3">Navbar 토글 버튼 위치</h2>
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="navbar_toggle_position"
+                            id="navbar-toggle-left"
+                            value="left"
+                            data-setting="navbarTogglePosition"
+                            {% if navbar_toggle_position == "left" %}checked{% endif %}
+                        />
+                        <label
+                            class="form-check-label"
+                            for="navbar-toggle-left"
+                        >
+                            좌측
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="navbar_toggle_position"
+                            id="navbar-toggle-right"
+                            value="right"
+                            data-setting="navbarTogglePosition"
+                            {% if navbar_toggle_position == "right" %}checked{% endif %}
+                        />
+                        <label
+                            class="form-check-label"
+                            for="navbar-toggle-right"
+                        >
+                            우측
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <div class="form-text mb-0">
+                    자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다.
+                    기본 근무 한도는 통합 관리 화면의 기본값에 적용됩니다.
+                </div>
             </div>
         </form>
-
-        <div class="mb-4">
-            <h2 class="h6 fw-bold mb-3">사이드바 위치</h2>
-            <div class="d-flex flex-wrap gap-4">
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="radio"
-                        name="sidebar-position"
-                        id="sidebar-left"
-                        value="left"
-                        data-setting="sidebarPosition"
-                    />
-                    <label class="form-check-label" for="sidebar-left">
-                        좌측
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="radio"
-                        name="sidebar-position"
-                        id="sidebar-right"
-                        value="right"
-                        data-setting="sidebarPosition"
-                    />
-                    <label class="form-check-label" for="sidebar-right">
-                        우측
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-4">
-            <h2 class="h6 fw-bold mb-3">Navbar 토글 버튼 위치</h2>
-            <div class="d-flex flex-wrap gap-4">
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="radio"
-                        name="navbar-toggle-position"
-                        id="navbar-toggle-left"
-                        value="left"
-                        data-setting="navbarTogglePosition"
-                    />
-                    <label class="form-check-label" for="navbar-toggle-left">
-                        좌측
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="radio"
-                        name="navbar-toggle-position"
-                        id="navbar-toggle-right"
-                        value="right"
-                        data-setting="navbarTogglePosition"
-                    />
-                    <label class="form-check-label" for="navbar-toggle-right">
-                        우측
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="alert alert-secondary mb-0" role="alert">
-            추후 더 많은 설정 항목을 이 페이지에 추가할 수 있습니다.
-        </div>
     </div>
 </div>
 {% endblock content %}

@@ -1,5 +1,6 @@
 {% extends 'manhour/base/base.html' %} 
 {% load static %} 
+
 {% block title %}매닝 대시보드 | {{ session.aircraft_reg }}{% endblock %} 
 
 {% block css %}
@@ -12,9 +13,7 @@
 {% block js %}
 <script>
     const MANNING_CONFIG = {
-        batchManningUrl: "{% url 'manning:batch_manning' %}",
         csrfToken: "{{ csrf_token }}",
-        updateAreaUrlPrefix: "/area/",
         updateManningUrlPrefix: "/manning/",
     };
 </script>
@@ -24,7 +23,6 @@
 {% block background_image %} 
 {% include "manhour/image/background_url.html" with bg_key="manning_dashboard" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
 {% endblock background_image %} 
-
 
 {% block content %}
 <div class="container py-4 glass-panel rounded-4" data-aos="fade-up">
@@ -45,35 +43,31 @@
             </a>
         </div>
         <div class="d-flex gap-2">
-            <button
-                class="btn btn-outline-dark rounded-4 fw-bold"
-                data-bs-toggle="modal"
-                data-bs-target="#addAreaModal"
-            >
-                구역 개별 추가
-            </button>
-
             <a
-                href="{% url 'manning:assignment_view' session.id %}"
-                class="btn btn-dark rounded-4 fw-bold"
+                href="{% if is_same_site %}{% url 'manning:assignment_view' session.id %}{% else %}#{% endif %}"
+                class="btn btn-dark rounded-4 fw-bold{% if not is_same_site %} disabled{% endif %}"
+                {% if not is_same_site %}aria-disabled="true"
+                tabindex="-1"
+                {% endif %}
             >
                 작업 배정 & 시간 입력
             </a>
 
             <a
-                href="{% url 'manning:manning_dashboard_edit' session.id %}"
-                class="btn btn-dark rounded-4 fw-bold"
+                href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
+                class="btn btn-primary rounded-4 fw-bold{% if not is_same_site %} disabled{% endif %}"
+                {% if not is_same_site %}aria-disabled="true"
+                tabindex="-1"
+                {% endif %}
             >
                 구역 일괄 편집
             </a>
-
-            <button
-                class="btn btn-primary rounded-4 fw-bold shadow-sm"
-                data-bs-toggle="modal"
-                data-bs-target="#batchManningModal"
+            <a
+                href="{% url 'manning:manning_list' %}"
+                class="btn btn-light rounded-pill px-4 fw-bold shadow-sm"
             >
-                일괄 매닝 등록
-            </button>
+                <i class="bi bi-arrow-left me-1"></i> 세션 목록으로
+            </a>
         </div>
     </div>
 
@@ -89,6 +83,7 @@
                 {% include "partials/_area_card.html" with area=area theme="primary" %} {% endif %} {% endfor %}
             </div>
         </div>
+
         <div class="col-xl-3 col-md-6">
             <div
                 class="area-group-label mb-3 ps-2 border-start border-primary border-4"
@@ -103,218 +98,15 @@
 
         <div class="col-xl-3 col-md-6">
             <div
-                class="area-group-label mb-3 pe-2 border-end border-info border-4 text-end"
+                class="area-group-label mb-3 ps-2 border-start border-primary border-4"
             >
                 RIGHT SIDE
             </div>
             <div class="d-flex flex-column gap-3">
                 {% for area in session_areas %} {% if area.position == 'RIGHT' %} 
-                {% include "partials/_area_card.html" with area=area theme="info" %} {% endif %} {% endfor %}
+                {% include "partials/_area_card.html" with area=area theme="primary" %} {% endif %} {% endfor %}
             </div>
         </div>
     </div>
 </div>
-{% endblock content %} {% block footer %}
-<div
-    class="modal fade"
-    id="batchManningModal"
-    tabindex="-1"
-    aria-hidden="true"
-    data-bs-backdrop="static"
->
-    <div
-        class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
-    >
-        <div class="modal-content border-0 rounded-4 shadow-lg">
-            <div class="modal-header border-0 px-4 pt-4">
-                <h5 class="fw-bold">작업자 일괄 배정</h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                ></button>
-            </div>
-            <div class="modal-body px-4">
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-primary"
-                        >대상 구역</label
-                    >
-                    <select id="targetArea" class="form-select rounded-3">
-                        <option value="">구역 선택</option>
-                        {% for area in session_areas %}
-                        <option value="{{ area.id }}">
-                            {{ area.name }} ({{ area.get_position_display }})
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-primary"
-                        >작업자 직접 추가</label
-                    >
-                    <div class="input-group mb-2">
-                        <input
-                            type="text"
-                            id="newWorkerName"
-                            class="form-control rounded-start-3"
-                            placeholder="이름 입력 (예: 홍길동)"
-                        />
-                        <button
-                            class="btn btn-outline-primary rounded-end-3"
-                            type="button"
-                            id="addNewWorkerBtn"
-                        >
-                            <i class="bi bi-plus-circle"></i> 추가
-                        </button>
-                    </div>
-                    <p class="text-muted small">
-                        * 명단에 없는 사람을 입력하고 추가를 누르세요.
-                    </p>
-                </div>
-
-                <label class="form-label fw-bold small text-primary"
-                    >투입 인원 선택</label
-                >
-                <div
-                    id="workerListContainer"
-                    class="worker-selection-list row g-2"
-                    style="max-height: 250px; overflow-y: auto"
-                >
-                    {% for worker in all_workers %}
-                    <div class="col-md-4 worker-item">
-                        <input
-                            type="checkbox"
-                            class="btn-check worker-chk"
-                            id="w_{{ forloop.counter }}"
-                            value="{{ worker.name }}"
-                        />
-                        <label
-                            class="btn btn-outline-light text-dark bg-light w-100 rounded-3 text-start p-2"
-                            for="w_{{ forloop.counter }}"
-                        >
-                            {{ worker.name }}
-                        </label>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="modal-footer border-0 p-4">
-                <button
-                    type="button"
-                    class="btn btn-light rounded-3"
-                    data-bs-dismiss="modal"
-                >
-                    취소
-                </button>
-                <button
-                    type="button"
-                    id="confirmManningBtn"
-                    class="btn btn-primary rounded-3 px-4 fw-bold"
-                >
-                    배정 완료
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="addAreaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4">
-            <form
-                method="POST"
-                action="{% url 'manning:add_area' session.id %}"
-            >
-                {% csrf_token %}
-                <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="fw-bold">새 구역 추가</h5>
-                </div>
-                <div class="modal-body px-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-primary">
-                            구역 이름
-                        </label>
-                        <input
-                            type="text"
-                            name="name"
-                            class="form-control"
-                            placeholder="구역 이름 (예: ENG 1)"
-                            required
-                        />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-primary">
-                            위치 (Side)
-                        </label>
-                        <select name="position" class="form-select">
-                            <option value="LEFT">LEFT SIDE</option>
-                            <option value="RIGHT">RIGHT SIDE</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-4">
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100 rounded-3"
-                    >
-                        추가하기
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="editAreaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg">
-            <form id="editAreaForm" method="POST">
-                {% csrf_token %}
-                <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="fw-bold">구역 정보 수정</h5>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                    ></button>
-                </div>
-                <div class="modal-body px-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-primary">
-                            구역 이름
-                        </label>
-                        <input
-                            type="text"
-                            id="editAreaName"
-                            name="name"
-                            class="form-control"
-                            required
-                        />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-primary">
-                            위치 (Side)
-                        </label>
-                        <select
-                            id="editAreaPosition"
-                            name="position"
-                            class="form-select"
-                        >
-                            <option value="LEFT">LEFT SIDE</option>
-                            <option value="RIGHT">RIGHT SIDE</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-4">
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100 rounded-3"
-                    >
-                        수정 사항 저장
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock footer %}
+{% endblock content %}

@@ -131,7 +131,7 @@ def purge_expired_taskmasters():
 
 def get_auto_archive_hours() -> int:
     value = (
-        AppSetting.objects.filter(key="auto_archive_hours")
+        AppSetting.objects.filter(key="auto_archive_hours", site="")
         .values_list("int_value", flat=True)
         .first()
     )
@@ -143,7 +143,7 @@ def get_auto_archive_hours() -> int:
 
 def get_history_visibility_hours() -> int:
     value = (
-        AppSetting.objects.filter(key="history_visibility_hours")
+        AppSetting.objects.filter(key="history_visibility_hours", site="")
         .values_list("int_value", flat=True)
         .first()
     )
@@ -155,7 +155,7 @@ def get_history_visibility_hours() -> int:
 
 def get_show_settings_menu() -> bool:
     value = (
-        AppSetting.objects.filter(key="show_settings_menu")
+        AppSetting.objects.filter(key="show_settings_menu", site="")
         .values_list("int_value", flat=True)
         .first()
     )
@@ -167,9 +167,12 @@ def get_show_settings_menu() -> bool:
         return DEFAULT_SHOW_SETTINGS_MENU
 
 
-def get_default_worker_limit_mh() -> float:
+def get_default_worker_limit_mh(workplace: str) -> float:
     value = (
-        AppSetting.objects.filter(key="default_worker_limit_mh_tenths")
+        AppSetting.objects.filter(
+            key="default_worker_limit_mh_tenths",
+            site=workplace,
+        )
         .values_list("int_value", flat=True)
         .first()
     )
@@ -177,6 +180,24 @@ def get_default_worker_limit_mh() -> float:
         return (int(value) / 10.0) if value is not None else DEFAULT_WORKER_LIMIT_MH
     except (TypeError, ValueError):
         return DEFAULT_WORKER_LIMIT_MH
+
+
+def get_sidebar_position(workplace: str) -> str:
+    value = (
+        AppSetting.objects.filter(key="sidebar_position", site=workplace)
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    return "right" if value == 1 else "left"
+
+
+def get_navbar_toggle_position(workplace: str) -> str:
+    value = (
+        AppSetting.objects.filter(key="navbar_toggle_position", site=workplace)
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    return "right" if value == 1 else "left"
 
 
 def auto_archive_expired_sessions(workplace: str) -> None:
@@ -349,6 +370,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
+        workplace = get_current_workplace(request)
         return render(
             request,
             "manhour/settings.html",
@@ -356,7 +378,9 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "auto_archive_hours": get_auto_archive_hours(),
                 "history_visibility_hours": get_history_visibility_hours(),
                 "show_settings_menu": get_show_settings_menu(),
-                "default_worker_limit_mh": get_default_worker_limit_mh(),
+                "default_worker_limit_mh": get_default_worker_limit_mh(workplace),
+                "sidebar_position": get_sidebar_position(workplace),
+                "navbar_toggle_position": get_navbar_toggle_position(workplace),
             },
         )
 
@@ -364,7 +388,16 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         raw_hours = request.POST.get("auto_archive_hours", "").strip()
         raw_history = request.POST.get("history_visibility_hours", "").strip()
         raw_default_limit = request.POST.get("default_worker_limit_mh", "").strip()
+        sidebar_position = (request.POST.get("sidebar_position") or "").strip()
+        navbar_toggle_position = (
+            request.POST.get("navbar_toggle_position") or ""
+        ).strip()
         show_settings_menu = request.POST.get("show_settings_menu") == "1"
+        workplace = get_current_workplace(request)
+        if sidebar_position not in {"left", "right"}:
+            sidebar_position = "left"
+        if navbar_toggle_position not in {"left", "right"}:
+            navbar_toggle_position = "left"
         try:
             hours = int(raw_hours)
             if hours <= 0:
@@ -381,21 +414,35 @@ class SettingsView(SimpleLoginRequiredMixin, View):
 
         AppSetting.objects.update_or_create(
             key="auto_archive_hours",
+            site="",
             defaults={"int_value": hours},
         )
         AppSetting.objects.update_or_create(
             key="history_visibility_hours",
+            site="",
             defaults={"int_value": history_hours},
         )
         AppSetting.objects.update_or_create(
             key="show_settings_menu",
+            site="",
             defaults={"int_value": 1 if show_settings_menu else 0},
         )
         AppSetting.objects.update_or_create(
             key="default_worker_limit_mh_tenths",
+            site=workplace,
             defaults={"int_value": int(round(default_limit * 10))},
         )
-        Worker.objects.update(limit_mh=default_limit)
+        AppSetting.objects.update_or_create(
+            key="sidebar_position",
+            site=workplace,
+            defaults={"int_value": 1 if sidebar_position == "right" else 0},
+        )
+        AppSetting.objects.update_or_create(
+            key="navbar_toggle_position",
+            site=workplace,
+            defaults={"int_value": 1 if navbar_toggle_position == "right" else 0},
+        )
+        Worker.objects.filter(session__site=workplace).update(limit_mh=default_limit)
         messages.success(request, "설정이 저장되었습니다.")
         return redirect("manhour:settings")
 
@@ -473,7 +520,7 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
             lines = worker_names.splitlines()
             seen_names = set()
 
-            default_limit_mh = get_default_worker_limit_mh()
+            default_limit_mh = get_default_worker_limit_mh(workplace)
 
             for line in lines:
                 # 쉼표, 탭, 공백 등으로 이름 분리
@@ -622,7 +669,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         workers_to_delete.delete()
 
         # 신규 작업자 추가 (이미 있는 사람은 건너뜀)
-        default_limit_mh = get_default_worker_limit_mh()
+        default_limit_mh = get_default_worker_limit_mh(get_current_workplace(request))
         existing_names = session.worker_set.values_list("name", flat=True)
         for name in new_names:
             if name not in existing_names:
@@ -827,6 +874,7 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
                 "strict_limit": strict_limit,
                 "unassigned_count": unassigned_count,
                 "manning_list_available": self._has_active_manning_sessions(),
+                "manning_session_id": self._find_matching_manning_session_id(session),
             }
         )
         return context
@@ -839,6 +887,24 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
             return ManningWorkSession.objects.filter(is_active=True).exists()
         except Exception:
             return False
+
+    @staticmethod
+    def _find_matching_manning_session_id(session) -> int | None:
+        try:
+            from manning.models import WorkSession as ManningWorkSession
+
+            candidates = ManningWorkSession.objects.filter(is_active=True)
+            if session.name:
+                candidates = candidates.filter(
+                    Q(name__icontains=session.name)
+                    | Q(work_package_name__icontains=session.name)
+                    | Q(aircraft_reg__icontains=session.name)
+                )
+            return (
+                candidates.order_by("-created_at").values_list("id", flat=True).first()
+            )
+        except Exception:
+            return None
 
     def post(self, request, session_id):
         # 결과 화면에서 '자동 배정' 버튼 눌렀을 때
@@ -1093,7 +1159,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             # -----------------------------------------------------
             worker_str = request.POST.get("worker_names_str", "")
             valid_names = set()
-            default_limit_mh = get_default_worker_limit_mh()
+            default_limit_mh = get_default_worker_limit_mh(session.site)
 
             lines = worker_str.splitlines()
             before_names = set(
@@ -2798,7 +2864,7 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
                     name=worker_name,
                 )
                 if created:
-                    worker.limit_mh = get_default_worker_limit_mh()
+                    worker.limit_mh = get_default_worker_limit_mh(session.site)
                     worker.save(update_fields=["limit_mh"])
 
                 # [수정] create -> update_or_create (IntegrityError 방지)

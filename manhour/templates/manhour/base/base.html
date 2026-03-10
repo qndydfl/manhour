@@ -56,7 +56,7 @@
     </head>
 
     {% with url_name=request.resolver_match.url_name %}
-    <body class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %}">
+    <body class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %}" data-sidebar-position="{{ sidebar_position|default:'left' }}" data-navbar-toggle-position="{{ navbar_toggle_position|default:'left' }}">
         {% block background_image %}{% endblock background_image %}
         
         {% if url_name != "login" and request.session.is_authenticated %}
@@ -149,11 +149,17 @@
                 }
             });
 
-            // 사이드 바 위치 설정을 세션 스토리지에서 읽어와 적용
+            // 사이드바/토글 위치를 서버 기본값으로 동기화
             (function() {
-                const sidePos = sessionStorage.getItem('sidebarPosition') || 'left';
+                const sidePos = document.body.dataset.sidebarPosition || 'left';
+                const togglePos = document.body.dataset.navbarTogglePosition || 'left';
+                sessionStorage.setItem('sidebarPosition', sidePos);
+                sessionStorage.setItem('navbarTogglePosition', togglePos);
                 if (sidePos === 'right') {
                     document.body.classList.add('sidebar-right');
+                }
+                if (togglePos === 'right') {
+                    document.body.classList.add('navbar-toggle-right');
                 }
                 // 사이드바를 기본적으로 숨긴 상태로 시작하려면 미리 클래스 추가
                 document.body.classList.remove('sidebar-open');

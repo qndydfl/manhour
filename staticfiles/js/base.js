@@ -6,8 +6,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const body = document.body;
     const settingsDefaults = {
-        sidebarPosition: "left",
-        navbarTogglePosition: "left",
+        sidebarPosition: body.dataset.sidebarPosition || "left",
+        navbarTogglePosition: body.dataset.navbarTogglePosition || "left",
     };
 
     const readSetting = (key) =>
@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const applyStoredSettings = () => {
         Object.keys(settingsDefaults).forEach((key) => {
+            sessionStorage.setItem(key, settingsDefaults[key]);
             applySetting(key, readSetting(key));
         });
     };

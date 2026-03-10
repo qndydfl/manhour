@@ -1,0 +1,29 @@
+<div
+    id="workerMessageModal"
+    class="custom-modal-backdrop d-none"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="workerMessageTitle"
+    aria-describedby="workerMessageText"
+>
+    <div class="custom-modal" tabindex="-1">
+        <div class="custom-modal-header">
+            <h5 id="workerMessageTitle" class="mb-0">입력 오류</h5>
+            <button
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                id="workerMessageClose"
+            ></button>
+        </div>
+        <div class="custom-modal-body">
+            <p id="workerMessageText" class="mb-2"></p>
+            <ul id="workerMessageList" class="small text-muted mb-0"></ul>
+        </div>
+        <div class="custom-modal-footer">
+            <button type="button" class="btn btn-primary" id="workerMessageOk">
+                확인
+            </button>
+        </div>
+    </div>
+</div>

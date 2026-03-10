@@ -236,10 +236,19 @@ class FeaturedVideo(models.Model):
 
 
 class AppSetting(models.Model):
-    key = models.CharField(max_length=50, unique=True)
+    key = models.CharField(max_length=50)
+    site = models.CharField(
+        max_length=20,
+        choices=WorkSession.SITE_CHOICES,
+        blank=True,
+        default="",
+    )
     int_value = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("key", "site")
 
     def __str__(self):
         return f"{self.key}"

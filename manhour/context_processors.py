@@ -45,7 +45,7 @@ def active_session_status(request):
             site=workplace,
         ).count()
     show_settings_menu_value = (
-        AppSetting.objects.filter(key="show_settings_menu")
+        AppSetting.objects.filter(key="show_settings_menu", site="")
         .values_list("int_value", flat=True)
         .first()
     )
@@ -56,7 +56,19 @@ def active_session_status(request):
             show_settings_menu = bool(int(show_settings_menu_value))
         except (TypeError, ValueError):
             show_settings_menu = True
+    sidebar_value = (
+        AppSetting.objects.filter(key="sidebar_position", site=workplace)
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    navbar_value = (
+        AppSetting.objects.filter(key="navbar_toggle_position", site=workplace)
+        .values_list("int_value", flat=True)
+        .first()
+    )
     return {
         "active_count": active_count,
         "show_settings_menu": show_settings_menu,
+        "sidebar_position": "right" if sidebar_value == 1 else "left",
+        "navbar_toggle_position": "right" if navbar_value == 1 else "left",
     }

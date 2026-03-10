@@ -21,6 +21,22 @@
     display: inline-block;
 }
 
+.wave-text span {
+    display: inline-block;
+    animation: waveBounce 1.2s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.08s);
+}
+
+@keyframes waveBounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
 .font-digital {
     font-family: "JetBrains Mono", "Courier New", monospace;
     letter-spacing: -1px;

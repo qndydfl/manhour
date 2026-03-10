@@ -83,8 +83,9 @@
                 {% endif %} {# 드롭다운 메뉴 (조건부 동영상 포함) #}
 
                 {% if request.resolver_match.url_name != "login" %}
-                <a href="{% url 'manning:manning_list' %}" class="btn btn-outline-light btn-sm rounded-pill fw-bold"
-                    >Manning list</a>
+                <a href="{% url 'manning:manning_list' %}" target="_blank" class="btn btn-outline-light btn-sm rounded-pill fw-bold"
+                    >Manning list
+                </a>
 
                 </a>
                 <div class="dropdown">
