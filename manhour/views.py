@@ -444,7 +444,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         )
         Worker.objects.filter(session__site=workplace).update(limit_mh=default_limit)
         messages.success(request, "설정이 저장되었습니다.")
-        return redirect("manhour:settings")
+        return redirect("manhour:index")
 
 
 class SessionListView(SimpleLoginRequiredMixin, ListView):
