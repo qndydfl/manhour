@@ -1,71 +1,87 @@
 /* assigned_summary.css */
 
-/* 1) 테이블 헤더: 불투명한 회색 대신 투명한 흰색 배경 */
+/* 테이블 헤더 */
 .summary-table th {
     font-size: 0.85rem;
     font-weight: 700;
     color: #495057;
-    background-color: rgba(255, 255, 255, 0.4) !important; /* 투명도 부여 */
+    background-color: rgba(255, 255, 255, 0.4) !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
-/* 2) 테이블 셀: 배경을 투명하게 해서 부모의 유리 효과가 보이도록 */
+/* 테이블 셀 */
 .summary-table td {
     font-size: 0.9rem;
     vertical-align: middle;
-    padding: 1rem 1rem;
+    padding: 1rem;
     background: transparent !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    color: #212529;
 }
 
-/* 3) 프로그레스 바: 배경을 더 은은하게 */
+/* 프로그레스 */
 .progress {
     background-color: rgba(0, 0, 0, 0.08) !important;
     border-radius: 10px;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
 }
 
-/* 4) 호버 효과: 불투명한 회색 대신 밝은 흰색 광택 효과 */
+/* 행 호버 */
 .hover-row {
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .hover-row:hover {
     background-color: rgba(255, 255, 255, 0.25) !important;
 }
 
-/* 5) 뱃지 스타일 보정 */
+/* overload 행 */
+.summary-overload-row {
+    background-color: rgba(220, 53, 69, 0.06);
+}
+
+/* 상태 뱃지 */
 .status-badge {
+    width: 80px;
+    display: inline-block;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.4em 0.8em;
     letter-spacing: 0.3px;
 }
 
-/* 6) 테이블 전체 컨테이너 제약 (모바일 대응) */
+/* responsive wrapper */
 .table-responsive {
     border-radius: 0 0 12px 12px;
 }
 
-/* Overload 행에 대한 시각적 강조 강화 */
-.table-danger.bg-opacity-10 {
-    background-color: rgba(220, 53, 69, 0.08) !important;
+/* 모달 iframe */
+#indirectFrame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #fff;
 }
 
+/* 모바일 */
 @media (max-width: 576px) {
     .summary-table th {
-        font-size: 0.85rem;
-        padding: 0.75rem;
+        font-size: 0.78rem;
+        padding: 0.75rem 0.5rem;
     }
 
     .summary-table td {
-        font-size: 0.95rem;
-        padding: 0.75rem;
+        font-size: 0.85rem;
+        padding: 0.75rem 0.5rem;
     }
 
     .status-badge {
-        font-size: 0.85rem;
+        width: auto;
+        min-width: 72px;
+        font-size: 0.75rem;
     }
 }

@@ -1,4 +1,3 @@
-/* 입력창 기본 스타일: 투명하게 */
 .table-input {
     border: 1px solid transparent;
     background-color: transparent;
@@ -10,17 +9,6 @@
     transition: all 0.2s;
 }
 
-#manageItemsTable tbody tr.sortable-row td {
-    padding-top: 0.0rem;
-    padding-bottom: 0.0rem;
-}
-
-#manageItemsTable tbody tr td.col-desc {
-    padding-top: 0.5rem;
-    padding-bottom: 0.0rem;
-}
-
-/* 포커스 시 스타일: 입력창처럼 보이게 */
 .table-input:focus {
     border-color: #86b7fe;
     background-color: #fff;
@@ -28,20 +16,29 @@
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* 왼쪽 정렬이 필요한 텍스트용 */
 .table-input.text-start {
     text-align: left;
 }
 
-/* 오른쪽 정렬이 필요한 숫자용 */
 .table-input.text-end {
     text-align: right;
 }
 
-/* 삭제된 행 스타일 */
+
+#manageItemsTable tbody tr.sortable-row td {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+}
+
+#manageItemsTable tbody tr td.col-desc {
+    padding-top: 0.5rem;
+    padding-bottom: 0rem;
+}
+
+
 tr.deleted-row {
     background-color: #ffe6e6 !important;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 tr.deleted-row .table-input {
@@ -49,6 +46,7 @@ tr.deleted-row .table-input {
     color: #dc3545;
     pointer-events: none;
 }
+
 
 .sticky-sidebar {
     position: sticky;
@@ -62,48 +60,42 @@ tr.deleted-row .table-input {
     border-top: 1px solid #dee2e6;
 }
 
-/* 고정 배정(이름) 텍스트가 모두 보이도록 */
+
 .js-assigned-text {
     display: block;
     width: 100%;
-    resize: none; /* 드래그 필요 없게 (원하면 vertical로 바꿔도 됨) */
-    overflow: hidden; /* 스크롤바 숨김(자동 높이라 필요 없음) */
-
+    resize: none;
+    overflow: hidden;
     height: auto;
     box-sizing: border-box;
-
     padding: 0.6rem 0.1rem;
     line-height: 1.25;
     min-height: 2.1rem;
 }
 
-/* ---------메시지 생성 시작--------- */
 
-/* 화면 정중앙 고정 오버레이 */
 .message-overlay {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* 정확한 정중앙 배치 */
-    z-index: 9999; /* 다른 요소보다 무조건 위에 */
-    min-width: 320px; /* 최소 너비 */
-    max-width: 90%; /* 모바일 대응 */
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 90%;
     text-align: center;
-    animation: popIn 0.3s ease-out forwards; /* 나타날 때 팝업 효과 */
+    animation: popIn 0.3s ease-out forwards;
 }
 
-/* 알림창 디자인 커스텀 */
 .custom-alert {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px); /* 배경 흐림 효과 */
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* 깊은 그림자 */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     padding: 1.5rem 2rem;
     border-radius: 1rem;
     font-size: 1.1rem;
 }
 
-/* 팝업 애니메이션 키프레임 */
 @keyframes popIn {
     0% {
         opacity: 0;
@@ -115,37 +107,31 @@ tr.deleted-row .table-input {
     }
 }
 
-/* 사라질 때 애니메이션 */
 .fade-out {
     opacity: 0;
     transform: translate(-50%, -60%) scale(0.9);
     transition: all 0.3s ease-in;
 }
 
-/* ---------메시지 생성 끝--------- */
 
-/* textarea든 뭐든 한 줄처럼 보이게 */
 .desc-one-line {
-    height: 1.5rem; /* 한 줄 높이 */
-    line-height: 1.5rem; /* 글자 세로 정렬 */
+    height: 1.5rem;
+    line-height: 1.5rem;
     padding-top: 0;
     padding-bottom: 0;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    overflow: hidden;
-
-    resize: none; /* textarea 크기 조절 막기 */
+    resize: none;
 }
 
 .desc-one-line::-webkit-scrollbar {
     display: none;
 }
 
-/* Keep the bulk paste modal clickable above fixed bars/overlays */
+
 #pasteDataModal {
-    z-index: 2050 !important;
+    z-index: 2051 !important;
 }
 
 #pasteDataModal .modal-dialog,
@@ -154,22 +140,23 @@ tr.deleted-row .table-input {
 }
 
 .modal {
+    z-index: 2051 !important;
+}
+
+.modal-backdrop {
     z-index: 2050 !important;
 }
 
-.modal-backdrop.show {
-    z-index: 2040 !important;
-}
-
-/* Prevent fixed bottom bar from blocking modal clicks */
-.modal-open .navbar.fixed-bottom {
+body.modal-open .fixed-bottom {
     pointer-events: none;
     z-index: 1000;
 }
 
-/* 드래그 정렬용 커서 */
-/* 드래그 핸들에 마우스 커서 모양 변경 */
-/* 드래그 핸들 영역 확대 및 강조 */
+.modal-content {
+    pointer-events: auto !important;
+}
+
+
 .drag-handle {
     cursor: grab;
     display: inline-block;
@@ -185,22 +172,6 @@ tr.deleted-row .table-input {
     outline: 2px solid #0d6efd;
 }
 
-/* 드래그 중인 실제 행 */
-.sortable-handler.dragging {
-    opacity: 0.8;
-    background: #fff;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* 개별 수정된 조정 M/H 강조 */
-.adjusted-mh-custom {
-    background-color: #fff3cd !important;
-    border-color: #ffe69c !important;
-    box-shadow: inset 0 0 0 1px #ffe69c;
-}
-
-/* ✅ (수정) 드래그 시 자리 비어있는 곳(ghost/placeholder)에만 적용
-   - 기존의 .bg-light, .col-assign, .col-mh-adjust 전역 오염 제거 */
 .sortable-ghost,
 .sortable-fallback,
 .sortable-chosen {
@@ -208,132 +179,106 @@ tr.deleted-row .table-input {
     border: 2px dashed #007bff !important;
 }
 
-/* 1. 모달 배경과 본체의 레이어 순서 강제 조정 */
-.modal {
-    z-index: 2051 !important; /* 모달 본체 */
+.sortable-drag {
+    opacity: 0.8;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.modal-backdrop {
-    z-index: 2050 !important; /* 모달 배경 */
-}
 
-/* 2. 모달이 열렸을 때 fixed-bottom 네비바가 클릭을 방해하지 않도록 처리 */
-body.modal-open .fixed-bottom {
-    pointer-events: none;
-    z-index: 1000;
-}
-
-/* 3. 모달 내부 콘텐츠는 다시 클릭이 가능해야 함 */
-.modal-content {
-    pointer-events: auto !important;
-}
-
-.page-content.has-sidebar .ios-wrap {
-    max-width: none !important;
-    width: 100% !important;
+.adjusted-mh-custom {
+    background-color: #fff3cd !important;
+    border-color: #ffe69c !important;
+    box-shadow: inset 0 0 0 1px #ffe69c;
 }
 
 .mh-adjust-select {
     border: 2px dashed #a767b8 !important;
 }
 
-/* ============================================================
-    모바일: 통합 관리 표 레이아웃
-   ============================================================ */
+
+.page-content.has-sidebar .ios-wrap {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+
 @media (max-width: 576px) {
-    /* 기번 / WO / OP / 작업내용 입력칸을 더 컴팩트하게 */
-    #manageItemsTable .col-order .table-input,
-    #manageItemsTable .col-gibun .table-input,
-    #manageItemsTable .col-wo .table-input,
-    #manageItemsTable .col-op .table-input,
-    #manageItemsTable .col-desc .table-input,
-    #manageItemsTable .col-mh .table-input,
-    #manageItemsTable .col-mh-adjust .table-input {
-        font-size: 0.85rem; /* 기본 1rem → 축소 */
-        padding: 0.25rem 0.35rem;
-        line-height: 1.2;
-    }
-
-    /* ✅ 상단 row(각 칸)도 높이 맞추기 */
-    #manageItemsTable .col-delete,
-    #manageItemsTable .col-gibun,
-    #manageItemsTable .col-wo,
-    #manageItemsTable .col-op,
-    #manageItemsTable .col-mh-adjust {
-        height: 2.4rem;
-        display: flex;
-        align-items: center;
-    }
-
-    /* ✅ 입력창 높이 통일 */
-    #manageItemsTable .col-gibun .table-input,
-    #manageItemsTable .col-wo .table-input,
-    #manageItemsTable .col-op .table-input,
-    #manageItemsTable .col-mh-adjust .adjusted-mh-input {
-        height: 2rem; /* col 높이보다 살짝 작게 */
-        padding: 0.2rem 0.35rem;
-        line-height: 1.2;
-    }
-
-    /* ✅ (수정) thead는 grid로 바꾸지 말고 숨기는 게 제일 안정적 */
     #manageItemsTable thead {
         display: none;
     }
 
-    /* ✅ (중요) 실제 데이터 행만 grid로 */
     #manageItemsTable tbody tr.sortable-row {
         display: grid;
         grid-template-columns: 0.7fr 1.2fr 1.9fr 0.8fr 1fr;
         grid-template-areas:
             "delete gibun wo op mhadj"
             "assign assign assign assign assign";
+        grid-template-rows: 2.4rem auto;
         align-items: start;
         row-gap: 6px;
-        /* ✅ 상단 row 높이 고정 */
-        grid-template-rows: 2.4rem auto;
+        margin-bottom: 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0.4rem;
     }
 
-    /* ✅ 그룹 헤더는 기존 테이블 행 유지(깨짐 방지) */
     #manageItemsTable tbody tr.group-header {
         display: table-row;
     }
+
     #manageItemsTable tbody tr.group-header td {
         display: table-cell;
     }
 
-    /* ✅ 모바일에서 숨길 컬럼:
-       - 순서(col-order), 작업내용(col-desc)
-       - Plan M/H(col-mh)는 숨기고 조정 M/H만 보여줌 */
     #manageItemsTable .col-order,
     #manageItemsTable .col-desc,
-    #manageItemsTable .col-mh,
-    #manageItemsTable .col-mh-adjust {
+    #manageItemsTable .col-mh {
         display: none;
     }
 
-    /* grid 영역 매핑 */
     #manageItemsTable .col-delete {
         grid-area: delete;
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
     }
+
     #manageItemsTable .col-gibun {
         grid-area: gibun;
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
     }
+
     #manageItemsTable .col-wo {
         grid-area: wo;
         min-width: 0;
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
     }
+
     #manageItemsTable .col-op {
         grid-area: op;
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
     }
+
     #manageItemsTable .col-mh-adjust {
         grid-area: mhadj;
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
     }
+
     #manageItemsTable .col-assign {
         grid-area: assign;
         width: 100%;
     }
 
-    /* 셀 기본 스타일 */
     #manageItemsTable td {
         padding: 0.6rem 0.5rem;
         white-space: normal;
@@ -341,17 +286,53 @@ body.modal-open .fixed-bottom {
         overflow-wrap: anywhere;
     }
 
+    #manageItemsTable .col-gibun .table-input,
+    #manageItemsTable .col-wo .table-input,
+    #manageItemsTable .col-op .table-input,
+    #manageItemsTable .col-mh-adjust .adjusted-mh-input {
+        height: 2rem;
+        padding: 0.2rem 0.35rem;
+        line-height: 1.2;
+    }
+
     .table-input {
-        font-size: 1rem;
-        padding: 0.5rem;
+        font-size: 0.9rem;
+        padding: 0.35rem 0.4rem;
+        line-height: 1.2;
     }
 
     .js-assigned-text {
         min-height: 2.6rem;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .drag-handle {
         padding: 6px;
     }
+}
+
+.form-check-input {
+    background-color: #ffffff;
+    border: 1.5px solid #bcd7ff;
+    box-shadow: none;
+}
+
+.form-check-input:checked {
+    background-color: #7cc5ff;
+    border-color: #7cc5ff;
+}
+
+.form-check-input:focus {
+    border-color: #9ed8ff;
+    box-shadow: 0 0 0 0.2rem rgba(124, 197, 255, 0.25);
+}
+
+.form-switch .form-check-input {
+    background-color: #f8fbff;
+    border-color: #bcd7ff;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: #7cc5ff;
+    border-color: #7cc5ff;
 }

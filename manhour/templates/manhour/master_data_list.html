@@ -1,145 +1,168 @@
 {% extends "manhour/base/base.html" %} 
-{% load static %}
+{% load static %} 
 
-{% block title %}마스터 데이터 관리 | manhour System{% endblock title %} 
+{% block title %}마스터 데이터 목록 | manhour System{% endblock title %} 
 
-{% block background_image %} 
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/master_data_list.css' %}" />
+{% endblock css %} 
+
+{% block js %}{% endblock js %} 
+
+{% block background_image %}
+{% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
 {% endblock background_image %} 
-
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 my-4 py-4"
+    class="container glass-panel rounded-3 master-data-page my-4 py-4"
     style="max-width: 1000px"
 >
     <div
-        class="d-flex justify-content align-items-center my-4"
+        class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2"
         data-aos="fade-down"
     >
         <div class="d-flex align-items-center gap-2">
-            <h4 class="fw-bold m-0 text-dark ms-2">마스터 데이터 관리</h4>
+            <h4 class="fw-bold m-0 text-dark ms-2">
+                마스터 데이터
+            </h4>
         </div>
 
-        {% if taskmasters %}
-        <div class="d-flex gap-2 ms-auto">
+        <div class="d-flex flex-wrap gap-2 align-items-center py-2 ms-auto">
             <a
                 href="{% url 'manhour:master_data_edit' %}"
-                class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-sm me-2"
+                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm"
             >
                 <i class="bi bi-pencil-square me-1"></i> 전체 수정
             </a>
+
+            <form
+                action="{% url 'manhour:delete_all_taskmasters' %}"
+                method="POST"
+                class="d-inline"
+            >
+                {% csrf_token %}
+                <input type="hidden" name="next" value="master_data_edit" />
+                <button
+                    type="submit"
+                    class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-sm"
+                    onclick="
+                        return confirm(
+                            '⚠️ 경고: 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+                        );
+                    "
+                >
+                    <i class="bi bi-trash3-fill me-1"></i> 전체 삭제
+                </button>
+            </form>
+
+            <a
+                href="{% url 'manhour:paste_data' %}"
+                class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold shadow-sm"
+            >
+                <i class="bi bi-arrow-left me-1"></i> 데이터 붙여넣기
+            </a>
         </div>
-        {% endif %}
-        <a
-            href="{{ back_url }}"
-            class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-auto"
-        >
-            <i class="bi bi-arrow-left"></i>
-            <span class="d-none d-md-inline">이전 화면으로</span>
-        </a>
     </div>
 
     <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel my-4"
+        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel"
         data-aos="fade-up"
     >
-        <div class="card-header bg-white border-bottom pt-4 pb-3 px-4">
-            <div class="d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white border-bottom pt-4 px-4">
+            <div
+                class="d-flex justify-content-between align-items-center flex-wrap gap-3"
+            >
                 <div class="d-flex align-items-center gap-3">
-                    <div class="bg-soft-success p-3 rounded-circle">
-                        <i class="bi bi-database-check fs-4 text-success"></i>
+                    <div
+                        class="bg-soft-primary p-3 rounded-circle"
+                        style="background-color: rgba(13, 110, 253, 0.1)"
+                    >
+                        <i class="bi bi-list-check fs-4 text-primary"></i>
                     </div>
                     <div>
-                        <h5 class="fw-bold mb-1">등록된 작업 목록</h5>
+                        <h5 class="fw-bold mb-1">마스터 데이터 목록</h5>
                         <p class="text-muted small mb-0">
-                            총<strong class="text-primary"
+                            총
+                            <strong class="text-primary"
                                 >{{ total_count }}</strong
-                            >개의 데이터가 있습니다.
+                            >
+                            개의 데이터를 수정할 수 있습니다.
                         </p>
                     </div>
                 </div>
             </div>
+
+            <div class="d-none d-md-block px-4 pt-3">
+                <i class="bi bi-apple text-warning"></i>
+                <span class="text-primary small">
+                    기번, Work Order, OP 기준으로 오름차순 정렬됩니다.
+                </span>
+            </div>
         </div>
 
         <div class="card-body p-0">
-            {% if taskmasters %}
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-nowrap">
+                <table
+                    class="table table-hover align-middle mb-0 master-data-table"
+                >
                     <thead class="bg-light text-muted small">
                         <tr>
-                            <th class="py-3 ps-4" style="width: 10%">기번</th>
-                            <th class="py-3" style="width: 15%">Work Order</th>
-                            <th class="py-3" style="width: 10%">OP</th>
-                            <th class="py-3" style="width: 32%">
+                            <th
+                                class="py-3 ps-4 text-nowrap"
+                            >
+                                기번
+                            </th>
+                            <th class="py-3 text-nowrap">
+                                Work Order
+                            </th>
+                            <th class="py-3 text-nowrap">
+                                OP
+                            </th>
+                            <th class="py-3">
                                 설명 (Description)
                             </th>
-                            <th class="py-3 text-center" style="width: 10%">
-                                기준 M/H
+                            <th
+                                class="py-3 text-center text-nowrap"
+                            >
+                                M/H
                             </th>
-                            <th class="py-3" style="width: 13%">생성 시간</th>
+                            <th class="py-3 text-nowrap">
+                                생성 시간
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="border-top-0">
-                        {% for t in taskmasters %}
+                        {% for item in taskmasters %}
                         <tr>
-                            <td class="ps-4 fw-bold text-dark">
-                                {{ t.gibun_code }}
-                            </td>
+                            <td class="ps-4">{{ item.gibun_code }}</td>
+                            <td>{{ item.work_order }}</td>
+                            <td>{{ item.op }}</td>
+                            <td>{{ item.description }}</td>
+                            <td class="text-center">{{ item.default_mh }}</td>
                             <td>
-                                <span
-                                    class="badge bg-light text-dark border fw-normal"
-                                    >{{ t.work_order }}</span
-                                >
+                                <span class="text-muted small">
+                                    {{ item.created_at|date:"Y-m-d H:i" }}
+                                </span>
                             </td>
-                            <td>
-                                <span class="text-muted small">{{ t.op }}</span>
-                            </td>
-                            <td>
-                                <div
-                                    class="text-truncate"
-                                    style="max-width: 350px"
-                                    title="{{ t.description }}"
-                                >
-                                    {{ t.description }}
-                                </div>
-                            </td>
-                            <td class="text-center fw-bold text-primary">
-                                {{ t.default_mh }}
-                            </td>
-                            <td>
-                                <span class="text-muted small"
-                                    >{{ t.created_at|date:"Y-m-d H:i" }}</span
-                                >
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td class="ps-4 py-4 text-muted" colspan="6">
+                                표시할 데이터가 없습니다.
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            {% else %}
-            <div class="text-center py-5">
-                <div class="text-muted opacity-25 mb-3">
-                    <i class="bi bi-folder-x" style="font-size: 4rem"></i>
-                </div>
-                <h5 class="fw-bold text-muted">등록된 데이터가 없습니다.</h5>
-                <p class="text-muted small mb-4">
-                    새로운 데이터를 등록하여 작업을 시작하세요.
-                </p>
-                <a
-                    href="{% url 'manhour:paste_data' %}"
-                    class="btn btn-primary rounded-pill px-4 fw-bold"
-                >
-                    <i class="bi bi-plus-lg me-1"></i> 데이터 등록하러 가기
-                </a>
-            </div>
-            {% endif %}
         </div>
 
         <div
             class="card-footer bg-light border-0 py-3 text-center text-muted small"
         >
-            데이터 관리는 관리자 권한이 필요할 수 있습니다.
+            데이터 수정이 필요하면 “전체 수정” 버튼을 눌러 편집 화면으로
+            이동하세요.
         </div>
     </div>
 </div>

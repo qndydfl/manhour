@@ -1,8 +1,5 @@
 /* static/css/result_view.css */
 
-/* ============================================================
-   0) 공통 변수 및 초기화
-   ============================================================ */
 :root {
     --rv-border: rgba(255, 255, 255, 0.3);
     --rv-muted: #495057;
@@ -14,9 +11,6 @@
     -webkit-overflow-scrolling: touch;
 }
 
-/* ============================================================
-   1) Glass Panel 핵심 스타일 (핵심 수정)
-   ============================================================ */
 .glass-panel {
     background: var(--rv-glass-bg) !important;
     backdrop-filter: var(--rv-glass-blur) !important;
@@ -25,22 +19,19 @@
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1) !important;
 }
 
-/* 유리 패널 내부의 카드들은 배경을 투명하게 하여 중첩 블러 방지 */
 .glass-panel .card {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
 
-/* ============================================================
-   2) 작업자 상태 카드 (유리 느낌으로 변경)
-   ============================================================ */
 .worker-card {
     background: rgba(255, 255, 255, 0.5) !important;
     border: 1px solid var(--rv-border);
     transition:
         transform 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        background 0.2s ease;
     border-radius: 12px;
 }
 
@@ -57,23 +48,18 @@
     }
 }
 
-/* ============================================================
-   3) 프로그레스 바
-   ============================================================ */
 .progress {
     background-color: rgba(0, 0, 0, 0.05);
     border-radius: 10px;
     overflow: hidden;
     height: 8px;
 }
+
 .progress-bar {
     border-radius: 10px;
     transition: width 0.6s ease;
 }
 
-/* ============================================================
-   4) 테이블 스타일 (유리 효과와 조화)
-   ============================================================ */
 .table-custom {
     width: 100%;
     border-collapse: separate;
@@ -96,16 +82,13 @@
     vertical-align: middle;
     padding: 1rem 0.75rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    background: transparent !important; /* 각 셀 배경 투명화 */
+    background: transparent !important;
 }
 
 .table-custom tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* ============================================================
-   5) 스티키 헤더 및 컨테이너
-   ============================================================ */
 .table-responsive {
     max-height: none;
     overflow-y: visible;
@@ -120,9 +103,6 @@
     backdrop-filter: blur(10px);
 }
 
-/* ============================================================
-   6) 상세 설명 (Description) 자동 줄바꿈
-   ============================================================ */
 .desc-cell,
 .desc-text,
 .desc-hide {
@@ -132,19 +112,23 @@
     line-height: 1.4;
 }
 
-/* ============================================================
-   7) 모바일 레이아웃 (Grid 전환)
-   ============================================================ */
+#tableSearch {
+    border-radius: 0 10px 10px 0;
+}
+
+.input-group-text {
+    border-radius: 10px 0 0 10px;
+}
+
 @media (max-width: 576px) {
     .table-custom {
-        min-width: 100%; /* 모바일에서 그리드 사용 시 폭 제한 해제 */
+        min-width: 100%;
     }
 
     .table-responsive {
         max-height: none;
     }
 
-    /* 헤더 숨기기 (모바일 그리드 전용) */
     .table-custom thead {
         display: none;
     }
@@ -166,24 +150,30 @@
 
     .table-custom td {
         font-size: 0.95rem;
+        padding: 0.35rem 0.25rem;
+        border-bottom: none;
     }
 
     .col-gibun {
         grid-area: gibun;
         font-weight: bold;
     }
+
     .col-wo {
         grid-area: wo;
     }
+
     .col-op {
         grid-area: op;
         text-align: right;
     }
+
     .col-mh {
         grid-area: mh;
         border-top: 1px solid rgba(0, 0, 0, 0.05);
         padding-top: 8px !important;
     }
+
     .col-assign {
         grid-area: assign;
         background: rgba(255, 255, 255, 0.2);
@@ -191,15 +181,48 @@
         padding: 10px !important;
     }
 
-    /* 모바일에서 불필요한 열 숨김 */
     .col-desc {
         display: none;
+    }
+}
+
+.success-glass-modal {
+    border-radius: 20px;
+    border: none;
+    color: #0f172a;
+    backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
+}
+
+.success-icon {
+    font-size: 3rem;
+    color: #28a745;
+    animation: successPop 0.5s ease;
+}
+
+@keyframes successPop {
+    0% {
+        transform: scale(0.4);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
 .modal-backdrop {
     z-index: 2040 !important;
     pointer-events: none;
+    background-color: rgba(203, 213, 225, 0.35);
+}
+
+.modal-backdrop.show {
+    opacity: 0.35;
 }
 
 .modal {

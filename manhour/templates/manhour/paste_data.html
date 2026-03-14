@@ -1,31 +1,26 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/base.html" %}
+{% load static %}
 
-{% block title %}데이터 등록 | manhour System{% endblock title %} 
+{% block title %}데이터 등록 | manhour System{% endblock title %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/paste_data.css' %}" />
-{% endblock css %} 
+{% endblock css %}
 
 {% block js %}
 <script>
-    // ✅ Django 템플릿에서만 렌더링 가능
     const PASTE_DATA_POST_URL = "{% url 'manhour:paste_data' %}";
     const MASTER_DATA_LIST_URL = "{% url 'manhour:master_data_list' %}";
 </script>
 <script defer src="{% static 'js/paste_data.js' %}"></script>
-{% endblock js %} 
+{% endblock js %}
 
-{% block background_image %} 
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
+{% block background_image %}
+    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
 {% endblock background_image %}
 
-
 {% block content %}
-<div
-    class="container glass-panel rounded-3 my-4 py-4"
-    style="max-width: 1000px"
->
+<div class="container glass-panel rounded-3 my-4 py-4" style="max-width: 1000px">
     <div
         class="d-flex flex-wrap justify-content-between align-items-center gap-3 py-3"
         data-aos="fade-down"
@@ -33,6 +28,7 @@
         <div class="d-flex align-items-center gap-3">
             <h4 class="fw-bold m-0 text-dark ms-1">데이터 관리</h4>
         </div>
+
         <div>
             <a
                 href="{% url 'manhour:master_data_list' %}?from=paste_data"
@@ -82,34 +78,19 @@
                 <div
                     class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
                 >
-                    <span
-                        class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                        >1. 기번 (HLxxxx)</span
-                    >
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">1. 기번 (HLxxxx)</span>
                     <i class="bi bi-arrow-right text-muted"></i>
-                    <span
-                        class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                        >2. Work Order</span
-                    >
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">2. Work Order</span>
                     <i class="bi bi-arrow-right text-muted"></i>
-                    <span
-                        class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                        >3. OP</span
-                    >
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">3. OP</span>
                     <i class="bi bi-arrow-right text-muted"></i>
-                    <span
-                        class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                        >4. Description</span
-                    >
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">4. Description</span>
                     <i class="bi bi-arrow-right text-muted"></i>
-                    <span
-                        class="badge bg-white text-dark border shadow-sm px-2 py-1"
-                        >5. Work (M/H)</span
-                    >
+                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">5. Work (M/H)</span>
                 </div>
             </div>
 
-            <form id="pasteForm">
+            <form id="pasteForm" onsubmit="return false;">
                 {% csrf_token %}
 
                 <div class="table-responsive mb-4 border rounded-3">

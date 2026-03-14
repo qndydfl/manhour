@@ -22,3 +22,11 @@
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
+
+.page-content {
+    z-index: auto;
+}
+
+.btn {
+    padding: 0.25rem 0.75rem;
+}

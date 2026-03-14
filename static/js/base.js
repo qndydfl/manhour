@@ -1,8 +1,3 @@
-/**
- * base.js
- * 모든 페이지에 공통으로 적용되는 스크립트
- */
-
 document.addEventListener("DOMContentLoaded", function () {
     const body = document.body;
     const settingsDefaults = {
@@ -60,9 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
-    // ==========================================
-    // 1. AOS (Animate On Scroll) 초기화
-    // ==========================================
+
     if (typeof AOS !== "undefined") {
         AOS.init({
             duration: 800,
@@ -72,9 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // 2. Bootstrap 요소 활성화 (Tooltip & Toast)
-    // ==========================================
     if (typeof bootstrap !== "undefined") {
         // Tooltip
         const tooltips = document.querySelectorAll(
@@ -89,10 +79,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    // ==========================================
-    // 3. 숫자 카운팅 애니메이션 (Global Counter)
-    // ==========================================
-    // 클래스가 .count-up 인 요소의 텍스트를 숫자로 올려줌
     const countElements = document.querySelectorAll(".count-up");
 
     if (countElements.length > 0) {
@@ -106,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const timer = setInterval(() => {
                 current += increment;
                 if (current >= target) {
-                    el.innerText = target.toLocaleString(); // 콤마 추가 (예: 1,000)
+                    el.innerText = target.toLocaleString(); 
                     clearInterval(timer);
                 } else {
                     el.innerText = Math.floor(current).toLocaleString();
@@ -115,22 +101,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // 4. 네비게이션 바 스크롤 효과
-    // ==========================================
     const navbar = document.querySelector(".navbar");
     window.addEventListener("scroll", () => {
         if (window.scrollY > 10) {
             navbar.classList.add("shadow-sm");
-            navbar.style.background = "rgba(30, 41, 59, 0.95)"; // 스크롤 시 더 진하게
+            navbar.style.background = "rgba(30, 41, 59, 0.95)";
         } else {
             navbar.style.background = "rgba(30, 41, 59, 0.8)";
         }
     });
 
-    // ==========================================
-    // 5. Sidebar Toggle (Mobile)
-    // ==========================================
     const sidebarToggles = document.querySelectorAll(".js-sidebar-toggle");
     if (sidebarToggles.length > 0) {
         const openSidebar = () => {

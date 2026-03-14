@@ -1,309 +1,278 @@
-{% extends 'manhour/base/base.html' %} 
-{% load static %} 
+{% extends 'manhour/base/base.html' %}
+{% load static %}
 
-{% block title %}대시보드 | Manning System{% endblock title %} 
+{% block title %}대시보드 | Manning System{% endblock title %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/index.css' %}" />
-{% endblock css %} 
+{% endblock css %}
 
 {% block js %}
+<script>
+    window.INDEX_PAGE = {
+        masterDataCountUrl: "{% url 'manhour:master_data_count_api' %}",
+    };
+</script>
 <script defer src="{% static 'js/index.js' %}"></script>
-{% endblock js %} 
+{% endblock js %}
 
 {% block background_image %}
 <div class="index-bg">
-    {% static "img/default.jpg" as index_bg %} 
+    {% static "img/default.jpg" as index_bg %}
     {% include "manhour/image/background_url.html" with bg_key="index" bg_default=index_bg %}
 </div>
-{% endblock background_image %} 
-
+{% endblock background_image %}
 
 {% block content %}
-<div class="row g-4 my-2" data-aos="fade-up" data-aos-duration="1000">
-    <div class="col-lg-12">
-        <h5 class="text-secondary mb-1">환영합니다,</h5>
-        <h3 class="fw-bold text-dark mb-0 wave-text">
-            {% for ch in request.session.workplace_label %}
-            <span style="--i:{{ forloop.counter0 }}">{{ ch }}</span>
-            {% endfor %}
-            <span style="--i:{{ request.session.workplace_label|length }}"
-                >입니다.</span
-            >
-        </h3>
-    </div>
-
-    <div class="col-lg-8 d-flex flex-column justify-content-center">
-        <div class="p-3 glass-panel rounded-3">
-            <div class="row align-items-center g-3">
-                <div class="col-md-6">
-                    <h1 class="h3 fw-bold text-dark">
-                        Work Smart,<br />
-                        Manage Better.
-                    </h1>
-
-                    <p class="text-secondary my-3" style="font-size: 0.9rem">
-                        작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
-                        효율적인 업무 배정이 여기서 시작됩니다.
-                    </p>
-                </div>
-                <div class="col-md-6">
-                    <div
-                        class="card rounded-4 overflow-hidden shadow-sm video-hover-wrapper"
-                    >
-                        <video
-                            id="hoverDanceVideo"
-                            class="w-100"
-                            muted
-                            playsinline
-                            preload="metadata"
-                            style="height: 10rem; object-fit: cover"
-                        >
-                            <source
-                                src="{% static 'video/dance.mp4' %}"
-                                type="video/mp4"
-                            />
-                        </video>
-                    </div>
-                </div>
-            </div>
+<div class="index-page">
+    <div class="row g-4 my-2" data-aos="fade-up" data-aos-duration="1000">
+        <div class="col-lg-12">
+            <h5 class="text-secondary mb-1">환영합니다,</h5>
+            <h3 class="fw-bold text-dark mb-0 wave-text">
+                {% for ch in request.session.workplace_label %}
+                <span style="--i:{{ forloop.counter0 }}">{{ ch }}</span>
+                {% endfor %}
+                <span style="--i:{{ request.session.workplace_label|length }}">입니다.</span>
+            </h3>
         </div>
-    </div>
 
-    <div class="col-lg-4">
-        <div
-            class="genie-panel card shadow-lg h-100"
-            style="
-                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            "
-        >
-            <div class="position-absolute" style="top: -20px; right: -20px">
-                <i
-                    class="bi bi-clock"
-                    style="font-size: 10rem; color: rgba(255, 255, 255, 0.1)"
-                ></i>
-            </div>
+        <div class="col-lg-8 d-flex flex-column justify-content-center">
+            <div class="p-3 index-glass-panel rounded-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-6">
+                        <h1 class="h3 fw-bold text-dark">
+                            Work Smart,<br />
+                            Manage Better.
+                        </h1>
 
-            <div
-                class="card-body border-0 p-4 d-flex flex-column justify-content-center z-1 h-100"
-                style="background: rgba(15, 23, 42, 0.55)"
-            >
-                <div
-                    class="d-flex justify-content-between align-items-center mb-4"
-                >
-                    <span class="fw-bold text-warning letter-spacing-1"
-                        ><i class="bi bi-globe2 me-1"></i> GLOBAL TIME</span
-                    >
-                    <span class="badge bg-danger rounded-pill px-3">LIVE</span>
-                </div>
+                        <p class="text-secondary my-3 index-hero-desc">
+                            작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
+                            효율적인 업무 배정이 여기서 시작됩니다.
+                        </p>
+                    </div>
 
-                <div class="row align-items-end g-0 fw-bold">
-                    <div class="col-7">
-                        <small
-                            class="text-white text-uppercase"
-                            style="letter-spacing: 1px"
-                            >Local Time</small
-                        >
-                        <div
-                            class="h2 fw-bold my-1 text-white font-digital"
-                            id="digital-time"
-                        >
-                            00:00:00
+                    <div class="col-md-6">
+                        <div class="card rounded-4 overflow-hidden shadow-sm video-hover-wrapper">
+                            <video
+                                id="hoverDanceVideo"
+                                class="w-100 index-hero-video"
+                                muted
+                                playsinline
+                                preload="metadata"
+                            >
+                                <source src="{% static 'video/dance.mp4' %}" type="video/mp4" />
+                            </video>
                         </div>
-                        <small class="text-white" id="digital-date"
-                            >Loading...</small
-                        >
-                        <small class="text-white" id="digital-weekday"
-                            >Loading...</small
-                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="genie-panel card shadow-lg h-100 index-time-panel">
+                <div class="index-time-panel__bg-icon">
+                    <i class="bi bi-clock"></i>
+                </div>
+
+                <div class="card-body border-0 p-4 d-flex flex-column justify-content-center z-1 h-100 index-time-panel__body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-warning letter-spacing-1">
+                            <i class="bi bi-globe2 me-1"></i> GLOBAL TIME
+                        </span>
+                        <span class="badge bg-danger rounded-pill px-3">LIVE</span>
                     </div>
 
-                    <div
-                        class="col-5 text-end border-start border-secondary ps-3"
-                    >
-                        <small
-                            class="text-white text-uppercase fw-bold"
-                            style="letter-spacing: 1px"
-                            >UTC</small
-                        >
-                        <div
-                            class="h2 fw-bold my-1 text-warning font-digital"
-                            id="digital-time-utc"
-                        >
-                            00:00
+                    <div class="row align-items-end g-0 fw-bold">
+                        <div class="col-7">
+                            <small class="text-white text-uppercase index-time-label">Local Time</small>
+                            <div class="h2 fw-bold my-1 text-white font-digital" id="digital-time">
+                                00:00:00
+                            </div>
+                            <small class="text-white" id="digital-date-line">
+                                <span id="digital-date">Loading...</span>
+                                <span id="digital-weekday"></span>
+                            </small>
                         </div>
-                        <small class="text-white" id="digital-date-utc"
-                            >Loading...</small
-                        >
-                        <small class="text-white" id="digital-weekday-utc"
-                            >Loading...</small
-                        >
+
+                        <div class="col-5 text-end border-start border-secondary ps-3">
+                            <small class="text-white text-uppercase fw-bold index-time-label">UTC</small>
+                            <div class="h2 fw-bold my-1 text-warning font-digital" id="digital-time-utc">
+                                00:00
+                            </div>
+                            <small class="text-white" id="digital-date-line-utc">
+                                <span id="digital-date-utc">Loading...</span>
+                                <span id="digital-weekday-utc"></span>
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row g-4 mt-4" data-aos="fade-up" data-aos-duration="1000">
-    <div class="dock-bar d-flex justify-content-center gap-3">
-        <a
-            href="{% url 'manhour:create_session' %}"
-            class="dock-item d-flex btn btn-info btn-md rounded-4 fw-bold shadow-lg"
-        >
-            <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
-        </a>
-        <a
-            href="{% url 'manhour:session_list' %}"
-            class="dock-item d-flex btn btn-dark btn-md rounded-4 fw-bold shadow-lg"
-        >
-            <i class="bi bi-grid-fill me-1"></i> 현황판 입장
-        </a>
-        <a
-            href="{% url 'manhour:master_data_list' %}?from=index"
-            class="dock-item d-flex btn btn-danger btn-md rounded-4 px-2 shadow-lg fw-bold"
-        >
-            <i class="bi bi-database-add me-1"></i> 데이터 등록 현황 
-            {% if master_data_count > 0 %}
-            <span class="dock-badge" aria-label="등록 데이터 수">
-                {{ master_data_count }}
-            </span>
-            {% endif %}
-        </a>
-    </div>
-</div>
-
-<div
-    class="row g-4 mt-4 opacity-75"
-    data-aos="fade-down"
-    data-aos-duration="1000"
->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
-            <div class="card-body p-4 d-flex align-items-center">
-                <div
-                    class="icon-circle bg-primary bg-opacity-10 text-primary me-3"
+    <div class="row g-4 mt-4" data-aos="fade-up" data-aos-duration="1000">
+        <div class="col-12">
+            <div class="dock-bar d-flex justify-content-center flex-wrap gap-3">
+                <a
+                    href="{% url 'manhour:create_session' %}"
+                    class="dock-item btn btn-info btn-md fw-bold shadow-lg"
                 >
-                    <i class="bi bi-activity"></i>
-                </div>
-                <div>
-                    <h6 class="text-muted text-uppercase fw-bold small mb-1">
-                        Active Sessions
-                    </h6>
-                    <h2 class="fw-bold text-dark mb-0">
-                        <span class="active-count-num">{{ active_count }}</span
-                        ><span class="fs-6 text-muted ms-1">개</span>
-                    </h2>
-                </div>
-                <a href="{% url 'manhour:session_list' %}" class="stretched-link"></a>
-            </div>
-        </div>
-    </div>
+                    <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
+                </a>
 
-    <div class="col-md-4">
-        <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
-            <div class="card-body p-4 d-flex align-items-center">
-                <div
-                    class="icon-circle bg-success bg-opacity-10 text-success me-3"
+                <a
+                    href="{% url 'manhour:session_list' %}"
+                    class="dock-item btn btn-dark btn-md fw-bold shadow-lg"
                 >
-                    <i class="bi bi-archive"></i>
-                </div>
-                <div>
-                    <h6 class="text-muted text-uppercase fw-bold small mb-1">
-                        History Archive
-                    </h6>
-                    <h2 class="fw-bold text-dark mb-0">
-                        <span class="history-count-num"
-                            >{{ history_count }}</span
-                        ><span class="fs-6 text-muted ms-1">건</span>
-                    </h2>
-                </div>
-                <a href="{% url 'manhour:history' %}" class="stretched-link"></a>
-            </div>
-        </div>
-    </div>
+                    <i class="bi bi-grid-fill me-1"></i> 현황판 입장
+                </a>
 
-    <div class="col-md-4">
-        <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
-            <div class="card-body p-4 d-flex align-items-center">
-                <div class="icon-circle bg-info bg-opacity-10 text-info me-3">
-                    <i class="bi bi-database-add"></i>
-                </div>
-                <div>
-                    <h6 class="text-muted text-uppercase fw-bold small mb-1">
-                        Master Data
-                    </h6>
-                    <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
-                </div>
-                <a href="{% url 'manhour:paste_data' %}" class="stretched-link"></a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div
-    class="modal fade"
-    id="videoModal"
-    tabindex="-1"
-    aria-labelledby="videoModalLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 rounded-4 overflow-hidden">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title" id="videoModalLabel">
-                    <i class="bi bi-play-circle me-1"></i> Video
-                </h5>
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-            </div>
-
-            <div class="modal-body p-0 bg-black">
-                <div class="ratio ratio-16x9">
-                    <iframe
-                        id="youtubeFrame"
-                        src=""
-                        referrerpolicy="origin-when-cross-origin"
-                        title="YouTube video player"
-                        allow="
-                            accelerometer;
-                            autoplay;
-                            clipboard-write;
-                            encrypted-media;
-                            gyroscope;
-                            picture-in-picture;
-                            web-share;
-                        "
-                        allowfullscreen
-                    ></iframe>
-                </div>
-                <div class="p-3 d-flex justify-content-end gap-2 bg-dark">
-                    <a
-                        id="openOnYoutube"
-                        class="btn btn-sm btn-danger"
-                        href="#"
-                        target="_blank"
-                        rel="noopener"
+                <a
+                    href="{% url 'manhour:master_data_list' %}?from=index"
+                    class="dock-item btn btn-danger btn-md px-2 shadow-lg fw-bold"
+                >
+                    <i class="bi bi-database-add me-1"></i> 데이터 등록 현황
+                    <span
+                        id="masterDataBadge"
+                        class="dock-badge {% if master_data_count == 0 %}d-none{% endif %}"
+                        aria-label="등록 데이터 수"
                     >
-                        <i class="bi bi-youtube me-1"></i> YouTube에서 열기
-                    </a>
+                        {{ master_data_count }}
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-4 opacity-75" data-aos="fade-down" data-aos-duration="1000">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="index-icon-circle bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                            Active Sessions
+                        </h6>
+                        <h2 class="fw-bold text-dark mb-0">
+                            <span class="active-count-num">{{ active_count }}</span>
+                            <span class="fs-6 text-muted ms-1">개</span>
+                        </h2>
+                    </div>
+                    <a href="{% url 'manhour:session_list' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="index-icon-circle bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-archive"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                            History Archive
+                        </h6>
+                        <h2 class="fw-bold text-dark mb-0">
+                            <span class="history-count-num">{{ history_count }}</span>
+                            <span class="fs-6 text-muted ms-1">건</span>
+                        </h2>
+                    </div>
+                    <a href="{% url 'manhour:history' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="index-icon-circle bg-info bg-opacity-10 text-info me-3">
+                        <i class="bi bi-database-add"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                            Master Data
+                        </h6>
+                        <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
+                    </div>
+                    <a href="{% url 'manhour:paste_data' %}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="index-footer-spacer"></div>
-{% endblock content %} {% block footer %}
-<footer
-    class="text-center text-white py-3 mt-4 bg-secondary index-footer-fixed"
->
-    <small class="opacity-50">
-        &copy; 2026 Man Hour Calculator System. All rights reserved.
-    </small>
+    <div
+        class="modal fade"
+        id="videoModal"
+        tabindex="-1"
+        aria-labelledby="videoModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="videoModalLabel">
+                        <i class="bi bi-play-circle me-1"></i> Video
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+
+                <div class="modal-body p-0 bg-black">
+                    <div class="ratio ratio-16x9">
+                        <iframe
+                            id="youtubeFrame"
+                            src=""
+                            referrerpolicy="origin-when-cross-origin"
+                            title="YouTube video player"
+                            allow="
+                                accelerometer;
+                                autoplay;
+                                clipboard-write;
+                                encrypted-media;
+                                gyroscope;
+                                picture-in-picture;
+                                web-share;
+                            "
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <div class="p-3 d-flex justify-content-end gap-2 bg-dark">
+                        <a
+                            id="openOnYoutube"
+                            class="btn btn-sm btn-danger index-video-action-btn"
+                            href="#"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <i class="bi bi-youtube me-1"></i> YouTube에서 열기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="index-footer-spacer"></div>
+</div>
+{% endblock content %}
+
+{% block footer %}
+<footer class="index-footer-glass text-center py-3">
+    <div class="container">
+        <small class="text-muted">
+            © 2026 <strong>Man Hour Calculator System</strong>
+        </small>
+        <span class="mx-2 text-muted">|</span>
+        <small class="text-muted">All rights reserved</small>
+        <span class="mx-2 text-muted">|</span>
+        <small class="text-muted">version 1.0.0</small>
+    </div>
 </footer>
 {% endblock footer %}

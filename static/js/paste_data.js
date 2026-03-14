@@ -2,8 +2,47 @@ const tableBody = document.querySelector("#gridTable tbody");
 const ROW_COUNT = 5;
 const COL_COUNT = 5;
 
+const COLUMN_PLACEHOLDERS = [
+    "HLxxxx",
+    "Work Order",
+    "0001",
+    "Description",
+    "0.0",
+];
+
 function initTable() {
-    for (let i = 0; i < ROW_COUNT; i++) createRow();
+    if (!tableBody) return;
+    for (let i = 0; i < ROW_COUNT; i++) {
+        createRow();
+    }
+}
+
+function createInputByColumn(colIndex) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "input-cell form-control form-control-sm text-center";
+    input.placeholder = COLUMN_PLACEHOLDERS[colIndex] || "-";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+
+    if (colIndex === 0) {
+        input.style.textTransform = "uppercase";
+    }
+
+    if (colIndex === 2) {
+        input.inputMode = "numeric";
+        input.maxLength = 4;
+        input.addEventListener("blur", handleOpBlur);
+    }
+
+    if (colIndex === 4) {
+        input.inputMode = "decimal";
+    }
+
+    input.addEventListener("paste", handlePaste);
+    input.addEventListener("input", (e) => handleCellInput(e, colIndex));
+
+    return input;
 }
 
 function createRow() {
@@ -11,25 +50,7 @@ function createRow() {
 
     for (let j = 0; j < COL_COUNT; j++) {
         const td = document.createElement("td");
-        const input = document.createElement("input");
-
-        input.type = "text";
-        input.className = "input-cell form-control form-control-sm text-center";
-        input.placeholder = j === 0 ? "HLxxxx" : "-";
-
-        if (j === 0) {
-            input.inputMode = "numeric";
-        }
-
-        if (j === 2) {
-            input.inputMode = "numeric";
-            input.maxLength = 4;
-            input.addEventListener("blur", handleOpBlur);
-        }
-
-        input.addEventListener("paste", handlePaste);
-        input.addEventListener("input", (e) => handleCellInput(e, j));
-
+        const input = createInputByColumn(j);
         td.appendChild(input);
         tr.appendChild(td);
     }
@@ -45,22 +66,23 @@ function handleCellInput(e, colIndex) {
         input.value = normalizeGibun(input.value);
     } else if (colIndex === 2) {
         input.value = normalizeOpRaw(input.value);
+    } else if (colIndex === 4) {
+        input.value = normalizeMhRaw(input.value);
     }
 }
 
 function normalizeGibun(value) {
-    const raw = String(value || "").trim();
+    const raw = String(value || "").trim().toUpperCase();
     if (!raw) return "";
 
-    const upper = raw.toUpperCase();
-    if (/^HL\d+$/.test(upper)) return upper;
+    if (/^HL\d+$/.test(raw)) return raw;
 
     const digitsOnly = raw.replace(/\D/g, "");
     if (digitsOnly) {
         return `HL${digitsOnly}`;
     }
 
-    return upper;
+    return raw;
 }
 
 function normalizeOp(value) {
@@ -71,8 +93,17 @@ function normalizeOp(value) {
 }
 
 function normalizeOpRaw(value) {
-    const digits = String(value || "").replace(/\D/g, "");
-    return digits.slice(0, 4);
+    return String(value || "").replace(/\D/g, "").slice(0, 4);
+}
+
+function normalizeMhRaw(value) {
+    const raw = String(value || "").replace(/[^0-9.]/g, "");
+
+    // 소수점 2개 이상 방지
+    const parts = raw.split(".");
+    if (parts.length <= 1) return raw;
+
+    return `${parts[0]}.${parts.slice(1).join("")}`;
 }
 
 function handleOpBlur(e) {
@@ -81,68 +112,80 @@ function handleOpBlur(e) {
     input.value = normalizeOp(input.value);
 }
 
+function flashInput(input) {
+    if (!input) return;
+    input.classList.add("paste-highlight");
+    setTimeout(() => {
+        input.classList.remove("paste-highlight");
+    }, 300);
+}
+
 window.addRow = function () {
     createRow();
 };
 
-// ✅ “한 셀이라도 값이 있으면” 그 행 전체를(공란 포함) 입력되게
+function ensureRow(rowIndex) {
+    while (tableBody.children.length <= rowIndex) {
+        createRow();
+    }
+    return tableBody.children[rowIndex];
+}
+
+function setInputValueByColumn(input, colIndex, value) {
+    const text = String(value ?? "").trim();
+
+    if (colIndex === 0) {
+        input.value = normalizeGibun(text);
+    } else if (colIndex === 2) {
+        input.value = normalizeOpRaw(text);
+    } else if (colIndex === 4) {
+        input.value = normalizeMhRaw(text);
+    } else {
+        input.value = text;
+    }
+}
+
 function handlePaste(e) {
     e.preventDefault();
 
     const clipboard = (e.clipboardData || window.clipboardData).getData("text");
-    const lines = clipboard.split(/\r\n|\n|\r/);
+    if (!clipboard) return;
+
+    const lines = clipboard.replace(/\r/g, "").split("\n");
 
     const currentInput = e.target;
-    const currentCell = currentInput.parentElement;
-    const currentRow = currentCell.parentElement;
+    const currentCell = currentInput.closest("td");
+    const currentRow = currentInput.closest("tr");
+
+    if (!currentCell || !currentRow) return;
 
     const startRowIndex = Array.from(tableBody.children).indexOf(currentRow);
     const startColIndex = Array.from(currentRow.children).indexOf(currentCell);
 
     lines.forEach((line, rIndex) => {
-        // 줄 자체가 아예 없으면 스킵
         if (line == null) return;
 
-        // ✅ 탭 split은 공란도 유지됨 (중요)
         const cols = line.split("\t");
 
-        // ✅ “행 전체가 공란” 판정: 모든 칸이 trim() 했을 때 빈 문자열
+        // 행 전체가 비어 있으면 skip
         const hasAnyValue = cols.some((c) => String(c ?? "").trim() !== "");
         if (!hasAnyValue) return;
 
-        // row 확보
-        let targetRow = tableBody.children[startRowIndex + rIndex];
-        if (!targetRow) {
-            createRow();
-            targetRow = tableBody.children[startRowIndex + rIndex];
-        }
+        const targetRow = ensureRow(startRowIndex + rIndex);
         if (!targetRow) return;
 
-        // ✅ 5열 전체(공란 포함) 채움: cIndex는 0~(COL_COUNT-1)까지만
-        for (let cIndex = 0; cIndex < COL_COUNT; cIndex++) {
+        for (let cIndex = 0; cIndex < cols.length; cIndex++) {
             const absoluteColIndex = startColIndex + cIndex;
+            if (absoluteColIndex >= COL_COUNT) break;
+
             const targetCell = targetRow.children[absoluteColIndex];
             if (!targetCell) continue;
 
             const input = targetCell.querySelector("input");
             if (!input) continue;
 
-            // cols에 없는 열은 "" 처리 (공란 유지)
-            const v = cols[cIndex] != null ? String(cols[cIndex]) : "";
-            const trimmed = v.trim();
-            if (absoluteColIndex === 2) {
-                input.value = normalizeOpRaw(trimmed);
-            } else if (absoluteColIndex === 0) {
-                input.value = normalizeGibun(trimmed);
-            } else {
-                input.value = trimmed;
-            }
-
-            input.style.backgroundColor = "#e8f5e9";
-            setTimeout(
-                () => (input.style.backgroundColor = "transparent"),
-                300,
-            );
+            setInputValueByColumn(input, absoluteColIndex, cols[cIndex]);
+            flashInput(input);
         }
     });
 }
@@ -152,40 +195,31 @@ function getCsrfToken() {
     return csrfInput ? csrfInput.value : "";
 }
 
-window.saveData = function () {
-    if (typeof PASTE_DATA_POST_URL === "undefined") {
-        alert(
-            "PASTE_DATA_POST_URL이 정의되지 않았습니다. template의 script 블록을 확인하세요.",
-        );
-        return;
-    }
-
+function collectRowData() {
     const data = [];
     const rows = tableBody.querySelectorAll("tr");
 
-    rows.forEach((tr) => {
+    rows.forEach((tr, rowIndex) => {
         const inputs = tr.querySelectorAll("input");
-        if (inputs.length < 5) return;
+        if (inputs.length < COL_COUNT) return;
 
-        const gibun = inputs[0].value.trim();
+        const gibun = normalizeGibun(inputs[0].value);
         const wo = inputs[1].value.trim();
-        const op = inputs[2].value.trim();
+        const op = normalizeOp(inputs[2].value);
         const desc = inputs[3].value.trim();
-        const mh = inputs[4].value.trim();
+        const mh = normalizeMhRaw(inputs[4].value.trim());
 
-        // ✅ 완전 공란 행은 스킵
-        if (!gibun && !wo && !op && !desc && !mh) return;
+        const values = [gibun, wo, op, desc, mh];
+        const filledCount = values.filter((v) => String(v || "").trim() !== "").length;
 
-        // ✅ 최소 3개 열이 입력되어야 저장
-        const filledCount = [gibun, wo, op, desc, mh].filter(
-            (v) => String(v || "").trim() !== "",
-        ).length;
-        if (filledCount < 3) return;
+        // 완전 공란 행 스킵
+        if (filledCount === 0) return;
 
-        // ✅ 기번은 최소한 있어야 저장(업무 기준)
-        if (!gibun) return;
+        // 최소 3개 열 + 기번 필수
+        if (filledCount < 3 || !gibun) return;
 
         data.push({
+            row_number: rowIndex + 1,
             gibun_code: gibun,
             work_order: wo,
             op: op,
@@ -194,41 +228,58 @@ window.saveData = function () {
         });
     });
 
-    if (data.length === 0) {
-        alert(
-            "저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 필요)",
-        );
-        return;
-    }
+    return data;
+}
 
-    // ✅ 기번+WO+OP 중복 체크
+function findDuplicates(data) {
     const pairMap = new Map();
     const duplicates = [];
-    data.forEach((row, idx) => {
+
+    data.forEach((row) => {
         const gibun = (row.gibun_code || "").trim().toUpperCase();
         const wo = (row.work_order || "").trim().toUpperCase();
         const op = (row.op || "").trim().toUpperCase();
-        const key = `${gibun}::${wo}::${op}`;
+
         if (!gibun || !wo || !op) return;
+
+        const key = `${gibun}::${wo}::${op}`;
 
         if (pairMap.has(key)) {
             duplicates.push({
                 key,
-                firstRow: pairMap.get(key) + 1,
-                dupRow: idx + 1,
+                firstRow: pairMap.get(key),
+                dupRow: row.row_number,
             });
         } else {
-            pairMap.set(key, idx);
+            pairMap.set(key, row.row_number);
         }
     });
 
+    return duplicates;
+}
+
+window.saveData = function () {
+    if (typeof PASTE_DATA_POST_URL === "undefined") {
+        alert("PASTE_DATA_POST_URL이 정의되지 않았습니다. template의 script 블록을 확인하세요.");
+        return;
+    }
+
+    const data = collectRowData();
+
+    if (data.length === 0) {
+        alert("저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 필요)");
+        return;
+    }
+
+    const duplicates = findDuplicates(data);
     if (duplicates.length > 0) {
         const preview = duplicates
             .slice(0, 5)
-            .map((d) => `기번+WO+OP(${d.key}) 행 ${d.firstRow} ↔ ${d.dupRow}`)
+            .map((d) => `기번+WO+OP(${d.key}) : ${d.firstRow}행 ↔ ${d.dupRow}행`)
             .join("\n");
+
         alert(
-            `중복된 기번/Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`,
+            `중복된 기번/Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`
         );
         return;
     }
@@ -239,7 +290,9 @@ window.saveData = function () {
         return;
     }
 
-    if (!confirm(`총 ${data.length}건의 데이터를 저장하시겠습니까?`)) return;
+    const payload = data.map(({ row_number, ...rest }) => rest);
+
+    if (!confirm(`총 ${payload.length}건의 데이터를 저장하시겠습니까?`)) return;
 
     fetch(PASTE_DATA_POST_URL, {
         method: "POST",
@@ -248,7 +301,7 @@ window.saveData = function () {
             "Content-Type": "application/json",
             "X-CSRFToken": csrf,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
     })
         .then(async (response) => {
             if (response.redirected) {
@@ -256,28 +309,34 @@ window.saveData = function () {
                 window.location.href = response.url;
                 return null;
             }
+
             if (!response.ok) {
                 let message = "";
+
                 try {
-                    const data = await response.json();
-                    if (response.status === 409 && data?.duplicates?.length) {
-                        const preview = data.duplicates
+                    const result = await response.json();
+
+                    if (response.status === 409 && result?.duplicates?.length) {
+                        const preview = result.duplicates
                             .slice(0, 10)
                             .map((key) => `- ${key}`)
                             .join("\n");
-                        message = `${data.message}\n\n${preview}`;
+                        message = `${result.message}\n\n${preview}`;
                     } else {
-                        message = data?.message || JSON.stringify(data);
+                        message = result?.message || JSON.stringify(result);
                     }
-                } catch (e) {
+                } catch (err) {
                     message = await response.text();
                 }
+
                 throw new Error(message || "요청 처리 중 오류가 발생했습니다.");
             }
+
             return response.json();
         })
         .then((result) => {
             if (!result) return;
+
             if (result.status === "success") {
                 alert(`성공! ${result.count}건의 데이터가 저장되었습니다.`);
                 if (typeof MASTER_DATA_LIST_URL !== "undefined") {
@@ -289,7 +348,7 @@ window.saveData = function () {
         })
         .catch((error) => {
             console.error(error);
-            alert("서버 오류:\n" + String(error.message).slice(0, 200));
+            alert("서버 오류:\n" + String(error.message).slice(0, 500));
         });
 };
 

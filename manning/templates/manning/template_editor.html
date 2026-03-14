@@ -1,0 +1,339 @@
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
+{% block title %}템플릿 편집 | Manning{% endblock %} 
+
+{% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}"
+/>
+<link rel="stylesheet" href="{% static 'css/manning/template_editor.css' %}" />
+{% endblock css %} 
+
+{% block js %}
+<script src="{% static 'js/manning/template_editor.js' %}"></script>
+{% endblock js %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold">기본 구성 템플릿 편집</h4>
+            <p class="text-muted mb-0">
+                템플릿을 추가/수정/삭제할 수 있습니다.
+            </p>
+        </div>
+        <a href="{% url 'manning:create_session' %}" class="btn btn-light">
+            돌아가기
+        </a>
+    </div>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+
+        <h5 class="fw-bold mb-3">기존 템플릿</h5>
+        {% if templates %} {% for template in templates %}
+        <div class="border rounded-3 p-3 mb-3 template-block">
+            <div class="row g-2 align-items-center">
+                <input
+                    type="hidden"
+                    name="template_id"
+                    value="{{ template.id }}"
+                />
+                <div class="col-md-3">
+                    <label class="form-label small">Key</label>
+                    <input
+                        type="text"
+                        name="template_key"
+                        class="form-control form-control-sm"
+                        value="{{ template.key }}"
+                        required
+                    />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">라벨</label>
+                    <input
+                        type="text"
+                        name="template_label"
+                        class="form-control form-control-sm"
+                        value="{{ template.label }}"
+                        required
+                    />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">순서</label>
+                    <input
+                        type="number"
+                        name="template_order"
+                        class="form-control form-control-sm"
+                        value="{{ template.sort_order }}"
+                        min="0"
+                    />
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="template_delete"
+                            value="{{ template.id }}"
+                            id="delete-template-{{ template.id }}"
+                        />
+                        <label
+                            class="form-check-label"
+                            for="delete-template-{{ template.id }}"
+                        >
+                            삭제
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 template-dnd">
+                <div class="d-flex align-items-center justify-content-between">
+                    <label class="form-label small mb-2">드래그 편집</label>
+                    <small class="text-muted">드래그 후 자동 반영됩니다.</small>
+                </div>
+                <div class="dnd-warning"></div>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="dnd-header">LEFT</div>
+                        <div class="dnd-list" data-position="LEFT"></div>
+                        <div class="dnd-add">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm dnd-input"
+                                placeholder="항목 추가"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light dnd-btn"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dnd-header">NONE</div>
+                        <div class="dnd-list" data-position="NONE"></div>
+                        <div class="dnd-add">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm dnd-input"
+                                placeholder="항목 추가"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light dnd-btn"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dnd-header">RIGHT</div>
+                        <div class="dnd-list" data-position="RIGHT"></div>
+                        <div class="dnd-add">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm dnd-input"
+                                placeholder="항목 추가"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light dnd-btn"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label class="form-label small">
+                    구역 목록 (컬럼별로 한 줄에 하나)
+                </label>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label class="form-label small">LEFT</label>
+                        <textarea
+                            name="template_left_items"
+                            class="form-control template-items"
+                            data-position="LEFT"
+                            rows="6"
+                        >
+{% for item in template.items.all %}{% if item.position == "LEFT" %}{{ item.name }}
+{% endif %}{% endfor %}</textarea
+                        >
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">NONE</label>
+                        <textarea
+                            name="template_none_items"
+                            class="form-control template-items"
+                            data-position="NONE"
+                            rows="6"
+                        >
+{% for item in template.items.all %}{% if item.position == "NONE" %}{{ item.name }}
+{% endif %}{% endfor %}</textarea
+                        >
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">RIGHT</label>
+                        <textarea
+                            name="template_right_items"
+                            class="form-control template-items"
+                            data-position="RIGHT"
+                            rows="6"
+                        >
+{% for item in template.items.all %}{% if item.position == "RIGHT" %}{{ item.name }}
+{% endif %}{% endfor %}</textarea
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %} {% else %}
+        <p class="text-muted">등록된 템플릿이 없습니다.</p>
+        {% endif %}
+
+        <h5 class="fw-bold mt-4 mb-3">새 템플릿 추가</h5>
+        <div class="border rounded-3 p-3 mb-3 template-block">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label small">Key</label>
+                    <input
+                        type="text"
+                        name="new_template_key"
+                        class="form-control form-control-sm"
+                        placeholder="예: lubrication"
+                    />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">라벨</label>
+                    <input
+                        type="text"
+                        name="new_template_label"
+                        class="form-control form-control-sm"
+                        placeholder="예: Lubrication"
+                    />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">순서</label>
+                    <input
+                        type="number"
+                        name="new_template_order"
+                        class="form-control form-control-sm"
+                        value="0"
+                        min="0"
+                    />
+                </div>
+            </div>
+
+            <div class="mt-3 template-dnd">
+                <div class="d-flex align-items-center justify-content-between">
+                    <label class="form-label small mb-2">드래그 편집</label>
+                    <small class="text-muted">드래그 후 자동 반영됩니다.</small>
+                </div>
+                <div class="dnd-warning"></div>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="dnd-header">LEFT</div>
+                        <div class="dnd-list" data-position="LEFT"></div>
+                        <div class="dnd-add">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm dnd-input"
+                                placeholder="항목 추가"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light dnd-btn"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dnd-header">NONE</div>
+                        <div class="dnd-list" data-position="NONE"></div>
+                        <div class="dnd-add">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm dnd-input"
+                                placeholder="항목 추가"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light dnd-btn"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dnd-header">RIGHT</div>
+                        <div class="dnd-list" data-position="RIGHT"></div>
+                        <div class="dnd-add">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm dnd-input"
+                                placeholder="항목 추가"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light dnd-btn"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label class="form-label small">
+                    구역 목록 (컬럼별로 한 줄에 하나)
+                </label>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label class="form-label small">LEFT</label>
+                        <textarea
+                            name="new_template_left_items"
+                            class="form-control template-items"
+                            data-position="LEFT"
+                            rows="6"
+                            placeholder="Section Leader"
+                        ></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">NONE</label>
+                        <textarea
+                            name="new_template_none_items"
+                            class="form-control template-items"
+                            data-position="NONE"
+                            rows="6"
+                            placeholder="COORDINATOR"
+                        ></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">RIGHT</label>
+                        <textarea
+                            name="new_template_right_items"
+                            class="form-control template-items"
+                            data-position="RIGHT"
+                            rows="6"
+                            placeholder="ENG3"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">저장</button>
+        </div>
+    </form>
+</div>
+{% endblock content %} 

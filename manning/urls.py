@@ -23,6 +23,11 @@ urlpatterns = [
         name="delete_session",
     ),
     path(
+        "session/<int:session_id>/update/",
+        views.UpdateSessionView.as_view(),
+        name="update_session",
+    ),
+    path(
         "session/<int:session_id>/populate-areas/",
         views.PopulateAreasView.as_view(),
         name="populate_areas",
@@ -57,5 +62,15 @@ urlpatterns = [
         "manning/<int:manning_id>/update-hours/",
         views.UpdateManningHoursView.as_view(),
         name="update_manning_hours",
+    ),
+    path(
+        "workers/update/",
+        views.WorkerDirectoryUpdateView.as_view(),
+        name="update_worker_directory",
+    ),
+    path(
+        "templates/edit/",
+        views.TemplateEditorView.as_view(),
+        name="template_editor",
     ),
 ]

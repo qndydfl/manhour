@@ -1,28 +1,19 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/base.html" %}
+{% load static %}
 
-{% block title %}배정 요약 | manhour System{% endblock title %} 
+{% block title %}배정 요약 | manhour System{% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/result_view.css' %}" />
 <link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}" />
-<style>
-    /* 요약 페이지 전용 스타일 보정 */
-    .summary-table td {
-        background: transparent !important;
-        color: #212529;
-    }
-    .status-badge {
-        width: 80px;
-        display: inline-block;
-    }
-</style>
-{% endblock css %} 
+{% endblock css %}
 
-{% block background_image %} 
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
+{% block script %}
+<script src="{% static 'js/assigned_summary.js' %}"></script>
+{% endblock script %}
+
+{% block background_image %}
+    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
 {% endblock background_image %}
-
 
 {% block content %}
 <div
@@ -31,13 +22,13 @@
 >
     <div class="d-flex align-items-center mb-3 px-2" data-aos="fade-down">
         <h4 class="fw-bold text-dark my-3">📅 배정 현황 요약</h4>
-        <div class="ms-auto">
+        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
             <span class="badge bg-dark rounded-pill px-3 py-2 shadow-sm">
                 총 인원: {{ workers_schedule|length }}명
             </span>
             <a
                 href="{% if not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-2"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -64,58 +55,55 @@
             <table class="table table-hover align-middle summary-table mb-0">
                 <thead class="bg-white bg-opacity-50 p-0">
                     <tr class="text-secondary text-center">
-                        <th style="width: 25%" class="">작업자 / 근무조</th>
-                        <th style="width: 5%" class="text-center">건수</th>
-                        <th style="width: 10%" class="text-center">상태</th>
-                        <th style="width: 35%" class="text-center">
-                            M/H 진행률
-                        </th>
+                        <th style="width: 25%">작업자 / 근무조</th>
+                        <th style="width: 8%" class="text-center">건수</th>
+                        <th style="width: 12%" class="text-center">상태</th>
+                        <th style="width: 30%" class="text-center">M/H 진행률</th>
                         <th style="width: 25%" class="text-center">상세보기</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for w in workers_schedule %}
-                    <tr class="hover-row">
+                    <tr class="hover-row {% if w.is_overload %}summary-overload-row{% endif %}">
                         <td class="text-center">
-                            <div
-                                class="d-flex align-items-center justify-content-center gap-2"
-                            >
+                            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
                                 <div class="fw-bold text-dark text-center fs-6">
                                     {{ w.worker_name }}
                                 </div>
+
                                 {% if w.is_night %}
                                 <span
                                     class="badge bg-dark rounded-pill ms-1"
                                     style="font-size: 0.7em"
-                                    >야간</span
                                 >
+                                    야간
+                                </span>
                                 {% else %}
                                 <span
                                     class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill ms-1"
                                     style="font-size: 0.7em"
-                                    >주간</span
                                 >
+                                    주간
+                                </span>
                                 {% endif %}
                             </div>
                         </td>
 
                         <td class="text-center">
-                            <span class="fw-bold text-secondary"
-                                >{{ w.task_count }}</span
-                            >
+                            <span class="fw-bold text-secondary">
+                                {{ w.task_count }}
+                            </span>
                         </td>
 
                         <td class="text-center">
                             {% if w.is_overload %}
-                            <span
-                                class="badge bg-danger rounded-pill shadow-sm status-badge"
-                                >Overload</span
-                            >
+                            <span class="badge bg-danger rounded-pill shadow-sm status-badge">
+                                Overload
+                            </span>
                             {% else %}
-                            <span
-                                class="badge bg-success bg-opacity-75 text-white rounded-pill shadow-sm status-badge"
-                                >Normal</span
-                            >
+                            <span class="badge bg-success bg-opacity-75 text-white rounded-pill shadow-sm status-badge">
+                                Normal
+                            </span>
                             {% endif %}
                         </td>
 
@@ -125,10 +113,7 @@
                                     <div class="flex-grow-1">
                                         <div
                                             class="progress bg-dark bg-opacity-10"
-                                            style="
-                                                height: 10px;
-                                                border-radius: 5px;
-                                            "
+                                            style="height: 10px; border-radius: 5px;"
                                         >
                                             <div
                                                 class="progress-bar bg-primary"
@@ -148,36 +133,24 @@
                                             ></div>
                                         </div>
                                     </div>
-                                    <div
-                                        class="text-end"
-                                        style="min-width: 85px"
-                                    >
-                                        <span
-                                            class="fw-bold {% if w.is_overload %}text-danger{% else %}text-dark{% endif %}"
-                                        >
+
+                                    <div class="text-end" style="min-width: 85px">
+                                        <span class="fw-bold {% if w.is_overload %}text-danger{% else %}text-dark{% endif %}">
                                             {{ w.total_mh|floatformat:1 }}
                                         </span>
-                                        <span
-                                            class="text-muted"
-                                            style="font-size: 0.8rem"
-                                            >/ {% if w.is_night %}11.0{% else %}10.5{% endif %}
+                                        <span class="text-muted" style="font-size: 0.8rem">
+                                            / {% if w.is_night %}11.0{% else %}10.5{% endif %}
                                         </span>
                                     </div>
                                 </div>
-                                <div
-                                    class="d-flex justify-content-end gap-3 small text-muted"
-                                >
+
+                                <div class="d-flex justify-content-end gap-3 small text-muted flex-wrap">
                                     <span>
-                                        <i
-                                            class="bi bi-square-fill text-primary me-1"
-                                        >
-                                        </i>
+                                        <i class="bi bi-square-fill text-primary me-1"></i>
                                         직비 {{ w.direct_mh|floatformat:1 }}
                                     </span>
                                     <span>
-                                        <i
-                                            class="bi bi-square-fill text-warning me-1"
-                                        ></i>
+                                        <i class="bi bi-square-fill text-warning me-1"></i>
                                         간비 {{ w.kanbi_mh|floatformat:1 }}
                                     </span>
                                 </div>
@@ -185,30 +158,30 @@
                         </td>
 
                         <td class="text-center">
-                            <a
-                                href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
-                                class="btn btn-sm btn-outline-secondary rounded-pill py-1 px-3 fw-bold"
-                                style="font-size: 0.75rem"
-                            >
-                                <i class="bi bi-calendar-check me-1"></i>
-                                개인 시간표 
-                                {% if not session.is_active %}
-                                <span
-                                    class="badge text-bg-secondary ms-2"
-                                    style="font-size: 0.65rem"
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <a
+                                    href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
+                                    class="btn btn-sm btn-outline-secondary rounded-pill py-1 px-3 fw-bold"
+                                    style="font-size: 0.75rem"
                                 >
-                                    작업 완료
-                                </span>
-                                {% endif %}
-                            </a>
+                                    <i class="bi bi-calendar-check me-1"></i>
+                                    개인 시간표
+                                    {% if not session.is_active %}
+                                    <span
+                                        class="badge text-bg-secondary ms-2"
+                                        style="font-size: 0.65rem"
+                                    >
+                                        작업 완료
+                                    </span>
+                                    {% endif %}
+                                </a>                                
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="5" class="text-center py-5 text-muted">
-                            <i
-                                class="bi bi-people fs-1 d-block mb-3 opacity-25"
-                            ></i>
+                            <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
                             배정된 작업자가 없습니다.
                         </td>
                     </tr>
@@ -217,5 +190,5 @@
             </table>
         </div>
     </div>
-    {% endblock content %}
 </div>
+{% endblock content %}

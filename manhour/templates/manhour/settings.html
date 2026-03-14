@@ -1,30 +1,313 @@
-{% extends "manhour/base/base.html" %}
-{% load static %}
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
+{% block title %}설정 | manhour System{% endblock %} 
 
-{% block title %}설정 | manhour System{% endblock %}
-
-{% block background_image %}
-{% include "manhour/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %}
-{% endblock background_image %}
+{% block background_image %} 
+{% include "manhour/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %} 
+{% endblock background_image %} 
 
 {% block content %}
-<div class="container" style="max-width: 820px">
+<div class="container" style="max-width: 1000px">
     <div class="card shadow-sm my-4 p-4">
-        <div class="mb-4">
-            <h1 class="h4 fw-bold mb-2">UI 설정</h1>
-            <p class="text-muted mb-0">
-                일부 설정은 서버에 저장되며 전체 사용자에게 적용됩니다.
-            </p>
+        <div
+            class="d-flex align-items-center justify-content-between gap-3 mb-4 flex-wrap"
+        >
+            <div>
+                <h1 class="h4 fw-bold mb-2">UI 설정</h1>
+                <p class="text-muted mb-0">
+                    일부 설정은 서버에 저장되며 전체 사용자에게 적용됩니다.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    form="settings-form"
+                >
+                    저장
+                </button>
+                <a
+                    href="{% url 'manhour:index' %}"
+                    class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="d-none d-md-inline">이전 화면으로</span>
+                </a>
+            </div>
+        </div>
+        <div class="accordion mb-4" id="settings-accordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="workplace-heading">
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#workplace-panel"
+                        aria-expanded="false"
+                        aria-controls="workplace-panel"
+                    >
+                        근무지 설정
+                    </button>
+                </h2>
+                <div
+                    id="workplace-panel"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="workplace-heading"
+                    data-bs-parent="#settings-accordion"
+                >
+                    <div class="accordion-body">
+                        <p class="text-muted small mb-3">
+                            근무지 이름을 추가하거나 수정하고, 필요하면
+                            비활성화할 수 있습니다.
+                        </p>
+
+                        <form method="POST" class="row g-2 align-items-end mb-3">
+                            {% csrf_token %}
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="workplace_add"
+                            />
+
+                            <div class="col-12 col-sm-3">
+                                <label class="form-label" for="workplace-code"
+                                    >코드</label
+                                >
+                                <input
+                                    id="workplace-code"
+                                    name="code"
+                                    class="form-control"
+                                    placeholder="예: ICN-1그룹"
+                                    required
+                                />
+                            </div>
+
+                            <div class="col-12 col-sm-4">
+                                <label class="form-label" for="workplace-label"
+                                    >표시 이름</label
+                                >
+                                <input
+                                    id="workplace-label"
+                                    name="label"
+                                    class="form-control"
+                                    placeholder="예: 인천 1그룹"
+                                    required
+                                />
+                            </div>
+
+                            <div class="col-12 col-sm-2">
+                                <label class="form-label" for="workplace-sort"
+                                    >정렬</label
+                                >
+                                <input
+                                    id="workplace-sort"
+                                    name="sort_order"
+                                    class="form-control"
+                                    type="number"
+                                    value="0"
+                                />
+                            </div>
+
+                            <div class="col-12 col-sm-2">
+                                <div class="form-check mt-sm-4">
+                                    <input
+                                        type="hidden"
+                                        name="is_active"
+                                        value="0"
+                                    />
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="workplace-active"
+                                        name="is_active"
+                                        value="1"
+                                        checked
+                                    />
+                                    <label
+                                        class="form-check-label"
+                                        for="workplace-active"
+                                    >
+                                        사용
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-1">
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-primary w-100"
+                                >
+                                    추가
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="d-flex flex-column gap-2">
+                            {% for workplace in workplaces %}
+                            <div class="border rounded p-2">
+                                <form
+                                    method="POST"
+                                    class="row g-2 align-items-end"
+                                >
+                                    {% csrf_token %}
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="workplace_update"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="workplace_id"
+                                        value="{{ workplace.id }}"
+                                    />
+
+                                    <div class="col-12 col-sm-3">
+                                        <label class="form-label small">코드</label>
+                                        <input
+                                            class="form-control form-control-sm"
+                                            value="{{ workplace.code }}"
+                                            readonly
+                                        />
+                                    </div>
+
+                                    <div class="col-12 col-sm-4">
+                                        <label class="form-label small"
+                                            >표시 이름</label
+                                        >
+                                        <input
+                                            name="label"
+                                            class="form-control form-control-sm"
+                                            value="{{ workplace.label }}"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="col-12 col-sm-2">
+                                        <label class="form-label small">정렬</label>
+                                        <input
+                                            name="sort_order"
+                                            class="form-control form-control-sm"
+                                            type="number"
+                                            value="{{ workplace.sort_order }}"
+                                        />
+                                    </div>
+
+                                    <div class="col-12 col-sm-2">
+                                        <div class="form-check mt-sm-4">
+                                            <input
+                                                type="hidden"
+                                                name="is_active"
+                                                value="0"
+                                            />
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="workplace-active-{{ workplace.id }}"
+                                                name="is_active"
+                                                value="1"
+                                                {% if workplace.is_active %}checked{% endif %}
+                                            />
+                                            <label
+                                                class="form-check-label"
+                                                for="workplace-active-{{ workplace.id }}"
+                                            >
+                                                사용
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-1">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-outline-primary btn-sm w-100"
+                                        >
+                                            저장
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <form method="POST" class="mt-2">
+                                    {% csrf_token %}
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="workplace_delete"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="workplace_id"
+                                        value="{{ workplace.id }}"
+                                    />
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger btn-sm"
+                                    >
+                                        비활성화
+                                    </button>
+                                </form>
+                            </div>
+                            {% empty %}
+                            <div class="text-muted small">
+                                등록된 근무지가 없습니다.
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-text text-primary mt-2">
+                            비활성화한 근무지는 로그인 목록에서 숨겨집니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <form method="POST" class="mb-4">
+        <form method="POST" class="mb-4" id="settings-form">
             {% csrf_token %}
+
+            <h2 class="h6 fw-bold mb-3">기본 작업자 명단</h2>
+            <div class="mb-4">
+                <label class="form-label" for="default-worker-names">
+                    근무지 기본 명단 (콤마 구분)
+                    <span class="text-primary small">
+                        (총 {{ default_worker_count }}명)
+                    </span>
+                </label>
+                <textarea
+                    id="default-worker-names"
+                    name="default_worker_names"
+                    class="form-control"
+                    rows="4"
+                    placeholder="예: 홍길동, 김철수"
+                >{{ default_worker_names }}</textarea>
+
+                <div class="form-text text-primary">
+                    이 명단은 구역 일괄 편집의 “기본 명단 불러오기”에서
+                    사용됩니다. 콤마로만 구분해 주세요.
+                </div>
+            </div>
+
+            <h2 class="h6 fw-bold mb-3">기본 근무 한도</h2>
+            <div class="col-12 col-sm-6 mb-4">
+                <label class="form-label" for="default-worker-limit">
+                    기본 근무 한도(M/H)
+                </label>
+                <input
+                    type="number"
+                    id="default-worker-limit"
+                    name="default_worker_limit_mh"
+                    class="form-control"
+                    min="0.1"
+                    step="0.1"
+                    value="{{ default_worker_limit_mh }}"
+                />
+            </div>
 
             <h2 class="h6 fw-bold mb-3">자동 아카이브 이동 시간</h2>
             <div class="row g-2 align-items-center mb-4">
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="auto-archive-hours">
-                        생성 후 작업 이력 아카이브(시간)
+                        생성 후 작업 이력 표시(시간)
                     </label>
                     <input
                         type="number"
@@ -38,7 +321,7 @@
 
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="history-visibility-hours">
-                        작업 이력 표시 시간(시간)
+                        작업 완료 후 작업 이력 표시(시간)
                     </label>
                     <input
                         type="number"
@@ -49,50 +332,30 @@
                         value="{{ history_visibility_hours }}"
                     />
                 </div>
+            </div>            
 
-                <div class="col-12 col-sm-6">
-                    <label class="form-label" for="default-worker-limit">
-                        기본 근무 한도(M/H)
-                    </label>
+            <h2 class="h6 fw-bold mb-3">관리자 사이드바</h2>
+            <div class="col-12 mb-4">
+                <div class="form-check mt-2">
+                    <input type="hidden" name="show_settings_menu" value="0" />
                     <input
-                        type="number"
-                        id="default-worker-limit"
-                        name="default_worker_limit_mh"
-                        class="form-control"
-                        min="0.1"
-                        step="0.1"
-                        value="{{ default_worker_limit_mh }}"
+                        class="form-check-input"
+                        type="checkbox"
+                        id="show-settings-menu"
+                        name="show_settings_menu"
+                        value="1"
+                        {% if show_settings_menu %}checked{% endif %}
                     />
-                </div>
-
-                <div class="col-12">
-                    <div class="form-check mt-2">
-                        <input
-                            type="hidden"
-                            name="show_settings_menu"
-                            value="0"
-                        />
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="show-settings-menu"
-                            name="show_settings_menu"
-                            value="1"
-                            {% if show_settings_menu %}checked{% endif %}
-                        />
-                        <label
-                            class="form-check-label"
-                            for="show-settings-menu"
-                        >
-                            관리자 사이드바에 Settings 메뉴 표시
-                        </label>
-                    </div>
+                    <label class="form-check-label" for="show-settings-menu">
+                        관리자 사이드바에 Settings 메뉴 표시
+                    </label>
                 </div>
             </div>
 
+            <h2 class="h6 fw-bold mb-3">위치 이동</h2>
             <div class="mb-4">
-                <h2 class="h6 fw-bold mb-3">사이드바 위치</h2>
-                <div class="d-flex flex-wrap gap-4">
+                <h2 class="h6 mb-3">사이드바 위치</h2>
+                <div class="d-flex flex-wrap gap-4 mb-4">
                     <div class="form-check">
                         <input
                             class="form-check-input"
@@ -123,55 +386,52 @@
                         </label>
                     </div>
                 </div>
-            </div>
 
-            <div class="mb-4">
-                <h2 class="h6 fw-bold mb-3">Navbar 토글 버튼 위치</h2>
-                <div class="d-flex flex-wrap gap-4">
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            name="navbar_toggle_position"
-                            id="navbar-toggle-left"
-                            value="left"
-                            data-setting="navbarTogglePosition"
-                            {% if navbar_toggle_position == "left" %}checked{% endif %}
-                        />
-                        <label
-                            class="form-check-label"
-                            for="navbar-toggle-left"
-                        >
-                            좌측
-                        </label>
-                    </div>
+                <div class="mb-4">
+                    <h2 class="h6 mb-3">Navbar 토글 버튼 위치</h2>
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="navbar_toggle_position"
+                                id="navbar-toggle-left"
+                                value="left"
+                                data-setting="navbarTogglePosition"
+                                {% if navbar_toggle_position == "left" %}checked{% endif %}
+                            />
+                            <label
+                                class="form-check-label"
+                                for="navbar-toggle-left"
+                            >
+                                좌측
+                            </label>
+                        </div>
 
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            name="navbar_toggle_position"
-                            id="navbar-toggle-right"
-                            value="right"
-                            data-setting="navbarTogglePosition"
-                            {% if navbar_toggle_position == "right" %}checked{% endif %}
-                        />
-                        <label
-                            class="form-check-label"
-                            for="navbar-toggle-right"
-                        >
-                            우측
-                        </label>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="navbar_toggle_position"
+                                id="navbar-toggle-right"
+                                value="right"
+                                data-setting="navbarTogglePosition"
+                                {% if navbar_toggle_position == "right" %}checked{% endif %}
+                            />
+                            <label
+                                class="form-check-label"
+                                for="navbar-toggle-right"
+                            >
+                                우측
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <button type="submit" class="btn btn-primary">저장</button>
-            </div>
             <div class="form-text mb-0">
-                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다.
-                기본 근무 한도는 통합 관리 화면의 기본값에 적용됩니다.
+                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본 근무
+                한도는 통합 관리 화면의 기본값에 적용됩니다.
             </div>
         </form>
     </div>

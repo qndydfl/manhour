@@ -4,23 +4,32 @@ from django.db import models
 from django.db.models import Q
 
 
+DEFAULT_WORKPLACE_CHOICES = [
+    ("ICN-1그룹", "ICN-1그룹"),
+    ("ICN-2그룹", "ICN-2그룹"),
+    ("ICN-3그룹", "ICN-3그룹"),
+    ("GMP-1그룹", "GMP-1그룹"),
+    ("GMP-2그룹", "GMP-2그룹"),
+    ("GMP-3그룹", "GMP-3그룹"),
+]
+
+
+class Workplace(models.Model):
+    code = models.CharField(max_length=20, unique=True)
+    label = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return f"{self.label}"
+
+
 class TaskMaster(models.Model):
     """기본 데이터 (엑셀 붙여넣기 원본)"""
-
-    SITE_ICN_1 = "ICN-1"
-    SITE_ICN_2 = "ICN-2"
-    SITE_ICN_3 = "ICN-3"
-    SITE_GMP_1 = "GMP-1"
-    SITE_GMP_2 = "GMP-2"
-    SITE_GMP_3 = "GMP-3"
-    SITE_CHOICES = [
-        (SITE_ICN_1, "ICN-1"),
-        (SITE_ICN_2, "ICN-2"),
-        (SITE_ICN_3, "ICN-3"),
-        (SITE_GMP_1, "GMP-1"),
-        (SITE_GMP_2, "GMP-2"),
-        (SITE_GMP_3, "GMP-3"),
-    ]
 
     gibun_code = models.CharField(max_length=50, verbose_name="기번")
     work_order = models.CharField(max_length=100)
@@ -30,7 +39,6 @@ class TaskMaster(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     site = models.CharField(
         max_length=20,
-        choices=SITE_CHOICES,
         verbose_name="근무지",
     )
 
@@ -39,20 +47,7 @@ class TaskMaster(models.Model):
 
 
 class WorkSession(models.Model):
-    SITE_ICN_1 = "ICN-1그룹"
-    SITE_ICN_2 = "ICN-2그룹"
-    SITE_ICN_3 = "ICN-3그룹"
-    SITE_GMP_1 = "GMP-1그룹"
-    SITE_GMP_2 = "GMP-2그룹"
-    SITE_GMP_3 = "GMP-3그룹"
-    SITE_CHOICES = [
-        (SITE_ICN_1, "ICN-1그룹"),
-        (SITE_ICN_2, "ICN-2그룹"),
-        (SITE_ICN_3, "ICN-3그룹"),
-        (SITE_GMP_1, "GMP-1그룹"),
-        (SITE_GMP_2, "GMP-2그룹"),
-        (SITE_GMP_3, "GMP-3그룹"),
-    ]
+    SITE_CHOICES = DEFAULT_WORKPLACE_CHOICES
 
     SHIFT_DAY = "DAY"
     SHIFT_NIGHT = "NIGHT"
@@ -67,7 +62,6 @@ class WorkSession(models.Model):
     is_active = models.BooleanField(default=True)
     site = models.CharField(
         max_length=20,
-        choices=SITE_CHOICES,
         verbose_name="근무지",
     )
 
@@ -84,9 +78,9 @@ class WorkSession(models.Model):
         return self.shift_type == self.SHIFT_NIGHT
 
     def __str__(self):
-        return (
-            f"{self.name} ({self.get_shift_type_display()}, {self.get_site_display()})"
-        )
+        from .workplaces import get_workplace_label
+
+        return f"{self.name} ({self.get_shift_type_display()}, {get_workplace_label(self.site)})"
 
 
 class Worker(models.Model):
@@ -220,7 +214,6 @@ class FeaturedVideo(models.Model):
     )
     site = models.CharField(
         max_length=20,
-        choices=WorkSession.SITE_CHOICES,
         blank=True,
         default="",
         help_text="Blank = all sites",
@@ -239,7 +232,6 @@ class AppSetting(models.Model):
     key = models.CharField(max_length=50)
     site = models.CharField(
         max_length=20,
-        choices=WorkSession.SITE_CHOICES,
         blank=True,
         default="",
     )
@@ -252,3 +244,19 @@ class AppSetting(models.Model):
 
     def __str__(self):
         return f"{self.key}"
+
+
+class DefaultWorkerDirectory(models.Model):
+    site = models.CharField(
+        max_length=20,
+        verbose_name="근무지",
+    )
+    name = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("site", "name")
+        ordering = ["name", "id"]
+
+    def __str__(self):
+        return f"{self.name} ({self.site})"

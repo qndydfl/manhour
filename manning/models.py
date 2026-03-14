@@ -58,10 +58,16 @@ class WorkSession(models.Model):
     is_active = models.BooleanField(default=True)
     site = models.CharField(
         max_length=20,
-        choices=SITE_CHOICES,
         verbose_name="근무지",
         blank=True,
         default="",
+    )
+    manhour_session = models.ForeignKey(
+        "manhour.WorkSession",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="manning_sessions",
     )
 
     def __str__(self):
@@ -90,10 +96,11 @@ class SessionArea(models.Model):
         choices=POSITION_CHOICES,
         default=POSITION_LEFT,
     )
+    ordering = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["position", "id"]
+        ordering = ["position", "ordering", "id"]
 
     def __str__(self):
         return f"{self.session_id} - {self.name}"
@@ -115,3 +122,54 @@ class Manning(models.Model):
 
     def __str__(self):
         return f"{self.worker_name} @ {self.area.name}"
+
+
+class WorkerDirectory(models.Model):
+    site = models.CharField(
+        max_length=20,
+        verbose_name="근무지",
+    )
+    name = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("site", "name")
+        ordering = ["name", "id"]
+
+    def __str__(self):
+        return f"{self.name} ({self.site})"
+
+
+class AreaTemplate(models.Model):
+    key = models.CharField(max_length=50, unique=True)
+    label = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return self.label
+
+
+class AreaTemplateItem(models.Model):
+    template = models.ForeignKey(
+        AreaTemplate,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+    position = models.CharField(
+        max_length=10,
+        choices=SessionArea.POSITION_CHOICES,
+        default=SessionArea.POSITION_LEFT,
+    )
+    name = models.CharField(max_length=100)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return f"{self.template.key}: {self.name}"

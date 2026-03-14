@@ -2,16 +2,16 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     if (typeof CHECK_GIBUN_URL === "undefined") {
-        console.error("❌ CHECK_GIBUN_URL 정의 안됨");
+        console.error("CHECK_GIBUN_URL 정의 안됨");
         return;
     }
 
+    const form = document.getElementById("createSessionForm");
     const gibunContainer = document.getElementById("gibunContainer");
     const gibunInput = document.getElementById("gibunInput");
     const realGibunField = document.getElementById("realGibunField");
     const gibunWarning = document.getElementById("gibunWarning");
 
-    // 폼 요소
     const sessionInput = document.querySelector('input[name="session_name"]');
     const workerInput = document.querySelector('textarea[name="worker_names"]');
     const shiftInputs = document.querySelectorAll('input[name="shift_type"]');
@@ -22,22 +22,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let gibunList = [];
     let isProcessing = false;
+    let warningTimer = null;
 
-    // 1. 기번 입력 UX
     gibunContainer.addEventListener("click", (e) => {
-        if (!e.target.closest(".bi-x")) gibunInput.focus();
+        if (!e.target.closest(".remove-tag")) {
+            gibunInput.focus();
+        }
     });
 
-    gibunInput.addEventListener("blur", function () {
-        if (this.value.trim() && !isProcessing) addGibunsFromText(this.value);
+    gibunInput.addEventListener("focus", () => {
+        gibunContainer.classList.add("ring-focus");
     });
 
-    gibunInput.addEventListener("keydown", function (e) {
-        if (e.isComposing) return; // ✅ 한글 조합 중이면 무시
+    gibunInput.addEventListener("blur", async function () {
+        gibunContainer.classList.remove("ring-focus");
+
+        const pending = this.value.trim();
+        if (pending && !isProcessing) {
+            await addGibunsFromText(pending);
+        }
+    });
+
+    gibunInput.addEventListener("keydown", async function (e) {
+        if (e.isComposing) return;
 
         if (e.key === "Enter" || e.key === ",") {
             e.preventDefault();
-            if (!isProcessing) addGibunsFromText(this.value);
+            if (!isProcessing && this.value.trim()) {
+                await addGibunsFromText(this.value);
+            }
         }
 
         if (
@@ -49,33 +62,52 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 태그 삭제 클릭
     gibunContainer.addEventListener("click", (e) => {
-        const icon = e.target.closest("i[data-idx]");
-        if (icon) removeGibun(Number(icon.dataset.idx));
+        const removeIcon = e.target.closest("[data-idx]");
+        if (!removeIcon) return;
+
+        const idx = Number(removeIcon.dataset.idx);
+        if (!Number.isNaN(idx)) {
+            removeGibun(idx);
+        }
     });
 
-    // 2. 기번 추가 로직
     async function addGibunsFromText(text) {
         const raw = String(text || "").trim();
         if (!raw) return;
-        // const tokens = raw
-        //     .split(/[\s,]+/g)
-        //     .map((t) => t.trim())
-        //     .filter(Boolean);
+
         const tokens = raw
             .split(/[,]+/g)
             .map((t) => t.replace(/\s+/g, "").trim())
             .filter(Boolean);
+
         gibunInput.value = "";
-        for (const t of tokens) await addGibun(t);
+
+        for (const token of tokens) {
+            await addGibun(token);
+        }
+
+        checkFormValidity();
     }
 
     async function addGibun(text) {
         if (isProcessing) return;
-        let cleanText = String(text).replace(/,/g, "").trim().toUpperCase();
-        if (/^\d+$/.test(cleanText)) cleanText = "HL" + cleanText;
-        if (gibunList.includes(cleanText)) return;
+
+        let cleanText = String(text || "")
+            .replace(/,/g, "")
+            .replace(/\s+/g, "")
+            .trim()
+            .toUpperCase();
+
+        if (!cleanText) return;
+
+        if (/^\d+$/.test(cleanText)) {
+            cleanText = "HL" + cleanText;
+        }
+
+        if (gibunList.includes(cleanText)) {
+            return;
+        }
 
         isProcessing = true;
         gibunInput.disabled = true;
@@ -86,17 +118,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { Accept: "application/json" },
             });
 
-            const text = await res.text();
-            let data = null;
+            const rawText = await res.text();
+            let data;
+
             try {
-                data = JSON.parse(text);
-            } catch (parseErr) {
-                console.error("[check_gibun] invalid JSON", text);
+                data = JSON.parse(rawText);
+            } catch (err) {
+                console.error("[check_gibun] JSON 파싱 실패:", rawText);
                 throw new Error("invalid_json");
             }
 
             if (!res.ok) {
-                console.error("[check_gibun] HTTP error", res.status, data);
+                console.error("[check_gibun] HTTP 에러:", res.status, data);
                 throw new Error(`http_${res.status}`);
             }
 
@@ -104,18 +137,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 gibunList.push(cleanText);
                 updateRealField();
                 renderTags();
-                if (gibunWarning)
-                    gibunWarning.style.setProperty(
-                        "display",
-                        "none",
-                        "important",
-                    );
-            } else {
-                showWarning(`'${cleanText}'는 등록되지 않은 기번입니다.`);
+                hideWarning();
             }
-        } catch (e) {
-            console.error("[check_gibun] fetch failed", e);
-            showWarning("서버 오류");
+        } catch (err) {
+            console.error("[check_gibun] 요청 실패:", err);
+            hideWarning();
         } finally {
             isProcessing = false;
             gibunInput.disabled = false;
@@ -124,41 +150,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function removeGibun(index) {
+        if (index < 0 || index >= gibunList.length) return;
+
         gibunList.splice(index, 1);
         updateRealField();
         renderTags();
+        checkFormValidity();
     }
 
     function renderTags() {
         gibunContainer
-            .querySelectorAll(".badge[data-tag='gibun']")
+            .querySelectorAll(".gibun-badge")
             .forEach((tag) => tag.remove());
+
         gibunList.forEach((gibun, index) => {
             const badge = document.createElement("span");
-            badge.className =
-                "badge bg-primary d-flex align-items-center me-1 mb-1";
-            badge.dataset.tag = "gibun";
-            badge.innerHTML = `${gibun} <i class="bi bi-x ms-2" style="cursor:pointer;" data-idx="${index}"></i>`;
+            badge.className = "gibun-badge";
+            badge.innerHTML = `
+                <span>${gibun}</span>
+                <i class="bi bi-x remove-tag" data-idx="${index}" title="삭제"></i>
+            `;
             gibunContainer.insertBefore(badge, gibunInput);
         });
     }
 
     function updateRealField() {
         realGibunField.value = gibunList.join(",");
-        checkFormValidity();
     }
 
-    function showWarning(msg) {
-        if (gibunWarning) {
-            gibunWarning.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i> ${msg}`;
-            gibunWarning.style.setProperty("display", "flex", "important");
-            setTimeout(() => {
-                gibunWarning.style.setProperty("display", "none", "important");
-            }, 3000);
-        }
+    function showWarning(message) {
+        return;
     }
 
-    // 3. 유효성 검사 (단순 체크)
+    function hideWarning() {
+        if (!gibunWarning) return;
+        gibunWarning.style.display = "none";
+    }
+
     function checkFormValidity() {
         if (!submitBtn) return;
 
@@ -166,28 +194,61 @@ document.addEventListener("DOMContentLoaded", function () {
             (input) => input.checked,
         );
 
-        const ok =
-            sessionInput.value.trim() &&
-            workerInput.value.trim() &&
+        const isValid =
+            !!sessionInput?.value.trim() &&
+            !!workerInput?.value.trim() &&
             gibunList.length > 0 &&
             isShiftSelected;
 
-        submitBtn.disabled = !ok;
+        submitBtn.disabled = !isValid;
 
         if (reqText) {
-            if (ok) {
+            if (isValid) {
                 reqText.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>준비 완료!`;
-                reqText.classList.replace("text-danger", "text-success");
+                reqText.classList.remove("text-danger");
+                reqText.classList.add("text-success");
             } else {
-                reqText.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>필수 항목을 입력해주세요.`;
-                reqText.classList.replace("text-success", "text-danger");
+                reqText.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>필수 항목을 모두 입력해주세요.`;
+                reqText.classList.remove("text-success");
+                reqText.classList.add("text-danger");
             }
         }
     }
 
-    if (sessionInput) sessionInput.addEventListener("input", checkFormValidity);
-    if (workerInput) workerInput.addEventListener("input", checkFormValidity);
-    shiftInputs.forEach((input) =>
-        input.addEventListener("change", checkFormValidity),
-    );
+    if (sessionInput) {
+        sessionInput.addEventListener("input", checkFormValidity);
+    }
+
+    if (workerInput) {
+        workerInput.addEventListener("input", checkFormValidity);
+    }
+
+    shiftInputs.forEach((input) => {
+        input.addEventListener("change", checkFormValidity);
+    });
+
+    if (form) {
+        form.addEventListener("submit", async function (e) {
+            const pending = gibunInput.value.trim();
+
+            if (pending && !isProcessing) {
+                e.preventDefault();
+                await addGibunsFromText(pending);
+
+                if (!submitBtn.disabled) {
+                    form.submit();
+                }
+                return;
+            }
+
+            checkFormValidity();
+
+            if (submitBtn.disabled) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // 최초 상태 체크
+    checkFormValidity();
 });

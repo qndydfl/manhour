@@ -1,105 +1,109 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ==========================================
-    // 0. BFCache 복원 시 강제 새로고침 (대시보드 최신화)
-    // ==========================================
     window.addEventListener("pageshow", (event) => {
         if (event.persisted) {
-            location.reload();
+            window.location.reload();
         }
     });
 
-    // ==========================================
-    // 1. Toast 알림 자동 실행 (공통)
-    // ==========================================
+    const isTouchDevice =
+        window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+    function safeText(el, value) {
+        if (el) el.textContent = value;
+    }
+
     const toastEls = document.querySelectorAll(".toast");
     if (toastEls.length > 0 && window.bootstrap) {
         toastEls.forEach((toastEl) => {
-            new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+            const toast = bootstrap.Toast.getOrCreateInstance(toastEl, {
+                delay: 3000,
+            });
+            toast.show();
         });
     }
 
-    // ==========================================
-    // 2. 실시간 시계 (Clock) - 대시보드 전용
-    // ==========================================
+    const timeEl = document.getElementById("digital-time");
+    const dateEl = document.getElementById("digital-date");
+    const weekdayEl = document.getElementById("digital-weekday");
+    const utcEl = document.getElementById("digital-time-utc");
+    const utcDateEl = document.getElementById("digital-date-utc");
+    const utcWeekdayEl = document.getElementById("digital-weekday-utc");
+
+    function formatDateParts(date, useUTC = false) {
+        const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
+        const month = String(
+            (useUTC ? date.getUTCMonth() : date.getMonth()) + 1,
+        ).padStart(2, "0");
+        const day = String(
+            useUTC ? date.getUTCDate() : date.getDate(),
+        ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
     function updateClock() {
         const now = new Date();
-        const timeEl = document.getElementById("digital-time");
-        const dateEl = document.getElementById("digital-date");
-        const weekdayEl = document.getElementById("digital-weekday");
-        const utcEl = document.getElementById("digital-time-utc");
-        const utcDateEl = document.getElementById("digital-date-utc");
-        const utcWeekdayEl = document.getElementById("digital-weekday-utc");
         const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-        if (timeEl) {
-            timeEl.textContent = now.toLocaleTimeString("en-US", {
+        safeText(
+            timeEl,
+            now.toLocaleTimeString("en-US", {
                 hour12: false,
-            });
-        }
-        if (dateEl) {
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, "0");
-            const dd = String(now.getDate()).padStart(2, "0");
-            dateEl.textContent = `${yyyy}-${mm}-${dd}`;
-        }
-        if (weekdayEl) {
-            weekdayEl.textContent = weekdays[now.getDay()];
-        }
-        if (utcEl) {
-            const utcHour = String(now.getUTCHours()).padStart(2, "0");
-            const utcMin = String(now.getUTCMinutes()).padStart(2, "0");
-            utcEl.textContent = `${utcHour}:${utcMin}`;
-        }
-        if (utcDateEl) {
-            const yyyy = now.getUTCFullYear();
-            const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
-            const dd = String(now.getUTCDate()).padStart(2, "0");
-            utcDateEl.textContent = `${yyyy}-${mm}-${dd}`;
-        }
-        if (utcWeekdayEl) {
-            utcWeekdayEl.textContent = weekdays[now.getUTCDay()];
-        }
+            }),
+        );
+
+        safeText(dateEl, formatDateParts(now, false));
+        safeText(weekdayEl, weekdays[now.getDay()]);
+
+        const utcHour = String(now.getUTCHours()).padStart(2, "0");
+        const utcMin = String(now.getUTCMinutes()).padStart(2, "0");
+        safeText(utcEl, `${utcHour}:${utcMin}`);
+
+        safeText(utcDateEl, formatDateParts(now, true));
+        safeText(utcWeekdayEl, weekdays[now.getUTCDay()]);
     }
 
-    if (document.getElementById("digital-time")) {
-        setInterval(updateClock, 1000);
+    let clockTimer = null;
+    if (timeEl || utcEl) {
         updateClock();
+        clockTimer = window.setInterval(updateClock, 1000);
     }
 
-    // ==========================================
-    // 3. 숫자 카운팅 애니메이션
-    // ==========================================
-    function animateNumber(element) {
-        if (!element) return;
+    function animateNumber(element, duration = 1500) {
+        if (!element || element.dataset.countAnimated === "true") return;
 
-        const target = parseInt(element.innerText, 10);
+        const target = Number.parseInt(element.textContent, 10);
         if (Number.isNaN(target)) return;
 
-        let current = 0;
-        const duration = 1500;
-        const stepTime = 20;
-        const totalSteps = duration / stepTime;
-        const increment = target / totalSteps;
+        element.dataset.countAnimated = "true";
 
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                element.innerText = target;
-                clearInterval(timer);
+        if (target === 0) {
+            element.textContent = "0";
+            return;
+        }
+
+        const start = performance.now();
+
+        function step(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = Math.round(target * eased);
+
+            element.textContent = String(current);
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
             } else {
-                element.innerText = Math.floor(current);
+                element.textContent = String(target);
             }
-        }, stepTime);
+        }
+
+        window.requestAnimationFrame(step);
     }
 
-    const activeCountEl = document.querySelector(".active-count-num");
-    const historyCountEl = document.querySelector(".history-count-num");
-    if (activeCountEl) animateNumber(activeCountEl);
-    if (historyCountEl) animateNumber(historyCountEl);
+    animateNumber(document.querySelector(".active-count-num"));
+    animateNumber(document.querySelector(".history-count-num"));
 
-    // ==========================================
-    // 4. 검색 및 필터링 (세션 리스트 페이지용)
-    // ==========================================
     const searchInput = document.getElementById("sessionSearch");
     if (searchInput) {
         const clearBtn = document.getElementById("clearSearch");
@@ -109,12 +113,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         function filterSessions() {
             const query = searchInput.value.toLowerCase().trim();
+
             sessionCols.forEach((col) => {
-                const shift = col.dataset.shift;
+                const shift = col.dataset.shift || "";
                 const name = (col.dataset.name || "").toLowerCase();
+
                 const matchesSearch = name.includes(query);
                 const matchesFilter =
                     currentFilter === "all" || shift === currentFilter;
+
                 col.style.display =
                     matchesSearch && matchesFilter ? "" : "none";
             });
@@ -132,130 +139,183 @@ document.addEventListener("DOMContentLoaded", () => {
 
         filterBtns.forEach((btn) => {
             btn.addEventListener("click", () => {
-                filterBtns.forEach((b) =>
-                    b.classList.remove("active", "btn-dark"),
-                );
+                filterBtns.forEach((b) => {
+                    b.classList.remove("active", "btn-dark");
+                });
+
                 btn.classList.add("active", "btn-dark");
-                currentFilter = btn.dataset.filter;
+                currentFilter = btn.dataset.filter || "all";
                 filterSessions();
             });
         });
     }
 
-    // ==========================================
-    // 5. YouTube 모달
-    // ==========================================
     const modalEl = document.getElementById("videoModal");
     const frameEl = document.getElementById("youtubeFrame");
     const titleEl = document.getElementById("videoModalLabel");
     const openOnYoutubeEl = document.getElementById("openOnYoutube");
 
-    if (modalEl && frameEl) {
-        // 모달이 body 밖에 있으면(특정 레이아웃) body로 이동
+    function toEmbedUrl(url) {
+        try {
+            const parsed = new URL(url);
+
+            if (
+                parsed.hostname.includes("youtube.com") &&
+                parsed.pathname.startsWith("/shorts/")
+            ) {
+                const id = parsed.pathname.split("/shorts/")[1]?.split("/")[0];
+                return id
+                    ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`
+                    : url;
+            }
+
+            if (parsed.hostname.includes("youtube.com")) {
+                if (parsed.pathname === "/watch") {
+                    const id = parsed.searchParams.get("v");
+                    return id
+                        ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`
+                        : url;
+                }
+
+                if (parsed.pathname.startsWith("/embed/")) {
+                    parsed.searchParams.set("autoplay", "1");
+                    return parsed.toString();
+                }
+            }
+
+            if (parsed.hostname.includes("youtu.be")) {
+                const id = parsed.pathname.replace("/", "").split("/")[0];
+                return id
+                    ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`
+                    : url;
+            }
+        } catch (error) {
+            console.warn("Invalid YouTube URL:", url, error);
+        }
+
+        return url;
+    }
+
+    if (modalEl && frameEl && window.bootstrap) {
         if (modalEl.parentElement !== document.body) {
             document.body.appendChild(modalEl);
         }
 
-        const toEmbedUrl = (url) => {
-            try {
-                if (url.includes("/shorts/")) {
-                    const id = url.split("/shorts/")[1].split(/[?&/]/)[0];
-                    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
-                }
-
-                if (url.includes("watch?v=")) {
-                    const u = new URL(url);
-                    const id = u.searchParams.get("v");
-                    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
-                }
-
-                if (url.includes("/embed/")) {
-                    return url.includes("?")
-                        ? `${url}&autoplay=1`
-                        : `${url}?autoplay=1`;
-                }
-
-                if (url.includes("youtu.be/")) {
-                    const id = url.split("youtu.be/")[1].split(/[?&/]/)[0];
-                    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&rel=0`;
-                }
-            } catch (e) {}
-
-            return url;
-        };
-
         modalEl.addEventListener("show.bs.modal", (event) => {
-            const btn = event.relatedTarget;
-            const videoUrl = btn?.getAttribute("data-video-url");
-            const videoTitle = btn?.getAttribute("data-video-title");
+            const trigger = event.relatedTarget;
+            const videoUrl = trigger?.getAttribute("data-video-url");
+            const videoTitle = trigger?.getAttribute("data-video-title");
+
             if (!videoUrl) return;
 
-            if (titleEl && videoTitle) {
-                titleEl.textContent = videoTitle;
-            }
+            safeText(titleEl, videoTitle || "Video");
+
             if (openOnYoutubeEl) {
                 openOnYoutubeEl.href = videoUrl;
             }
+
             frameEl.src = toEmbedUrl(videoUrl);
         });
 
         modalEl.addEventListener("hidden.bs.modal", () => {
             frameEl.src = "";
-            if (titleEl) titleEl.textContent = "Video";
-            if (openOnYoutubeEl) openOnYoutubeEl.href = "#";
+            safeText(titleEl, "Video");
+
+            if (openOnYoutubeEl) {
+                openOnYoutubeEl.href = "#";
+            }
         });
     }
 
-    // ==========================================
-    // 6. 카드 안의 MP4 hover 플레이어
-    // ==========================================
-    const video = document.getElementById("hoverDanceVideo");
-    if (video) {
-        const wrapper = video.closest(".video-hover-wrapper");
+    const hoverVideo = document.getElementById("hoverDanceVideo");
+    if (hoverVideo && !isTouchDevice) {
+        const wrapper = hoverVideo.closest(".video-hover-wrapper");
+
         if (wrapper) {
             wrapper.addEventListener("mouseenter", () => {
-                video.currentTime = 0;
-                video.play();
+                hoverVideo.currentTime = 0;
+                hoverVideo.play().catch(() => {
+                });
             });
 
             wrapper.addEventListener("mouseleave", () => {
-                video.pause();
-                video.currentTime = 0;
+                hoverVideo.pause();
+                hoverVideo.currentTime = 0;
             });
         }
     }
 
-    // ==========================================
-    // 7. macOS Dock 확대 효과
-    // ==========================================
     const dock = document.querySelector(".dock-bar");
-    const items = [...document.querySelectorAll(".dock-item")];
+    const dockItems = [...document.querySelectorAll(".dock-item")];
 
-    if (dock && items.length) {
-        dock.addEventListener("mousemove", (e) => {
-            const rect = dock.getBoundingClientRect();
-            const x = e.clientX - rect.left;
+    if (dock && dockItems.length && !isTouchDevice) {
+        dock.addEventListener("mousemove", (event) => {
+            const dockRect = dock.getBoundingClientRect();
+            const pointerX = event.clientX - dockRect.left;
 
-            items.forEach((el) => {
-                const r = el.getBoundingClientRect();
-                const cx = (r.left + r.right) / 2 - rect.left;
-                const dist = Math.abs(x - cx);
+            dockItems.forEach((item) => {
+                const itemRect = item.getBoundingClientRect();
+                const centerX = (itemRect.left + itemRect.right) / 2 - dockRect.left;
+                const distance = Math.abs(pointerX - centerX);
 
-                // 최대/크기 범위 조절
-                const scale = Math.max(1, 1.6 - dist / 90);
-                // 튀어오르는 정도 조절
-                const lift = Math.max(0, 10 - dist / 7);
+                const scale = Math.max(1, 1.6 - distance / 90);
+                const lift = Math.max(0, 10 - distance / 7);
 
-                el.style.transform = `translateY(${-lift}px) scale(${scale})`;
-                el.style.zIndex = Math.round(scale * 10);
+                item.style.transform = `translateY(${-lift}px) scale(${scale})`;
+                item.style.zIndex = String(Math.round(scale * 10));
             });
         });
 
         dock.addEventListener("mouseleave", () => {
-            items.forEach((el) => {
-                el.style.transform = "scale(1) translateY(0)";
-                el.style.zIndex = 1;
+            dockItems.forEach((item) => {
+                item.style.transform = "";
+                item.style.zIndex = "";
             });
         });
     }
+
+    const masterDataBadgeEl = document.getElementById("masterDataBadge");
+    const masterDataCountUrl =
+        window.INDEX_PAGE?.masterDataCountUrl || "/api/master-data-count/";
+
+    async function refreshMasterDataBadge() {
+        if (!masterDataBadgeEl) return;
+
+        try {
+            const response = await fetch(masterDataCountUrl, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                credentials: "same-origin",
+                cache: "no-store",
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const count = Number(data.count || 0);
+
+            if (count > 0) {
+                masterDataBadgeEl.textContent = String(count);
+                masterDataBadgeEl.classList.remove("d-none");
+            } else {
+                masterDataBadgeEl.textContent = "";
+                masterDataBadgeEl.classList.add("d-none");
+            }
+        } catch (error) {
+            console.error("Master Data badge refresh failed:", error);
+        }
+    }
+
+    let badgeTimer = null;
+    if (masterDataBadgeEl) {
+        refreshMasterDataBadge();
+        badgeTimer = window.setInterval(refreshMasterDataBadge, 10000);
+    }
+
+    window.addEventListener("beforeunload", () => {
+        if (clockTimer) window.clearInterval(clockTimer);
+        if (badgeTimer) window.clearInterval(badgeTimer);
+    });
 });

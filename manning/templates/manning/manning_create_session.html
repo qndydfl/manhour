@@ -1,0 +1,147 @@
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
+
+{% block title %}새 정비 세션 시작 | Manning{% endblock title %} 
+
+{% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_create_session.css' %}"
+/>
+{% endblock css %} 
+
+{% block js %}
+<script src="{% static 'js/manning/manning_create_session.js' %}"></script>
+{{ active_shift_combos|json_script:"activeShiftCombos" }} 
+{% endblock js %}
+
+{% block background_image %} 
+{% include "manhour/image/background_url.html" with bg_key="manning_create_session" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
+{% endblock background_image %} 
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-plus-circle me-2"></i>새 작업 세션 시작
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="createSessionForm">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"
+                                    >항공기 기번
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.aircraft_reg }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"
+                                    >작업 패키지 명
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.work_package_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    A-Check(KJ)
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.block_check }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Shift
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.shift_type }}
+                            </div>
+
+                            <hr class="my-4" />
+
+                            <div
+                                class="col-md-12"
+                                id="template-selection-area"
+                                style="transition: opacity 0.3s"
+                            >
+                                <label class="form-label fw-bold text-primary">
+                                    기본 구성 템플릿 선택
+                                    <span class="text-danger">*</span>
+                                    <a
+                                        href="{% url 'manning:template_editor' %}"
+                                        class="ms-2 small text-decoration-none"
+                                    >
+                                        템플릿 편집
+                                    </a>
+                                </label>
+                                <div class="row">
+                                    {% for tpl in templates %}
+                                    <div class="col-md-4">
+                                        <div
+                                            class="form-check card-radio p-3 border rounded text-center mb-3"
+                                        >
+                                            <input
+                                                class="form-check-input d-none"
+                                                type="radio"
+                                                name="area_template"
+                                                id="tpl_{{ tpl.key|slugify }}"
+                                                value="{{ tpl.key }}"
+                                                {% if forloop.first %}required{% endif %}
+                                            />
+                                            <label
+                                                class="form-check-label w-100"
+                                                for="tpl_{{ tpl.key|slugify }}"
+                                            >
+                                                {% if tpl.key|lower == "standard" %}
+                                                <i
+                                                    class="bi bi-grid-3x3-gap fs-2 d-block mb-2"
+                                                ></i>
+                                                {% elif tpl.key|lower == "lubrication" %}
+                                                <i
+                                                    class="bi bi-layout-split fs-2 d-block mb-2"
+                                                ></i>
+                                                {% elif tpl.key|lower == "engine_only" %}
+                                                <i
+                                                    class="bi bi-airplane-engines fs-2 d-block mb-2"
+                                                ></i>
+                                                {% else %}
+                                                <i
+                                                    class="bi bi-ui-checks-grid fs-2 d-block mb-2"
+                                                ></i>
+                                                {% endif %}
+                                                <strong>{{ tpl.label }}</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a
+                                href="{% url 'manning:manning_list' %}"
+                                class="btn btn-light px-4"
+                                >취소</a
+                            >
+                            <button
+                                type="submit"
+                                class="btn btn-primary px-5 fw-bold"
+                            >
+                                세션 생성 및 시작
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,3 +1,13 @@
+:root {
+    --ios-bg: #f2f2f7;
+    --ios-card: #ffffff;
+    --ios-border: rgba(14, 6, 6, 0.08);
+    --ios-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --dark-gradient: linear-gradient(135deg, #1f1f1f 0%, #3a3a3a 100%);
+    --light-gradient: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+}
+
 .modal {
     z-index: 1200 !important;
 }

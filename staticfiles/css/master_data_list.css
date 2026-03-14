@@ -1,0 +1,228 @@
+.master-data-page {
+    max-width: 1200px;
+}
+
+/* 카드 공통 */
+.master-data-page .card {
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+}
+
+.master-data-page .card-header {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.master-data-page .card-footer {
+    background: rgba(248, 249, 250, 0.92) !important;
+}
+
+/* 상단 버튼 영역 */
+.master-data-page .top-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 테이블 */
+.master-data-page .master-data-table {
+    margin-bottom: 0;
+    table-layout: fixed;
+}
+
+.master-data-page .master-data-table th,
+.master-data-page .master-data-table td {
+    vertical-align: middle;
+}
+
+.master-data-page .master-data-table thead th {
+    background-color: rgba(248, 249, 250, 0.95) !important;
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    white-space: nowrap;
+}
+
+.master-data-page .master-data-table tbody td {
+    background: rgba(255, 255, 255, 0.78);
+    border-color: rgba(0, 0, 0, 0.05);
+    font-size: 0.93rem;
+    color: #212529;
+}
+
+.master-data-page .master-data-table tbody tr:hover td {
+    background: rgba(13, 110, 253, 0.045);
+}
+
+/* 컬럼별 */
+.master-data-page .master-data-table td:nth-child(1) {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.master-data-page .master-data-table td:nth-child(2),
+.master-data-page .master-data-table td:nth-child(3),
+.master-data-page .master-data-table td:nth-child(5),
+.master-data-page .master-data-table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+.master-data-page .master-data-table td:nth-child(4) {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.45;
+}
+
+/* 설명 셀 */
+.master-data-page .desc-cell {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 버튼 */
+.master-data-page .btn {
+    transition: all 0.2s ease;
+}
+
+.master-data-page .btn:hover {
+    transform: translateY(-1px);
+}
+
+/* 빈 데이터 */
+.master-data-page .empty-row td {
+    background: rgba(255, 255, 255, 0.68) !important;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+/* 태블릿 */
+@media (max-width: 992px) {
+    .master-data-page {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .master-data-page .card-header,
+    .master-data-page .card-footer {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .master-data-page .table-responsive {
+        border-radius: 14px;
+        overflow-x: auto;
+    }
+
+    .master-data-page .master-data-table {
+        min-width: 820px;
+    }
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+    .master-data-page {
+        max-width: 100%;
+        margin-top: 12px;
+        padding: 16px;
+    }
+
+    .master-data-page .card-header {
+        padding: 16px !important;
+    }
+
+    .master-data-page .card-footer {
+        padding: 14px 16px !important;
+    }
+
+    .master-data-page h4 {
+        font-size: 1.1rem;
+    }
+
+    .master-data-page h5 {
+        font-size: 1rem;
+    }
+
+    .master-data-page .btn {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+
+    .master-data-page .master-data-table {
+        min-width: 760px;
+    }
+
+    .master-data-page .master-data-table th,
+    .master-data-page .master-data-table td {
+        padding: 10px 8px;
+        font-size: 0.84rem;
+    }
+
+    .master-data-page .master-data-table td:nth-child(4) {
+        min-width: 220px;
+        white-space: normal;
+    }
+
+    .master-data-page .desc-cell {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+    }
+
+    .master-data-page .text-muted.small {
+        font-size: 0.78rem !important;
+    }
+
+    .master-data-page .master-data-table th:last-child,
+    .master-data-page .master-data-table td:last-child {
+        display: none;
+    }
+
+    .master-data-page .master-data-table td:nth-child(4) {
+        max-width: 1800px;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+}
+
+
+/* 작은 모바일 */
+@media (max-width: 576px) {
+    .master-data-page {
+        padding: 12px;
+    }
+
+    .master-data-page .top-action-group {
+        width: 100%;
+        justify-content: flex-start;
+        padding-top: 0.25rem !important;
+        padding-bottom: 0 !important;
+    }
+
+    .master-data-page .btn {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+
+    .master-data-page .master-data-table {
+        min-width: 700px;
+    }
+
+    .master-data-page .master-data-table th,
+    .master-data-page .master-data-table td {
+        font-size: 0.8rem;
+        padding: 9px 7px;
+    }
+
+    .master-data-page .card-header .d-flex.align-items-center.gap-3 {
+        align-items: flex-start !important;
+    }
+
+    .master-data-page .card-header .rounded-circle {
+        padding: 0.85rem !important;
+    }
+}

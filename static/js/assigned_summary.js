@@ -1,44 +1,38 @@
-// static/js/indirect_modal.js
 document.addEventListener("DOMContentLoaded", function () {
     const indirectModalEl = document.getElementById("indirectModal");
+    const frameEl = document.getElementById("indirectFrame");
+    const nameEl = document.getElementById("modalWorkerName");
 
-    if (indirectModalEl) {
-        indirectModalEl.addEventListener("hidden.bs.modal", function () {
-            const frameEl = document.getElementById("indirectFrame");
-            if (frameEl) frameEl.src = "";
-
-            // 저장했을 때만 새로고침(권장)
-            if (window.__indirectSaved) {
-                window.__indirectSaved = false;
-                location.reload();
-            }
-        });
+    if (!indirectModalEl || !frameEl || !nameEl) {
+        console.warn("간비 수정 모달 요소가 페이지에 없습니다.");
+        return;
     }
 
+    indirectModalEl.addEventListener("hidden.bs.modal", function () {
+        frameEl.src = "";
+
+        if (window.__indirectSaved) {
+            window.__indirectSaved = false;
+            window.location.reload();
+        }
+    });
+
     window.openIndirectModal = function (sessionId, workerId, workerName) {
-        const nameEl = document.getElementById("modalWorkerName");
-        const frameEl = document.getElementById("indirectFrame");
-        const modalEl = document.getElementById("indirectModal");
-
-        if (!nameEl || !frameEl || !modalEl) {
-            console.error(
-                "❌ 모달 관련 HTML 요소를 찾을 수 없습니다. ID를 확인하세요.",
-            );
-            return;
-        }
         if (!window.bootstrap || !bootstrap.Modal) {
-            console.error("❌ Bootstrap Modal이 로드되지 않았습니다.");
+            console.error("Bootstrap Modal이 로드되지 않았습니다.");
             return;
         }
 
-        nameEl.textContent = workerName;
+        nameEl.textContent = workerName || "작업자";
 
-        // URL (캐시 방지 파라미터 포함)
         const url = `/session/${sessionId}/worker/${workerId}/indirect/?_=${Date.now()}`;
         frameEl.src = url;
 
-        let myModal = bootstrap.Modal.getInstance(modalEl);
-        if (!myModal) myModal = new bootstrap.Modal(modalEl);
-        myModal.show();
+        let modalInstance = bootstrap.Modal.getInstance(indirectModalEl);
+        if (!modalInstance) {
+            modalInstance = new bootstrap.Modal(indirectModalEl);
+        }
+
+        modalInstance.show();
     };
 });

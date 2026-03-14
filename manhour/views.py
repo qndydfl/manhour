@@ -27,15 +27,22 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from manhour.planner import Planner
 from manhour.utils import ScheduleCalculator, format_min_to_time, get_adjusted_min
 from .models import (
+    AppSetting,
+    Assignment,
+    DefaultWorkerDirectory,
+    FeaturedVideo,
+    GibunPriority,
     GibunTeam,
+    TaskMaster,
+    WorkItem,
     WorkSession,
     Worker,
-    WorkItem,
-    Assignment,
-    TaskMaster,
-    GibunPriority,
-    FeaturedVideo,
-    AppSetting,
+    Workplace,
+)
+from .workplaces import (
+    get_workplace_choices,
+    get_workplace_label_map,
+    normalize_workplace,
 )
 from .forms import (
     KanbiAssignmentForm,
@@ -76,13 +83,6 @@ DEFAULT_SHOW_SETTINGS_MENU = True
 DEFAULT_WORKER_LIMIT_MH = 9.0
 
 
-def normalize_workplace(workplace: str | None) -> str:
-    valid = {choice[0] for choice in WorkSession.SITE_CHOICES}
-    if workplace in valid:
-        return workplace
-    return ""
-
-
 def set_workplace_in_session(request, workplace: str | None) -> str:
     normalized = normalize_workplace(workplace)
     if not normalized:
@@ -90,9 +90,9 @@ def set_workplace_in_session(request, workplace: str | None) -> str:
         request.session.pop(WORKPLACE_LABEL_SESSION_KEY, None)
         return ""
     request.session[WORKPLACE_SESSION_KEY] = normalized
-    request.session[WORKPLACE_LABEL_SESSION_KEY] = dict(WorkSession.SITE_CHOICES).get(
-        normalized, normalized
-    )
+    request.session[WORKPLACE_LABEL_SESSION_KEY] = get_workplace_label_map(
+        include_inactive=True
+    ).get(normalized, normalized)
     return normalized
 
 
@@ -106,6 +106,8 @@ def get_current_workplace(request) -> str:
 
 def get_session_or_404(request, session_id: int, **kwargs):
     workplace = get_current_workplace(request)
+    if "is_active" not in kwargs:
+        kwargs["is_active"] = True
     return get_object_or_404(
         WorkSession,
         id=session_id,
@@ -253,7 +255,7 @@ class SimpleLoginView(View):
             request,
             "manhour/login.html",
             {
-                "workplace_options": WorkSession.SITE_CHOICES,
+                "workplace_options": get_workplace_choices(),
                 "current_workplace": current_workplace,
             },
         )
@@ -268,7 +270,7 @@ class SimpleLoginView(View):
                 request,
                 "manhour/login.html",
                 {
-                    "workplace_options": WorkSession.SITE_CHOICES,
+                    "workplace_options": get_workplace_choices(),
                     "current_workplace": "",
                 },
             )
@@ -291,7 +293,7 @@ class SimpleLoginView(View):
                 request,
                 "manhour/login.html",
                 {
-                    "workplace_options": WorkSession.SITE_CHOICES,
+                    "workplace_options": get_workplace_choices(),
                     "current_workplace": workplace,
                 },
             )
@@ -371,6 +373,13 @@ class SettingsView(SimpleLoginRequiredMixin, View):
 
     def get(self, request):
         workplace = get_current_workplace(request)
+        default_worker_names = list(
+            DefaultWorkerDirectory.objects.filter(site=workplace)
+            .values_list("name", flat=True)
+            .order_by("name", "id")
+        )
+        default_worker_count = len(default_worker_names)
+        workplaces = list(Workplace.objects.all().order_by("sort_order", "id"))
         return render(
             request,
             "manhour/settings.html",
@@ -381,19 +390,82 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "default_worker_limit_mh": get_default_worker_limit_mh(workplace),
                 "sidebar_position": get_sidebar_position(workplace),
                 "navbar_toggle_position": get_navbar_toggle_position(workplace),
+                "default_worker_names": ", ".join(default_worker_names),
+                "default_worker_count": default_worker_count,
+                "workplaces": workplaces,
             },
         )
 
     def post(self, request):
+        action = (request.POST.get("action") or "").strip()
+        if action.startswith("workplace_"):
+            code = (request.POST.get("code") or "").strip()
+            label = (request.POST.get("label") or "").strip()
+            raw_sort_order = (request.POST.get("sort_order") or "").strip()
+            is_active = request.POST.get("is_active") == "1"
+            sort_order = 0
+            if raw_sort_order:
+                try:
+                    sort_order = int(raw_sort_order)
+                except ValueError:
+                    sort_order = 0
+
+            if action == "workplace_add":
+                if not code or not label:
+                    messages.error(request, "근무지 코드와 표시 이름을 입력해주세요.")
+                    return redirect("manhour:settings")
+                if Workplace.objects.filter(code=code).exists():
+                    messages.error(request, "이미 존재하는 근무지 코드입니다.")
+                    return redirect("manhour:settings")
+                Workplace.objects.create(
+                    code=code,
+                    label=label,
+                    sort_order=sort_order,
+                    is_active=is_active,
+                )
+                messages.success(request, "근무지가 추가되었습니다.")
+                return redirect("manhour:settings")
+
+            workplace_id = request.POST.get("workplace_id")
+            if not workplace_id:
+                messages.error(request, "근무지를 찾을 수 없습니다.")
+                return redirect("manhour:settings")
+
+            workplace = Workplace.objects.filter(id=workplace_id).first()
+            if not workplace:
+                messages.error(request, "근무지를 찾을 수 없습니다.")
+                return redirect("manhour:settings")
+
+            if action == "workplace_delete":
+                workplace.is_active = False
+                workplace.save(update_fields=["is_active"])
+                messages.success(request, "근무지가 비활성화되었습니다.")
+                return redirect("manhour:settings")
+
+            if action == "workplace_update":
+                if not label:
+                    messages.error(request, "표시 이름을 입력해주세요.")
+                    return redirect("manhour:settings")
+                workplace.label = label
+                workplace.sort_order = sort_order
+                workplace.is_active = is_active
+                workplace.save(update_fields=["label", "sort_order", "is_active"])
+                messages.success(request, "근무지가 수정되었습니다.")
+                return redirect("manhour:settings")
+
         raw_hours = request.POST.get("auto_archive_hours", "").strip()
         raw_history = request.POST.get("history_visibility_hours", "").strip()
         raw_default_limit = request.POST.get("default_worker_limit_mh", "").strip()
+        raw_default_workers = request.POST.get("default_worker_names", "")
         sidebar_position = (request.POST.get("sidebar_position") or "").strip()
         navbar_toggle_position = (
             request.POST.get("navbar_toggle_position") or ""
         ).strip()
         show_settings_menu = request.POST.get("show_settings_menu") == "1"
         workplace = get_current_workplace(request)
+        if not workplace:
+            messages.error(request, "근무지를 선택해주세요.")
+            return redirect("manhour:settings")
         if sidebar_position not in {"left", "right"}:
             sidebar_position = "left"
         if navbar_toggle_position not in {"left", "right"}:
@@ -442,6 +514,36 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             site=workplace,
             defaults={"int_value": 1 if navbar_toggle_position == "right" else 0},
         )
+        normalized_default_workers = raw_default_workers.replace("\r", "").replace(
+            "\n", ","
+        )
+        default_worker_list = [
+            name.strip()
+            for name in normalized_default_workers.split(",")
+            if name.strip()
+        ]
+        seen = set()
+        default_worker_list = [
+            name for name in default_worker_list if not (name in seen or seen.add(name))
+        ]
+        with transaction.atomic():
+            existing = set(
+                DefaultWorkerDirectory.objects.filter(site=workplace).values_list(
+                    "name", flat=True
+                )
+            )
+            desired = set(default_worker_list)
+            DefaultWorkerDirectory.objects.filter(site=workplace).exclude(
+                name__in=desired
+            ).delete()
+            DefaultWorkerDirectory.objects.bulk_create(
+                [
+                    DefaultWorkerDirectory(site=workplace, name=name)
+                    for name in default_worker_list
+                    if name not in existing
+                ],
+                ignore_conflicts=True,
+            )
         Worker.objects.filter(session__site=workplace).update(limit_mh=default_limit)
         messages.success(request, "설정이 저장되었습니다.")
         return redirect("manhour:index")
@@ -3001,30 +3103,37 @@ class MasterDataBulkEditView(SimpleLoginRequiredMixin, View):
                 messages.info(request, "삭제할 데이터가 없습니다.")
             return redirect("manhour:master_data_edit")
 
-        if not selected_ids:
-            if formset.is_valid():
-                formset.save()
-                messages.success(request, "마스터 데이터가 업데이트되었습니다.")
-                return redirect("manhour:master_data_list")
-        else:
-            has_errors = False
-            for form in formset.forms:
-                if not form.instance or form.instance.pk not in selected_ids:
-                    continue
-                if form.is_valid():
-                    form.save()
-                else:
-                    has_errors = True
+        if not formset.is_valid():
+            context = {
+                "formset": formset,
+                "total_count": queryset.count(),
+            }
+            return render(request, self.template_name, context)
 
-            if not has_errors:
-                messages.success(request, "선택한 마스터 데이터가 업데이트되었습니다.")
-                return redirect("manhour:master_data_list")
+        if not selected_ids:
+            formset.save()
+            messages.success(request, "마스터 데이터가 업데이트되었습니다.")
+            return redirect("manhour:master_data_list")
+
+        for form in formset.forms:
+            if form.instance and form.instance.pk in selected_ids:
+                form.save()
+
+        messages.success(request, "선택한 마스터 데이터가 업데이트되었습니다.")
+        return redirect("manhour:master_data_list")
 
         context = {
             "formset": formset,
             "total_count": queryset.count(),
         }
         return render(request, self.template_name, context)
+
+
+class MasterDataCountApiView(View):
+    def get(self, request):
+        workplace = get_current_workplace(request)
+        count = TaskMaster.objects.filter(site=workplace).count()
+        return JsonResponse({"count": count})
 
 
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):

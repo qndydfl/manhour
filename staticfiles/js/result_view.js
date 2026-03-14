@@ -1,37 +1,46 @@
+// static/js/result_view.js
+
 document.addEventListener("DOMContentLoaded", () => {
+    initReassignSuccessModal();
+    initTableSearch();
+    initTooltips();
+});
+
+function initReassignSuccessModal() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("reassigned") === "1") {
-        const el = document.getElementById("reassignSuccessModal");
-        if (el) {
-            // 부트스트랩 인스턴스가 생성되지 않았을 경우를 대비
-            const modal = bootstrap.Modal.getOrCreateInstance(el); 
-            modal.show();
-        }
-    }
-});
+    if (params.get("reassigned") !== "1") return;
 
-document.addEventListener("DOMContentLoaded", () => {
-    const els = document.querySelectorAll(".fade-up");
-    els.forEach((el, idx) => {
-        setTimeout(() => el.classList.add("is-visible"), 60 * idx);
-    });
-});
+    const el = document.getElementById("reassignSuccessModal");
+    if (!el || !window.bootstrap) return;
 
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".card.border-danger").forEach((card) => {
-        card.classList.add("pulse-danger");
-    });
-});
+    const modal = window.bootstrap.Modal.getOrCreateInstance(el);
+    modal.show();
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-    const q = document.getElementById("tableSearch");
-    if (!q) return;
+function initTableSearch() {
+    const input = document.getElementById("tableSearch");
+    if (!input) return;
 
-    q.addEventListener("input", () => {
-        const keyword = q.value.trim().toLowerCase();
-        document.querySelectorAll("tbody tr").forEach((tr) => {
-            const text = tr.innerText.toLowerCase();
-            tr.style.display = text.includes(keyword) ? "" : "none";
+    const rows = document.querySelectorAll(".table-custom tbody tr");
+
+    input.addEventListener("input", () => {
+        const keyword = input.value.trim().toLowerCase();
+
+        rows.forEach((row) => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(keyword) ? "" : "none";
         });
     });
-});
+}
+
+function initTooltips() {
+    if (!window.bootstrap) return;
+
+    const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+    );
+
+    tooltipTriggerList.forEach((el) => {
+        new window.bootstrap.Tooltip(el);
+    });
+}

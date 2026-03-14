@@ -1,125 +1,168 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/base.html" %}
+{% load static %}
 
-{% block title %}로그인{% endblock title %} 
+{% block title %}로그인{% endblock title %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}" />
-{% endblock css %} 
-
+{% endblock css %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row align-items-center justify-content-center gy-4">
-        <!-- Left: Hero -->
-        <div class="col-12 col-md-6 text-lg-start align-self-start">
-            <h1 class="display-5 fw-bold mb-3">Manning System</h1>
+<div class="login-page">
+    <div class="login-bg-grid"></div>
+    <div class="login-orb login-orb-1"></div>
+    <div class="login-orb login-orb-2"></div>
+    <div class="login-orb login-orb-3"></div>
 
-            <p class="lead text-muted mb-4">
-                Manning System 관리 시스템에 오신 것을 환영합니다.<br />
-                근무지를 선택하고 비밀번호로 안전하게 접속하세요.
-            </p>
-
-            <div class="d-flex gap-2 justify-content-start">
-                <span class="text-muted small">
-                    <i class="bi bi-shield-check me-1"></i>Secure Login
-                </span>
-                <span class="text-muted small">
-                    <i class="bi bi-lightning-charge me-1"></i>Fast Workflow
-                </span>
-            </div>
-        </div>
-
-        <!-- Right: Card -->
-        <div class="col-12 col-md-6 col-lg-5">
-            <div
-                class="login-card card border-0 shadow-lg rounded-4 p-4 p-md-5 mx-auto"
-                style="max-width: 460px"
-            >
-                <div class="text-primary mb-3 text-center">
-                    <i
-                        class="bi bi-shield-lock-fill"
-                        style="font-size: 2.6rem"
-                    ></i>
-                </div>
-
-                <h3 class="fw-bold mb-1 text-center">Login</h3>
-                <br class="my-3" />
-                <p class="text-muted small mb-4 text-center">
-                    근무지 선택 후 비밀번호를 입력하세요.
-                </p>
-
-                {% if messages %}
-                <div class="mb-3">
-                    {% for message in messages %}
-                    <div
-                        class="alert alert-danger py-2 small mb-2 text-center"
-                        role="alert"
-                    >
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                        {{ message }}
+    <div class="container login-container d-flex align-items-center justify-content-center">
+        <div class="row justify-content-center align-items-center g-4 w-100">
+            <!-- Left Brand Area -->
+            <div class="col-12 col-lg-6 d-none d-lg-block">
+                <div class="login-brand-panel">
+                    <div class="login-badge">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Secure Operations Access
                     </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
 
-                <form
-                    method="POST"
-                    data-loading
-                    data-loading-title="로그인 중"
-                    data-loading-text="잠시만 기다려 주세요"
-                >
-                    {% csrf_token %}
-                    <select
-                        name="workplace"
-                        class="form-select form-select-lg text-center bg-light border-1 shadow-lg mb-3 text-primary"
-                        style="font-size: 0.95rem"
-                        required
-                    >
-                        <option
-                            value=""
-                            disabled
-                            {% if not current_workplace %}
-                            selected
-                            {% endif %}
-                        >                
-                            근무지 선택
-                        </option>
-                        {% for value, label in workplace_options %}
-                        <option
-                            value="{{ value }}"
-                            {% if value == current_workplace %}
-                            selected
-                            {% endif %}
-                        >
-                            {{ label }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <input
-                        type="password"
-                        name="password"
-                        class="form-control form-control-lg text-center bg-light border-1 mb-4 password-input shadow-lg"
-                        placeholder="비밀 번호 입력"
-                        autocomplete="new-password"
-                        required
-                        autofocus
-                    />
+                    <h1 class="login-brand-title">
+                        Manning<br />
+                        System
+                    </h1>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100 fw-bold py-3 rounded-4 shadow-sm"
-                    >
-                        접속하기 <i class="bi bi-chevron-right ms-1"></i>
-                    </button>
-
-                    <p class="text-muted small mt-3 mb-0 text-center">
-                        <i class="bi bi-info-circle me-1"></i>문의: 관리자에게
-                        연락하세요.
+                    <p class="login-brand-desc">
+                        작업 세션 생성, 현황판 운영, 이력 조회, 데이터 관리까지
+                        하나의 시스템에서 빠르고 안전하게 관리하세요.
                     </p>
-                </form>
+
+                    <div class="login-brand-stats">
+                        <div class="brand-stat-card">
+                            <div class="brand-stat-icon text-primary">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                            <div>
+                                <strong>Fast Workflow</strong>
+                                <p>세션 생성과 작업 현황을 빠르게 확인</p>
+                            </div>
+                        </div>
+
+                        <div class="brand-stat-card">
+                            <div class="brand-stat-icon text-success">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                            <div>
+                                <strong>Secure Login</strong>
+                                <p>근무지 기반의 안전한 접근 제어</p>
+                            </div>
+                        </div>
+
+                        <div class="brand-stat-card">
+                            <div class="brand-stat-icon text-info">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                            </div>
+                            <div>
+                                <strong>Integrated Dashboard</strong>
+                                <p>세션, 이력, 등록 데이터 현황을 한 번에 관리</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Login Card -->
+            <div class="col-12 col-md-10 col-lg-5">
+                <div class="login-card mx-auto">
+                    <div class="login-card-header text-center">
+                        <div class="login-card-icon">
+                            <i class="bi bi-person-lock"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">Login</h3>
+                        <p class="text-muted mb-0">
+                            근무지를 선택하고 비밀번호를 입력하세요.
+                        </p>
+                    </div>
+
+                    {% if messages %}
+                    <div class="login-alert-wrap">
+                        {% for message in messages %}
+                        <div class="login-alert" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form
+                        method="POST"
+                        data-loading
+                        data-loading-title="로그인 중"
+                        data-loading-text="잠시만 기다려 주세요"
+                    >
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label login-label">근무지</label>
+                            <div class="input-shell">
+                                <select
+                                    name="workplace"
+                                    class="form-select login-select"
+                                    required
+                                >
+                                    <option
+                                        value=""
+                                        disabled
+                                        {% if not current_workplace %}selected{% endif %}
+                                    >
+                                        근무지 선택
+                                    </option>
+                                    {% for value, label in workplace_options %}
+                                    <option
+                                        value="{{ value }}"
+                                        {% if value == current_workplace %}selected{% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label login-label">비밀번호</label>
+                            <div class="input-shell input-shell-password">
+                                <span class="input-icon">
+                                    <i class="bi bi-key-fill"></i>
+                                </span>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    class="form-control login-input password-input"
+                                    placeholder="비밀번호 입력"
+                                    autocomplete="new-password"
+                                    required
+                                    autofocus
+                                />
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn login-submit-btn w-100 fw-bold"
+                        >
+                            <span>접속하기</span>
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+
+                        <div class="login-help-text text-center">
+                            <i class="bi bi-info-circle me-1"></i>
+                            문의가 필요하면 관리자에게 연락하세요.
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>{% endblock content %} 
+</div>
+{% endblock content %}
+
 {% block footer %}{% endblock footer %}
