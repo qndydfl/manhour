@@ -106,7 +106,7 @@
 }
 
 .login-brand-title {
-    font-size: clamp(2.6rem, 5vw, 4.5rem);
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
     line-height: 0.98;
     letter-spacing: -0.06em;
     font-weight: 800;

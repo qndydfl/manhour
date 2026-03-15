@@ -11,13 +11,13 @@
 <script defer src="{% static 'js/result_view.js' %}"></script>
 {% endblock js %}
 
-{% block background_image %}
+{% comment %} {% block background_image %}
     {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
-{% endblock background_image %}
+{% endblock background_image %} {% endcomment %}
 
 {% block content %}
 <div
-    class="container rounded-3 glass-panel my-4 py-4"
+    class="container rounded-3 glass-panel my-4 p-4"
     data-aos="fade-up"
     data-aos-duration="1000"
 >

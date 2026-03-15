@@ -1,11 +1,24 @@
 import re
-
 from django import forms
-
 from .models import WorkSession, SessionArea
 
 
 class WorkSessionCreateForm(forms.ModelForm):
+    work_package_name = forms.ChoiceField(
+        choices=[
+            ("", "선택해 주세요"),
+            ("A-Check", "A-Check"),
+            ("Engine-Change", "Engine-Change"),
+        ],
+        required=True,
+        widget=forms.Select(
+            attrs={
+                "class": "form-select rounded-3",
+                "required": "true",
+            }
+        ),
+    )
+
     class Meta:
         model = WorkSession
         fields = [
@@ -15,17 +28,10 @@ class WorkSessionCreateForm(forms.ModelForm):
             "shift_type",
         ]
         widgets = {
-            "work_package_name": forms.TextInput(
-                attrs={
-                    "class": "form-control rounded-3",
-                    "placeholder": "예: A-Check / Engine Change",
-                    "required": "true",
-                }
-            ),
             "aircraft_reg": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-3",
-                    "placeholder": "예: HL0000",
+                    "placeholder": "예: 1234",
                     "inputmode": "numeric",
                     "pattern": "HL\d{4}",
                     "required": "true",

@@ -12,7 +12,7 @@
     --navbar-text-soft: rgba(255, 255, 255, 0.68);
 
     /* Theme */
-    --ios-bg: #f2f2f7;
+    --ios-bg: #111113;
     --ios-card: #ffffff;
     --ios-border: rgba(14, 6, 6, 0.08);
     --ios-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
@@ -25,7 +25,6 @@
     --dark-gradient: linear-gradient(135deg, #343a40, #1d2124);
 }
 
-
 /* Base */
 body {
     font-family:
@@ -35,10 +34,14 @@ body {
         system-ui,
         Roboto,
         sans-serif;
-    background-color: var(--ios-bg);
-    color: #495057;
-    margin: 0;
-    line-height: 1.6;
+    background-color: #121212;
+    /* 아주 미세한 격자 패턴 추가 */
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-attachment: fixed;
+    color: #d1d5db;
 }
 
 /* Scrollbar */
@@ -142,9 +145,12 @@ body {
 }
 
 .brand-text {
-    color: #fff;
+    background: var(--primary-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     font-weight: 800;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     letter-spacing: -0.02em;
 }
 
@@ -421,11 +427,11 @@ body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
 
 /* Modal Layer Fix */
 .modal {
-    z-index: 1055;
+    z-index: 2005;
 }
 
 .modal-backdrop {
-    z-index: 1050;
+    z-index: 2000;
 }
 
 /* Buttons */
@@ -571,12 +577,22 @@ body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
 }
 
 /* Glass Panel */
-.glass-panel {
+/* .glass-panel {
     background: rgba(255, 255, 255, 0.4) !important;
     backdrop-filter: blur(15px) saturate(150%) !important;
     -webkit-backdrop-filter: blur(15px) saturate(150%) !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15) !important;
+} */
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(15px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow:
+        0 8px 32px 0 rgba(31, 38, 135, 0.15),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
 }
 
 /* General Nav Link */
@@ -605,186 +621,3 @@ body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
     box-shadow: var(--ios-shadow);
     color: #495057;
 }
-
-/* Responsive */
-@media (max-width: 991.98px) {
-    .app-navbar {
-        min-height: 68px;
-    }
-
-    .page-content.has-sidebar {
-        margin-left: 0;
-        margin-right: 0;
-    }
-
-    .app-sidebar {
-        padding-top: 18px;
-    }
-
-    body.sidebar-open {
-        overflow: hidden;
-    }
-
-    body.sidebar-open .page-content.has-sidebar,
-    body.sidebar-open.sidebar-right .page-content.has-sidebar {
-        margin-left: 0;
-        margin-right: 0;
-    }
-
-    body.sidebar-open .page-content.has-sidebar .ios-topbar,
-    body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .navbar-actions {
-        margin-top: 0.9rem;
-        padding: 0.9rem 0 0.2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        align-items: stretch !important;
-    }
-
-    .navbar-actions > * {
-        width: 100%;
-    }
-
-    .navbar-actions .dropdown,
-    .navbar-actions form {
-        width: 100%;
-    }
-
-    .nav-action-btn,
-    .navbar-actions .btn,
-    .workplace-pill,
-    .status-pill {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .workplace-pill {
-        flex-wrap: wrap;
-        justify-content: center;
-        border-radius: 1rem;
-        padding: 0.8rem;
-    }
-
-    .workplace-select {
-        width: 100%;
-        min-width: 0;
-    }
-}
-
-@media (max-width: 767.98px) {
-    .ios-wrap {
-        padding: calc(var(--navbar-height) + 12px) 16px 20px;
-    }
-
-    .display-5 {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 575.98px) {
-    body {
-        font-size: 1rem;
-    }
-
-    .brand-text {
-        font-size: 1rem;
-    }
-
-    .brand-icon {
-        width: 2rem;
-        height: 2rem;
-    }
-
-    .app-navbar .container-fluid {
-        padding-left: 0.9rem !important;
-        padding-right: 0.9rem !important;
-    }
-
-    .btn,
-    .btn-primary,
-    .btn-outline-primary,
-    .btn-outline-danger,
-    .btn-outline-secondary,
-    .btn-secondary,
-    .btn-light,
-    .btn-dark {
-        padding: 12px 16px;
-        font-size: 1rem;
-        border-radius: 0.9rem;
-    }
-
-    .form-control,
-    .form-select,
-    .input-group-text {
-        font-size: 1rem;
-        min-height: 44px;
-    }
-
-    .card {
-        border-radius: 16px !important;
-    }
-
-    .badge,
-    .badge-soft {
-        font-size: 0.85rem;
-    }
-}
-
-@media (max-width: 375px) {
-    body {
-        font-size: 1.05rem;
-        line-height: 1.7;
-    }
-
-    .ios-wrap {
-        padding: calc(var(--navbar-height) + 6px) 12px 16px;
-    }
-
-    .display-6 {
-        font-size: 1.6rem;
-    }
-
-    .display-5 {
-        font-size: 1.8rem;
-    }
-
-    h1 {
-        font-size: 1.6rem;
-    }
-
-    h2 {
-        font-size: 1.4rem;
-    }
-
-    h3 {
-        font-size: 1.25rem;
-    }
-
-    h4 {
-        font-size: 1.15rem;
-    }
-
-    .btn,
-    .btn-primary,
-    .btn-outline-primary,
-    .btn-outline-danger,
-    .btn-outline-secondary,
-    .btn-secondary,
-    .btn-light,
-    .btn-dark {
-        font-size: 0.85rem;
-        padding: 12px 16px;
-    }
-
-    .form-control,
-    .form-select,
-    .input-group-text {
-        font-size: 0.85rem;
-        min-height: 46px;
-    }
-}
-
-

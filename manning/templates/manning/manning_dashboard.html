@@ -1,14 +1,13 @@
-{% extends 'manhour/base/base.html' %} 
-{% load static %} 
+{% extends 'manhour/base/base.html' %}
+{% load static %}
 
-{% block title %}매닝 대시보드 | {{ session.aircraft_reg }}{% endblock %} 
+{% block title %}매닝 대시보드 | {{ session.aircraft_reg }}{% endblock %}
 
 {% block css %}
-<link
-    rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard.css' %}"
-/>
-{% endblock css %} 
+<link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
+<link rel="stylesheet" href="{% static 'css/manning/manning_components.css' %}" />
+<link rel="stylesheet" href="{% static 'css/manning/manning_dashboard.css' %}" />
+{% endblock css %}
 
 {% block js %}
 <script>
@@ -18,11 +17,7 @@
     };
 </script>
 <script src="{% static 'js/manning/manning_dashboard.js' %}"></script>
-{% endblock js %} 
-
-{% block background_image %} 
-{% include "manhour/image/background_url.html" with bg_key="manning_dashboard" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
-{% endblock background_image %} 
+{% endblock js %}
 
 {% block content %}
 <div class="container my-4 py-4 glass-panel rounded-4" data-aos="fade-up">
@@ -31,85 +26,81 @@
         작업 배정/시간 입력 데이터가 없습니다.
     </div>
     {% endif %}
-    <div class="d-flex justify-content-between align-items-end mb-5 px-3">
+
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-5 px-3">
         <div>
-            <h2 class="fw-bold text-dark">{{ session.aircraft_reg }}</h2>
+            <h2 class="fw-bold text-dark mb-1">{{ session.aircraft_reg }}</h2>
             <p class="text-muted mb-1">{{ session.work_package_name }}</p>
             <p class="text-muted small mb-0">
                 {{ session.get_block_check_display }} · {{ session.get_shift_type_display }}
             </p>
         </div>
-        <div class="d-flex gap-2">
-            <div>
-                <a
-                    href="{% if is_same_site and has_assignments %}{% url 'manning:assignment_view' session.id %}{% else %}#{% endif %}"
-                    class="btn btn-dark rounded-4 fw-bold{% if not is_same_site or not has_assignments %} disabled{% endif %}"
-                    {% if not is_same_site or not has_assignments %}aria-disabled="true"
-                    tabindex="-1"
-                    {% endif %}
-                >
-                    작업 배정 & 시간 입력
-                </a>
-            </div>
-            <div>
-                <a
-                    href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
-                    class="btn btn-primary rounded-4 fw-bold{% if not is_same_site %} disabled{% endif %}"
-                    {% if  not is_same_site %}aria-disabled="true"
-                    tabindex="-1"
-                    {% endif %}
-                >
-                    > 구역 일괄 편집
-                </a>
-            </div>
-            <div>
-                <a
-                    href="{% url 'manning:manning_list' %}"
-                    class="btn btn-light rounded-4 px-4 fw-bold shadow-sm"
-                >
-                    <i class="bi bi-arrow-left me-1"></i> 세션 목록으로
-                </a>
-            </div>
+
+        <div class="d-flex gap-2 flex-wrap justify-content-center">
+            <a
+                href="{% if is_same_site and has_assignments %}{% url 'manning:assignment_view' session.id %}{% else %}#{% endif %}"
+                class="btn btn-dark rounded-4 fw-bold {% if not is_same_site or not has_assignments %}disabled pe-none{% endif %}"
+                {% if not is_same_site or not has_assignments %}aria-disabled="true" tabindex="-1"{% endif %}
+            >
+                작업 배정 &amp; 시간 입력
+            </a>
+
+            <a
+                href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
+                class="btn btn-primary rounded-4 fw-bold {% if not is_same_site %}disabled pe-none{% endif %}"
+                {% if not is_same_site %}aria-disabled="true" tabindex="-1"{% endif %}
+            >
+                구역 일괄 편집
+            </a>
+
+            <a
+                href="{% url 'manning:manning_list' %}"
+                class="btn btn-light rounded-4 px-4 fw-bold shadow-sm justify-content-center d-flex align-items-center"
+            >
+                <i class="bi bi-arrow-left me-1"></i> 세션 목록으로
+            </a>
         </div>
     </div>
 
     <div class="row g-4 justify-content-center">
         <div class="col-xl-3 col-md-6">
-            <div
-                class="area-group-label mb-3 ps-2 border-start border-primary border-4 fw-bold text-primary"
-            >
+            <div class="area-group-label mb-3 ps-2 border-start border-primary border-4 fw-bold text-primary">
                 LEFT SIDE
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %} 
-                {% if area.position == 'LEFT' or 'LEFT' in area.position %} 
-                {% include "partials/_area_card.html" with area=area theme="primary" %} {% endif %} {% endfor %}
+                {% for area in session_areas %}
+                    {% if area.position == 'LEFT' %}
+                        {% include "partials/_area_card.html" with area=area theme="primary" %}
+                    {% endif %}
+                {% empty %}
+                    <div class="text-muted small">등록된 구역이 없습니다.</div>
+                {% endfor %}
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div
-                class="area-group-label mb-3 ps-2 border-start border-info border-4 fw-bold text-info"
-            >
+            <div class="area-group-label mb-3 ps-2 border-start border-info border-4 fw-bold text-info">
                 NONE
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %} 
-                {% if area.position == 'NONE' or 'NONE' in area.position %} 
-                {% include "partials/_area_card.html" with area=area theme="info" %} {% endif %} {% endfor %}
+                {% for area in session_areas %}
+                    {% if area.position == 'NONE' %}
+                        {% include "partials/_area_card.html" with area=area theme="info" %}
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div
-                class="area-group-label mb-3 ps-2 border-start border-danger border-4 fw-bold text-danger"
-            >
+            <div class="area-group-label text-end mb-3 pe-2 border-end border-danger border-4 fw-bold text-danger">
                 RIGHT SIDE
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %} 
-                {% if area.position == 'RIGHT' or 'RIGHT' in area.position %} 
-                {% include "partials/_area_card.html" with area=area theme="danger" %} {% endif %} {% endfor %}
+                {% for area in session_areas %}
+                    {% if area.position == 'RIGHT' %}
+                        {% include "partials/_area_card.html" with area=area theme="danger" %}
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     </div>

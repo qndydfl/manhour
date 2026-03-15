@@ -1,11 +1,11 @@
-{% extends 'manhour/base/base.html' %}
-{% load static %}
+{% extends 'manhour/base/base.html' %} 
+{% load static %} 
 
-{% block title %}대시보드 | Manning System{% endblock title %}
+{% block title %}대시보드 | Manning System{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/index.css' %}" />
-{% endblock css %}
+{% endblock css %} 
 
 {% block js %}
 <script>
@@ -14,31 +14,39 @@
     };
 </script>
 <script defer src="{% static 'js/index.js' %}"></script>
-{% endblock js %}
+{% endblock js %} 
 
 {% block background_image %}
 <div class="index-bg">
-    {% static "img/default.jpg" as index_bg %}
+    {% static "img/default.jpg" as index_bg %} 
     {% include "manhour/image/background_url.html" with bg_key="index" bg_default=index_bg %}
 </div>
-{% endblock background_image %}
+{% endblock background_image %} 
 
 {% block content %}
-<div class="index-page">
-    <div class="row g-4 my-2" data-aos="fade-up" data-aos-duration="1000">
+<div class="index-page my-3 my-lg-5">
+    <div
+        class="row g-4 align-items-stretch "
+        data-aos="fade-up"
+        data-aos-duration="1000"
+    >
         <div class="col-lg-12">
             <h5 class="text-secondary mb-1">환영합니다,</h5>
             <h3 class="fw-bold text-dark mb-0 wave-text">
                 {% for ch in request.session.workplace_label %}
                 <span style="--i:{{ forloop.counter0 }}">{{ ch }}</span>
                 {% endfor %}
-                <span style="--i:{{ request.session.workplace_label|length }}">입니다.</span>
+                <span style="--i:{{ request.session.workplace_label|length }}"
+                    >입니다.</span
+                >
             </h3>
         </div>
 
         <div class="col-lg-8 d-flex flex-column justify-content-center">
-            <div class="p-3 index-glass-panel rounded-4">
-                <div class="row align-items-center g-3">
+            <div
+                class="p-3 index-glass-panel index-equal-panel rounded-4"
+            >
+                <div class="row align-items-center g-2">
                     <div class="col-md-6">
                         <h1 class="h3 fw-bold text-dark">
                             Work Smart,<br />
@@ -46,13 +54,16 @@
                         </h1>
 
                         <p class="text-secondary my-3 index-hero-desc">
-                            작업 세션을 생성하고 실시간으로 인력을 관리하세요.<br />
+                            작업 세션을 생성하고 실시간으로 인력을
+                            관리하세요.<br />
                             효율적인 업무 배정이 여기서 시작됩니다.
                         </p>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="card rounded-4 overflow-hidden shadow-sm video-hover-wrapper">
+                        <div
+                            class="card rounded-4 overflow-hidden shadow-sm video-hover-wrapper"
+                        >
                             <video
                                 id="hoverDanceVideo"
                                 class="w-100 index-hero-video"
@@ -60,7 +71,10 @@
                                 playsinline
                                 preload="metadata"
                             >
-                                <source src="{% static 'video/dance.mp4' %}" type="video/mp4" />
+                                <source
+                                    src="{% static 'video/dance.mp4' %}"
+                                    type="video/mp4"
+                                />
                             </video>
                         </div>
                     </div>
@@ -69,23 +83,37 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="genie-panel card shadow-lg h-100 index-time-panel">
+            <div
+                class="card shadow-lg index-time-panel index-equal-panel py-0"
+            >
                 <div class="index-time-panel__bg-icon">
                     <i class="bi bi-clock"></i>
                 </div>
 
-                <div class="card-body border-0 p-4 d-flex flex-column justify-content-center z-1 h-100 index-time-panel__body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                <div
+                    class="card-body border-0 d-flex flex-column justify-content-center index-time-panel__body pt-0"
+                >
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-4"
+                    >
                         <span class="fw-bold text-warning letter-spacing-1">
                             <i class="bi bi-globe2 me-1"></i> GLOBAL TIME
                         </span>
-                        <span class="badge bg-danger rounded-pill px-3">LIVE</span>
+                        <span class="badge bg-danger rounded-pill px-3"
+                            >LIVE</span
+                        >
                     </div>
 
                     <div class="row align-items-end g-0 fw-bold">
                         <div class="col-7">
-                            <small class="text-white text-uppercase index-time-label">Local Time</small>
-                            <div class="h2 fw-bold my-1 text-white font-digital" id="digital-time">
+                            <small
+                                class="text-white text-uppercase index-time-label"
+                                >Local Time</small
+                            >
+                            <div
+                                class="h2 fw-bold my-1 text-white font-digital"
+                                id="digital-time"
+                            >
                                 00:00:00
                             </div>
                             <small class="text-white" id="digital-date-line">
@@ -94,12 +122,23 @@
                             </small>
                         </div>
 
-                        <div class="col-5 text-end border-start border-secondary ps-3">
-                            <small class="text-white text-uppercase fw-bold index-time-label">UTC</small>
-                            <div class="h2 fw-bold my-1 text-warning font-digital" id="digital-time-utc">
+                        <div
+                            class="col-5 text-end border-start border-secondary ps-3"
+                        >
+                            <small
+                                class="text-white text-uppercase fw-bold index-time-label"
+                                >UTC</small
+                            >
+                            <div
+                                class="h2 fw-bold my-1 text-warning font-digital"
+                                id="digital-time-utc"
+                            >
                                 00:00
                             </div>
-                            <small class="text-white" id="digital-date-line-utc">
+                            <small
+                                class="text-white"
+                                id="digital-date-line-utc"
+                            >
                                 <span id="digital-date-utc">Loading...</span>
                                 <span id="digital-weekday-utc"></span>
                             </small>
@@ -110,7 +149,7 @@
         </div>
     </div>
 
-    <div class="row g-4 mt-4" data-aos="fade-up" data-aos-duration="1000">
+    {% comment %} <div class="row g-4 mt-4" data-aos="fade-up" data-aos-duration="1000">
         <div class="col-12">
             <div class="dock-bar d-flex justify-content-center flex-wrap gap-3">
                 <a
@@ -142,25 +181,38 @@
                 </a>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
-    <div class="row g-4 mt-4 opacity-75" data-aos="fade-down" data-aos-duration="1000">
+    <div
+        class="row g-4 mt-4 opacity-75"
+        data-aos="fade-down"
+        data-aos-duration="1000"
+    >
         <div class="col-md-4">
             <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
                 <div class="card-body p-4 d-flex align-items-center">
-                    <div class="index-icon-circle bg-primary bg-opacity-10 text-primary me-3">
+                    <div
+                        class="index-icon-circle bg-primary bg-opacity-10 text-primary me-3"
+                    >
                         <i class="bi bi-activity"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                        <h6
+                            class="text-muted text-uppercase fw-bold small mb-1"
+                        >
                             Active Sessions
                         </h6>
                         <h2 class="fw-bold text-dark mb-0">
-                            <span class="active-count-num">{{ active_count }}</span>
+                            <span class="active-count-num"
+                                >{{ active_count }}</span
+                            >
                             <span class="fs-6 text-muted ms-1">개</span>
                         </h2>
                     </div>
-                    <a href="{% url 'manhour:session_list' %}" class="stretched-link"></a>
+                    <a
+                        href="{% url 'manhour:session_list' %}"
+                        class="stretched-link"
+                    ></a>
                 </div>
             </div>
         </div>
@@ -168,19 +220,28 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
                 <div class="card-body p-4 d-flex align-items-center">
-                    <div class="index-icon-circle bg-success bg-opacity-10 text-success me-3">
+                    <div
+                        class="index-icon-circle bg-success bg-opacity-10 text-success me-3"
+                    >
                         <i class="bi bi-archive"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                        <h6
+                            class="text-muted text-uppercase fw-bold small mb-1"
+                        >
                             History Archive
                         </h6>
                         <h2 class="fw-bold text-dark mb-0">
-                            <span class="history-count-num">{{ history_count }}</span>
+                            <span class="history-count-num"
+                                >{{ history_count }}</span
+                            >
                             <span class="fs-6 text-muted ms-1">건</span>
                         </h2>
                     </div>
-                    <a href="{% url 'manhour:history' %}" class="stretched-link"></a>
+                    <a
+                        href="{% url 'manhour:history' %}"
+                        class="stretched-link"
+                    ></a>
                 </div>
             </div>
         </div>
@@ -188,16 +249,23 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
                 <div class="card-body p-4 d-flex align-items-center">
-                    <div class="index-icon-circle bg-info bg-opacity-10 text-info me-3">
+                    <div
+                        class="index-icon-circle bg-info bg-opacity-10 text-info me-3"
+                    >
                         <i class="bi bi-database-add"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted text-uppercase fw-bold small mb-1">
+                        <h6
+                            class="text-muted text-uppercase fw-bold small mb-1"
+                        >
                             Master Data
                         </h6>
                         <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
                     </div>
-                    <a href="{% url 'manhour:paste_data' %}" class="stretched-link"></a>
+                    <a
+                        href="{% url 'manhour:paste_data' %}"
+                        class="stretched-link"
+                    ></a>
                 </div>
             </div>
         </div>
@@ -261,9 +329,7 @@
 
     <div class="index-footer-spacer"></div>
 </div>
-{% endblock content %}
-
-{% block footer %}
+{% endblock content %} {% block footer %}
 <footer class="index-footer-glass text-center py-3">
     <div class="container">
         <small class="text-muted">

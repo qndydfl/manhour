@@ -1,5 +1,6 @@
 :root {
     --index-footer-height: 56px;
+    --index-panel-min-height: 240px;
     --index-glass-bg: rgba(255, 255, 255, 0.75);
     --index-glass-border: rgba(255, 255, 255, 0.4);
     --index-glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
@@ -70,6 +71,11 @@
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     border: 1px solid var(--index-glass-border) !important;
     box-shadow: var(--index-glass-shadow);
+}
+
+/* Equal-height hero/time panels */
+.index-time-panel.index-equal-panel {
+    min-height: 200px;
 }
 
 /* Video */
@@ -317,17 +323,17 @@
     margin-right: 4px;
 }
 
-.index-footer-glass{
+.index-footer-glass {
     position: fixed;
-    bottom:0;
-    left:0;
-    right:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 
-    background: rgba(255,255,255,0.65);
-    border-top:1px solid rgba(0,0,0,0.08);
+    background: rgba(255, 255, 255, 0.65);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 
-    z-index:10;
+    z-index: 10;
 }

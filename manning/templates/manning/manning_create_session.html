@@ -1,119 +1,137 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/base.html" %}
+{% load static %}
 
-{% block title %}새 정비 세션 시작 | Manning{% endblock title %} 
+{% block title %}새 정비 세션 시작 | Manning{% endblock title %}
 
 {% block css %}
-<link
-    rel="stylesheet"
-    href="{% static 'css/manning/manning_create_session.css' %}"
-/>
-{% endblock css %} 
+<link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
+<link rel="stylesheet" href="{% static 'css/manning/manning_components.css' %}" />
+<link rel="stylesheet" href="{% static 'css/manning/manning_create_session.css' %}" />
+{% endblock css %}
 
 {% block js %}
 <script src="{% static 'js/manning/manning_create_session.js' %}"></script>
-{{ active_shift_combos|json_script:"activeShiftCombos" }} 
+{{ active_shift_combos|json_script:"activeShiftCombos" }}
 {% endblock js %}
 
-{% block background_image %} 
-{% include "manhour/image/background_url.html" with bg_key="manning_create_session" bg_default="https://picsum.photos/id/1011/3072/2048?grayscale" %} 
-{% endblock background_image %} 
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-primary text-white py-3">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-3 px-4">
                     <h5 class="mb-0 fw-bold">
                         <i class="bi bi-plus-circle me-2"></i>새 작업 세션 시작
                     </h5>
                 </div>
-                <div class="card-body p-4">
-                    <form method="post" id="createSessionForm">
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" id="createSessionForm" novalidate>
                         {% csrf_token %}
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold"
-                                    >항공기 기번
-                                    <span class="text-danger">*</span>
-                                </label>
-                                {{ form.aircraft_reg }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold"
-                                    >작업 패키지 명
+                                <label class="form-label fw-bold">
+                                    작업 패키지 명
                                     <span class="text-danger">*</span>
                                 </label>
                                 {{ form.work_package_name }}
+                                {% if form.work_package_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.work_package_name.errors }}
+                                </div>
+                                {% endif %}
                             </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    항공기 기번
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.aircraft_reg }}
+                                {% if form.aircraft_reg.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.aircraft_reg.errors }}
+                                </div>
+                                {% endif %}
+                            </div>                            
+
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">
                                     A-Check(KJ)
                                     <span class="text-danger">*</span>
                                 </label>
                                 {{ form.block_check }}
+                                {% if form.block_check.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.block_check.errors }}
+                                </div>
+                                {% endif %}
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">
                                     Shift
                                     <span class="text-danger">*</span>
                                 </label>
                                 {{ form.shift_type }}
+                                {% if form.shift_type.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shift_type.errors }}
+                                </div>
+                                {% endif %}
+                                <div id="shiftHelpMessage" class="text-muted small mt-1 d-none">
+                                    이미 사용 중인 Shift는 선택할 수 없습니다.
+                                </div>
                             </div>
 
-                            <hr class="my-4" />
+                            <div class="col-12">
+                                <hr class="my-4" />
+                            </div>
 
                             <div
-                                class="col-md-12"
+                                class="col-12"
                                 id="template-selection-area"
                                 style="transition: opacity 0.3s"
                             >
-                                <label class="form-label fw-bold text-primary">
-                                    기본 구성 템플릿 선택
-                                    <span class="text-danger">*</span>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                    <label class="form-label fw-bold text-primary mb-0">
+                                        기본 구성 템플릿 선택
+                                        <span class="text-danger">*</span>
+                                    </label>
+
                                     <a
                                         href="{% url 'manning:template_editor' %}"
-                                        class="ms-2 small text-decoration-none"
+                                        class="small text-decoration-none"
                                     >
                                         템플릿 편집
                                     </a>
-                                </label>
-                                <div class="row">
+                                </div>
+
+                                <div class="row g-3">
                                     {% for tpl in templates %}
                                     <div class="col-md-4">
-                                        <div
-                                            class="form-check card-radio p-3 border rounded text-center mb-3"
-                                        >
+                                        <div class="template-option">
                                             <input
-                                                class="form-check-input d-none"
+                                                class="form-check-input d-none template-radio"
                                                 type="radio"
                                                 name="area_template"
                                                 id="tpl_{{ tpl.key|slugify }}"
                                                 value="{{ tpl.key }}"
-                                                {% if forloop.first %}required{% endif %}
                                             />
                                             <label
-                                                class="form-check-label w-100"
+                                                class="template-card w-100 text-center"
                                                 for="tpl_{{ tpl.key|slugify }}"
                                             >
                                                 {% if tpl.key|lower == "standard" %}
-                                                <i
-                                                    class="bi bi-grid-3x3-gap fs-2 d-block mb-2"
-                                                ></i>
+                                                <i class="bi bi-grid-3x3-gap fs-4 d-block mb-2"></i>
                                                 {% elif tpl.key|lower == "lubrication" %}
-                                                <i
-                                                    class="bi bi-layout-split fs-2 d-block mb-2"
-                                                ></i>
+                                                <i class="bi bi-layout-split fs-4 d-block mb-2"></i>
                                                 {% elif tpl.key|lower == "engine_only" %}
-                                                <i
-                                                    class="bi bi-airplane-engines fs-2 d-block mb-2"
-                                                ></i>
+                                                <i class="bi bi-airplane-engines fs-4 d-block mb-2"></i>
                                                 {% else %}
-                                                <i
-                                                    class="bi bi-ui-checks-grid fs-2 d-block mb-2"
-                                                ></i>
+                                                <i class="bi bi-ui-checks-grid fs-4 d-block mb-2"></i>
                                                 {% endif %}
                                                 <strong>{{ tpl.label }}</strong>
                                             </label>
@@ -121,19 +139,24 @@
                                     </div>
                                     {% endfor %}
                                 </div>
+
+                                <div id="templateErrorMessage" class="text-danger small mt-2 d-none">
+                                    기본 구성 템플릿을 선택해주세요.
+                                </div>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a
-                                href="{% url 'manning:manning_list' %}"
-                                class="btn btn-light px-4"
-                                >취소</a
-                            >
-                            <button
-                                type="submit"
-                                class="btn btn-primary px-5 fw-bold"
-                            >
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger mt-4 mb-0">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 flex-wrap">
+                            <a href="{% url 'manning:manning_list' %}" class="btn btn-light px-4">
+                                취소
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 fw-bold">
                                 세션 생성 및 시작
                             </button>
                         </div>
@@ -143,5 +166,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

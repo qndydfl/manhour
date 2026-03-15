@@ -2,9 +2,10 @@
 {% load static %} 
 
 {% block title %}세션 수정 | {{ session.name }}{% endblock title %} 
-{% block background_image %} 
+
+{% comment %} {% block background_image %} 
     {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
-{% endblock background_image %}
+{% endblock background_image %} {% endcomment %}
 
 
 {% block content %}

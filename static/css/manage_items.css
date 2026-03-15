@@ -336,3 +336,7 @@ body.modal-open .fixed-bottom {
     background-color: #7cc5ff;
     border-color: #7cc5ff;
 }
+
+.glass-panel {
+    margin-bottom: 5rem;
+}

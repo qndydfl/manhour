@@ -15,6 +15,7 @@ from manhour.models import Assignment as ManhourAssignment
 from manhour.models import DefaultWorkerDirectory
 from manhour.models import WorkSession as ManhourWorkSession
 from manhour.models import Worker as ManhourWorker
+from manhour.models import Workplace
 from manhour.workplaces import get_workplace_label, normalize_workplace
 
 from .models import (
@@ -73,8 +74,12 @@ def _find_matching_manhour_session(manning_session, workplace=""):
 def _get_default_worker_directory(workplace):
     if not workplace:
         return []
+    resolved = _resolve_workplace_key(workplace)
+    candidates = {workplace}
+    if resolved:
+        candidates.add(resolved)
     return list(
-        DefaultWorkerDirectory.objects.filter(site=workplace)
+        DefaultWorkerDirectory.objects.filter(site__in=candidates)
         .values_list("name", flat=True)
         .order_by("name", "id")
     )
@@ -84,10 +89,27 @@ def _get_worker_directory(workplace):
     if not workplace:
         return []
 
-    existing = WorkerDirectory.objects.filter(site=workplace).order_by("name")
+    resolved = _resolve_workplace_key(workplace)
+    candidates = {workplace}
+    if resolved:
+        candidates.add(resolved)
+
+    existing = WorkerDirectory.objects.filter(site__in=candidates).order_by("name")
     if existing.exists():
         return list(existing.values_list("name", flat=True))
     return []
+
+
+def _resolve_workplace_key(workplace):
+    normalized = normalize_workplace(workplace)
+    if normalized:
+        return normalized
+    if not workplace:
+        return ""
+    return (
+        Workplace.objects.filter(label=workplace).values_list("code", flat=True).first()
+        or ""
+    )
 
 
 def _get_area_templates():
@@ -795,8 +817,9 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
 
 class AreaBulkEditView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
-        workplace = _get_current_workplace(request)
         session = get_object_or_404(WorkSession, id=session_id)
+        resolved_site = _resolve_workplace_key(session.site)
+        workplace = resolved_site or _get_current_workplace(request)
         session_areas = (
             session.areas.all()
             .prefetch_related("manning_set")
