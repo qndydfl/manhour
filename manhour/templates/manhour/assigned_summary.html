@@ -17,7 +17,7 @@
 
 {% block content %}
 <div
-    class="container my-4 py-4 glass-panel rounded-3 shadow-lg"
+    class="container glass-panel my-4 p-4 rounded-3 shadow-lg"
     style="max-width: 1000px"
 >
     <div class="d-flex align-items-center mb-3 px-2" data-aos="fade-down">
@@ -28,7 +28,7 @@
             </span>
             <a
                 href="{% if not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -37,7 +37,7 @@
     </div>
 
     <div
-        class="alert glass-panel border-0 d-flex align-items-center gap-2 small text-dark mb-3 py-3 shadow-sm"
+        class="alert border-0 d-flex align-items-center gap-2 small text-dark mb-3 py-3 shadow-sm"
         data-aos="fade-in"
     >
         <i class="bi bi-info-circle-fill text-primary fs-5"></i>
@@ -48,7 +48,7 @@
     </div>
 
     <div
-        class="card glass-panel border-0 shadow-lg overflow-hidden mb-3"
+        class="card border-0 shadow-lg overflow-hidden mb-3"
         data-aos="fade-up"
     >
         <div class="table-responsive">

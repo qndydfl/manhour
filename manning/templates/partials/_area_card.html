@@ -1,3 +1,56 @@
+{% comment %} <div class="card area-card shadow-sm border-0 rounded-4 mb-3" style="border-top: 5px solid var(--bs-{{ theme }}) !important;">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-{{ theme }} opacity-10 rounded-circle p-1">
+                    </div>
+                <p class="fw-bold mb-0 text-{{ theme }} fs-5">{{ area.name }}</p>
+            </div>
+            <span class="badge rounded-pill bg-{{ theme }} text-white px-3 py-2">
+                {{ area.manning_set.count }}명 배정
+            </span>
+        </div>
+
+        <div class="manning-items">
+            {% for manning in area.manning_set.all %}
+            <div class="d-flex align-items-center bg-light rounded-3 p-2 mb-2 border-start border-{{ theme }} border-3">
+                <div
+                    class="avatar-sm bg-{{ theme }} text-white rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm"
+                    style="width: 28px; height: 28px; font-size: 0.8rem; min-width: 28px;"
+                >
+                    {{ manning.worker_name|slice:":1" }}
+                </div>
+                
+                <span class="fw-bold small flex-grow-1 text-dark" style="font-size: 0.9rem;">
+                    {{ manning.worker_name }}
+                </span>
+
+                <div class="d-flex align-items-center bg-white rounded-2 px-2 border shadow-sm">
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="manning_hours_{{ manning.id }}"
+                        class="form-control form-control-sm border-0 bg-transparent text-end fw-bold text-{{ theme }} hour-input"
+                        data-manning-id="{{ manning.id }}"
+                        style="width: 4rem; padding: 0.2rem;"
+                        value="{{ manning.display_hours|default_if_none:manning.hours|floatformat:'1' }}"
+                        readonly
+                    />
+                    <span class="ms-1 fw-bold text-muted" style="font-size: 0.65rem;">H</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4 border border-dashed rounded-4 bg-light opacity-75">
+                <i class="bi bi-person-plus text-muted mb-2 d-block" style="font-size: 1.5rem;"></i>
+                <small class="text-muted fw-semibold">현재 배정된 인원이 없습니다.</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div> {% endcomment %}
+
+
+
 <div class="card area-card shadow-sm border-0 rounded-4">
     <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">

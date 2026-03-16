@@ -55,22 +55,21 @@
                 {% if request.session.user_role == "admin" %}
                 <a
                     href="/admin/"
-                    class="btn btn-danger btn-sm rounded-pill px-3 fw-bold nav-action-btn"
+                    class="btn border-0 text-white rounded-pill px-3 fw-bold nav-action-btn"
                 >
                     ADMIN
                 </a>
                 {% endif %}
-
                 <a
                     href="{% url 'manning:manning_list' %}"
-                    class="btn btn-outline-light btn-sm rounded-pill fw-bold nav-action-btn"
+                    class="btn border-0 text-white rounded-pill fw-bold nav-action-btn"
                 >
                     Manning List
                 </a>
 
                 <div class="dropdown">
                     <button
-                        class="btn btn-outline-light btn-sm rounded-pill dropdown-toggle nav-action-btn"
+                        class="btn border-0 text-white rounded-pill dropdown-toggle nav-action-btn"
                         type="button"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"

@@ -13,24 +13,24 @@
 
 {% block content %}
 <div class="container my-4 p-4 glass-panel rounded-3 session-list-shell">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div class="d-flex justify-content-between align-items-md-center gap-3">
         <div class="d-flex align-items-center gap-2">
             <h3 class="mb-0 text-dark fw-bold fs-4">
                 <i class="bi bi-grid-fill me-2 text-primary"></i>작업 슬롯 현황
             </h3>
         </div>
 
-        <div class="d-flex gap-2 align-items-center">
+        <div class="d-flex gap-2 align-items-center justify-content-end">
             <a
                 href="{% url 'manhour:create_session' %}"
-                class="btn btn-info btn-sm fw-bold rounded-pill"
+                class="btn btn-info btn-sm fw-bold rounded-pill py-2"
             >
                 <i class="bi bi-plus-lg me-1"></i> 세션 추가
             </a>
 
             <a
                 href="{% url 'manhour:index' %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -42,11 +42,11 @@
 
     <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 pt-5 pb-3 justify-content-between">
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-3">
-            <span class="text-muted small">
+            <span class="text-primary small">
                 총 <strong class="text-primary">{{ active_count }}</strong>개의
                 활성 세션이 있습니다.
             </span>
-            <span class="text-dark fst-italic small">
+            <span class="text-white fst-italic small">
                 12시간이 지나면 세션이 자동으로 history로 이동됩니다.
             </span>
         </div>
@@ -71,7 +71,7 @@
         <div>
             {% if active_sessions %}
             <button
-                class="btn btn-outline-danger fw-bold d-none d-md-inline"
+                class="btn btn-outline-danger fw-bold d-none d-md-inline rounded-pill py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#resetAllModal"
                 title="전체 삭제"

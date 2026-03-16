@@ -35,7 +35,7 @@
             {% if manning_list_available %}
                 <a
                     href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"
-                    class="btn btn-outline-primary btn-sm rounded-pill fw-bold"
+                    class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-2"
                 >
                     <i class="bi bi-list-ul"></i>
                     <span class="d-none d-md-inline">Manning 데시 보드</span>
@@ -44,7 +44,7 @@
                 {% if not session.is_active %}
                     <a
                         href="{% url 'manhour:history' %}"
-                        class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+                        class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
                     >
                         <i class="bi bi-arrow-left"></i>
                         <span class="d-none d-md-inline">이전 화면으로</span>
@@ -52,7 +52,7 @@
                 {% else %}
                     <a
                         href="{% url 'manhour:session_list' %}"
-                        class="btn btn-outline-dark btn-sm rounded-pill fw-bold"
+                        class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
                     >
                         <i class="bi bi-arrow-left"></i>
                         <span class="d-none d-md-inline">이전 화면으로</span>
@@ -199,7 +199,7 @@
         <div class="d-flex flex-wrap gap-2">
             <a
                 href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-outline-primary btn-sm rounded-3 fw-bold px-3"
+                class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-calendar-range me-1"></i> 시간별 보기
                 {% if not session.is_active %}

@@ -28,16 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return raw;
     };
 
-    if (!regInput.value) {
-        regInput.value = "HL";
-    } else {
-        regInput.value = formatReg(regInput.value);
-    }
-
-    regInput.addEventListener("input", () => {
-        regInput.value = formatReg(regInput.value);
-    });
-
     regInput.addEventListener("blur", () => {
         regInput.value = formatReg(regInput.value);
     });

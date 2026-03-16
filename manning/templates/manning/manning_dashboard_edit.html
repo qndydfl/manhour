@@ -31,11 +31,11 @@
 
 {% block content %}
 <div
-    class="container edit-shell glass-panel rounded-4 mx-auto"
+    class="container edit-shell glass-panel rounded-4 mx-auto p-4"
     data-aos="fade-up"
 >
     <div
-        class="edit-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 px-3 px-md-4 py-3"
+        class="edit-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 px-3 px-md-4 py-2"
     >
         <div>
             <h4 class="fw-bold mb-3 text-dark">구역 일괄 편집</h4>
@@ -48,7 +48,7 @@
             <button
                 type="button"
                 id="loadWorkersBtn"
-                class="btn btn-outline-dark rounded-pill px-4 fw-semibold"
+                class="btn btn-outline-dark rounded-pill px-4 fw-semibold py-2"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#loadWorkersPanel"
             >
@@ -58,7 +58,7 @@
             <button
                 type="button"
                 id="addAreaRowBtn"
-                class="btn btn-primary rounded-pill px-4 fw-semibold"
+                class="btn btn-primary rounded-pill px-4 fw-semibold py-2"
                 data-bs-toggle="modal"
                 {% comment %} data-bs-target="#addAreaModal" {% endcomment %}
             >
@@ -67,7 +67,7 @@
 
             <a
                 href="{% url 'manning:manning_dashboard' session.id %}"
-                class="btn btn-light rounded-pill px-4 fw-semibold justify-content-center d-flex align-items-center"
+                class="btn btn-light rounded-pill px-4 fw-semibold py-2 justify-content-center d-flex align-items-center"
             >
                 <i class="bi bi-arrow-left me-1"></i> 대시보드로
             </a>

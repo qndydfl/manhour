@@ -17,21 +17,40 @@
 }
 
 .modal-content {
-    position: relative;
-    z-index: 1070;
     background-color: #fff;
 }
 
-.page-content {
-    z-index: auto;
-}
-
 textarea[name="area_workers"] {
-    white-space: nowrap;
+    white-space: pre-wrap;
     overflow-x: auto;
 }
 
-.ios-wrap {
-    width: 100% !important;
-    max-width: none !important;
+.area-group-label {
+    letter-spacing: 0.02em;
 }
+
+@media (max-width: 767.98px) {
+    .glass-panel {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+
+/* PPT 느낌을 위한 추가 스타일 */
+/* .stat-card {
+    transition: transform 0.2s;
+    border: none;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+.glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+}
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+} */

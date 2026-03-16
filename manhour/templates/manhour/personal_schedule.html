@@ -65,7 +65,7 @@
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 my-4 py-4"
+    class="container glass-panel rounded-3 my-4 p-4"
     style="max-width: 1000px"
 >
     <div
@@ -80,7 +80,7 @@
         <div class="d-flex gap-2 align-items-center flex-wrap">
             <button
                 type="button"
-                class="btn btn-light glass-panel border-0 rounded-pill px-3 fw-bold shadow-sm"
+                class="btn btn-light border-0 rounded-pill px-3 fw-bold shadow-sm py-2"
                 onclick="copyTableToClipboard()"
             >
                 <i class="bi bi-clipboard-check me-1"></i> 복사
@@ -88,7 +88,7 @@
 
             <button
                 type="button"
-                class="btn btn-primary rounded-pill px-3 fw-bold shadow-sm"
+                class="btn btn-primary rounded-pill px-3 fw-bold shadow-sm py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#manualInputModal"
             >
@@ -97,7 +97,7 @@
 
             <a
                 href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-2"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 ms-2 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -106,10 +106,10 @@
     </div>
 
     {% if schedule %}
-    <div class="row g-3 py-4 p-0" data-aos="fade-up">
+    <div class="row g-3 my-2 p-4" data-aos="fade-up">
         <div class="col-md-6">
             <div
-                class="widget-card glass-panel d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
+                class="widget-card d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
             >
                 <div
                     class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary"
@@ -132,7 +132,7 @@
 
         <div class="col-md-6">
             <div
-                class="widget-card glass-panel d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
+                class="widget-card d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
             >
                 <div
                     class="bg-success bg-opacity-10 p-3 rounded-circle text-success"
@@ -155,7 +155,7 @@
     </div>
 
     <div
-        class="card glass-panel border-0 shadow-lg rounded-3 overflow-hidden"
+        class="card border-0 shadow-lg rounded-3 overflow-hidden"
         data-aos="fade-up"
         data-aos-delay="100"
     >
@@ -228,7 +228,7 @@
         </div>
     </div>
     {% else %}
-    <div class="text-center my-5 py-5 glass-panel rounded-3" data-aos="zoom-in">
+    <div class="text-center my-5 py-5 rounded-3" data-aos="zoom-in">
         <i class="bi bi-calendar-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
         <h6 class="text-muted fw-bold">배정된 작업이 없습니다.</h6>
     </div>

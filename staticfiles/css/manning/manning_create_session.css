@@ -1,47 +1,12 @@
-/* 라디오 버튼 카드 스타일 */
-.card-radio {
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.card-radio:hover {
-    background-color: #f8f9fa;
-    border-color: #0d6efd !important;
-}
-.form-check-input:checked + .form-check-label {
-    color: #0d6efd;
-    font-weight: bold;
-}
-.form-check-input:checked + .form-check-label i {
-    transform: scale(1.1);
-    transition: 0.2s;
-}
-.form-check-input:checked ~ label {
-    border-color: #0d6efd !important;
-}
-input[type="radio"]:checked + label {
-    border: 2px solid #0d6efd !important;
-    background-color: #e7f1ff;
-}
-
-/* 필수 항목 라벨 옆의 별표 스타일 */
-.text-danger {
-    margin-left: 2px;
-}
-
-/* 템플릿 라디오 카드가 선택되었을 때의 스타일을 더 명확하게 */
-.card-radio input[type="radio"]:checked + label {
-    border: 2px solid #0d6efd !important;
-    background-color: #f0f7ff;
-    border-radius: 8px;
-}
-
-/* A-Check 입력 시 템플릿 영역 흔들림 효과 (선택 안했을 때 강조용) */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+
 .template-required-active {
     border: 1px solid #dc3545 !important;
-    animation: shake 0.5s;
+    border-radius: 1rem;
+    padding: 0.75rem;
+    animation: shake 0.45s ease;
 }

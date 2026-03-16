@@ -10,7 +10,7 @@
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 my-4 py-4"
+    class="container glass-panel rounded-3 my-4 p-4"
     style="max-width: 1000px"
 >
     <div class="d-flex justify-content-between align-items-center my-4 pb-2">
@@ -32,7 +32,7 @@
                 {% csrf_token %}
                 <button
                     type="submit"
-                    class="btn btn-sm btn-outline-danger fw-bold hover-shadow rounded-pill px-3"
+                    class="btn btn-sm btn-outline-danger fw-bold hover-shadow rounded-pill px-3 py-2"
                 >
                     <i class="bi bi-trash-fill me-1"></i>
                     <span class="d-none d-md-inline">모든 기록 초기화</span>
@@ -41,7 +41,7 @@
             {% endif %}
             <a
                 href="{% url 'manhour:index' %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-2"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-2 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <div class="alert alert-info py-2 mb-3" role="alert">
+    <div class="text-primary small py-2 mb-3">
         <i class="bi bi-info-circle me-2"></i>
         최근 {{ history_visibility_hours }}시간 이내 기록만 표시됩니다.
     </div>

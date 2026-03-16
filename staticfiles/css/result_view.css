@@ -3,12 +3,22 @@
 :root {
     --rv-border: rgba(255, 255, 255, 0.3);
     --rv-muted: #495057;
-    --rv-glass-bg: rgba(255, 255, 255, 0.45);
-    --rv-glass-blur: blur(12px) saturate(160%);
+    --rv-glass-bg: rgba(226, 231, 231, 0.45);
+    --rv-glass-blur: blur(12px) saturate(130%);
 }
 
 .table-responsive {
     -webkit-overflow-scrolling: touch;
+}
+
+body {
+    background-color: #c9cbcf;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-attachment: fixed;
+    color: #d1d5db;
 }
 
 .glass-panel {
@@ -18,6 +28,7 @@
     border: 1px solid var(--rv-border) !important;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1) !important;
 }
+
 
 .glass-panel .card {
     background: transparent !important;

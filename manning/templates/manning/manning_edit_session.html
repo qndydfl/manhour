@@ -1,17 +1,23 @@
-{% extends "manhour/base/base.html" %}
-{% load static %}
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
 
-{% block title %}정비 세션 수정 | Manning{% endblock title %}
+{% block title %}정비 세션 수정 | Manning{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
-<link rel="stylesheet" href="{% static 'css/manning/manning_components.css' %}" />
-<link rel="stylesheet" href="{% static 'css/manning/manning_edit_session.css' %}" />
-{% endblock css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_components.css' %}"
+/>
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_edit_session.css' %}"
+/>
+{% endblock css %} 
 
 {% block js %}
 <script src="{% static 'js/manning/manning_edit_session.js' %}"></script>
-{% endblock js %}
+{% endblock js %} 
 
 {% block content %}
 <div class="container py-5">
@@ -34,8 +40,7 @@
                                     항공기 기번
                                     <span class="text-danger">*</span>
                                 </label>
-                                {{ form.aircraft_reg }}
-                                {% if form.aircraft_reg.errors %}
+                                {{ form.aircraft_reg }} {% if form.aircraft_reg.errors %}
                                 <div class="text-danger small mt-1">
                                     {{ form.aircraft_reg.errors }}
                                 </div>
@@ -47,8 +52,7 @@
                                     작업 패키지 명
                                     <span class="text-danger">*</span>
                                 </label>
-                                {{ form.work_package_name }}
-                                {% if form.work_package_name.errors %}
+                                {{ form.work_package_name }} {% if form.work_package_name.errors %}
                                 <div class="text-danger small mt-1">
                                     {{ form.work_package_name.errors }}
                                 </div>
@@ -60,8 +64,7 @@
                                     A-Check(KJ)
                                     <span class="text-danger">*</span>
                                 </label>
-                                {{ form.block_check }}
-                                {% if form.block_check.errors %}
+                                {{ form.block_check }} {% if form.block_check.errors %}
                                 <div class="text-danger small mt-1">
                                     {{ form.block_check.errors }}
                                 </div>
@@ -73,8 +76,7 @@
                                     Shift
                                     <span class="text-danger">*</span>
                                 </label>
-                                {{ form.shift_type }}
-                                {% if form.shift_type.errors %}
+                                {{ form.shift_type }} {% if form.shift_type.errors %}
                                 <div class="text-danger small mt-1">
                                     {{ form.shift_type.errors }}
                                 </div>
@@ -85,41 +87,67 @@
                         <hr class="my-4" />
 
                         <div class="template-readonly-box">
-                            <label class="form-label fw-bold text-primary mb-3">
-                                기본 구성 템플릿
-                            </label>
+                            <div
+                                class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"
+                            >
+                                <label
+                                    class="form-label fw-bold text-primary mb-0"
+                                >
+                                    기본 구성 템플릿 변경
+                                </label>
 
-                            <div class="readonly-template-card">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="template-icon">
-                                        {% if session.area_template|lower == "standard" %}
-                                        <i class="bi bi-grid-3x3-gap"></i>
-                                        {% elif session.area_template|lower == "lubrication" %}
-                                        <i class="bi bi-layout-split"></i>
-                                        {% elif session.area_template|lower == "engine_only" %}
-                                        <i class="bi bi-airplane-engines"></i>
-                                        {% else %}
-                                        <i class="bi bi-ui-checks-grid"></i>
-                                        {% endif %}
-                                    </div>
+                                <a
+                                    href="{% url 'manning:template_editor' %}"
+                                    class="small text-decoration-none"
+                                >
+                                    템플릿 편집
+                                </a>
+                            </div>
 
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold">
-                                            {% if session.get_area_template_display %}
-                                                {{ session.get_area_template_display }}
-                                            {% elif session.area_template %}
-                                                {{ session.area_template }}
+                            <div class="text-muted small mb-3">
+                                템플릿을 변경하면 현재 세션의 구역 구성도 새
+                                템플릿 기준으로 다시 생성됩니다.
+                            </div>
+
+                            <div class="row g-3">
+                                {% for tpl in templates %}
+                                <div class="col-md-4">
+                                    <div class="template-option">
+                                        <input
+                                            class="form-check-input d-none template-radio"
+                                            type="radio"
+                                            name="area_template"
+                                            id="tpl_{{ tpl.key|slugify }}"
+                                            value="{{ tpl.key }}"
+                                            {% if selected_template and tpl.key|lower == selected_template|lower %}checked{% endif %}
+                                            
+                                        />
+                                        <label
+                                            class="template-card w-100 text-center"
+                                            for="tpl_{{ tpl.key|slugify }}"
+                                        >
+                                            {% if tpl.key|lower == "standard" %}
+                                            <i
+                                                class="bi bi-grid-3x3-gap fs-4 d-block mb-2"
+                                            ></i>
+                                            {% elif tpl.key|lower == "lubrication" %}
+                                            <i
+                                                class="bi bi-layout-split fs-4 d-block mb-2"
+                                            ></i>
+                                            {% elif tpl.key|lower == "engine_only" %}
+                                            <i
+                                                class="bi bi-airplane-engines fs-4 d-block mb-2"
+                                            ></i>
                                             {% else %}
-                                                기본 템플릿
+                                            <i
+                                                class="bi bi-ui-checks-grid fs-4 d-block mb-2"
+                                            ></i>
                                             {% endif %}
-                                        </div>
-                                        <div class="text-muted small">
-                                            현재 세션 생성 시 선택된 기본 구성 템플릿입니다. 수정 페이지에서는 변경할 수 없습니다.
-                                        </div>
+                                            <strong>{{ tpl.label }}</strong>
+                                        </label>
                                     </div>
-
-                                    <span class="badge text-bg-light border">읽기 전용</span>
                                 </div>
+                                {% endfor %}
                             </div>
                         </div>
 
@@ -129,11 +157,19 @@
                         </div>
                         {% endif %}
 
-                        <div class="d-flex justify-content-end gap-2 mt-4 flex-wrap">
-                            <a href="{% url 'manning:manning_list' %}" class="btn btn-light px-4">
+                        <div
+                            class="d-flex justify-content-end gap-2 mt-4 flex-wrap"
+                        >
+                            <a
+                                href="{% url 'manning:manning_list' %}"
+                                class="btn btn-light px-4"
+                            >
                                 취소
                             </a>
-                            <button type="submit" class="btn btn-primary px-5 fw-bold">
+                            <button
+                                type="submit"
+                                class="btn btn-primary px-5 fw-bold"
+                            >
                                 수정 저장
                             </button>
                         </div>

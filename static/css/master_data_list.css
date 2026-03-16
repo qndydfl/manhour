@@ -51,9 +51,9 @@
     color: #212529;
 }
 
-.master-data-page .master-data-table tbody tr:hover td {
+/* .master-data-page .master-data-table tbody tr:hover td {
     background: rgba(13, 110, 253, 0.045);
-}
+} */
 
 /* 컬럼별 */
 .master-data-page .master-data-table td:nth-child(1) {
@@ -97,29 +97,6 @@
     background: rgba(255, 255, 255, 0.68) !important;
     text-align: center;
     font-size: 0.95rem;
-}
-
-/* 태블릿 */
-@media (max-width: 992px) {
-    .master-data-page {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .master-data-page .card-header,
-    .master-data-page .card-footer {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
-
-    .master-data-page .table-responsive {
-        border-radius: 14px;
-        overflow-x: auto;
-    }
-
-    .master-data-page .master-data-table {
-        min-width: 820px;
-    }
 }
 
 /* 모바일 */

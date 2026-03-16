@@ -13,16 +13,16 @@
 {% endblock js %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container glass-panel rounded-4 my-4 p-4">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div>
             <h4 class="fw-bold mb-1">기본 구성 템플릿 편집</h4>
-            <p class="text-muted mb-0">템플릿을 추가/수정/삭제할 수 있습니다.</p>
+            <p class="text-muted small mt-2 mb-0">템플릿을 추가/수정/삭제할 수 있습니다.</p>
         </div>
         
         <a
             href="{% url 'manning:create_session' %}"
-            class="btn btn-light rounded-4 px-4 fw-bold shadow-sm"
+            class="btn btn-light rounded-4 px-4 fw-bold shadow-sm py-2"
         >
             <i class="bi bi-arrow-left me-1"></i> 세션 목록으로
         </a>
@@ -37,12 +37,12 @@
         <div class="accordion template-accordion" id="templateAccordion">
             {% for template in templates %}
             <div
-                class="accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden template-block"
+                class="glass-panel accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden template-block"
                 data-template-id="{{ template.id }}"
             >
                 <h2 class="accordion-header" id="heading-{{ template.id }}">
                     <button
-                        class="accordion-button collapsed fw-semibold"
+                        class="accordion-button collapsed fw-semibold bg-transparent"
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#collapse-{{ template.id }}"

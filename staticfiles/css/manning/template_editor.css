@@ -1,96 +1,34 @@
-.template-dnd {
-    border: 1px dashed #d0d7de;
-    border-radius: 12px;
-    padding: 12px;
-    background: #f8fafc;
+.template-accordion .accordion-item,
+.new-template-accordion .accordion-item {
+    background: rgba(255, 255, 255, 0.96);
 }
 
-.dnd-header {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #334155;
-    margin-bottom: 6px;
-}
-
-.dnd-list {
-    min-height: 140px;
-    padding: 10px;
-    border-radius: 10px;
+.template-accordion .accordion-button,
+.new-template-accordion .accordion-button {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    box-shadow: none;
+    padding: 1rem 1.25rem;
 }
 
-.dnd-list.is-over {
-    border-color: #60a5fa;
-    background: #eff6ff;
+.template-accordion .accordion-button:not(.collapsed),
+.new-template-accordion .accordion-button:not(.collapsed) {
+    background: #f8fafc;
+    color: #0f172a;
+    box-shadow: none;
 }
 
-.dnd-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    cursor: move;
+.template-accordion .accordion-button:focus,
+.new-template-accordion .accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
 }
 
-.dnd-item:last-child {
-    margin-bottom: 0;
+.template-accordion .accordion-body,
+.new-template-accordion .accordion-body {
+    background: #fcfcfd;
 }
 
-.dnd-item.is-dragging {
-    opacity: 0.5;
+.template-block textarea.template-items {
+    white-space: pre-wrap;
 }
 
-.dnd-item.is-duplicate {
-    border-color: #f97316;
-    background: #fff7ed;
-}
-
-.dnd-warning {
-    display: none;
-    margin-top: 8px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid #fde68a;
-    background: #fffbeb;
-    color: #b45309;
-    font-size: 0.85rem;
-}
-
-.dnd-warning.is-visible {
-    display: block;
-}
-
-.dnd-add {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.dnd-input {
-    flex: 1;
-}
-
-.dnd-btn {
-    min-width: 34px;
-}
-
-.dnd-remove {
-    border: 0;
-    background: transparent;
-    color: #ef4444;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.dnd-empty {
-    color: #94a3b8;
-    font-size: 0.85rem;
-    text-align: center;
-    padding: 12px 0;
-}

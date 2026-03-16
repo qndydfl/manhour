@@ -53,9 +53,9 @@
                             Manage Better.
                         </h1>
 
-                        <p class="text-secondary my-3 index-hero-desc">
+                        <p class="text-secondary  index-hero-desc">
                             작업 세션을 생성하고 실시간으로 인력을
-                            관리하세요.<br />
+                            관리하세요.
                             효율적인 업무 배정이 여기서 시작됩니다.
                         </p>
                     </div>
@@ -191,6 +191,32 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
                 <div class="card-body p-4 d-flex align-items-center">
+                    <div class="index-icon-circle bg-info bg-opacity-10 text-info me-3">
+                        <i class="bi bi-database-add"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted text-uppercase fw-bold small mb-1">Master Data</h6>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
+                            
+                            <span id="masterDataBadge" 
+                                class="badge rounded-pill bg-danger {% if master_data_count == 0 %}d-none{% endif %}"
+                                style="font-size: 0.75rem; padding: 0.35em 0.65em;">
+                                {{ master_data_count }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'manhour:paste_data' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
+                <div class="card-body p-4 d-flex align-items-center">
                     <div
                         class="index-icon-circle bg-primary bg-opacity-10 text-primary me-3"
                     >
@@ -244,31 +270,7 @@
                     ></a>
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div
-                        class="index-icon-circle bg-info bg-opacity-10 text-info me-3"
-                    >
-                        <i class="bi bi-database-add"></i>
-                    </div>
-                    <div>
-                        <h6
-                            class="text-muted text-uppercase fw-bold small mb-1"
-                        >
-                            Master Data
-                        </h6>
-                        <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
-                    </div>
-                    <a
-                        href="{% url 'manhour:paste_data' %}"
-                        class="stretched-link"
-                    ></a>
-                </div>
-            </div>
-        </div>
+        </div>        
     </div>
 
     <div
@@ -337,8 +339,10 @@
         </small>
         <span class="mx-2 text-muted">|</span>
         <small class="text-muted">All rights reserved</small>
+        {% if request.session.user_role == "admin" %}
         <span class="mx-2 text-muted">|</span>
         <small class="text-muted">version 1.0.0</small>
+        {% endif %}
     </div>
 </footer>
 {% endblock footer %}

@@ -145,6 +145,35 @@ def _get_area_template_items(template_key):
     return []
 
 
+def _normalize_template_items(items):
+    normalized = []
+    for position, name in items:
+        normalized.append(
+            (
+                (position or "").strip().upper(),
+                (name or "").strip().lower(),
+            )
+        )
+    return sorted(normalized)
+
+
+def _resolve_session_template_key(session):
+    if not session:
+        return ""
+    session_items = _normalize_template_items(
+        [(area.position, area.name) for area in session.areas.all()]
+    )
+    if not session_items:
+        return ""
+    for template in _get_area_templates():
+        template_items = _normalize_template_items(
+            [(item.position, item.name) for item in template.items.all()]
+        )
+        if template_items and template_items == session_items:
+            return template.key
+    return ""
+
+
 class ManningSessionRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.session.get("is_authenticated"):
@@ -349,6 +378,7 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
             messages.error(request, "해당 근무지의 세션만 수정할 수 있습니다.")
             return redirect("manning:manning_list")
         form = WorkSessionCreateForm(instance=session)
+        selected_template = _resolve_session_template_key(session)
         return render(
             request,
             "manning/manning_edit_session.html",
@@ -356,6 +386,7 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
                 "form": form,
                 "session": session,
                 "templates": _get_area_template_choices(),
+                "selected_template": selected_template,
             },
         )
 
@@ -376,6 +407,26 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
                     "form": form,
                     "session": session,
                     "templates": _get_area_template_choices(),
+                    "selected_template": (
+                        request.POST.get("area_template") or ""
+                    ).strip(),
+                },
+            )
+
+        area_template = (request.POST.get("area_template") or "").strip()
+        template_items = (
+            _get_area_template_items(area_template) if area_template else []
+        )
+        if area_template and not template_items:
+            messages.error(request, "선택한 템플릿을 찾을 수 없습니다.")
+            return render(
+                request,
+                "manning/manning_edit_session.html",
+                {
+                    "form": form,
+                    "session": session,
+                    "templates": _get_area_template_choices(),
+                    "selected_template": area_template,
                 },
             )
 
@@ -383,6 +434,15 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
         if not updated.name:
             updated.name = updated.work_package_name or "Maintenance Session"
         updated.save()
+        if template_items:
+            with transaction.atomic():
+                SessionArea.objects.filter(session=session).delete()
+                SessionArea.objects.bulk_create(
+                    [
+                        SessionArea(session=session, name=name, position=position)
+                        for position, name in template_items
+                    ]
+                )
         matched = _find_matching_manhour_session(updated, workplace=workplace)
         if matched:
             updated.manhour_session = matched
@@ -400,6 +460,21 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
             "sort_order",
             "id",
         )
+        for template in templates:
+            left_items = []
+            none_items = []
+            right_items = []
+            for item in template.items.all():
+                if item.position == SessionArea.POSITION_LEFT:
+                    left_items.append(item.name)
+                elif item.position == SessionArea.POSITION_RIGHT:
+                    right_items.append(item.name)
+                else:
+                    none_items.append(item.name)
+
+            template.left_items_text = "\n".join(left_items)
+            template.none_items_text = "\n".join(none_items)
+            template.right_items_text = "\n".join(right_items)
         return render(
             request,
             "manning/template_editor.html",

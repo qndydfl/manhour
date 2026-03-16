@@ -1,14 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     const addAreaModal = document.getElementById("addAreaModal");
+    const addAreaRowBtn = document.getElementById("addAreaRowBtn");
     const addAreaConfirmBtn = document.getElementById("addAreaConfirmBtn");
     const newAreaNameInput = document.getElementById("newAreaNameInput");
     const newAreaPositionInput = document.getElementById(
         "newAreaPositionInput",
     );
     const newAreaWorkersInput = document.getElementById("newAreaWorkersInput");
+
     const areaGroups = Array.from(document.querySelectorAll(".area-group"));
     const newAreaTemplate = document.getElementById("newAreaTemplate");
-    const applyWorkersBtn = document.getElementById("applyWorkersBtn");
     const loadWorkersBtn = document.getElementById("loadWorkersBtn");
     const workerPanel = document.getElementById("loadWorkersPanel");
     const formEl = document.getElementById("areaEditForm");
@@ -32,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cancelWorkerEditorBtn = document.getElementById(
         "cancelWorkerEditorBtn",
     );
+    const workerTrashZone = document.getElementById("workerTrashZone");
     const workerDataEl = document.getElementById("manhourWorkers");
     const defaultWorkerDataEl = document.getElementById("defaultWorkerNames");
     const workerCountEl = document.getElementById("workerCount");
@@ -50,25 +52,71 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    let workerNames = workerDataEl ? JSON.parse(workerDataEl.innerHTML) : [];
-    const defaultWorkerNames = defaultWorkerDataEl
-        ? JSON.parse(defaultWorkerDataEl.innerHTML)
+    if (addAreaModal && addAreaRowBtn && window.bootstrap?.Modal) {
+        const addAreaModalInstance = new window.bootstrap.Modal(addAreaModal);
+
+        const showAddAreaModal = () => {
+            if (addAreaModal.parentElement !== document.body) {
+                document.body.appendChild(addAreaModal);
+            }
+            addAreaModalInstance.show();
+        };
+
+        addAreaRowBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+
+            if (workerPanel && workerPanel.classList.contains("show")) {
+                const offcanvasInstance =
+                    window.bootstrap.Offcanvas.getInstance(workerPanel);
+                if (offcanvasInstance) {
+                    workerPanel.addEventListener(
+                        "hidden.bs.offcanvas",
+                        showAddAreaModal,
+                        { once: true },
+                    );
+                    offcanvasInstance.hide();
+                    return;
+                }
+            }
+
+            showAddAreaModal();
+        });
+    }
+
+    const parsedWorkerNames = workerDataEl
+        ? JSON.parse(workerDataEl.textContent)
+        : [];
+    let workerNames = Array.isArray(parsedWorkerNames) ? parsedWorkerNames : [];
+
+    const parsedDefaultWorkerNames = defaultWorkerDataEl
+        ? JSON.parse(defaultWorkerDataEl.textContent)
+        : null;
+    const defaultWorkerNames = Array.isArray(parsedDefaultWorkerNames)
+        ? parsedDefaultWorkerNames
         : [...workerNames];
-    let workerText = workerNames.join(", ");
+
     let allowedWorkerSet = new Set();
+    let lastDuplicateNames = [];
 
     function normalizeName(name) {
-        return name.trim().toLowerCase();
+        return String(name || "")
+            .trim()
+            .toLowerCase();
+    }
+
+    function splitWorkerNames(value) {
+        return String(value || "")
+            .replace(/\r/g, "")
+            .replace(/\n/g, ",")
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
     }
 
     function updateWorkerCount() {
         if (workerCountEl) {
-            workerCountEl.innerHTML = String(workerNames.length);
+            workerCountEl.textContent = String(workerNames.length);
         }
-    }
-
-    function rebuildWorkerText() {
-        workerText = workerNames.join(", ");
     }
 
     function rebuildAllowedSet() {
@@ -79,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function setWorkerNames(newNames) {
         workerNames = newNames;
-        rebuildWorkerText();
         rebuildAllowedSet();
         updateWorkerCount();
     }
@@ -91,13 +138,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function buildWorkerRow(name) {
         const col = document.createElement("div");
-        col.className = "col-6";
+        col.className = "col-12 col-md-6 col-lg-4";
 
         const row = document.createElement("div");
         row.className =
-            "d-flex align-items-center gap-2 border rounded-3 px-3 bg-light worker-item";
-        row.style.fontSize = "1rem";
-        row.style.cursor = "grab";
+            "worker-item d-flex align-items-center gap-2 border rounded-4 px-3 py-1 bg-light";
         row.setAttribute("data-worker-name", name);
         row.setAttribute("draggable", "true");
 
@@ -106,18 +151,18 @@ document.addEventListener("DOMContentLoaded", () => {
         checkbox.type = "checkbox";
 
         const label = document.createElement("div");
-        label.className = "flex-grow-1";
-        label.innerHTML = name;
+        label.className = "flex-grow-1 text-truncate";
+        label.textContent = name;
 
         const usedBadge = document.createElement("span");
         usedBadge.className =
             "badge bg-success-subtle text-success worker-status d-none";
-        usedBadge.innerHTML = "사용중";
+        usedBadge.textContent = "사용중";
 
         const dupBadge = document.createElement("span");
         dupBadge.className =
             "badge bg-danger-subtle text-danger worker-dup-status d-none";
-        dupBadge.innerHTML = "중복";
+        dupBadge.textContent = "중복";
 
         row.appendChild(checkbox);
         row.appendChild(label);
@@ -134,10 +179,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         workerListPanel.innerHTML = "";
+
         if (!workerNames.length) {
             const empty = document.createElement("div");
             empty.className = "text-center text-muted py-4";
-            empty.innerHTML = "등록된 작업자가 없습니다.";
+            empty.textContent = "등록된 작업자가 없습니다.";
             workerListPanel.appendChild(empty);
             return;
         }
@@ -147,10 +193,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // 실제 편집 테이블에 들어간 textarea만 검사 대상으로 사용
     function getWorkerFields() {
         return Array.from(
             document.querySelectorAll(
-                "textarea[name='area_workers'], input[name='new_area_workers'], input#newAreaWorkersInput",
+                "textarea[name='area_workers'], textarea[name='new_area_workers']",
             ),
         );
     }
@@ -164,11 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            field.value
-                .split(",")
-                .map((item) => item.trim())
-                .filter(Boolean)
-                .forEach((item) => names.push(item));
+            splitWorkerNames(field.value).forEach((item) => names.push(item));
         });
 
         return names;
@@ -176,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getInvalidNames() {
         const invalid = new Set();
+
         collectInputNames().forEach((name) => {
             const key = normalizeName(name);
             if (!key) {
@@ -185,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 invalid.add(name.trim());
             }
         });
+
         return Array.from(invalid);
     }
 
@@ -192,20 +237,29 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!messageModal) {
             return;
         }
-        if (messageTitle) {
-            messageTitle.innerHTML = title;
+
+        if (addAreaModal && addAreaModal.classList.contains("show")) {
+            const modal = window.bootstrap?.Modal.getInstance(addAreaModal);
+            modal?.hide();
         }
+
+        if (messageTitle) {
+            messageTitle.textContent = title;
+        }
+
         if (messageText) {
             messageText.innerHTML = message;
         }
+
         if (messageList) {
             messageList.innerHTML = "";
             (items || []).forEach((item) => {
                 const li = document.createElement("li");
-                li.innerHTML = item;
+                li.textContent = item;
                 messageList.appendChild(li);
             });
         }
+
         messageModal.classList.remove("d-none");
     }
 
@@ -217,18 +271,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateWorkerUsage() {
         const counts = new Map();
-        const invalidNames = new Set();
+        const displayNameMap = new Map();
 
         collectInputNames().forEach((name) => {
             const key = normalizeName(name);
             if (!key) {
                 return;
             }
-            if (!allowedWorkerSet.has(key)) {
-                invalidNames.add(name.trim());
+
+            if (!displayNameMap.has(key)) {
+                displayNameMap.set(key, name.trim());
             }
+
             counts.set(key, (counts.get(key) || 0) + 1);
         });
+
+        lastDuplicateNames = Array.from(counts.entries())
+            .filter(([, count]) => count > 1)
+            .map(([key]) => displayNameMap.get(key) || key);
 
         let duplicateCount = 0;
 
@@ -259,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
         }
 
-        let hasDuplicates = false;
+        const hasDuplicates = lastDuplicateNames.length > 0;
 
         getWorkerFields().forEach((field) => {
             if (field.disabled) {
@@ -268,10 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const fieldNames = field.value
-                .split(",")
-                .map((item) => item.trim())
-                .filter(Boolean);
+            const fieldNames = splitWorkerNames(field.value);
 
             const fieldHasDuplicate = fieldNames.some(
                 (name) => (counts.get(normalizeName(name)) || 0) > 1,
@@ -279,7 +336,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (fieldHasDuplicate) {
                 field.classList.add("worker-duplicate-input");
-                hasDuplicates = true;
             } else {
                 field.classList.remove("worker-duplicate-input");
             }
@@ -287,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const fieldHasInvalid = fieldNames.some(
                 (name) => !allowedWorkerSet.has(normalizeName(name)),
             );
+
             if (fieldHasInvalid) {
                 field.classList.add("is-invalid");
             } else {
@@ -296,31 +353,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (formDuplicateMessage) {
             if (hasDuplicates) {
-                formDuplicateMessage.innerHTML =
+                formDuplicateMessage.textContent =
                     "작업자 이름이 중복되었습니다. 중복된 구역을 수정해주세요.";
                 formDuplicateMessage.classList.remove("d-none");
             } else {
-                formDuplicateMessage.innerHTML = "";
+                formDuplicateMessage.textContent = "";
                 formDuplicateMessage.classList.add("d-none");
             }
         }
 
         if (workerUsageMessage) {
             if (duplicateCount > 0) {
-                workerUsageMessage.innerHTML =
+                workerUsageMessage.textContent =
                     "중복된 이름이 있습니다. 수정해주세요.";
                 workerUsageMessage.classList.remove("d-none");
             } else {
-                workerUsageMessage.innerHTML = "";
+                workerUsageMessage.textContent = "";
                 workerUsageMessage.classList.add("d-none");
             }
         }
-
-        void invalidNames;
     }
 
     function parseWorkerEditorText(text) {
-        const normalized = (text || "").replace(/\r/g, "").replace(/,/g, "\n");
+        const normalized = String(text || "")
+            .replace(/\r/g, "")
+            .replace(/,/g, "\n");
         const raw = normalized
             .split("\n")
             .map((name) => name.trim())
@@ -328,6 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const seen = new Set();
         const cleaned = [];
+
         raw.forEach((name) => {
             const key = normalizeName(name);
             if (!key || seen.has(key)) {
@@ -379,6 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const nextNames = Array.isArray(payload.worker_names)
                 ? payload.worker_names
                 : updatedNames;
+
             setWorkerNames(nextNames);
             rebuildWorkerList();
             initWorkerDragAndDrop();
@@ -392,13 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function appendWorkerName(target, workerName) {
         const currentValue = target.value.trim();
-
-        let workers = currentValue
-            ? currentValue
-                  .split(",")
-                  .map((name) => name.trim())
-                  .filter(Boolean)
-            : [];
+        let workers = currentValue ? splitWorkerNames(currentValue) : [];
 
         if (!workers.includes(workerName)) {
             workers.push(workerName);
@@ -437,6 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 appendWorkerName(target, workerName);
+                bindAutoResizeTextareas();
             });
 
             target.dataset.dropBound = "true";
@@ -466,6 +520,44 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         bindDropTargets();
+        bindTrashDropZone();
+    }
+
+    function bindTrashDropZone() {
+        if (!workerTrashZone) {
+            return;
+        }
+
+        if (workerTrashZone.dataset.dropBound === "true") {
+            return;
+        }
+
+        workerTrashZone.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            workerTrashZone.classList.add("is-active");
+        });
+
+        workerTrashZone.addEventListener("dragleave", () => {
+            workerTrashZone.classList.remove("is-active");
+        });
+
+        workerTrashZone.addEventListener("drop", async (event) => {
+            event.preventDefault();
+            workerTrashZone.classList.remove("is-active");
+
+            const workerName = event.dataTransfer.getData("text/plain").trim();
+            if (!workerName) {
+                return;
+            }
+
+            removeWorker(workerName);
+            rebuildWorkerList();
+            initWorkerDragAndDrop();
+            updateWorkerUsage();
+            await saveWorkerDirectory(workerNames);
+        });
+
+        workerTrashZone.dataset.dropBound = "true";
     }
 
     function getAreaGroup(position) {
@@ -476,10 +568,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!row) {
             return;
         }
+
         row.dataset.position = position;
         const select = row.querySelector(
             "select[name='area_position'], select[name='new_area_position']",
         );
+
         if (select) {
             select.value = position;
         }
@@ -504,14 +598,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!targetGroup) {
             return;
         }
+
         const headerRow = targetGroup.querySelector(".area-group-header");
         if (headerRow && headerRow.nextSibling) {
             targetGroup.insertBefore(row, headerRow.nextSibling);
         } else {
             targetGroup.appendChild(row);
         }
+
         syncRowPosition(row, position);
         syncAreaOrders();
+        bindAutoResizeTextareas();
     }
 
     function addNewRow(values = {}) {
@@ -554,7 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const workersInput = row.querySelector(
-            "input[name='new_area_workers']",
+            "textarea[name='new_area_workers']",
         );
         if (workersInput && values.workers) {
             workersInput.value = values.workers;
@@ -565,16 +662,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!targetGroup) {
             return;
         }
+
         const headerRow = targetGroup.querySelector(".area-group-header");
         if (headerRow && headerRow.nextSibling) {
             targetGroup.insertBefore(row, headerRow.nextSibling);
         } else {
             targetGroup.appendChild(row);
         }
+
         syncRowPosition(row, positionValue);
         syncAreaOrders();
-
         bindDropTargets();
+        bindAutoResizeTextareas();
         updateWorkerUsage();
     }
 
@@ -592,6 +691,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 onAdd: (event) => {
                     syncRowPosition(event.item, group.dataset.position);
                     syncAreaOrders();
+                    bindAutoResizeTextareas();
                 },
                 onUpdate: () => {
                     syncAreaOrders();
@@ -603,29 +703,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function fillWorkerNames() {
-        if (!workerText) {
-            alert("불러올 작업자 데이터가 없습니다.");
-            return;
-        }
+    function getDuplicateNamesWithModalInput(modalWorkersValue) {
+        const counts = new Map();
+        const displayNameMap = new Map();
 
-        document
-            .querySelectorAll("textarea[name='area_workers']")
-            .forEach((field) => {
-                field.value = workerText;
-            });
+        collectInputNames().forEach((name) => {
+            const key = normalizeName(name);
+            if (!key) {
+                return;
+            }
 
-        document
-            .querySelectorAll("input[name='new_area_workers']")
-            .forEach((field) => {
-                field.value = workerText;
-            });
+            counts.set(key, (counts.get(key) || 0) + 1);
+            if (!displayNameMap.has(key)) {
+                displayNameMap.set(key, name.trim());
+            }
+        });
 
-        if (newAreaWorkersInput) {
-            newAreaWorkersInput.value = workerText;
-        }
+        splitWorkerNames(modalWorkersValue).forEach((name) => {
+            const key = normalizeName(name);
+            if (!key) {
+                return;
+            }
 
-        updateWorkerUsage();
+            counts.set(key, (counts.get(key) || 0) + 1);
+            if (!displayNameMap.has(key)) {
+                displayNameMap.set(key, name.trim());
+            }
+        });
+
+        return Array.from(counts.entries())
+            .filter(([, count]) => count > 1)
+            .map(([key]) => displayNameMap.get(key) || key);
     }
 
     if (addAreaConfirmBtn) {
@@ -637,6 +745,23 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!nameValue) {
                 alert("구역 이름을 입력해주세요.");
                 newAreaNameInput?.focus();
+                return;
+            }
+
+            const modalWorkers = splitWorkerNames(workersValue);
+
+            // 작업자 명단에 없는 이름만 검사
+            const invalidNames = modalWorkers.filter(
+                (name) => !allowedWorkerSet.has(normalizeName(name)),
+            );
+
+            if (invalidNames.length > 0) {
+                openMessageModal({
+                    title: "작업자 입력 오류",
+                    message:
+                        "작업자 명단에 없는 이름이 있습니다. 확인해주세요.<br><span class='text-danger fw-bold mb-4'>세션에서 추가해 주세요.</span>",
+                    items: [...new Set(invalidNames)].slice(0, 10),
+                });
                 return;
             }
 
@@ -655,15 +780,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     window.bootstrap.Modal.getOrCreateInstance(addAreaModal);
                 modal.hide();
             }
+
+            updateWorkerUsage();
         });
     }
 
-    if (applyWorkersBtn) {
-        applyWorkersBtn.addEventListener("click", fillWorkerNames);
-    }
-
     function addWorkerName(name) {
-        const trimmed = (name || "").trim();
+        const trimmed = String(name || "").trim();
         if (!trimmed) {
             return;
         }
@@ -676,6 +799,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const nextNames = [...workerNames, trimmed].sort((a, b) =>
             a.localeCompare(b, "ko", { sensitivity: "base" }),
         );
+
         setWorkerNames(nextNames);
         rebuildWorkerList();
         initWorkerDragAndDrop();
@@ -735,6 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
         saveWorkerEditorBtn.addEventListener("click", async () => {
             const updatedNames = parseWorkerEditorText(workerEditorInput.value);
             const previousNames = [...workerNames];
+
             setWorkerNames(updatedNames);
             rebuildWorkerList();
             initWorkerDragAndDrop();
@@ -748,6 +873,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateWorkerUsage();
                 return;
             }
+
             if (saved && workerEditor) {
                 workerEditor.classList.add("d-none");
             }
@@ -758,32 +884,14 @@ document.addEventListener("DOMContentLoaded", () => {
         clearAssignedBtn.addEventListener("click", () => {
             document
                 .querySelectorAll(
-                    "textarea[name='area_workers'], input[name='new_area_workers'], input#newAreaWorkersInput",
+                    "textarea[name='area_workers'], textarea[name='new_area_workers'], textarea#newAreaWorkersInput",
                 )
                 .forEach((field) => {
                     field.value = "";
                 });
 
+            bindAutoResizeTextareas();
             updateWorkerUsage();
-        });
-    }
-
-    if (workerListPanel) {
-        workerListPanel.addEventListener("click", (event) => {
-            const target = event.target;
-            if (!(target instanceof HTMLElement)) {
-                return;
-            }
-
-            if (target.classList.contains("worker-remove")) {
-                const row = target.closest("[data-worker-name]");
-                const name = row?.getAttribute("data-worker-name");
-
-                if (row && name) {
-                    row.remove();
-                    removeWorker(name);
-                }
-            }
         });
     }
 
@@ -818,6 +926,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         removeWorker(name);
                     }
                 });
+
             rebuildWorkerList();
             initWorkerDragAndDrop();
             updateWorkerUsage();
@@ -831,12 +940,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // 실제 테이블의 textarea만 중복/유효성 검사
         if (
             target.matches("textarea[name='area_workers']") ||
-            target.matches("input[name='new_area_workers']") ||
-            target.matches("#newAreaWorkersInput")
+            target.matches("textarea[name='new_area_workers']")
         ) {
             updateWorkerUsage();
+        }
+
+        // 모달 포함 auto-resize는 전체 textarea.auto-resize에 대해 처리
+        if (target.matches("textarea.auto-resize")) {
+            bindAutoResizeTextareas();
         }
     });
 
@@ -878,6 +992,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!(target instanceof HTMLElement)) {
                 return;
             }
+
             if (
                 target.matches("select[name='area_position']") ||
                 target.matches("select[name='new_area_position']")
@@ -888,8 +1003,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
+
         formEl.addEventListener("submit", (event) => {
             syncAreaOrders();
+
             const invalidNames = getInvalidNames();
             if (invalidNames.length > 0) {
                 event.preventDefault();
@@ -897,10 +1014,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 openMessageModal({
                     title: "작업자 입력 오류",
                     message:
-                        "작업자 명단에 이름이 없습니다. 확인해주세요" +
-                        "<br>" +
-                        "<span class='text-danger fw-bold'>세션에서 추가해 주세요.</span>",
+                        "작업자 명단에 이름이 없습니다. 확인해주세요<br><span class='text-danger fw-bold'>세션에서 추가해 주세요.</span>",
                     items: invalidNames.slice(0, 10),
+                });
+                return;
+            }
+
+            const duplicateExists = document.querySelector(
+                ".worker-duplicate-input",
+            );
+            if (duplicateExists) {
+                event.preventDefault();
+                updateWorkerUsage();
+                openMessageModal({
+                    title: "중복 작업자 오류",
+                    message:
+                        "중복된 작업자 이름이 있습니다. 저장 전에 수정해주세요.",
+                    items: lastDuplicateNames.slice(0, 10),
                 });
             }
         });

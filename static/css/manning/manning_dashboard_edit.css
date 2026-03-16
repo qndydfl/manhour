@@ -1,3 +1,16 @@
+/* 사이드바 내부 스크롤 설정 */
+.offcanvas-body {
+    overflow-y: auto !important;
+    /* 핵심: 사이드바 스크롤이 끝에 닿아도 본문으로 스크롤이 넘어가지 않음 */
+    overscroll-behavior: contain; 
+}
+
+/* (선택사항) 본문 스크롤 설정 */
+/* 마우스가 본문에 있을 때 사이드바가 움직이지 않게 하려면 */
+body {
+    overscroll-behavior: none;
+}
+
 .edit-shell { 
     margin-top: 2rem;   
     margin-bottom: 6rem;
@@ -62,6 +75,7 @@ body.worker-panel-open .ios-wrap {
 .bottom-action-bar .btn{
     padding: 5px 10px;
 }
+
 
 @media (max-width: 991.98px) {
     body.worker-panel-open .ios-wrap {

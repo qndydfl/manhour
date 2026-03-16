@@ -19,9 +19,9 @@
 {% endblock background_image %}  {% endcomment %}
 
 {% block content %}
-<div class="container my-4 py-4 rounded-3" style="max-width: 900px">
+<div class="container my-4 rounded-3" style="max-width: 900px">
     <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden"
+        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel"
         data-aos="fade-up"
     >
         <div
@@ -33,7 +33,7 @@
 
             <a
                 href="{% url 'manhour:index' %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-auto"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold ms-auto py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>

@@ -9,13 +9,13 @@
 
 {% block js %}{% endblock js %} 
 
-{% block background_image %}
+{% comment %} {% block background_image %}
 {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
-{% endblock background_image %} 
+{% endblock background_image %}  {% endcomment %}
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 master-data-page my-4 py-4"
+    class="container glass-panel rounded-3 master-data-page my-4 p-4"
     style="max-width: 1000px"
 >
     <div
@@ -45,7 +45,7 @@
                 <input type="hidden" name="next" value="master_data_edit" />
                 <button
                     type="submit"
-                    class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-sm"
+                    class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-sm py-2"
                     onclick="
                         return confirm(
                             '⚠️ 경고: 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
@@ -58,7 +58,7 @@
 
             <a
                 href="{% url 'manhour:paste_data' %}"
-                class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold shadow-sm"
+                class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold shadow-sm py-2"
             >
                 <i class="bi bi-arrow-left me-1"></i> 데이터 등록
             </a>
@@ -147,8 +147,8 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td class="ps-4 py-4 text-muted text-center" colspan="6">
+                        <tr style="pointer-events: none;">
+                            <td class="ps-4 py-4 text-center" colspan="6">
                                 표시할 데이터가 없습니다.
                             </td>
                         </tr>
