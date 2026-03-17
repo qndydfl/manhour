@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const manualModal = document.getElementById("manualInputModal");
     const modalBody = document.getElementById("modal-rows-body");
-    const workerSelect = document.getElementById("modal-worker-select");
+    const workerCheckboxArea = document.getElementById("worker-checkbox-area");
     const applyAllCheckbox = document.getElementById("apply-all-workers");
 
     const addRowBtn = document.getElementById("btn-add-row");
@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
             ? new window.bootstrap.Modal(duplicateModalEl)
             : null;
 
+    function workerCheckboxes() {
+        return [...document.querySelectorAll(".worker-checkbox")];
+    }
+
     function showDuplicateModal(message) {
         if (duplicateModalMsgEl) {
             duplicateModalMsgEl.textContent = message;
@@ -29,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    if (!manualModal || !modalBody || !workerSelect) {
+    if (!manualModal || !modalBody || !workerCheckboxArea) {
         console.warn("[manual_modal] required elements missing");
         return;
     }
@@ -47,13 +51,25 @@ document.addEventListener("DOMContentLoaded", () => {
             ? { code: "0", start: "0100", end: "0200" }
             : { code: "0", start: "1200", end: "1300" };
 
-    const getStorageKey = (workerId) =>
-        `manning_input_personal_${String(SESSION_ID)}_${workerId || ""}`;
+    const getStorageKey = (workerKey) =>
+        `manning_input_personal_${String(SESSION_ID)}_${workerKey || ""}`;
 
-    const getTargetWorkerId = () =>
-        applyAllCheckbox && applyAllCheckbox.checked ? "all" : workerSelect.value;
+    function getSelectedWorkerIds() {
+        if (applyAllCheckbox && applyAllCheckbox.checked) {
+            return ["all"];
+        }
 
-    const getActiveStorageKey = () => getStorageKey(getTargetWorkerId());
+        return workerCheckboxes()
+            .filter((cb) => cb.checked)
+            .map((cb) => String(cb.value));
+    }
+
+    function getTargetWorkerKey() {
+        const ids = getSelectedWorkerIds();
+        return ids.length ? ids.join("_") : "";
+    }
+
+    const getActiveStorageKey = () => getStorageKey(getTargetWorkerKey());
 
     function getCookie(name) {
         let cookieValue = null;
@@ -159,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(
             storageKey,
             JSON.stringify({
-                workerId: getTargetWorkerId(),
+                workerIds: getSelectedWorkerIds(),
                 rows,
                 autoDefaults: isAutoDefaults,
             })
@@ -187,11 +203,29 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    function setDefaultCheckedWorker() {
+        if (applyAllCheckbox && applyAllCheckbox.checked) return;
+
+        const currentId = String(window.CURRENT_WORKER_ID || "");
+
+        workerCheckboxes().forEach((cb) => {
+            cb.checked = currentId && cb.value === currentId;
+        });
+
+        if (!currentId) {
+            const first = workerCheckboxes()[0];
+            if (first) first.checked = true;
+        }
+    }
+
     function loadFromStorageOrServer() {
         let data = {};
 
-        if (window.CURRENT_WORKER_ID && !(applyAllCheckbox && applyAllCheckbox.checked)) {
-            workerSelect.value = window.CURRENT_WORKER_ID;
+        if (!(applyAllCheckbox && applyAllCheckbox.checked)) {
+            const anyChecked = workerCheckboxes().some((cb) => cb.checked);
+            if (!anyChecked) {
+                setDefaultCheckedWorker();
+            }
         }
 
         try {
@@ -230,8 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleModalPaste(e) {
-        // 확장용 placeholder
-        // 현재는 기본 paste 유지
+        // placeholder
     }
 
     function timeToMinutes(timeStr) {
@@ -283,9 +316,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleSaveManual() {
-        const selectedValue = getTargetWorkerId();
+        const selectedWorkerIds = getSelectedWorkerIds();
+        const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
 
-        if (!selectedValue) {
+        if (!selectedWorkerIds.length) {
             alert("작업자를 선택해주세요.");
             return;
         }
@@ -398,37 +432,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             };
 
-            if (selectedValue === "all") {
+            if (isApplyAll) {
                 if (ALL_WORKER_IDS.length) {
                     ALL_WORKER_IDS.forEach((workerId) => pushOne(workerId));
-                } else {
-                    for (let i = 0; i < workerSelect.options.length; i++) {
-                        const optVal = workerSelect.options[i].value;
-                        if (optVal) {
-                            pushOne(optVal);
-                        }
-                    }
                 }
             } else {
-                pushOne(selectedValue);
+                selectedWorkerIds.forEach((workerId) => pushOne(workerId));
             }
         });
 
         if (hasError) return;
 
         if (!assignments.length) {
-            const msg =
-                selectedValue === "all"
-                    ? "입력한 간비가 없습니다. 전체 작업자의 기존 간비를 삭제할까요?"
-                    : "입력한 간비가 없습니다. 선택한 작업자의 기존 간비를 삭제할까요?";
+            const msg = isApplyAll
+                ? "입력한 간비가 없습니다. 전체 작업자의 기존 간비를 삭제할까요?"
+                : "입력한 간비가 없습니다. 선택한 작업자의 기존 간비를 삭제할까요?";
 
             if (!confirm(msg)) return;
             resetDB({ skipConfirm: true });
             return;
         }
 
-        if (selectedValue === "all") {
+        if (isApplyAll) {
             if (!confirm("모든 작업자에게 동일하게 적용하시겠습니까?")) {
+                return;
+            }
+        } else {
+            if (!confirm("선택한 작업자들에게 적용하시겠습니까?")) {
                 return;
             }
         }
@@ -442,7 +472,8 @@ document.addEventListener("DOMContentLoaded", () => {
             credentials: "same-origin",
             body: JSON.stringify({
                 assignments,
-                apply_all: selectedValue === "all",
+                apply_all: isApplyAll,
+                worker_ids: isApplyAll ? ALL_WORKER_IDS : selectedWorkerIds,
             }),
         })
             .then(async (r) => {
@@ -489,9 +520,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resetDB(options = {}) {
         const { skipConfirm = false } = options;
-        const selectedValue = getTargetWorkerId();
+        const selectedWorkerIds = getSelectedWorkerIds();
+        const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
 
-        if (!selectedValue) {
+        if (!selectedWorkerIds.length) {
             alert("리셋할 작업자를 선택해주세요.");
             return;
         }
@@ -501,10 +533,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const msg =
-            selectedValue === "all"
-                ? "전체 작업자의 수동입력(간비)을 모두 삭제할까요?"
-                : "선택한 작업자의 수동입력(간비)을 모두 삭제할까요?";
+        const msg = isApplyAll
+            ? "전체 작업자의 수동입력(간비)을 모두 삭제할까요?"
+            : "선택한 작업자의 수동입력(간비)을 모두 삭제할까요?";
 
         if (!skipConfirm && !confirm(msg)) {
             return;
@@ -517,7 +548,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 "X-CSRFToken": getCookie("csrftoken"),
             },
             credentials: "same-origin",
-            body: JSON.stringify({ worker_id: selectedValue }),
+            body: JSON.stringify({
+                worker_ids: isApplyAll ? ["all"] : selectedWorkerIds,
+                apply_all: isApplyAll,
+            }),
         })
             .then(async (r) => {
                 const j = await r.json().catch(() => ({}));
@@ -557,14 +591,14 @@ document.addEventListener("DOMContentLoaded", () => {
     function syncWorkerSelectState() {
         const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
 
-        workerSelect.disabled = !!isApplyAll;
-        workerSelect.classList.toggle("d-none", !!isApplyAll);
+        if (workerCheckboxArea) {
+            workerCheckboxArea.classList.toggle("d-none", !!isApplyAll);
+        }
 
-        if (!isApplyAll && !workerSelect.value) {
-            if (window.CURRENT_WORKER_ID) {
-                workerSelect.value = window.CURRENT_WORKER_ID;
-            } else if (workerSelect.options.length > 1) {
-                workerSelect.selectedIndex = 1;
+        if (!isApplyAll) {
+            const anyChecked = workerCheckboxes().some((cb) => cb.checked);
+            if (!anyChecked) {
+                setDefaultCheckedWorker();
             }
         }
     }
@@ -594,12 +628,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (workerSelect) {
-        workerSelect.addEventListener("change", () => {
+    workerCheckboxes().forEach((cb) => {
+        cb.addEventListener("change", () => {
             loadFromStorageOrServer();
             saveToStorage();
         });
-    }
+    });
 
     if (resetUiBtn) {
         resetUiBtn.addEventListener("click", resetUI);

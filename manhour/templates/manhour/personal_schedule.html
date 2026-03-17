@@ -277,11 +277,12 @@
 
                     <div class="text-danger small mb-3">
                         <strong>
-                            체크 해제시 작업자 선택 가능. 전체 적용 시 모든 작업자에게 동일한 간비 시간이 적용됩니다.
+                            체크 해제 시 아래 작업자 목록에서 적용 대상을 선택할 수 있습니다.
+                            전체 적용 시 모든 작업자에게 동일한 간비 시간이 적용됩니다.
                         </strong>
                     </div>
 
-                    <select
+                    {% comment %} <select
                         id="modal-worker-select"
                         class="form-select form-select-lg bg-light border-0 fw-bold"
                         style="font-size: 1rem"
@@ -290,7 +291,29 @@
                         {% for w in session.worker_set.all %}
                         <option value="{{ w.id }}">{{ w.name }}</option>
                         {% endfor %}
-                    </select>
+                    </select> {% endcomment %}
+                    <div
+                        id="worker-checkbox-area"
+                        class="bg-light rounded-3 p-3 border"
+                        style="max-height: 240px; overflow-y: auto;"
+                    >
+                        <div class="small text-muted mb-2 fw-bold">작업자 선택</div>
+
+                        {% for w in session.worker_set.all %}
+                        <div class="form-check mb-2">
+                            <input
+                                class="form-check-input worker-checkbox"
+                                type="checkbox"
+                                value="{{ w.id }}"
+                                id="worker-check-{{ w.id }}"
+                            />
+                            <label class="form-check-label fw-bold" for="worker-check-{{ w.id }}">
+                                {{ w.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
                 </div>
 
                 <div class="card border manual-input-card mb-3">

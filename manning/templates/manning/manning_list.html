@@ -25,10 +25,16 @@
             </p>
         </div>
 
-        <div class="d-flex justify-content-end ms-auto ms-md-0">
+        <div class="d-flex gap-2 justify-content-end ">
             <a href="{% url 'manning:create_session' %}" 
                 class="btn btn-primary fw-bold py-2 px-4 rounded-pill">
                 <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
+            </a>
+        
+        
+            <a href="{% url 'manhour:index' %}" 
+                class="btn btn-dark fw-bold py-2 px-4 rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> 이전 화면으로
             </a>
         </div>
     </div>

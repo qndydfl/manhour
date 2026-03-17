@@ -25,24 +25,6 @@
     --dark-gradient: linear-gradient(135deg, #343a40, #1d2124);
 }
 
-/* Base */
-/* body {
-    font-family:
-        "Pretendard",
-        -apple-system,
-        BlinkMacSystemFont,
-        system-ui,
-        Roboto,
-        sans-serif;
-    background-color: #121212;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
-    background-attachment: fixed;
-    color: #d1d5db;
-} */
-
 body {
     overflow-x: hidden;
     min-height: 100vh;
@@ -69,27 +51,18 @@ body {
     background-attachment: fixed;
 }
 
-/* .glass-panel {
-    background: rgba(255, 255, 255, 0.45) !important;
-    backdrop-filter: blur(15px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
-    box-shadow:
-        0 8px 32px 0 rgba(31, 38, 135, 0.15),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
-} */
 
 .glass-panel {
     /* 하얀색 45% -> 네이비/블랙 계열 30~40%로 변경 */
-    background: rgba(15, 23, 42, 0.4) !important; 
-    
+    background: rgba(15, 23, 42, 0.4) !important;
+
     /* 블러는 그대로 유지하되 채도를 살짝 낮춰 차분하게 조절 */
     backdrop-filter: blur(15px) saturate(140%) !important;
     -webkit-backdrop-filter: blur(15px) saturate(140%) !important;
-    
+
     /* 테두리는 너무 밝지 않게 10% 정도로 유지 (유리 경계선 효과) */
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    
+
     /* 그림자는 더 어둡고 무겁게 깔아줍니다 */
     box-shadow:
         0 8px 32px 0 rgba(0, 0, 0, 0.4),
@@ -142,6 +115,19 @@ body {
 
 .page-content.has-sidebar {
     margin-left: 0;
+}
+
+/* Master data shared */
+.master-data-page,
+.master-data-edit {
+    max-width: 1200px;
+}
+
+.master-data-page .master-data-table th,
+.master-data-page .master-data-table td,
+.master-data-edit .master-data-table th,
+.master-data-edit .master-data-table td {
+    vertical-align: middle;
 }
 
 /* Main Content Wrapper */
@@ -571,6 +557,20 @@ body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
         transform 0.3s ease,
         box-shadow 0.3s ease;
     overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .master-data-page,
+    .master-data-edit {
+        max-width: 100%;
+        margin-top: 12px;
+        padding: 16px;
+    }
+
+    .master-data-page .card-header,
+    .master-data-edit .card-header {
+        padding: 16px !important;
+    }
 }
 
 @media (hover: hover) {

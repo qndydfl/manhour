@@ -63,7 +63,7 @@
                     <div class="col-md-6">
                         <div
                             class="card rounded-4 overflow-hidden shadow-sm video-hover-wrapper"
-                        >
+                        >   
                             <video
                                 id="hoverDanceVideo"
                                 class="w-100 index-hero-video"
@@ -148,40 +148,6 @@
             </div>
         </div>
     </div>
-
-    {% comment %} <div class="row g-4 mt-4" data-aos="fade-up" data-aos-duration="1000">
-        <div class="col-12">
-            <div class="dock-bar d-flex justify-content-center flex-wrap gap-3">
-                <a
-                    href="{% url 'manhour:create_session' %}"
-                    class="dock-item btn btn-info btn-md fw-bold shadow-lg"
-                >
-                    <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
-                </a>
-
-                <a
-                    href="{% url 'manhour:session_list' %}"
-                    class="dock-item btn btn-dark btn-md fw-bold shadow-lg"
-                >
-                    <i class="bi bi-grid-fill me-1"></i> 현황판 입장
-                </a>
-
-                <a
-                    href="{% url 'manhour:master_data_list' %}?from=index"
-                    class="dock-item btn btn-danger btn-md px-2 shadow-lg fw-bold"
-                >
-                    <i class="bi bi-database-add me-1"></i> 데이터 등록 현황
-                    <span
-                        id="masterDataBadge"
-                        class="dock-badge {% if master_data_count == 0 %}d-none{% endif %}"
-                        aria-label="등록 데이터 수"
-                    >
-                        {{ master_data_count }}
-                    </span>
-                </a>
-            </div>
-        </div>
-    </div> {% endcomment %}
 
     <div
         class="row g-4 mt-4 opacity-75"

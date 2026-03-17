@@ -35,22 +35,3 @@ textarea[name="area_workers"] {
         padding-right: 1rem !important;
     }
 }
-
-
-/* PPT 느낌을 위한 추가 스타일 */
-/* .stat-card {
-    transition: transform 0.2s;
-    border: none;
-}
-.stat-card:hover {
-    transform: translateY(-5px);
-}
-.glass-panel {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-}
-.chart-container {
-    position: relative;
-    height: 250px;
-    width: 100%;
-} */

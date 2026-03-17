@@ -1,17 +1,8 @@
 function normalizeGibun(value) {
-    const raw = String(value || "").trim().toUpperCase();
-    if (!raw) return "";
+    const digits = String(value || "").replace(/\D+/g, "").slice(0, 4);
 
-    if (/^HL\d+$/.test(raw)) {
-        return raw;
-    }
-
-    const digits = raw.replace(/\D+/g, "");
-    if (digits) {
-        return `HL${digits}`;
-    }
-
-    return raw;
+    if (!digits) return "";
+    return `HL${digits}`;
 }
 
 function digitsOnly(value, maxLength = null) {
@@ -19,35 +10,22 @@ function digitsOnly(value, maxLength = null) {
     return maxLength ? digits.slice(0, maxLength) : digits;
 }
 
-function decimalOnly(value) {
-    const cleaned = String(value || "").replace(/[^\d.]+/g, "");
-    const parts = cleaned.split(".");
-
-    if (parts.length <= 1) {
-        return cleaned;
-    }
-
-    return `${parts[0]}.${parts.slice(1).join("")}`;
+function normalizeOp(value) {
+    const digits = digitsOnly(value, 4);
+    return digits ? digits.padStart(4, "0") : "";
 }
 
-function normalizeDecimalBlur(value) {
-    const cleaned = decimalOnly(value).trim();
-
-    if (!cleaned || cleaned === ".") {
-        return "";
-    }
-
-    if (cleaned.startsWith(".")) {
-        return `0${cleaned}`;
-    }
-
-    return cleaned;
+function normalizeWorkOrder(value) {
+    return digitsOnly(value, 10);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    // -----------------------------
+    // 기번: 숫자만 4자리 입력, blur 시 HL 붙이기
+    // -----------------------------
     document.querySelectorAll(".js-gibun-code").forEach(function (input) {
         input.addEventListener("input", function (event) {
-            event.target.value = event.target.value.toUpperCase();
+            event.target.value = digitsOnly(event.target.value, 4);
         });
 
         input.addEventListener("blur", function (event) {
@@ -55,31 +33,36 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    document.querySelectorAll(".js-numeric-only").forEach(function (input) {
-        const maxLength = input.dataset.maxlength
-            ? Number(input.dataset.maxlength)
-            : 4;
-
+    // -----------------------------
+    // Work Order: 숫자만 10자리
+    // -----------------------------
+    document.querySelectorAll(".js-work-order").forEach(function (input) {
         input.addEventListener("input", function (event) {
-            event.target.value = digitsOnly(event.target.value, maxLength);
+            event.target.value = normalizeWorkOrder(event.target.value);
         });
 
         input.addEventListener("blur", function (event) {
-            const onlyDigits = digitsOnly(event.target.value, maxLength);
-            event.target.value = onlyDigits ? onlyDigits.padStart(4, "0") : "";
+            event.target.value = normalizeWorkOrder(event.target.value);
         });
     });
 
-    document.querySelectorAll(".js-decimal-only").forEach(function (input) {
+    // -----------------------------
+    // OP: 숫자만 4자리, blur 시 4자리 0채움
+    // 예: 10 -> 0010
+    // -----------------------------
+    document.querySelectorAll(".js-op-code").forEach(function (input) {
         input.addEventListener("input", function (event) {
-            event.target.value = decimalOnly(event.target.value);
+            event.target.value = digitsOnly(event.target.value, 4);
         });
 
         input.addEventListener("blur", function (event) {
-            event.target.value = normalizeDecimalBlur(event.target.value);
+            event.target.value = normalizeOp(event.target.value);
         });
     });
 
+    // -----------------------------
+    // 체크박스 / 선택 관련
+    // -----------------------------
     const selectAll = document.querySelector(".js-select-all");
     const rowCheckboxes = Array.from(document.querySelectorAll(".js-row-select"));
     const rows = Array.from(document.querySelectorAll(".js-master-data-row"));
@@ -88,7 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
         rows.forEach(function (row) {
             const checkbox = row.querySelector(".js-row-select");
             if (!checkbox) return;
-
             row.classList.toggle("row-selected", checkbox.checked);
         });
     }
@@ -147,4 +129,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     updateSelectAllState();
+
+    // -----------------------------
+    // 수정 버튼 / form submit 직전에 최종 정규화
+    // -----------------------------
+    const form = document.querySelector("#masterDataEditForm");
+
+    if (form) {
+        form.addEventListener("submit", function () {
+            document.querySelectorAll(".js-gibun-code").forEach(function (input) {
+                input.value = normalizeGibun(input.value);
+            });
+
+            document.querySelectorAll(".js-work-order").forEach(function (input) {
+                input.value = normalizeWorkOrder(input.value);
+            });
+
+            document.querySelectorAll(".js-op-code").forEach(function (input) {
+                input.value = normalizeOp(input.value);
+            });
+        });
+    }
 });

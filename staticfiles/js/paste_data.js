@@ -5,7 +5,7 @@ const COL_COUNT = 5;
 const COLUMN_PLACEHOLDERS = [
     "HLxxxx",
     "Work Order",
-    "0001",
+    "0010",
     "Description",
     "0.0",
 ];
@@ -26,16 +26,28 @@ function createInputByColumn(colIndex) {
     input.spellcheck = false;
 
     if (colIndex === 0) {
-        input.style.textTransform = "uppercase";
+        // 기번: 숫자 4자리만 입력, 저장 시 HL 붙임
+        input.inputMode = "numeric";
+        input.maxLength = 4;
+    }
+
+    if (colIndex === 1) {
+        // Work Order: 숫자 10자리까지
+        input.inputMode = "numeric";
+        input.maxLength = 10;
     }
 
     if (colIndex === 2) {
+        // OP: 숫자 4자리까지 입력, blur 시 4자리 보정
         input.inputMode = "numeric";
         input.maxLength = 4;
-        input.addEventListener("blur", handleOpBlur);
+        input.addEventListener("blur", function (e) {
+            e.target.value = normalizeOp(e.target.value);
+        });
     }
 
     if (colIndex === 4) {
+        // M/H: 소수 입력 허용
         input.inputMode = "decimal";
     }
 
@@ -63,7 +75,9 @@ function handleCellInput(e, colIndex) {
     if (!input) return;
 
     if (colIndex === 0) {
-        input.value = normalizeGibun(input.value);
+        input.value = normalizeGibunRaw(input.value);
+    } else if (colIndex === 1) {
+        input.value = normalizeWoRaw(input.value);
     } else if (colIndex === 2) {
         input.value = normalizeOpRaw(input.value);
     } else if (colIndex === 4) {
@@ -71,45 +85,34 @@ function handleCellInput(e, colIndex) {
     }
 }
 
-function normalizeGibun(value) {
-    const raw = String(value || "").trim().toUpperCase();
-    if (!raw) return "";
-
-    if (/^HL\d+$/.test(raw)) return raw;
-
-    const digitsOnly = raw.replace(/\D/g, "");
-    if (digitsOnly) {
-        return `HL${digitsOnly}`;
-    }
-
-    return raw;
+function normalizeGibunRaw(value) {
+    return String(value || "").replace(/\D/g, "").slice(0, 4);
 }
 
-function normalizeOp(value) {
-    const raw = String(value || "");
-    const digits = raw.replace(/\D/g, "");
-    if (!digits) return "";
-    return digits.slice(0, 4).padStart(4, "0");
+function formatGibunForSave(value) {
+    const digits = normalizeGibunRaw(value);
+    return digits ? `HL${digits}` : "";
+}
+
+function normalizeWoRaw(value) {
+    return String(value || "").replace(/\D/g, "").slice(0, 10);
 }
 
 function normalizeOpRaw(value) {
     return String(value || "").replace(/\D/g, "").slice(0, 4);
 }
 
-function normalizeMhRaw(value) {
-    const raw = String(value || "").replace(/[^0-9.]/g, "");
-
-    // 소수점 2개 이상 방지
-    const parts = raw.split(".");
-    if (parts.length <= 1) return raw;
-
-    return `${parts[0]}.${parts.slice(1).join("")}`;
+function normalizeOp(value) {
+    const digits = String(value || "").replace(/\D/g, "").slice(0, 4);
+    return digits ? digits.padStart(4, "0") : "";
 }
 
-function handleOpBlur(e) {
-    const input = e.target;
-    if (!input) return;
-    input.value = normalizeOp(input.value);
+function normalizeMhRaw(value) {
+    const raw = String(value || "").replace(/[^0-9.]/g, "");
+    const parts = raw.split(".");
+
+    if (parts.length <= 1) return raw;
+    return `${parts[0]}.${parts.slice(1).join("")}`;
 }
 
 function flashInput(input) {
@@ -135,9 +138,11 @@ function setInputValueByColumn(input, colIndex, value) {
     const text = String(value ?? "").trim();
 
     if (colIndex === 0) {
-        input.value = normalizeGibun(text);
+        input.value = normalizeGibunRaw(text);
+    } else if (colIndex === 1) {
+        input.value = normalizeWoRaw(text);
     } else if (colIndex === 2) {
-        input.value = normalizeOpRaw(text);
+        input.value = normalizeOp(text);
     } else if (colIndex === 4) {
         input.value = normalizeMhRaw(text);
     } else {
@@ -166,8 +171,6 @@ function handlePaste(e) {
         if (line == null) return;
 
         const cols = line.split("\t");
-
-        // 행 전체가 비어 있으면 skip
         const hasAnyValue = cols.some((c) => String(c ?? "").trim() !== "");
         if (!hasAnyValue) return;
 
@@ -199,24 +202,32 @@ function collectRowData() {
     const data = [];
     const rows = tableBody.querySelectorAll("tr");
 
-    rows.forEach((tr, rowIndex) => {
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+        const tr = rows[rowIndex];
         const inputs = tr.querySelectorAll("input");
-        if (inputs.length < COL_COUNT) return;
+        if (inputs.length < COL_COUNT) continue;
 
-        const gibun = normalizeGibun(inputs[0].value);
-        const wo = inputs[1].value.trim();
+        const gibunRaw = normalizeGibunRaw(inputs[0].value);
+        const gibun = formatGibunForSave(inputs[0].value);
+        const wo = normalizeWoRaw(inputs[1].value);
         const op = normalizeOp(inputs[2].value);
         const desc = inputs[3].value.trim();
         const mh = normalizeMhRaw(inputs[4].value.trim());
 
-        const values = [gibun, wo, op, desc, mh];
+        const values = [gibunRaw, wo, op, desc, mh];
         const filledCount = values.filter((v) => String(v || "").trim() !== "").length;
 
         // 완전 공란 행 스킵
-        if (filledCount === 0) return;
+        if (filledCount === 0) continue;
+
+        // 기번 일부만 입력한 경우 경고
+        if (gibunRaw && gibunRaw.length !== 4) {
+            alert(`${rowIndex + 1}행 기번은 숫자 4자리를 입력해야 합니다.`);
+            return null;
+        }
 
         // 최소 3개 열 + 기번 필수
-        if (filledCount < 3 || !gibun) return;
+        if (filledCount < 3 || !gibun) continue;
 
         data.push({
             row_number: rowIndex + 1,
@@ -226,7 +237,7 @@ function collectRowData() {
             description: desc,
             default_mh: mh,
         });
-    });
+    }
 
     return data;
 }
@@ -265,9 +276,10 @@ window.saveData = function () {
     }
 
     const data = collectRowData();
+    if (data === null) return;
 
     if (data.length === 0) {
-        alert("저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 필요)");
+        alert("저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 4자리 필요)");
         return;
     }
 

@@ -1,3 +1,9 @@
+body {
+    padding-bottom: 5rem;
+}
+.glass-panel {
+    max-width: 1400px !important;
+}
 .table-input {
     border: 1px solid transparent;
     background-color: transparent;
@@ -337,6 +343,3 @@ body.modal-open .fixed-bottom {
     border-color: #7cc5ff;
 }
 
-.glass-panel {
-    margin-bottom: 5rem;
-}

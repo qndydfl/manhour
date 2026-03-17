@@ -46,7 +46,9 @@ function initAssignedText() {
 }
 
 function initMasterItemsTab() {
-    const tabButton = document.querySelector('[data-bs-target="#masterItemsTab"]');
+    const tabButton = document.querySelector(
+        '[data-bs-target="#masterItemsTab"]',
+    );
     const tableBody = document.getElementById("masterItemsTableBody");
     const searchInput = document.getElementById("masterItemsSearch");
     const addBtn = document.getElementById("masterItemsAddBtn");
@@ -129,9 +131,12 @@ function initMasterItemsTab() {
     }
 
     addBtn.addEventListener("click", async () => {
-        const checked = Array.from(
-            tableBody.querySelectorAll(".master-item-check:checked"),
-        ).map((el) => parseInt(el.value, 10));
+        const checked = Array.from(tableBody.querySelectorAll("tr"))
+            .filter((row) => row.style.display !== "none")
+            .flatMap((row) => {
+                const chk = row.querySelector(".master-item-check:checked");
+                return chk ? [parseInt(chk.value, 10)] : [];
+            });
 
         if (!checked.length) {
             alert("추가할 항목을 선택해주세요.");
@@ -170,10 +175,16 @@ function initPlanMhAdjust() {
     const select = document.querySelector(".mh-adjust-select");
     if (!select) return;
 
-    const rows = Array.from(document.querySelectorAll("#manageItemsTable tbody tr.sortable-row"));
+    const rows = Array.from(
+        document.querySelectorAll("#manageItemsTable tbody tr.sortable-row"),
+    );
     const planInputs = rows.map((row) => row.querySelector(".plan-mh-input"));
-    const adjustedInputs = rows.map((row) => row.querySelector(".adjusted-mh-input"));
-    const adjustedHiddenInputs = rows.map((row) => row.querySelector(".adjusted-mh-hidden"));
+    const adjustedInputs = rows.map((row) =>
+        row.querySelector(".adjusted-mh-input"),
+    );
+    const adjustedHiddenInputs = rows.map((row) =>
+        row.querySelector(".adjusted-mh-hidden"),
+    );
 
     const editedIds = new Set(
         (window.adjustedMhCustomIds || "")
@@ -248,7 +259,9 @@ function initPlanMhAdjust() {
         if (!input) return;
         const raw = (input.value || "").toString().trim();
         const parsed = parseFloat(raw);
-        input.dataset.baseMh = Number.isFinite(parsed) ? parsed.toString() : "0";
+        input.dataset.baseMh = Number.isFinite(parsed)
+            ? parsed.toString()
+            : "0";
     };
 
     planInputs.forEach((input) => {
@@ -265,16 +278,18 @@ function initPlanMhAdjust() {
     const form = document.getElementById("manage-form");
     if (form) {
         form.addEventListener("submit", function () {
-            let hidden = form.querySelector('input[name="mh_percent"]');
-            if (!hidden) {
-                hidden = document.createElement("input");
-                hidden.type = "hidden";
-                hidden.name = "mh_percent";
-                form.appendChild(hidden);
+            let percentField = form.querySelector('[name="mh_percent"]');
+            if (!percentField) {
+                percentField = document.createElement("input");
+                percentField.type = "hidden";
+                percentField.name = "mh_percent";
+                form.appendChild(percentField);
             }
-            hidden.value = select.value;
+            percentField.value = select.value;
 
-            let editedHidden = form.querySelector('input[name="adjusted_mh_custom_ids"]');
+            let editedHidden = form.querySelector(
+                'input[name="adjusted_mh_custom_ids"]',
+            );
             if (!editedHidden) {
                 editedHidden = document.createElement("input");
                 editedHidden.type = "hidden";
@@ -337,7 +352,8 @@ function initPlanMhAdjust() {
             const base = parseFloat(planInput.dataset.baseMh || "0");
             const adjusted = Math.round(base * multiplier * 10) / 10;
 
-            adjustedInputs[idx].value = percent === 0 ? "" : adjusted.toFixed(1);
+            adjustedInputs[idx].value =
+                percent === 0 ? "" : adjusted.toFixed(1);
         });
 
         syncAdjustedHidden();
@@ -435,7 +451,9 @@ function syncDeleteState(chk) {
     const row = chk.closest("tr");
     if (!row) return;
 
-    const realDelete = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    const realDelete = row.querySelector(
+        'input[type="checkbox"][name$="-DELETE"]',
+    );
     if (realDelete) {
         realDelete.checked = chk.checked;
     }

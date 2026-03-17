@@ -730,7 +730,9 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
     # 세션 정보 및 작업자 명단 수정
     def get(self, request, session_id):
         session = get_session_or_404(request, session_id)
-        worker_names = "\n".join([w.name for w in session.worker_set.all()])
+        worker_names = "\n".join(
+            [w.name for w in session.worker_set.all().order_by("name")]
+        )
         return render(
             request,
             "manhour/edit_session.html",
@@ -953,8 +955,9 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
 
         wo_total = sum(1 for item in items if item.work_order != KANBI_WO)
 
-        mh_percent = self.request.session.get(f"mh_percent_{session.id}", "0")
-        strict_limit = str(mh_percent).strip() not in ("", "0")
+        strict_limit = bool(
+            self.request.session.get(f"strict_limit_{session.id}", True)
+        )
         unassigned_count = 0
         if strict_limit:
             for item in items:
@@ -969,7 +972,7 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
 
         context.update(
             {
-                "workers": session.worker_set.all(),
+                "workers": session.worker_set.all().order_by("name"),
                 "items": items,
                 "filter_worker": filter_worker or "",
                 "wo_total": wo_total,
@@ -1131,13 +1134,17 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             "order"
         )
 
-        workers = session.worker_set.all().order_by("id")
+        workers = session.worker_set.all().order_by("name")
         total_worker_count = workers.count()
+        default_limit_mh = get_default_worker_limit_mh(session.site)
         worker_names_list = []
+        custom_limit_workers = []
         for w in workers:
             limit_str = (
                 f"{int(w.limit_mh)}" if w.limit_mh.is_integer() else f"{w.limit_mh}"
             )
+            if abs(float(w.limit_mh or 0.0) - float(default_limit_mh)) > 0.01:
+                custom_limit_workers.append({"name": w.name, "limit": limit_str})
             worker_names_list.append(f"{w.name}: {limit_str}")
         worker_names_str = "\n".join(worker_names_list)
 
@@ -1148,6 +1155,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             f"adjusted_mh_custom_ids_{session.id}", []
         )
         last_adjusted_mh = request.session.get(f"adjusted_mh_{session.id}")
+        strict_limit = True
 
         if last_adjusted_mh_map and isinstance(last_adjusted_mh_map, dict):
             for form in formset.forms:
@@ -1155,6 +1163,8 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     form.initial["adjusted_mh"] = last_adjusted_mh_map[
                         str(form.instance.pk)
                     ]
+            if str(last_mh_percent).strip() in ("", "0", "None"):
+                last_mh_percent = "custom"
         elif (
             last_adjusted_mh
             and isinstance(last_adjusted_mh, list)
@@ -1180,11 +1190,13 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 "formset": formset,
                 "gibun_priorities": gibun_priorities,
                 "worker_names_str": worker_names_str,
+                "custom_limit_workers": custom_limit_workers,
                 "non_common_count": WorkItem.objects.filter(session=session)
                 .exclude(gibun_input="COMMON")
                 .count(),
                 "lastMhPercent": last_mh_percent,
                 "lastAdjustedCustomIds": last_adjusted_custom_ids,
+                "strict_limit": strict_limit,
                 "total_worker_count": total_worker_count,
             },
         )
@@ -1208,7 +1220,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     continue
 
         # 조정 M/H 값이 넘어오면 work_mh에 반영
-        mh_adjusted_list = request.POST.getlist("adjusted_mh")
         mh_percent = request.POST.get("mh_percent", "0")
         custom_ids_raw = request.POST.get("adjusted_mh_custom_ids", "")
 
@@ -1220,13 +1231,14 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 
         # 세션에 저장 (ID 기준 맵 + 리스트)
         adjusted_mh_map = {}
-        if mh_adjusted_list and len(mh_adjusted_list) == len(formset.forms):
-            for idx, form in enumerate(formset.forms):
-                if not form.instance.pk:
-                    continue
-                raw_val = mh_adjusted_list[idx]
-                if raw_val.strip() != "":
-                    adjusted_mh_map[str(form.instance.pk)] = raw_val
+        mh_adjusted_list = []
+        for form in formset.forms:
+            raw_val = (form.data.get(form.add_prefix("adjusted_mh")) or "").strip()
+            mh_adjusted_list.append(raw_val)
+            if not form.instance.pk:
+                continue
+            if raw_val != "":
+                adjusted_mh_map[str(form.instance.pk)] = raw_val
         request.session[f"mh_percent_{session.id}"] = mh_percent
         request.session[f"adjusted_mh_{session.id}"] = mh_adjusted_list
         request.session[f"adjusted_mh_map_{session.id}"] = adjusted_mh_map
@@ -1278,9 +1290,10 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     parts = line.split(":", 1)
                     name_part = parts[0].strip()
                     limit_part = parts[1].strip()
-                    try:
-                        limit_val = float(limit_part)
-                    except ValueError:
+                    number_match = re.search(r"[-+]?\d+(?:\.\d+)?", limit_part)
+                    if number_match:
+                        limit_val = float(number_match.group(0))
+                    else:
                         limit_val = default_limit_mh
                 else:
                     name_part = line
@@ -1447,25 +1460,32 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # ---------------------------------------------------------
         # 2. 자동 배정/스케줄 동기화 재실행
         # ---------------------------------------------------------
-        strict_limit = str(mh_percent).strip() not in ("", "0")
+        strict_limit = True
+        request.session[f"strict_limit_{session.id}"] = True
         run_auto_assign(
             session.id,
             adjusted_mh_map,
             allow_over_limit=not strict_limit,
         )
-        if strict_limit:
-            unassigned_count = (
-                WorkItem.objects.filter(session=session, is_manual=False)
-                .exclude(work_order__in=[KANBI_WO, DIRECT_WO])
-                .annotate(assign_count=Count("assignments"))
-                .filter(assign_count=0)
-                .count()
+        unassigned_qs = (
+            WorkItem.objects.filter(session=session, is_manual=False)
+            .exclude(work_order__in=[KANBI_WO, DIRECT_WO])
+            .annotate(assign_count=Count("assignments"))
+            .filter(assign_count=0)
+        )
+        unassigned_count = unassigned_qs.count()
+        if unassigned_count:
+            preview = list(
+                unassigned_qs.values_list("gibun_input", "work_order", "op")[:5]
             )
-            if unassigned_count:
-                messages.warning(
-                    request,
-                    f"근무 한도 제한으로 {unassigned_count}건이 미배정되었습니다.",
-                )
+            preview_text = ", ".join(
+                f"{g or '-'} / {wo or '-'} / {op or '-'}" for g, wo, op in preview
+            )
+            message = (
+                f"근무 한도 제한으로 {unassigned_count}건이 미배정되었습니다."
+                f" (예: {preview_text})"
+            )
+            messages.warning(request, message)
         run_sync_schedule(session.id)
 
         return redirect(

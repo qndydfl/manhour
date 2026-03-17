@@ -31,7 +31,7 @@
 .login-container {
     position: relative;
     z-index: 2;
-    min-height: calc(100vh - 72px);
+    min-height: calc(100vh - 20rem);
     display: flex;
     align-items: center;
     padding-top: 2.5rem;
@@ -106,7 +106,7 @@
 }
 
 .login-brand-title {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
     line-height: 0.98;
     letter-spacing: -0.06em;
     font-weight: 800;
@@ -239,7 +239,7 @@
 
 .login-select,
 .login-input {
-    min-height: 56px;
+    min-height: 3rem;
     border-radius: 18px;
     border: 1px solid var(--login-line);
     background: rgba(248, 250, 252, 0.92);

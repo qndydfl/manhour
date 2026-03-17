@@ -76,38 +76,30 @@ class TaskMasterForm(forms.ModelForm):
             "default_mh",
         ]
         widgets = {
-            "gibun_code": forms.TextInput(
-                attrs={
-                    "class": "form-control form-control-sm js-gibun-code",
-                    "autocomplete": "off",
-                }
-            ),
-            "work_order": forms.TextInput(
-                attrs={
-                    "class": "form-control form-control-sm js-numeric-only",
-                    "inputmode": "numeric",
-                    "pattern": "\\d*",
-                    "autocomplete": "off",
-                }
-            ),
-            "op": forms.TextInput(
-                attrs={
-                    "class": "form-control form-control-sm js-numeric-only",
-                    "inputmode": "numeric",
-                    "pattern": "\\d*",
-                    "autocomplete": "off",
-                }
-            ),
-            "description": forms.Textarea(
-                attrs={"class": "form-control form-control-sm", "rows": 1}
-            ),
-            "default_mh": forms.NumberInput(
-                attrs={
-                    "class": "form-control form-control-sm js-decimal-only",
-                    "step": "0.1",
-                    "inputmode": "decimal",
-                }
-            ),
+            "gibun_code": forms.TextInput(attrs={
+                "class": "form-control js-gibun-code",
+                "maxlength": "6",   # 화면상 HL1234까지 보일 수 있으므로
+                "inputmode": "numeric",
+                # "placeholder": "예: 1234",
+            }),
+            "work_order": forms.TextInput(attrs={
+                "class": "form-control js-work-order",
+                "maxlength": "10",
+                "inputmode": "numeric",
+                # "placeholder": "최대 10자리 숫자",
+            }),
+            "op": forms.TextInput(attrs={
+                "class": "form-control js-op-code",
+                "maxlength": "4",
+                "inputmode": "numeric",
+                # "placeholder": "예: 0010",
+            }),
+            "description": forms.TextInput(attrs={
+                "class": "form-control",
+            }),
+            "default_mh": forms.TextInput(attrs={
+                "class": "form-control text-center",
+            }),
         }
 
     def clean_gibun_code(self):
