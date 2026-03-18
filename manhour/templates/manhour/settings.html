@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="container" style="max-width: 1000px">
-    <div class="card glass-panel shadow-sm my-4 p-4">
+    <div class="card my-4 p-4">
         <div
             class="d-flex align-items-center justify-content-between gap-3 mb-4 flex-wrap"
         >
@@ -22,14 +22,14 @@
             <div class="d-flex gap-2 justify-content-between align-items-center">
                 <button
                     type="submit"
-                    class="btn btn-primary rounded-pill fw-bold"
+                    class="btn btn-primary rounded-pill px-4 py-2 fw-bold"
                     form="settings-form"
                 >
-                    저장
+                    저장 하기
                 </button>
                 <a
                     href="{% url 'manhour:index' %}"
-                    class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
+                    class="btn btn-outline-dark btn-sm rounded-pill px-4 py-2 fw-bold"
                 >
                     <i class="bi bi-arrow-left"></i>
                     <span class="d-none d-md-inline">이전 화면으로</span>

@@ -17,17 +17,17 @@
 
 {% block content %}
 <div
-    class="container rounded-3 glass-panel my-4 p-4"
+    class="container rounded-3 my-4"
     data-aos="fade-up"
     data-aos-duration="1000"
 >
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <h2 class="fw-bold text-dark">
+        <h2 class="fw-bold text-white">
             📊 {{ session.name }}
             {% if not session.is_active %}
-                <span class="badge text-bg-secondary ms-2" style="font-size: 1rem">작업 완료</span>
+                <span class="badge text-bg-secondary rounded-pill ms-2 p-2" style="font-size: 0.9rem">작업 완료</span>
             {% else %}
-                <span class="badge text-bg-primary ms-2" style="font-size: 1rem">작업 중</span>
+                <span class="badge text-bg-primary rounded-pill ms-2 p-2" style="font-size: 0.9rem">작업 중</span>
             {% endif %}
         </h2>
 
@@ -35,7 +35,7 @@
             {% if manning_list_available %}
                 <a
                     href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"
-                    class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-2"
+                    class="btn btn-warning rounded-pill fw-bold px-4 py-2"
                 >
                     <i class="bi bi-list-ul"></i>
                     <span class="d-none d-md-inline">Manning 데시 보드</span>
@@ -45,7 +45,7 @@
             {% if not session.is_active %}
                 <a
                     href="{% url 'manhour:history' %}"
-                    class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
+                    class="btn btn-dark rounded-pill fw-bold px-4 py-2"
                 >
                     <i class="bi bi-arrow-left"></i>
                     <span class="d-none d-md-inline">이전 화면으로</span>
@@ -53,7 +53,7 @@
             {% else %}
                 <a
                     href="{% url 'manhour:session_list' %}"
-                    class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
+                    class="btn btn-dark rounded-pill fw-bold px-4 py-2"
                 >
                     <i class="bi bi-arrow-left"></i>
                     <span class="d-none d-md-inline">이전 화면으로</span>
@@ -199,7 +199,7 @@
         <div class="d-flex flex-wrap gap-2">
             <a
                 href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-2"
+                class="btn btn-primary rounded-pill fw-bold px-4 py-2"
             >
                 <i class="bi bi-calendar-range me-1"></i> 시간별 보기
                 {% if not session.is_active %}
@@ -228,7 +228,7 @@
                     <tbody>
                         {% for item in items %}
                             {% if item.work_order != '간비' %}
-                            <tr class="{% if item.is_manual %}bg-soft-warning{% endif %}">
+                            <tr class="{% if item.is_manual %}bg-soft-warning{% endif %} bg-light">
                                 <td class="col-gibun fw-bold text-dark" style="font-size: 0.9rem">
                                     {{ item.gibun_input }}
                                 </td>
@@ -240,7 +240,7 @@
                                     {{ item.description }}
                                 </td>
                                 <td class="col-mh">
-                                    <span class="badge bg-soft-primary text-primary">
+                                    <span class="badge bg-soft-primary text-primary fw-bold">
                                         {{ item.adjusted_mh|floatformat:1 }}H
                                     </span>
                                 </td>

@@ -31,17 +31,17 @@ body {
     background:
         radial-gradient(
             circle at 10% 15%,
-            rgba(59, 130, 246, 0.12),
-            transparent 22%
+            rgba(15, 24, 39, 0.15),
+            transparent 25%
         ),
         radial-gradient(
             circle at 85% 85%,
-            rgba(14, 165, 233, 0.1),
-            transparent 20%
+            rgba(3, 38, 54, 0.12),
+            transparent 25%
         ),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-        linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-        linear-gradient(135deg, #f8fbff 0%, #eef4fa 48%, #e5edf6 100%);
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(135deg, #6f7f96 0%, #5e728d 45%, #3a4b68 100%);
     background-size:
         auto,
         auto,
@@ -50,7 +50,6 @@ body {
         auto;
     background-attachment: fixed;
 }
-
 
 .glass-panel {
     /* 하얀색 45% -> 네이비/블랙 계열 30~40%로 변경 */
@@ -226,6 +225,36 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .navbar-collapse {
+        text-align: center;
+    }
+
+    .navbar-actions {
+        width: 100%;
+        align-items: center !important;
+        justify-content: center;
+    }
+
+    .navbar-actions > * {
+        width: 100%;
+        max-width: 320px;
+        margin-inline: auto;
+    }
+
+    .workplace-pill {
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-inline: auto;
+    }
+
+    .dropdown-menu {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%);
+    }
 }
 
 /* Status Pills */

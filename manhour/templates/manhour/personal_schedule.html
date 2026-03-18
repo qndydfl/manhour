@@ -65,22 +65,22 @@
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 my-4 p-4"
+    class="container rounded-3 my-4"
     style="max-width: 1000px"
 >
     <div
         class="d-flex justify-content-between align-items-center flex-wrap gap-2"
         data-aos="fade-down"
     >
-        <h4 class="fw-bold mb-0 text-dark">
-            <span class="text-dark fw-bold">{{ worker_name }}</span>
-            <span class="text-muted fs-6 ms-2">님의 시간표</span>
+        <h4 class="fw-bold mb-2 text-dark">
+            <span class="text-white fw-bold fs-4">{{ worker_name }}</span>
+            <span class="text-dark fw-bold ms-2">님의 시간표</span>
         </h4>
 
-        <div class="d-flex gap-2 align-items-center flex-wrap">
+        <div class="d-flex gap-2 align-items-center flex-wrap ms-auto">
             <button
                 type="button"
-                class="btn btn-light border-0 rounded-pill px-3 fw-bold shadow-sm py-2"
+                class="btn btn-light rounded-pill px-4 fw-bold py-2"
                 onclick="copyTableToClipboard()"
             >
                 <i class="bi bi-clipboard-check me-1"></i> 복사
@@ -88,7 +88,7 @@
 
             <button
                 type="button"
-                class="btn btn-primary rounded-pill px-3 fw-bold shadow-sm py-2"
+                class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#manualInputModal"
             >
@@ -97,7 +97,7 @@
 
             <a
                 href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 ms-2 py-2"
+                class="btn btn-dark rounded-pill fw-bold px-4 ms-2 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -106,10 +106,10 @@
     </div>
 
     {% if schedule %}
-    <div class="row g-3 my-2 p-4" data-aos="fade-up">
+    <div class="row g-3 my-3 py-2" data-aos="fade-up">
         <div class="col-md-6">
             <div
-                class="widget-card d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
+                class="widget-card d-flex align-items-center gap-3 py-3 px-4 rounded-pill border-0"
             >
                 <div
                     class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary"
@@ -132,7 +132,7 @@
 
         <div class="col-md-6">
             <div
-                class="widget-card d-flex align-items-center gap-3 py-3 px-4 rounded-3 border-0"
+                class="widget-card bg-warning d-flex align-items-center gap-3 py-3 px-4 rounded-pill border-0"
             >
                 <div
                     class="bg-success bg-opacity-10 p-3 rounded-circle text-success"
@@ -228,9 +228,9 @@
         </div>
     </div>
     {% else %}
-    <div class="text-center my-5 py-5 rounded-3" data-aos="zoom-in">
-        <i class="bi bi-calendar-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
-        <h6 class="text-muted fw-bold">배정된 작업이 없습니다.</h6>
+    <div class="text-center text-white my-5 py-5 rounded-3" data-aos="zoom-in">
+        <i class="bi bi-calendar-x fs-1 opacity-50 mb-3 d-block"></i>
+        <h6 class="text-white fw-bold">배정된 작업이 없습니다.</h6>
     </div>
     {% endif %}
 </div>
@@ -275,23 +275,12 @@
                         </label>
                     </div>
 
-                    <div class="text-danger small mb-3">
-                        <strong>
+                    <div class="text-primary small mb-3">
+                        <p>
                             체크 해제 시 아래 작업자 목록에서 적용 대상을 선택할 수 있습니다.
                             전체 적용 시 모든 작업자에게 동일한 간비 시간이 적용됩니다.
-                        </strong>
+                        </p>
                     </div>
-
-                    {% comment %} <select
-                        id="modal-worker-select"
-                        class="form-select form-select-lg bg-light border-0 fw-bold"
-                        style="font-size: 1rem"
-                    >
-                        <option value="">-- 작업자를 선택하세요 --</option>
-                        {% for w in session.worker_set.all %}
-                        <option value="{{ w.id }}">{{ w.name }}</option>
-                        {% endfor %}
-                    </select> {% endcomment %}
                     <div
                         id="worker-checkbox-area"
                         class="bg-light rounded-3 p-3 border"

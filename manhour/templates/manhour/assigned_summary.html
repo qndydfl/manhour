@@ -17,18 +17,18 @@
 
 {% block content %}
 <div
-    class="container glass-panel my-4 p-4 rounded-3 shadow-lg"
+    class="container my-4 rounded-3"
     style="max-width: 1000px"
 >
     <div class="d-flex align-items-center mb-3 px-2" data-aos="fade-down">
-        <h4 class="fw-bold text-dark my-3">📅 배정 현황 요약</h4>
+        <h4 class="fw-bold text-white my-3">📅 배정 현황 요약</h4>
         <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
-            <span class="badge bg-dark rounded-pill px-3 py-2 shadow-sm">
+            <span class="badge bg-primary rounded-pill px-3 py-3">
                 총 인원: {{ workers_schedule|length }}명
             </span>
             <a
                 href="{% if not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold py-2"
+                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -41,8 +41,8 @@
         data-aos="fade-in"
     >
         <i class="bi bi-info-circle-fill text-primary fs-5"></i>
-        <span>
-            직비가 근무 한도를 초과하면
+        <span class="text-white fw-bold">
+            직비가 근무 한도를 초과하면&nbsp;
             <strong class="text-danger">Overload</strong> 상태가 됩니다.
         </span>
     </div>

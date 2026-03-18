@@ -36,7 +36,7 @@
 
                 <div class="mb-4">
                     <label
-                        class="form-label fw-bold text-dark small text-uppercase ls-1"
+                        class="form-label fw-bold text-white small text-uppercase ls-1"
                         >1. 세션 이름</label
                     >
                     <div class="input-group">
@@ -56,7 +56,7 @@
 
                 <div class="mb-4">
                     <label
-                        class="form-label fw-bold text-dark small text-uppercase ls-1 mb-2"
+                        class="form-label fw-bold text-white small text-uppercase ls-1 mb-2"
                     >
                         2. 작업자 명단 관리
                     </label>
@@ -67,7 +67,7 @@
                         <i
                             class="bi bi-exclamation-triangle-fill text-warning mt-1"
                         ></i>
-                        <div>
+                        <div class="text-white"                    >
                             <strong>주의사항:</strong><br />
                             • 이름을 삭제하면 해당 작업자의
                             <u>모든 배정 기록도 함께 삭제</u>됩니다.<br />
@@ -85,7 +85,7 @@
                     >{{ worker_names_str }}</textarea>
 
                     <div class="form-text text-end mt-2">
-                        <small class="text-muted"
+                        <small class="text-white"
                             ><i class="bi bi-info-circle me-1"></i>
                             여러 명을 한꺼번에 붙여넣을 수 있습니다.
                         </small>
@@ -95,13 +95,13 @@
                 <div class="d-flex gap-2 justify-content-end">
                     <button
                         type="submit"
-                        class="btn btn-info btn-sm text-white fw-bold rounded-4 shadow-sm py-2"
+                        class="btn btn-info btn-sm text-white fw-bold rounded-4 px-4 py-2"
                     >
                         <i class="bi bi-check-lg me-1"></i> 수정 완료
                     </button>
                     <a
                         href="{% url 'manhour:result_view' session.id %}"
-                        class="btn btn-light btn-sm rounded-4 fw-bold text-muted py-2"
+                        class="btn btn-light btn-sm rounded-4 fw-bold text-muted px-4 py-2"
                     >
                         취소
                     </a>

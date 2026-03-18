@@ -18,31 +18,32 @@
 
 {% block content %}
 <div
-    class="container glass-panel rounded-3 master-data-edit my-4 p-4"
+    class="container rounded-3 master-data-edit my-4"
 >
     <div
-        class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2"
+        class="d-flex flex-wrap text-white justify-content-between align-items-center pb-4 gap-2"
         data-aos="fade-down"
     >
         <div class="d-flex align-items-center gap-2">
-            <h4 class="fw-bold m-0 text-dark ms-2">
+            <h4 class="fw-bold m-0 ms-2">
                 데이터 수정
             </h4>
         </div>
         <div class="d-flex gap-2 align-items-center py-2 ms-auto">
-            <a
-                href="{% url 'manhour:master_data_list' %}"
-                class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold shadow-sm py-2"
+            <button
+                type="submit"
+                form="masterDataEditForm"
+                class="btn btn-primary rounded-pill px-4 fw-bold py-2"
             >
-                <i class="bi bi-arrow-left me-1"></i> 목록으로
-            </a>
+                <i class="bi bi-save me-1"></i> 저장 하기
+            </button>
             <button
                 type="submit"
                 form="masterDataEditForm"
                 name="action"
                 value="delete_selected"
                 formnovalidate
-                class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-sm py-2"
+                class="btn btn-danger rounded-pill px-4 fw-bold py-2"
                 onclick="
                     return confirm(
                         '선택한 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
@@ -52,13 +53,13 @@
                 <i class="bi bi-trash3-fill me-1"></i>
                 <span class="d-none d-md-inline">선택 항목 삭제</span>
             </button>
-            <button
-                type="submit"
-                form="masterDataEditForm"
-                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm py-2"
+            
+            <a
+                href="{% url 'manhour:master_data_list' %}"
+                class="btn btn-dark rounded-pill px-4 fw-bold py-2"
             >
-                <i class="bi bi-save me-1"></i> 수정
-            </button>
+                <i class="bi bi-arrow-left me-1"></i> 목록으로
+            </a>
         </div>
     </div>
 
@@ -103,9 +104,9 @@
 
                 <div class="table-responsive">
                     <table
-                        class="table table-hover align-middle mb-0 text-nowrap"
+                        class="table table-hover align-middle mb-0 master-data-table"
                     >
-                        <thead class="bg-light text-muted small">
+                        <thead class="bg-light">
                             <tr>
                                 <th class="py-3 ps-4">
                                     <div class="form-check m-0 text-danger">
@@ -130,7 +131,7 @@
                                 <th class="py-3 text-center">
                                     M/H
                                 </th>
-                                <th class="py-3">
+                                <th class="py-3" style="min-width: 150px;">
                                     생성 시간
                                 </th>
                             </tr>

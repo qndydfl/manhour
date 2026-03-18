@@ -9,16 +9,6 @@
     -webkit-overflow-scrolling: touch;
 }
 
-body {
-    background-color: #c9cbcf;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
-    background-attachment: fixed;
-    color: #d1d5db;
-}
-
 .glass-panel {
     background: var(--rv-glass-bg) !important;
     backdrop-filter: var(--rv-glass-blur) !important;
