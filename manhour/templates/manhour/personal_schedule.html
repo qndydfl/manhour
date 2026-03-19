@@ -1,94 +1,55 @@
-{% extends "manhour/base/base.html" %}
-{% load static %}
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
 
-{% block title %}{{ worker_name }}님의 시간표 | manhour{% endblock title %}
+{% block title %}{{ worker_name }}님의 시간표 | manhour{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
-{% endblock css %}
+{% endblock css %} 
 
 {% block js %}
-<script>
-    window.SESSION_ID = "{{ session.id }}";
-    window.CURRENT_WORKER_ID = "{{ worker_id|default:'' }}";
-    window.SERVER_DATA = {{ manual_data_json|default:"[]"|safe }};
-    window.SHIFT_TYPE = "{{ session.shift_type|default:'DAY' }}";
-    window.SAVE_URL = "{% url 'manhour:save_manual_input' session.id %}";
-    window.MANUAL_RESET_URL = "{% url 'manhour:reset_manual_input' session.id %}";
-    window.ALL_WORKER_IDS = [
-        {% for w in session.worker_set.all %}
-            {{ w.id }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-    ];
-
-    async function copyTableToClipboard() {
-        const table = document.getElementById("scheduleTable");
-        if (!table) {
-            alert("복사할 표를 찾을 수 없습니다.");
-            return;
-        }
-
-        const rows = [...table.querySelectorAll("tr")].map((tr) =>
-            [...tr.querySelectorAll("th, td")]
-                .map((cell) => cell.innerText.replace(/\s+/g, " ").trim())
-                .join("\t")
-        );
-        const text = rows.join("\n");
-
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                const temp = document.createElement("textarea");
-                temp.value = text;
-                temp.style.position = "fixed";
-                temp.style.left = "-9999px";
-                document.body.appendChild(temp);
-                temp.focus();
-                temp.select();
-                document.execCommand("copy");
-                document.body.removeChild(temp);
-            }
-            alert("📋 시간표가 복사되었습니다! 엑셀 등에 붙여넣기 하세요.");
-        } catch (err) {
-            console.error("복사 실패:", err);
-            alert("복사에 실패했습니다.");
-        }
-    }
-</script>
 <script defer src="{% static 'js/personal_schedule.js' %}"></script>
-{% endblock js %}
+{% endblock js %} 
 
-{% comment %} {% block background_image %}
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
-{% endblock background_image %} {% endcomment %}
+{% comment %} {% block background_image %} {% include
+"manhour/image/background_url.html" with bg_key="session_list"
+bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
+background_image %} {% endcomment %} 
 
 {% block content %}
 <div
     class="container rounded-3 my-4"
     style="max-width: 1000px"
+    id="personal-schedule-root"
+    data-session-id="{{ session.id }}"
+    data-current-worker-id="{{ worker_id|default:'' }}"
+    data-server-data="{{ manual_data_json|default:'[]'|escape }}"
+    data-shift-type="{{ session.shift_type|default:'DAY' }}"
+    data-save-url="{% url 'manhour:save_manual_input' session.id %}"
+    data-manual-reset-url="{% url 'manhour:reset_manual_input' session.id %}"
+    data-all-worker-ids="[{% for w in session.worker_set.all %}{{ w.id }}{% if not forloop.last %}, {% endif %}{% endfor %}]"
 >
     <div
         class="d-flex justify-content-between align-items-center flex-wrap gap-2"
         data-aos="fade-down"
     >
-        <h4 class="fw-bold mb-2 text-dark">
+        <div class="mb-2 border-start border-4 border-primary ps-3">
             <span class="text-white fw-bold fs-4">{{ worker_name }}</span>
-            <span class="text-dark fw-bold ms-2">님의 시간표</span>
-        </h4>
+            <span class="text-warning small fs-5 ms-2">님의 시간표</span>
+        </div>
 
         <div class="d-flex gap-2 align-items-center flex-wrap ms-auto">
             <button
                 type="button"
-                class="btn btn-light rounded-pill px-4 fw-bold py-2"
-                onclick="copyTableToClipboard()"
+                class="btn btn-light rounded-pill px-4 fw-bold py-2 d-none d-md-inline-flex"
+                id="copy-schedule-btn"
             >
                 <i class="bi bi-clipboard-check me-1"></i> 복사
             </button>
 
             <button
                 type="button"
-                class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm py-2"
+                class="btn btn-primary rounded-pill px-4 fw-bold py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#manualInputModal"
             >
@@ -109,10 +70,10 @@
     <div class="row g-3 my-3 py-2" data-aos="fade-up">
         <div class="col-md-6">
             <div
-                class="widget-card d-flex align-items-center gap-3 py-3 px-4 rounded-pill border-0"
+                class="widget-card d-flex align-items-center gap-3 py-2 px-4 rounded-pill border-0"
             >
                 <div
-                    class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary"
+                    class="bg-light bg-opacity-10 p-3 rounded-circle text-primary"
                 >
                     <i class="bi bi-clock-history fs-4"></i>
                 </div>
@@ -132,7 +93,7 @@
 
         <div class="col-md-6">
             <div
-                class="widget-card bg-warning d-flex align-items-center gap-3 py-3 px-4 rounded-pill border-0"
+                class="widget-card bg-warning d-flex align-items-center gap-3 py-2 px-4 rounded-pill border-0"
             >
                 <div
                     class="bg-success bg-opacity-10 p-3 rounded-circle text-success"
@@ -147,7 +108,9 @@
                         Task Count
                     </div>
                     <div class="fs-4 fw-bold text-dark">
-                        {{ task_count }} <span class="fs-6 text-muted">건</span>
+                        {{ unique_wo_count }} <span class="fs-6 text-muted">건</span>
+                        <span class="fs-6 text-muted">(OP 기준 :</span> 
+                        <span class="fs-5 text-dark fw-bold">{{ task_count }}</span> <span class="fs-6 text-muted">건)</span>
                     </div>
                 </div>
             </div>
@@ -174,46 +137,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in schedule %}
-                        {% if item.wo != 'EMPTY_SLOT' %}
-                        <tr
-                            class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
-                            style="font-size: 0.9rem"
-                        >
-                            <td class="fw-bold text-dark">
-                                {% if item.wo != '간비' %}
-                                    {{ item.wo }}
-                                {% else %}
-                                    &nbsp;
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if item.op %}
-                                    {{ item.op }}
-                                {% else %}
-                                    &nbsp;
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold text-primary">
-                                {% if item.wo == '간비' and item.desc and item.desc != '0' %}
-                                    {{ item.desc }}
-                                {% else %}
-                                    &nbsp;
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold font-monospace text-secondary">
-                                {% if item.wo != '간비' or item.desc != '0' %}
-                                    {{ item.start_str }}
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold font-monospace text-secondary">
-                                {% if item.wo != '간비' or item.desc != '0' %}
-                                    {{ item.end_str }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
+                    {% for item in schedule %} {% if item.wo != 'EMPTY_SLOT' %}
+                    <tr
+                        class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
+                        style="font-size: 0.9rem"
+                    >
+                        <td class="fw-bold text-dark">
+                            {% if item.wo != '간비' %} {{ item.wo }} {% else %} &nbsp; {% endif %}
+                        </td>
+                        <td>
+                            {% if item.op %} {{ item.op }} {% else %} &nbsp; {% endif %}
+                        </td>
+                        <td class="fw-bold text-primary">
+                            {% if item.wo == '간비' and item.desc and item.desc != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif %}
+                        </td>
+                        <td class="fw-bold font-monospace text-secondary">
+                            {% if item.wo != '간비' or item.desc != '0' %} {{ item.start_str }} {% endif %}
+                        </td>
+                        <td class="fw-bold font-monospace text-secondary">
+                            {% if item.wo != '간비' or item.desc != '0' %} {{ item.end_str }} {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %} {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -259,7 +204,9 @@
 
             <div class="modal-body p-4 pb-0">
                 <div class="mb-4">
-                    <label class="form-label fw-bold small text-uppercase text-muted">
+                    <label
+                        class="form-label fw-bold small text-uppercase text-muted"
+                    >
                         Target Worker
                     </label>
 
@@ -277,16 +224,19 @@
 
                     <div class="text-primary small mb-3">
                         <p>
-                            체크 해제 시 아래 작업자 목록에서 적용 대상을 선택할 수 있습니다.
-                            전체 적용 시 모든 작업자에게 동일한 간비 시간이 적용됩니다.
+                            체크 해제 시 아래 작업자 목록에서 적용 대상을 선택할
+                            수 있습니다. 전체 적용 시 모든 작업자에게 동일한
+                            간비 시간이 적용됩니다.
                         </p>
                     </div>
                     <div
                         id="worker-checkbox-area"
                         class="bg-light rounded-3 p-3 border"
-                        style="max-height: 240px; overflow-y: auto;"
+                        style="max-height: 240px; overflow-y: auto"
                     >
-                        <div class="small text-muted mb-2 fw-bold">작업자 선택</div>
+                        <div class="small text-muted mb-2 fw-bold">
+                            작업자 선택
+                        </div>
 
                         {% for w in session.worker_set.all %}
                         <div class="form-check mb-2">
@@ -296,13 +246,15 @@
                                 value="{{ w.id }}"
                                 id="worker-check-{{ w.id }}"
                             />
-                            <label class="form-check-label fw-bold" for="worker-check-{{ w.id }}">
+                            <label
+                                class="form-check-label fw-bold"
+                                for="worker-check-{{ w.id }}"
+                            >
                                 {{ w.name }}
                             </label>
                         </div>
                         {% endfor %}
                     </div>
-
                 </div>
 
                 <div class="card border manual-input-card mb-3">
@@ -317,7 +269,10 @@
                         >
                             <thead class="small text-muted">
                                 <tr>
-                                    <th width="30%" class="text-primary fw-bold">
+                                    <th
+                                        width="30%"
+                                        class="text-primary fw-bold"
+                                    >
                                         간비 (숫자)
                                     </th>
                                     <th width="30%">시작 (HHMM)</th>
@@ -345,9 +300,11 @@
                     <div>
                         <strong>작성 요령:</strong><br />
                         1. 시간은 4자리 숫자(ex:0900)로 입력하세요.<br />
-                        2. 숫자 "0" 을 입력한 줄은 시간표에서 빈 칸으로 처리되고 "간비"로 간주되지 않습니다.<br />
+                        2. 숫자 "0" 을 입력한 줄은 시간표에서 빈 칸으로 처리되고
+                        "간비"로 간주되지 않습니다.<br />
                         <strong class="text-danger">
-                            3. 야간일 경우 0, 0100, 0200 / 주간일 경우 0, 1200, 1300 기본값으로 설정합니다.
+                            3. 야간일 경우 0, 0100, 0200 / 주간일 경우 0, 1200,
+                            1300 기본값으로 설정합니다.
                         </strong>
                     </div>
                 </div>
@@ -408,7 +365,8 @@
         <div class="modal-content border-0 shadow-lg rounded-3">
             <div class="modal-header bg-danger text-white border-0">
                 <h5 class="modal-title fw-bold">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>중복 시간 오류
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>중복
+                    시간 오류
                 </h5>
                 <button
                     type="button"

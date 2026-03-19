@@ -116,6 +116,15 @@ def get_session_or_404(request, session_id: int, **kwargs):
     )
 
 
+def get_session_any_status_or_404(request, session_id: int):
+    workplace = get_current_workplace(request)
+    return get_object_or_404(
+        WorkSession,
+        id=session_id,
+        site=workplace,
+    )
+
+
 def get_item_or_404(request, item_id: int, **kwargs):
     workplace = get_current_workplace(request)
     return get_object_or_404(
@@ -729,7 +738,7 @@ def parse_worker_names(worker_names: str):
 class EditSessionView(SimpleLoginRequiredMixin, View):
     # 세션 정보 및 작업자 명단 수정
     def get(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
         worker_names = "\n".join(
             [w.name for w in session.worker_set.all().order_by("name")]
         )
@@ -743,7 +752,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         )
 
     def post(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
 
         session_name = request.POST.get("session_name")
         if session_name:
@@ -796,7 +805,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
 
 class EditAllView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
 
         WorkItemFormSet = modelformset_factory(
             WorkItem, form=WorkItemForm, extra=3, can_delete=True
@@ -1072,7 +1081,7 @@ class EditItemView(SimpleLoginRequiredMixin, View):
 
 class ManageItemsView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
 
         # ---------------------------------------------------------
         # 1. [정렬 로직] 기번 우선순위 -> 작업순서 -> 등록순서
@@ -1630,7 +1639,7 @@ class PasteDataView(SimpleLoginRequiredMixin, View):
 
 class UpdateLimitsView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
 
         for key, value in request.POST.items():
             if key.startswith("limit_"):
@@ -1788,7 +1797,7 @@ class SaveManualInputView(SimpleLoginRequiredMixin, View):
             raw_assignments = data.get("assignments", [])
             apply_all = bool(data.get("apply_all"))
 
-            session = get_session_or_404(request, session_id)
+            session = get_session_any_status_or_404(request, session_id)
 
             # -----------------------------
             # 1) 들어온 간비 리스트 정리
@@ -1948,7 +1957,7 @@ def _reset_manual_for_workers(session, worker_ids):
 
 class ResetManualInputView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
         try:
             data = json.loads(request.body or "{}")
         except json.JSONDecodeError:
@@ -1978,7 +1987,7 @@ class ResetManualInputView(SimpleLoginRequiredMixin, View):
 
 class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id, worker_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
         if not session.worker_set.filter(id=worker_id).exists():
             return JsonResponse(
                 {"status": "error", "message": "작업자를 찾을 수 없습니다."},
@@ -2451,7 +2460,12 @@ class DuplicateMasterItemsView(SimpleLoginRequiredMixin, View):
 
 class AssignedSummaryView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        workplace = get_current_workplace(request)
+        session = get_object_or_404(
+            WorkSession,
+            id=session_id,
+            site=workplace,
+        )
 
         common_schedule = []
 
@@ -2655,6 +2669,7 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
         manual_edit_list = []
         total_mh = 0.0
         task_count = 0
+        unique_wo_set = set()
 
         for a in assignments:
             wi = a.work_item
@@ -2718,6 +2733,8 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
 
                 if wo_raw not in (KANBI_WO, DIRECT_WO):
                     task_count += 1
+                    if wo_raw:
+                        unique_wo_set.add(wo_raw)
             else:
                 item_data["start_min"] = None
                 item_data["end_min"] = None
@@ -2725,6 +2742,8 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
 
                 if wo_raw not in (KANBI_WO, DIRECT_WO):
                     task_count += 1
+                    if wo_raw:
+                        unique_wo_set.add(wo_raw)
 
         floating_tasks.sort(key=lambda x: x.get("sort_key"))
 
@@ -2814,7 +2833,8 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                 "worker_id": int(worker_id),
                 "total_mh": round(total_mh, 1),
                 "task_count": task_count,
-                "manual_data_json": manual_edit_list,
+                "unique_wo_count": len(unique_wo_set),
+                "manual_data_json": json.dumps(manual_edit_list),
             }
         )
 

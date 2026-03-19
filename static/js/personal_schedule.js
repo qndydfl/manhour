@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const root = document.getElementById("personal-schedule-root");
+    const copyBtn = document.getElementById("copy-schedule-btn");
     const manualModal = document.getElementById("manualInputModal");
     const modalBody = document.getElementById("modal-rows-body");
     const workerCheckboxArea = document.getElementById("worker-checkbox-area");
@@ -10,15 +12,60 @@ document.addEventListener("DOMContentLoaded", () => {
     const resetDbBtn = document.getElementById("btn-reset-db");
 
     const duplicateModalEl = document.getElementById("duplicateTimeModal");
-    const duplicateModalMsgEl = document.getElementById("duplicateTimeModalMessage");
+    const duplicateModalMsgEl = document.getElementById(
+        "duplicateTimeModalMessage",
+    );
 
     const duplicateModal =
         duplicateModalEl && window.bootstrap
             ? new window.bootstrap.Modal(duplicateModalEl)
             : null;
 
+    if (!root) {
+        console.warn("[personal_schedule] root element missing");
+        return;
+    }
+
+    if (!manualModal || !modalBody || !workerCheckboxArea) {
+        console.warn("[manual_modal] required elements missing");
+        return;
+    }
+
+    const workerCheckboxList = [
+        ...document.querySelectorAll(".worker-checkbox"),
+    ];
+
+    const SESSION_ID = root.dataset.sessionId || "";
+    const ALL_WORKER_IDS = parseJsonValue(root.dataset.allWorkerIds, []);
+    const SERVER_DATA = parseJsonValue(root.dataset.serverData, []);
+    const SAVE_URL = root.dataset.saveUrl || "";
+    const MANUAL_RESET_URL = root.dataset.manualResetUrl || "";
+    const SHIFT_TYPE = String(root.dataset.shiftType || "DAY").toUpperCase();
+
+    const DEFAULT_ROWS = 5;
+    const DEFAULT_ROW_VALUES =
+        SHIFT_TYPE === "NIGHT"
+            ? { code: "0", start: "0100", end: "0200" }
+            : { code: "0", start: "1200", end: "1300" };
+
+    let saveTimer = null;
+
+    function parseJsonValue(value, fallback) {
+        if (!value) return fallback;
+        try {
+            return JSON.parse(value);
+        } catch (err) {
+            console.warn("JSON parse error:", err);
+            return fallback;
+        }
+    }
+
     function workerCheckboxes() {
-        return [...document.querySelectorAll(".worker-checkbox")];
+        return workerCheckboxList;
+    }
+
+    function isApplyAllSelected() {
+        return !!(applyAllCheckbox && applyAllCheckbox.checked);
     }
 
     function showDuplicateModal(message) {
@@ -33,43 +80,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    if (!manualModal || !modalBody || !workerCheckboxArea) {
-        console.warn("[manual_modal] required elements missing");
-        return;
+    function getStorageKey(workerKey) {
+        return `manning_input_personal_${String(SESSION_ID)}_${workerKey || ""}`;
     }
 
-    const SESSION_ID = window.SESSION_ID;
-    const ALL_WORKER_IDS = Array.isArray(window.ALL_WORKER_IDS) ? window.ALL_WORKER_IDS : [];
-    const SERVER_DATA = Array.isArray(window.SERVER_DATA) ? window.SERVER_DATA : [];
-    const SAVE_URL = window.SAVE_URL;
-    const MANUAL_RESET_URL = window.MANUAL_RESET_URL;
-    const SHIFT_TYPE = String(window.SHIFT_TYPE || "DAY").toUpperCase();
-
-    const DEFAULT_ROWS = 5;
-    const DEFAULT_ROW_VALUES =
-        SHIFT_TYPE === "NIGHT"
-            ? { code: "0", start: "0100", end: "0200" }
-            : { code: "0", start: "1200", end: "1300" };
-
-    const getStorageKey = (workerKey) =>
-        `manning_input_personal_${String(SESSION_ID)}_${workerKey || ""}`;
-
     function getSelectedWorkerIds() {
-        if (applyAllCheckbox && applyAllCheckbox.checked) {
-            return ["all"];
-        }
-
         return workerCheckboxes()
             .filter((cb) => cb.checked)
             .map((cb) => String(cb.value));
     }
 
     function getTargetWorkerKey() {
+        if (isApplyAllSelected()) {
+            return "all";
+        }
+
         const ids = getSelectedWorkerIds();
         return ids.length ? ids.join("_") : "";
     }
 
-    const getActiveStorageKey = () => getStorageKey(getTargetWorkerKey());
+    function getActiveStorageKey() {
+        return getStorageKey(getTargetWorkerKey());
+    }
 
     function getCookie(name) {
         let cookieValue = null;
@@ -80,8 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
 
-                if (cookie.substring(0, name.length + 1) === name + "=") {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                if (cookie.substring(0, name.length + 1) === `${name}=`) {
+                    cookieValue = decodeURIComponent(
+                        cookie.substring(name.length + 1),
+                    );
                     break;
                 }
             }
@@ -90,74 +124,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return cookieValue;
     }
 
-    function createRow(code = "", start = "", end = "", useDefaults = false) {
-        const shouldUseDefaults = useDefaults && !code && !start && !end;
-        const nextCode = shouldUseDefaults ? DEFAULT_ROW_VALUES.code : code;
-        const nextStart = shouldUseDefaults ? DEFAULT_ROW_VALUES.start : start;
-        const nextEnd = shouldUseDefaults ? DEFAULT_ROW_VALUES.end : end;
+    function clearModalRows() {
+        modalBody.innerHTML = "";
+    }
 
-        const tr = document.createElement("tr");
-        const cleanStart = nextStart ? String(nextStart).replace(/:/g, "") : "";
-        const cleanEnd = nextEnd ? String(nextEnd).replace(/:/g, "") : "";
-
-        tr.innerHTML = `
-            <td>
-                <input
-                    type="text"
-                    class="form-control form-control-sm input-code text-center text-primary fw-bold"
-                    maxlength="4"
-                    value="${nextCode}"
-                    placeholder=""
-                    inputmode="numeric"
-                >
-            </td>
-            <td>
-                <input
-                    type="text"
-                    class="form-control form-control-sm text-center input-start"
-                    maxlength="4"
-                    value="${cleanStart}"
-                    placeholder=""
-                    inputmode="numeric"
-                >
-            </td>
-            <td>
-                <input
-                    type="text"
-                    class="form-control form-control-sm text-center input-end"
-                    maxlength="4"
-                    value="${cleanEnd}"
-                    placeholder=""
-                    inputmode="numeric"
-                >
-            </td>
-            <td>
-                <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 btn-del-row">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </td>
-        `;
-
-        modalBody.appendChild(tr);
-
-        tr.querySelectorAll("input").forEach((input) => {
-            input.classList.add("modal-input");
-
-            input.addEventListener("input", (e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, "");
-                saveToStorage();
-            });
-
-            input.addEventListener("paste", handleModalPaste);
-        });
-
-        const delBtn = tr.querySelector(".btn-del-row");
-        if (delBtn) {
-            delBtn.addEventListener("click", () => {
-                tr.remove();
-                saveToStorage();
-            });
-        }
+    function getRowValues(tr) {
+        return {
+            code: tr.querySelector(".input-code")?.value.trim() || "",
+            start: tr.querySelector(".input-start")?.value.trim() || "",
+            end: tr.querySelector(".input-end")?.value.trim() || "",
+        };
     }
 
     function saveToStorage(isAutoDefaults = false) {
@@ -165,21 +141,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const rows = [];
 
         modalBody.querySelectorAll("tr").forEach((tr) => {
-            rows.push({
-                code: tr.querySelector(".input-code")?.value || "",
-                start: tr.querySelector(".input-start")?.value || "",
-                end: tr.querySelector(".input-end")?.value || "",
-            });
+            rows.push(getRowValues(tr));
         });
 
         localStorage.setItem(
             storageKey,
             JSON.stringify({
-                workerIds: getSelectedWorkerIds(),
+                workerIds: isApplyAllSelected()
+                    ? ["all"]
+                    : getSelectedWorkerIds(),
                 rows,
                 autoDefaults: isAutoDefaults,
-            })
+            }),
         );
+    }
+
+    function scheduleSaveToStorage(isAutoDefaults = false) {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => saveToStorage(isAutoDefaults), 120);
     }
 
     function normalizeRowData(row) {
@@ -203,10 +182,107 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    function setDefaultCheckedWorker() {
-        if (applyAllCheckbox && applyAllCheckbox.checked) return;
+    function bindRowEvents(tr) {
+        tr.querySelectorAll("input").forEach((input) => {
+            input.classList.add("modal-input");
 
-        const currentId = String(window.CURRENT_WORKER_ID || "");
+            input.addEventListener("input", (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                scheduleSaveToStorage();
+            });
+
+            input.addEventListener("paste", handleModalPaste);
+        });
+
+        const delBtn = tr.querySelector(".btn-del-row");
+        if (delBtn) {
+            delBtn.addEventListener("click", () => {
+                tr.remove();
+                scheduleSaveToStorage();
+            });
+        }
+    }
+
+    function createRow(code = "", start = "", end = "", useDefaults = false) {
+        const shouldUseDefaults = useDefaults && !code && !start && !end;
+        const nextCode = shouldUseDefaults ? DEFAULT_ROW_VALUES.code : code;
+        const nextStart = shouldUseDefaults ? DEFAULT_ROW_VALUES.start : start;
+        const nextEnd = shouldUseDefaults ? DEFAULT_ROW_VALUES.end : end;
+
+        const tr = document.createElement("tr");
+        const cleanStart = nextStart ? String(nextStart).replace(/:/g, "") : "";
+        const cleanEnd = nextEnd ? String(nextEnd).replace(/:/g, "") : "";
+
+        tr.innerHTML = `
+            <td>
+                <input
+                    type="text"
+                    class="form-control form-control-sm input-code text-center text-primary fw-bold"
+                    maxlength="4"
+                    value="${escapeHtml(nextCode)}"
+                    placeholder=""
+                    inputmode="numeric"
+                >
+            </td>
+            <td>
+                <input
+                    type="text"
+                    class="form-control form-control-sm text-center input-start"
+                    maxlength="4"
+                    value="${escapeHtml(cleanStart)}"
+                    placeholder=""
+                    inputmode="numeric"
+                >
+            </td>
+            <td>
+                <input
+                    type="text"
+                    class="form-control form-control-sm text-center input-end"
+                    maxlength="4"
+                    value="${escapeHtml(cleanEnd)}"
+                    placeholder=""
+                    inputmode="numeric"
+                >
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 btn-del-row">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </td>
+        `;
+
+        modalBody.appendChild(tr);
+        bindRowEvents(tr);
+        return tr;
+    }
+
+    function renderDefaultRows() {
+        clearModalRows();
+
+        Array.from({ length: DEFAULT_ROWS }, (_, idx) => {
+            createRow("", "", "", idx === 0);
+        });
+    }
+
+    function renderRows(rowsData = []) {
+        clearModalRows();
+
+        rowsData.forEach((row) => {
+            const normalized = normalizeRowData(row);
+            createRow(normalized.code, normalized.start, normalized.end);
+        });
+
+        if (rowsData.length < DEFAULT_ROWS) {
+            Array.from({ length: DEFAULT_ROWS - rowsData.length }, () =>
+                createRow(),
+            );
+        }
+    }
+
+    function setDefaultCheckedWorker() {
+        if (isApplyAllSelected()) return;
+
+        const currentId = String(root.dataset.currentWorkerId || "");
 
         workerCheckboxes().forEach((cb) => {
             cb.checked = currentId && cb.value === currentId;
@@ -218,53 +294,108 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function loadFromStorageOrServer() {
-        let data = {};
+    function syncWorkerSelectState() {
+        const isApplyAll = isApplyAllSelected();
 
-        if (!(applyAllCheckbox && applyAllCheckbox.checked)) {
+        if (workerCheckboxArea) {
+            workerCheckboxArea.classList.toggle("d-none", isApplyAll);
+        }
+
+        if (!isApplyAll) {
+            const anyChecked = workerCheckboxes().some((cb) => cb.checked);
+            if (!anyChecked) {
+                setDefaultCheckedWorker();
+            }
+        }
+    }
+
+    function loadFromStorageOrServer() {
+        if (!isApplyAllSelected()) {
             const anyChecked = workerCheckboxes().some((cb) => cb.checked);
             if (!anyChecked) {
                 setDefaultCheckedWorker();
             }
         }
 
+        let data = {};
         try {
-            data = JSON.parse(localStorage.getItem(getActiveStorageKey()) || "{}");
+            data = JSON.parse(
+                localStorage.getItem(getActiveStorageKey()) || "{}",
+            );
         } catch (e) {
             console.warn("localStorage parse error:", e);
         }
 
-        modalBody.innerHTML = "";
-
         let rowsData = [];
 
-        if (data.autoDefaults !== true && Array.isArray(data.rows) && data.rows.length) {
+        if (
+            data.autoDefaults !== true &&
+            Array.isArray(data.rows) &&
+            data.rows.length
+        ) {
             rowsData = data.rows;
         } else if (SERVER_DATA.length) {
             rowsData = SERVER_DATA;
         }
 
         if (rowsData.length) {
-            rowsData.forEach((r) => {
-                const normalized = normalizeRowData(r);
-                createRow(normalized.code, normalized.start, normalized.end);
-            });
-
-            if (rowsData.length < DEFAULT_ROWS) {
-                Array.from({ length: DEFAULT_ROWS - rowsData.length }, () => createRow());
-            }
-
+            renderRows(rowsData);
             saveToStorage(false);
         } else {
-            Array.from({ length: DEFAULT_ROWS }, (_, idx) =>
-                createRow("", "", "", idx === 0)
-            );
+            renderDefaultRows();
             saveToStorage(true);
         }
     }
 
     function handleModalPaste(e) {
-        // placeholder
+        const text = e.clipboardData?.getData("text/plain");
+        if (!text) return;
+
+        const rows = text
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((line) =>
+                line
+                    .split("\t")
+                    .map((cell) => cell.trim().replace(/[^0-9]/g, "")),
+            )
+            .filter((cols) => cols.length);
+
+        if (!rows.length) return;
+
+        e.preventDefault();
+
+        const currentTr = e.target.closest("tr");
+        if (!currentTr) return;
+
+        const currentRows = [...modalBody.querySelectorAll("tr")];
+        let startIndex = currentRows.indexOf(currentTr);
+
+        if (startIndex < 0) {
+            startIndex = 0;
+        }
+
+        while (modalBody.querySelectorAll("tr").length < startIndex + rows.length) {
+            createRow();
+        }
+
+        const allRows = [...modalBody.querySelectorAll("tr")];
+
+        rows.forEach((cols, rowOffset) => {
+            const tr = allRows[startIndex + rowOffset];
+            if (!tr) return;
+
+            const codeInput = tr.querySelector(".input-code");
+            const startInput = tr.querySelector(".input-start");
+            const endInput = tr.querySelector(".input-end");
+
+            if (codeInput && cols[0] !== undefined) codeInput.value = cols[0];
+            if (startInput && cols[1] !== undefined) startInput.value = cols[1];
+            if (endInput && cols[2] !== undefined) endInput.value = cols[2];
+        });
+
+        scheduleSaveToStorage();
     }
 
     function timeToMinutes(timeStr) {
@@ -290,18 +421,168 @@ document.addEventListener("DOMContentLoaded", () => {
         return h * 60 + m;
     }
 
+    function validateShiftStartTime(sStr, rowIndex) {
+        if (SHIFT_TYPE === "DAY") {
+            if (parseInt(sStr, 10) >= 2000) {
+                return `${rowIndex}번째 줄: 주간은 20:00 이후 시작할 수 없습니다. (입력: ${sStr})`;
+            }
+        } else if (SHIFT_TYPE === "NIGHT") {
+            const sVal = parseInt(sStr, 10);
+            if (sVal >= 800 && sVal < 2000) {
+                return `${rowIndex}번째 줄: 야간은 08:00~20:00 사이에 시작할 수 없습니다. (입력: ${sStr})`;
+            }
+        }
+
+        return "";
+    }
+
+    function collectAssignments() {
+        const selectedWorkerIds = getSelectedWorkerIds();
+        const isApplyAll = isApplyAllSelected();
+
+        if (!selectedWorkerIds.length && !isApplyAll) {
+            throw new Error("작업자를 선택해주세요.");
+        }
+
+        const assignments = [];
+        const seenStarts = new Map();
+        const seenEnds = new Map();
+        const intervals = [];
+
+        const rows = [...modalBody.querySelectorAll("tr")];
+
+        rows.forEach((tr, idx) => {
+            const rowNo = idx + 1;
+            const { code: cStr, start: sStr, end: eStr } = getRowValues(tr);
+
+            if (!sStr && !cStr && !eStr) {
+                return;
+            }
+
+            if (!sStr || !eStr || cStr === "") {
+                throw new Error(
+                    `${rowNo}번째 줄: 내용(0 포함)과 시간을 모두 입력해야 합니다.`,
+                );
+            }
+
+            const shiftError = validateShiftStartTime(sStr, rowNo);
+            if (shiftError) {
+                throw new Error(shiftError);
+            }
+
+            if (sStr === eStr) {
+                throw new Error(
+                    `${rowNo}번째 줄: 시작/종료 시간이 같습니다. (${sStr})`,
+                );
+            }
+
+            if (seenStarts.has(sStr)) {
+                throw new Error(
+                    `${rowNo}번째 줄: 시작 시간이 중복됩니다. (${sStr})\n중복된 줄: ${seenStarts.get(sStr)}번째 줄`,
+                );
+            }
+
+            if (seenEnds.has(eStr)) {
+                throw new Error(
+                    `${rowNo}번째 줄: 종료 시간이 중복됩니다. (${eStr})\n중복된 줄: ${seenEnds.get(eStr)}번째 줄`,
+                );
+            }
+
+            seenStarts.set(sStr, rowNo);
+            seenEnds.set(eStr, rowNo);
+
+            let sMin = timeToMinutes(sStr);
+            let eMin = timeToMinutes(eStr);
+
+            if (sMin === null || eMin === null) {
+                throw new Error(`${rowNo}번째 줄: 시간 형식이 올바르지 않습니다.`);
+            }
+
+            if (eMin <= sMin) {
+                eMin += 1440;
+            }
+
+            for (const existing of intervals) {
+                if (sMin < existing.end && eMin > existing.start) {
+                    throw new Error(
+                        `${rowNo}번째 줄: 시간대가 겹칩니다. (${sStr}-${eStr})\n겹치는 줄: ${existing.row}번째 줄`,
+                    );
+                }
+            }
+
+            intervals.push({ start: sMin, end: eMin, row: rowNo });
+
+            const pushOne = (wid) => {
+                assignments.push({
+                    worker_id: parseInt(wid, 10),
+                    code: cStr,
+                    start_min: sMin,
+                    end_min: eMin,
+                });
+            };
+
+            if (isApplyAll) {
+                ALL_WORKER_IDS.forEach((workerId) => pushOne(workerId));
+            } else {
+                selectedWorkerIds.forEach((workerId) => pushOne(workerId));
+            }
+        });
+
+        return {
+            assignments,
+            selectedWorkerIds,
+            isApplyAll,
+        };
+    }
+
+    function clearCurrentUiAndStorage() {
+        localStorage.removeItem(getActiveStorageKey());
+        renderDefaultRows();
+        saveToStorage(true);
+    }
+
+    async function fetchJson(url, payload) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            credentials: "same-origin",
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.message || `HTTP ${response.status}`);
+        }
+
+        if (data.status && data.status !== "success") {
+            throw new Error(data.message || "요청 처리 실패");
+        }
+
+        return data;
+    }
+
     function closeParentModalIfNeeded() {
         if (window.parent && window.parent !== window) {
             try {
                 window.parent.__indirectSaved = true;
 
-                const parentModalEl = window.parent.document.getElementById("indirectModal");
+                const parentModalEl =
+                    window.parent.document.getElementById("indirectModal");
+
                 if (parentModalEl && window.parent.bootstrap) {
                     let parentModal =
-                        window.parent.bootstrap.Modal.getInstance(parentModalEl);
+                        window.parent.bootstrap.Modal.getInstance(
+                            parentModalEl,
+                        );
 
                     if (!parentModal) {
-                        parentModal = new window.parent.bootstrap.Modal(parentModalEl);
+                        parentModal = new window.parent.bootstrap.Modal(
+                            parentModalEl,
+                        );
                     }
 
                     parentModal.hide();
@@ -315,215 +596,34 @@ document.addEventListener("DOMContentLoaded", () => {
         return false;
     }
 
-    function handleSaveManual() {
-        const selectedWorkerIds = getSelectedWorkerIds();
-        const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
+    function finishAfterServerSuccess(message) {
+        alert(message);
 
-        if (!selectedWorkerIds.length) {
-            alert("작업자를 선택해주세요.");
+        if (closeParentModalIfNeeded()) {
             return;
         }
 
-        if (!SAVE_URL) {
-            alert("SAVE_URL이 설정되지 않았습니다.");
-            return;
-        }
-
-        const assignments = [];
-        let hasError = false;
-        const seenStarts = new Map();
-        const seenEnds = new Map();
-        const intervals = [];
-
-        modalBody.querySelectorAll("tr").forEach((tr, idx) => {
-            if (hasError) return;
-
-            const sStr = tr.querySelector(".input-start")?.value.trim() || "";
-            const cStr = tr.querySelector(".input-code")?.value.trim() || "";
-            const eStr = tr.querySelector(".input-end")?.value.trim() || "";
-
-            if (!sStr && !cStr && !eStr) {
-                return;
-            }
-
-            if (!sStr || !eStr || cStr === "") {
-                alert(`${idx + 1}번째 줄: 내용(0 포함)과 시간을 모두 입력해야 합니다.`);
-                hasError = true;
-                return;
-            }
-
-            if (SHIFT_TYPE === "DAY") {
-                if (parseInt(sStr, 10) >= 2000) {
-                    showDuplicateModal(
-                        `${idx + 1}번째 줄: 주간은 20:00 이후 시작할 수 없습니다. (입력: ${sStr})`
-                    );
-                    hasError = true;
-                    return;
-                }
-            } else if (SHIFT_TYPE === "NIGHT") {
-                const sVal = parseInt(sStr, 10);
-                if (sVal >= 800 && sVal < 2000) {
-                    showDuplicateModal(
-                        `${idx + 1}번째 줄: 야간은 08:00~20:00 사이에 시작할 수 없습니다. (입력: ${sStr})`
-                    );
-                    hasError = true;
-                    return;
-                }
-            }
-
-            if (sStr === eStr) {
-                showDuplicateModal(
-                    `${idx + 1}번째 줄: 시작/종료 시간이 같습니다. (${sStr})`
-                );
-                hasError = true;
-                return;
-            }
-
-            if (seenStarts.has(sStr)) {
-                showDuplicateModal(
-                    `${idx + 1}번째 줄: 시작 시간이 중복됩니다. (${sStr})\n중복된 줄: ${seenStarts.get(sStr)}번째 줄`
-                );
-                hasError = true;
-                return;
-            }
-
-            if (seenEnds.has(eStr)) {
-                showDuplicateModal(
-                    `${idx + 1}번째 줄: 종료 시간이 중복됩니다. (${eStr})\n중복된 줄: ${seenEnds.get(eStr)}번째 줄`
-                );
-                hasError = true;
-                return;
-            }
-
-            seenStarts.set(sStr, idx + 1);
-            seenEnds.set(eStr, idx + 1);
-
-            let sMin = timeToMinutes(sStr);
-            let eMin = timeToMinutes(eStr);
-
-            if (sMin === null || eMin === null) {
-                alert(`${idx + 1}번째 줄: 시간 형식이 올바르지 않습니다.`);
-                hasError = true;
-                return;
-            }
-
-            if (eMin <= sMin) {
-                eMin += 1440;
-            }
-
-            for (const existing of intervals) {
-                if (sMin < existing.end && eMin > existing.start) {
-                    showDuplicateModal(
-                        `${idx + 1}번째 줄: 시간대가 겹칩니다. (${sStr}-${eStr})\n겹치는 줄: ${existing.row}번째 줄`
-                    );
-                    hasError = true;
-                    return;
-                }
-            }
-
-            intervals.push({ start: sMin, end: eMin, row: idx + 1 });
-
-            const pushOne = (wid) => {
-                assignments.push({
-                    worker_id: parseInt(wid, 10),
-                    code: cStr,
-                    start_min: sMin,
-                    end_min: eMin,
-                });
-            };
-
-            if (isApplyAll) {
-                if (ALL_WORKER_IDS.length) {
-                    ALL_WORKER_IDS.forEach((workerId) => pushOne(workerId));
-                }
-            } else {
-                selectedWorkerIds.forEach((workerId) => pushOne(workerId));
-            }
-        });
-
-        if (hasError) return;
-
-        if (!assignments.length) {
-            const msg = isApplyAll
-                ? "입력한 간비가 없습니다. 전체 작업자의 기존 간비를 삭제할까요?"
-                : "입력한 간비가 없습니다. 선택한 작업자의 기존 간비를 삭제할까요?";
-
-            if (!confirm(msg)) return;
-            resetDB({ skipConfirm: true });
-            return;
-        }
-
-        if (isApplyAll) {
-            if (!confirm("모든 작업자에게 동일하게 적용하시겠습니까?")) {
-                return;
-            }
-        } else {
-            if (!confirm("선택한 작업자들에게 적용하시겠습니까?")) {
-                return;
-            }
-        }
-
-        fetch(SAVE_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-            credentials: "same-origin",
-            body: JSON.stringify({
-                assignments,
-                apply_all: isApplyAll,
-                worker_ids: isApplyAll ? ALL_WORKER_IDS : selectedWorkerIds,
-            }),
-        })
-            .then(async (r) => {
-                const j = await r.json().catch(() => ({}));
-                if (!r.ok) {
-                    throw new Error(j.message || `HTTP ${r.status}`);
-                }
-                return j;
-            })
-            .then((data) => {
-                if (data.status !== "success") {
-                    throw new Error(data.message || "save failed");
-                }
-
-                alert("저장되었습니다.");
-                localStorage.removeItem(getActiveStorageKey());
-
-                if (closeParentModalIfNeeded()) {
-                    return;
-                }
-
-                location.reload();
-            })
-            .catch((err) => {
-                console.error(err);
-                alert("서버 통신 오류: " + err.message);
-            });
+        location.reload();
     }
 
     function resetUI() {
-        if (!confirm("입력 중인 내용(로컬 저장 포함)을 모두 지우고 초기화할까요?")) {
+        if (
+            !confirm(
+                "입력 중인 내용(로컬 저장 포함)을 모두 지우고 초기화할까요?",
+            )
+        ) {
             return;
         }
 
-        localStorage.removeItem(getActiveStorageKey());
-        modalBody.innerHTML = "";
-
-        Array.from({ length: DEFAULT_ROWS }, (_, idx) =>
-            createRow("", "", "", idx === 0)
-        );
-
-        saveToStorage(true);
+        clearCurrentUiAndStorage();
     }
 
-    function resetDB(options = {}) {
+    async function resetDB(options = {}) {
         const { skipConfirm = false } = options;
         const selectedWorkerIds = getSelectedWorkerIds();
-        const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
+        const isApplyAll = isApplyAllSelected();
 
-        if (!selectedWorkerIds.length) {
+        if (!selectedWorkerIds.length && !isApplyAll) {
             alert("리셋할 작업자를 선택해주세요.");
             return;
         }
@@ -541,66 +641,125 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        fetch(MANUAL_RESET_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-            credentials: "same-origin",
-            body: JSON.stringify({
+        try {
+            await fetchJson(MANUAL_RESET_URL, {
                 worker_ids: isApplyAll ? ["all"] : selectedWorkerIds,
                 apply_all: isApplyAll,
-            }),
-        })
-            .then(async (r) => {
-                const j = await r.json().catch(() => ({}));
-                if (!r.ok) {
-                    throw new Error(j.message || `HTTP ${r.status}`);
-                }
-                return j;
-            })
-            .then((data) => {
-                if (data.status !== "success") {
-                    throw new Error(data.message || "reset failed");
-                }
-
-                localStorage.removeItem(getActiveStorageKey());
-                modalBody.innerHTML = "";
-
-                Array.from({ length: DEFAULT_ROWS }, (_, idx) =>
-                    createRow("", "", "", idx === 0)
-                );
-
-                saveToStorage(true);
-
-                alert("DB 리셋 완료!");
-
-                if (closeParentModalIfNeeded()) {
-                    return;
-                }
-
-                location.reload();
-            })
-            .catch((err) => {
-                console.error(err);
-                alert("서버 통신 오류: " + err.message);
             });
+
+            clearCurrentUiAndStorage();
+            finishAfterServerSuccess("DB 리셋 완료!");
+        } catch (err) {
+            console.error(err);
+            alert("서버 통신 오류: " + err.message);
+        }
     }
 
-    function syncWorkerSelectState() {
-        const isApplyAll = applyAllCheckbox && applyAllCheckbox.checked;
+    async function handleSaveManual() {
+        try {
+            if (!SAVE_URL) {
+                alert("SAVE_URL이 설정되지 않았습니다.");
+                return;
+            }
 
-        if (workerCheckboxArea) {
-            workerCheckboxArea.classList.toggle("d-none", !!isApplyAll);
-        }
+            const { assignments, selectedWorkerIds, isApplyAll } =
+                collectAssignments();
 
-        if (!isApplyAll) {
-            const anyChecked = workerCheckboxes().some((cb) => cb.checked);
-            if (!anyChecked) {
-                setDefaultCheckedWorker();
+            if (!assignments.length) {
+                const msg = isApplyAll
+                    ? "입력한 간비가 없습니다. 전체 작업자의 기존 간비를 삭제할까요?"
+                    : "입력한 간비가 없습니다. 선택한 작업자의 기존 간비를 삭제할까요?";
+
+                if (!confirm(msg)) return;
+                await resetDB({ skipConfirm: true });
+                return;
+            }
+
+            if (isApplyAll) {
+                if (!confirm("모든 작업자에게 동일하게 적용하시겠습니까?")) {
+                    return;
+                }
+            } else {
+                if (!confirm("선택한 작업자들에게 적용하시겠습니까?")) {
+                    return;
+                }
+            }
+
+            await fetchJson(SAVE_URL, {
+                assignments,
+                apply_all: isApplyAll,
+                worker_ids: isApplyAll ? ALL_WORKER_IDS : selectedWorkerIds,
+            });
+
+            localStorage.removeItem(getActiveStorageKey());
+            finishAfterServerSuccess("저장되었습니다.");
+        } catch (err) {
+            console.error(err);
+
+            const msg = String(err.message || "");
+
+            if (
+                msg.includes("중복") ||
+                msg.includes("겹칩니다") ||
+                msg.includes("시작/종료 시간이 같습니다") ||
+                msg.includes("주간은") ||
+                msg.includes("야간은")
+            ) {
+                showDuplicateModal(msg);
+            } else {
+                alert(msg || "저장 중 오류가 발생했습니다.");
             }
         }
+    }
+
+    async function copyTableToClipboard() {
+        const table = document.getElementById("scheduleTable");
+
+        if (!table) {
+            alert("복사할 표를 찾을 수 없습니다.");
+            return;
+        }
+
+        const rows = [...table.querySelectorAll("tr")].map((tr) =>
+            [...tr.querySelectorAll("th, td")]
+                .map((cell) => cell.innerText.replace(/\s+/g, " ").trim())
+                .join("\t"),
+        );
+
+        const text = rows.join("\n");
+
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const temp = document.createElement("textarea");
+                temp.value = text;
+                temp.style.position = "fixed";
+                temp.style.left = "-9999px";
+                document.body.appendChild(temp);
+                temp.focus();
+                temp.select();
+                document.execCommand("copy");
+                document.body.removeChild(temp);
+            }
+
+            alert("📋 시간표가 복사되었습니다! 엑셀 등에 붙여넣기 하세요.");
+        } catch (err) {
+            console.error("복사 실패:", err);
+            alert("복사에 실패했습니다.");
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
+    if (copyBtn) {
+        copyBtn.addEventListener("click", copyTableToClipboard);
     }
 
     if (manualModal) {
@@ -613,7 +772,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (addRowBtn) {
         addRowBtn.addEventListener("click", () => {
             createRow();
-            saveToStorage();
+            scheduleSaveToStorage();
         });
     }
 
@@ -631,7 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
     workerCheckboxes().forEach((cb) => {
         cb.addEventListener("change", () => {
             loadFromStorageOrServer();
-            saveToStorage();
+            scheduleSaveToStorage();
         });
     });
 
@@ -640,7 +799,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (resetDbBtn) {
-        resetDbBtn.addEventListener("click", resetDB);
+        resetDbBtn.addEventListener("click", () => resetDB());
     }
 
     console.log("[manual_modal] bind ok", {

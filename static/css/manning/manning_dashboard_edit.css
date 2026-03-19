@@ -2,7 +2,7 @@
 .offcanvas-body {
     overflow-y: auto !important;
     /* 핵심: 사이드바 스크롤이 끝에 닿아도 본문으로 스크롤이 넘어가지 않음 */
-    overscroll-behavior: contain; 
+    overscroll-behavior: contain;
 }
 
 /* (선택사항) 본문 스크롤 설정 */
@@ -11,8 +11,8 @@ body {
     overscroll-behavior: none;
 }
 
-.edit-shell { 
-    margin-top: 2rem;   
+.edit-shell {
+    margin-top: 2rem;
     margin-bottom: 6rem;
 }
 
@@ -69,13 +69,14 @@ body {
 body.worker-panel-open .ios-wrap {
     margin-left: min(480px, 92vw);
     width: calc(100% - min(480px, 92vw));
-    transition: margin-left 0.25s ease, width 0.25s ease;
+    transition:
+        margin-left 0.25s ease,
+        width 0.25s ease;
 }
 
-.bottom-action-bar .btn{
+.bottom-action-bar .btn {
     padding: 5px 10px;
 }
-
 
 @media (max-width: 991.98px) {
     body.worker-panel-open .ios-wrap {
@@ -92,5 +93,8 @@ body.worker-panel-open .ios-wrap {
     .bottom-action-bar .btn {
         font-size: 0.92rem;
     }
-}
 
+    .area-row {
+        cursor: default;
+    }
+}

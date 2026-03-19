@@ -48,6 +48,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const messageClose = document.getElementById("workerMessageClose");
     const messageOk = document.getElementById("workerMessageOk");
 
+    const MOBILE_MEDIA_QUERY = "(max-width: 991.98px)";
+    const isMobileDevice = () =>
+        window.matchMedia &&
+        window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+
+    const areaSortables = [];
+
     if (!workerDataEl || !workerCountEl) {
         return;
     }
@@ -144,7 +151,12 @@ document.addEventListener("DOMContentLoaded", () => {
         row.className =
             "worker-item d-flex align-items-center gap-2 border rounded-4 px-3 py-1 bg-light";
         row.setAttribute("data-worker-name", name);
-        row.setAttribute("draggable", "true");
+
+        if (!isMobileDevice()) {
+            row.setAttribute("draggable", "true");
+        } else {
+            row.setAttribute("draggable", "false");
+        }
 
         const checkbox = document.createElement("input");
         checkbox.className = "form-check-input worker-select";
@@ -193,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 실제 편집 테이블에 들어간 textarea만 검사 대상으로 사용
     function getWorkerFields() {
         return Array.from(
             document.querySelectorAll(
@@ -441,6 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setWorkerNames(nextNames);
             rebuildWorkerList();
             initWorkerDragAndDrop();
+            bindFormControlGuards();
             updateWorkerUsage();
             return true;
         } catch (error) {
@@ -471,6 +483,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             target.addEventListener("dragover", (e) => {
+                if (isMobileDevice()) {
+                    return;
+                }
                 e.preventDefault();
                 e.dataTransfer.dropEffect = "copy";
                 target.classList.add("drop-active");
@@ -481,6 +496,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             target.addEventListener("drop", (e) => {
+                if (isMobileDevice()) {
+                    return;
+                }
+
                 e.preventDefault();
                 target.classList.remove("drop-active");
 
@@ -501,6 +520,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const workerItems = document.querySelectorAll(".worker-item");
 
         workerItems.forEach((item) => {
+            if (isMobileDevice()) {
+                item.setAttribute("draggable", "false");
+                return;
+            }
+
+            item.setAttribute("draggable", "true");
+
             if (item.dataset.dragBound === "true") {
                 return;
             }
@@ -533,6 +559,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         workerTrashZone.addEventListener("dragover", (event) => {
+            if (isMobileDevice()) {
+                return;
+            }
             event.preventDefault();
             workerTrashZone.classList.add("is-active");
         });
@@ -542,6 +571,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         workerTrashZone.addEventListener("drop", async (event) => {
+            if (isMobileDevice()) {
+                return;
+            }
+
             event.preventDefault();
             workerTrashZone.classList.remove("is-active");
 
@@ -553,6 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
             removeWorker(workerName);
             rebuildWorkerList();
             initWorkerDragAndDrop();
+            bindFormControlGuards();
             updateWorkerUsage();
             await saveWorkerDirectory(workerNames);
         });
@@ -609,6 +643,7 @@ document.addEventListener("DOMContentLoaded", () => {
         syncRowPosition(row, position);
         syncAreaOrders();
         bindAutoResizeTextareas();
+        bindFormControlGuards();
     }
 
     function addNewRow(values = {}) {
@@ -674,19 +709,39 @@ document.addEventListener("DOMContentLoaded", () => {
         syncAreaOrders();
         bindDropTargets();
         bindAutoResizeTextareas();
+        bindFormControlGuards();
         updateWorkerUsage();
     }
 
+    function destroyAreaSortables() {
+        while (areaSortables.length) {
+            const sortable = areaSortables.pop();
+            try {
+                sortable.destroy();
+            } catch (error) {
+                // noop
+            }
+        }
+    }
+
     function initAreaSortable() {
+        destroyAreaSortables();
+
+        if (isMobileDevice()) {
+            return;
+        }
+
         if (typeof Sortable === "undefined") {
             return;
         }
 
         areaGroups.forEach((group) => {
-            new Sortable(group, {
+            const sortable = new Sortable(group, {
                 group: "areas",
                 draggable: "tr.area-row",
-                filter: ".area-group-header",
+                filter:
+                    ".area-group-header, input, textarea, select, option, button, a, label",
+                preventOnFilter: false,
                 animation: 150,
                 onAdd: (event) => {
                     syncRowPosition(event.item, group.dataset.position);
@@ -700,7 +755,53 @@ document.addEventListener("DOMContentLoaded", () => {
                     syncAreaOrders();
                 },
             });
+
+            areaSortables.push(sortable);
         });
+    }
+
+    function stopRowDragFromControl(event) {
+        if (!isMobileDevice()) {
+            return;
+        }
+        event.stopPropagation();
+    }
+
+    function bindFormControlGuards() {
+        const controls = document.querySelectorAll(`
+            .area-row input,
+            .area-row textarea,
+            .area-row select,
+            .new-area-row input,
+            .new-area-row textarea,
+            .new-area-row select
+        `);
+
+        controls.forEach((el) => {
+            if (el.dataset.mobileGuardBound === "true") {
+                return;
+            }
+
+            el.addEventListener("touchstart", stopRowDragFromControl, {
+                passive: true,
+            });
+            el.addEventListener("pointerdown", stopRowDragFromControl);
+            el.addEventListener("mousedown", stopRowDragFromControl);
+            el.addEventListener("dragstart", (event) => {
+                if (isMobileDevice()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            });
+
+            el.dataset.mobileGuardBound = "true";
+        });
+
+        if (isMobileDevice()) {
+            document.querySelectorAll(".area-row").forEach((row) => {
+                row.setAttribute("draggable", "false");
+            });
+        }
     }
 
     function getDuplicateNamesWithModalInput(modalWorkersValue) {
@@ -750,7 +851,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const modalWorkers = splitWorkerNames(workersValue);
 
-            // 작업자 명단에 없는 이름만 검사
             const invalidNames = modalWorkers.filter(
                 (name) => !allowedWorkerSet.has(normalizeName(name)),
             );
@@ -803,6 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setWorkerNames(nextNames);
         rebuildWorkerList();
         initWorkerDragAndDrop();
+        bindFormControlGuards();
         updateWorkerUsage();
     }
 
@@ -845,6 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setWorkerNames([...defaultWorkerNames]);
             rebuildWorkerList();
             initWorkerDragAndDrop();
+            bindFormControlGuards();
             updateWorkerUsage();
         });
     }
@@ -857,12 +959,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (saveWorkerEditorBtn && workerEditorInput) {
         saveWorkerEditorBtn.addEventListener("click", async () => {
-            const updatedNames = parseWorkerEditorText(workerEditorInput.value);
+            const updatedNames = parseWorkerEditorText(
+                workerEditorInput.value,
+            ).sort((a, b) => a.localeCompare(b, "ko", { sensitivity: "base" }));
             const previousNames = [...workerNames];
 
             setWorkerNames(updatedNames);
             rebuildWorkerList();
             initWorkerDragAndDrop();
+            bindFormControlGuards();
             updateWorkerUsage();
 
             const saved = await saveWorkerDirectory(updatedNames);
@@ -870,6 +975,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 setWorkerNames(previousNames);
                 rebuildWorkerList();
                 initWorkerDragAndDrop();
+                bindFormControlGuards();
                 updateWorkerUsage();
                 return;
             }
@@ -929,6 +1035,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             rebuildWorkerList();
             initWorkerDragAndDrop();
+            bindFormControlGuards();
             updateWorkerUsage();
             await saveWorkerDirectory(workerNames);
         });
@@ -940,7 +1047,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 실제 테이블의 textarea만 중복/유효성 검사
         if (
             target.matches("textarea[name='area_workers']") ||
             target.matches("textarea[name='new_area_workers']")
@@ -948,7 +1054,6 @@ document.addEventListener("DOMContentLoaded", () => {
             updateWorkerUsage();
         }
 
-        // 모달 포함 auto-resize는 전체 textarea.auto-resize에 대해 처리
         if (target.matches("textarea.auto-resize")) {
             bindAutoResizeTextareas();
         }
@@ -1064,6 +1169,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function handleViewportChange() {
+        initAreaSortable();
+        initWorkerDragAndDrop();
+        bindFormControlGuards();
+    }
+
+    if (window.matchMedia) {
+        const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+
+        if (typeof mediaQuery.addEventListener === "function") {
+            mediaQuery.addEventListener("change", handleViewportChange);
+        } else if (typeof mediaQuery.addListener === "function") {
+            mediaQuery.addListener(handleViewportChange);
+        }
+    }
+
     updateWorkerCount();
     rebuildAllowedSet();
     rebuildWorkerList();
@@ -1072,4 +1193,5 @@ document.addEventListener("DOMContentLoaded", () => {
     initAreaSortable();
     syncAreaOrders();
     bindAutoResizeTextareas();
+    bindFormControlGuards();
 });

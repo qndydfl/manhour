@@ -1,19 +1,20 @@
-{% extends "manhour/base/base.html" %}
-{% load static %}
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
 
-{% block title %}배정 결과 | {{ session.name }} {% endblock title %}
+{% block title %}배정 결과 | {{ session.name }} {% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/result_view.css' %}" />
-{% endblock css %}
+{% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/result_view.js' %}"></script>
-{% endblock js %}
+{% endblock js %} 
 
-{% comment %} {% block background_image %}
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
-{% endblock background_image %} {% endcomment %}
+{% comment %} {% block background_image %} {% include
+"manhour/image/background_url.html" with bg_key="session_list"
+bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
+background_image %} {% endcomment %} 
 
 {% block content %}
 <div
@@ -21,76 +22,96 @@
     data-aos="fade-up"
     data-aos-duration="1000"
 >
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div
+        class="d-flex flex-wrap justify-content-between align-items-center gap-3"
+    >
         <h2 class="fw-bold text-white">
-            📊 {{ session.name }}
-            {% if not session.is_active %}
-                <span class="badge text-bg-secondary rounded-pill ms-2 p-2" style="font-size: 0.9rem">작업 완료</span>
+            📊 {{ session.name }} {% if not session.is_active %}
+            <span
+                class="badge text-bg-secondary rounded-pill ms-2 p-2"
+                style="font-size: 0.9rem"
+                >작업 완료</span
+            >
             {% else %}
-                <span class="badge text-bg-primary rounded-pill ms-2 p-2" style="font-size: 0.9rem">작업 중</span>
+            <span
+                class="badge text-bg-primary rounded-pill ms-2 p-2"
+                style="font-size: 0.9rem"
+                >작업 중</span
+            >
             {% endif %}
         </h2>
 
         <div class="d-flex flex-wrap gap-2">
             {% if manning_list_available %}
-                <a
-                    href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"
-                    class="btn btn-warning rounded-pill fw-bold px-4 py-2"
-                >
-                    <i class="bi bi-list-ul"></i>
-                    <span class="d-none d-md-inline">Manning 데시 보드</span>
-                </a>
-            {% endif %}
-
-            {% if not session.is_active %}
-                <a
-                    href="{% url 'manhour:history' %}"
-                    class="btn btn-dark rounded-pill fw-bold px-4 py-2"
-                >
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="d-none d-md-inline">이전 화면으로</span>
-                </a>
+            <a
+                href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"
+                class="btn btn-warning rounded-pill fw-bold px-4 py-2"
+            >
+                <i class="bi bi-list-ul"></i>
+                <span class="d-none d-md-inline">Manning 데시 보드</span>
+            </a>
+            {% endif %} {% if not session.is_active %}
+            <a
+                href="{% url 'manhour:history' %}"
+                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
             {% else %}
-                <a
-                    href="{% url 'manhour:session_list' %}"
-                    class="btn btn-dark rounded-pill fw-bold px-4 py-2"
-                >
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="d-none d-md-inline">이전 화면으로</span>
-                </a>
+            <a
+                href="{% url 'manhour:session_list' %}"
+                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-none d-md-inline">이전 화면으로</span>
+            </a>
             {% endif %}
         </div>
     </div>
 
     {% if strict_limit and unassigned_count %}
-    <div class="alert alert-warning d-flex align-items-start gap-2 mt-4" role="alert">
+    <div
+        class="alert alert-warning d-flex align-items-start gap-2 mt-4"
+        role="alert"
+    >
         <i class="bi bi-exclamation-triangle-fill"></i>
-        <div>근무 한도 제한으로 {{ unassigned_count }}건이 미배정되었습니다.</div>
+        <div>
+            근무 한도 제한으로 {{ unassigned_count }}건이 미배정되었습니다.
+        </div>
     </div>
     {% endif %}
-
-    <div class="card border-0 shadow-lg rounded-3 my-4 bg-white glass-panel p-2" data-aos="fade-up">
-        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div
+        class="card border-0 shadow-lg rounded-3 my-4 bg-white glass-panel p-2"
+        data-aos="fade-up"
+    >
+        <div
+            class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"
+        >
             <div>
                 <h5 class="fw-bold mb-2">작업 배정 컨트롤 🚀</h5>
-                <p class="text-primary small mb-0">작업 완료 시 기록 보관소로 이동합니다.</p>
+                <p class="text-primary small mb-0">
+                    작업 완료 시 기록 보관소로 이동합니다.
+                </p>
             </div>
 
-            <div class="d-flex gap-3 mx-auto mx-md-0 flex-wrap align-items-center">
-                <div class="btn-group shadow-sm">
+            <div
+                class="d-flex gap-3 mx-auto mx-md-0 flex-wrap align-items-center"
+            >
+                <div class="btn-group">
                     <a
                         href="{% url 'manhour:edit_session' session.id %}"
-                        class="btn btn-secondary text-white fw-bold"
+                        class="btn btn-success px-3 py-2 fw-bold"
                     >
                         <i class="bi bi-people me-1"></i>
                         명단<span class="d-none d-md-inline">관리</span>
                     </a>
                 </div>
 
-                <div class="btn-group shadow-sm">
+                <div class="btn-group">
                     <a
                         href="{% url 'manhour:manage_items' session.id %}"
-                        class="btn btn-info text-dark fw-bold"
+                        class="btn btn-danger fw-bold px-3 py-2"
                     >
                         <i class="bi bi-list-task me-1"></i>
                         통합<span class="d-none d-md-inline"> 관리</span>
@@ -105,8 +126,12 @@
                     {% csrf_token %}
                     <button
                         type="submit"
-                        class="btn btn-dark btn-sm fw-bold shadow-sm px-2"
-                        onclick="return confirm('정말 작업을 완료하고 작업 이력(History)로 이동하시겠습니까?');"
+                        class="btn btn-dark fw-bold shadow-sm px-3 py-2"
+                        onclick="
+                            return confirm(
+                                '정말 작업을 완료하고 작업 이력(History)로 이동하시겠습니까?',
+                            );
+                        "
                     >
                         <i class="bi bi-check2-circle me-1"></i> 작업 완료
                         <span class="d-none d-md-inline"> (퇴실)</span>
@@ -116,7 +141,11 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-lg mb-5 overflow-hidden glass-panel" data-aos="fade-up" data-aos-delay="100">
+    <div
+        class="card border-0 shadow-lg mb-5 overflow-hidden glass-panel"
+        data-aos="fade-up"
+        data-aos-delay="100"
+    >
         <div class="card-header bg-white border-bottom">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
@@ -141,9 +170,16 @@
                 <div class="row g-3">
                     {% for worker in workers %}
                     <div class="col-6 col-md-4 col-lg-2">
-                        <div class="worker-card p-2 rounded-3 h-100 position-relative border border-primary glass-panel">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <span class="fw-bold text-dark text-truncate small">{{ worker.name }}</span>
+                        <div
+                            class="worker-card p-2 rounded-3 h-100 position-relative border border-primary glass-panel"
+                        >
+                            <div
+                                class="d-flex justify-content-between align-items-start mb-1"
+                            >
+                                <span
+                                    class="fw-bold text-dark text-truncate small"
+                                    >{{ worker.name }}</span
+                                >
 
                                 {% if worker.used_mh > worker.limit_mh %}
                                 <i
@@ -156,10 +192,16 @@
                             </div>
 
                             <div class="mb-2 text-center">
-                                <span class="h6 fw-bold {% if worker.used_mh > worker.limit_mh %}text-danger{% else %}text-primary{% endif %} mb-0">
+                                <span
+                                    class="h6 fw-bold {% if worker.used_mh > worker.limit_mh %}text-danger{% else %}text-primary{% endif %} mb-0"
+                                >
                                     {{ worker.used_mh|floatformat:1 }}
                                 </span>
-                                <span class="text-muted small" style="font-size: 0.7rem">/</span>
+                                <span
+                                    class="text-muted small"
+                                    style="font-size: 0.7rem"
+                                    >/</span
+                                >
 
                                 <input
                                     type="number"
@@ -188,10 +230,17 @@
         </div>
     </div>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 px-1 gap-2" data-aos="fade-up" data-aos-delay="200">
-        <h5 class="fw-bold mb-0 text-dark">
+    <div
+        class="d-flex flex-wrap justify-content-between align-items-center mb-3 px-1 gap-2"
+        data-aos="fade-up"
+        data-aos-delay="200"
+    >
+        <h5 class="fw-bold mb-0 text-white">
             📋 작업 상세 내역
-            <span class="badge bg-secondary rounded-pill text-white border ms-2" style="font-size: 0.8rem">
+            <span
+                class="badge bg-secondary rounded-pill text-white border ms-2"
+                style="font-size: 0.8rem"
+            >
                 {{ wo_total }}건
             </span>
         </h5>
@@ -201,9 +250,11 @@
                 href="{% url 'manhour:assigned_summary' session.id %}"
                 class="btn btn-primary rounded-pill fw-bold px-4 py-2"
             >
-                <i class="bi bi-calendar-range me-1"></i> 시간별 보기
-                {% if not session.is_active %}
-                <span class="badge text-bg-secondary ms-2" style="font-size: 0.7rem">
+                <i class="bi bi-calendar-range me-1"></i> 시간별 보기 {% if not session.is_active %}
+                <span
+                    class="badge text-bg-secondary ms-2"
+                    style="font-size: 0.7rem"
+                >
                     작업 완료
                 </span>
                 {% endif %}
@@ -211,10 +262,17 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-lg rounded-3 overflow-hidden glass-panel" data-aos="fade-up" data-aos-delay="200">
+    <div
+        class="card border-0 shadow-lg rounded-3 overflow-hidden glass-panel"
+        data-aos="fade-up"
+        data-aos-delay="200"
+    >
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-custom table-sticky table-hover mb-0 text-center w-100" style="font-size: 0.9rem">
+                <table
+                    class="table table-custom table-sticky table-hover mb-0 text-center w-100"
+                    style="font-size: 0.9rem"
+                >
                     <thead class="bg-light">
                         <tr>
                             <th class="col-gibun" style="width: 8%">기번</th>
@@ -222,45 +280,67 @@
                             <th class="col-op" style="width: 8%">OP</th>
                             <th class="col-desc text-start">작업 설명</th>
                             <th class="col-mh" style="width: 8%">M/H</th>
-                            <th class="col-assign" style="width: 40%">배정 결과</th>
+                            <th class="col-assign" style="width: 40%">
+                                배정 결과
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items %}
-                            {% if item.work_order != '간비' %}
-                            <tr class="{% if item.is_manual %}bg-soft-warning{% endif %} bg-light">
-                                <td class="col-gibun fw-bold text-dark" style="font-size: 0.9rem">
-                                    {{ item.gibun_input }}
-                                </td>
-                                <td class="col-wo">
-                                    <span class="badge bg-light text-dark border">{{ item.work_order }}</span>
-                                </td>
-                                <td class="col-op text-muted">{{ item.op }}</td>
-                                <td class="col-desc text-start desc-hide" title="{{ item.description }}">
-                                    {{ item.description }}
-                                </td>
-                                <td class="col-mh">
-                                    <span class="badge bg-soft-primary text-primary fw-bold">
-                                        {{ item.adjusted_mh|floatformat:1 }}H
-                                    </span>
-                                </td>
-                                <td class="col-assign text-start">
-                                    {% for assign in item.assignments.all %}
-                                    <div class="d-inline-block me-1 mb-1">
-                                        <span class="badge bg-white border border-secondary text-dark fw-normal shadow-sm">
-                                            <i class="bi bi-person-fill text-primary me-1"></i>{{ assign.worker.name }}
-                                            <span class="badge bg-primary rounded-pill ms-1">
-                                                {{ assign.allocated_mh|floatformat:1 }}H
-                                            </span>
+                        {% for item in items %} {% if item.work_order != '간비' %}
+                        <tr
+                            class="{% if item.is_manual %}bg-soft-warning{% endif %} bg-light"
+                        >
+                            <td
+                                class="col-gibun fw-bold text-dark"
+                                style="font-size: 0.9rem"
+                            >
+                                {{ item.gibun_input }}
+                            </td>
+                            <td class="col-wo">
+                                <span class="badge bg-light text-dark border"
+                                    >{{ item.work_order }}</span
+                                >
+                            </td>
+                            <td class="col-op text-muted">{{ item.op }}</td>
+                            <td
+                                class="col-desc text-start desc-hide"
+                                title="{{ item.description }}"
+                            >
+                                {{ item.description }}
+                            </td>
+                            <td class="col-mh">
+                                <span
+                                    class="badge bg-soft-primary text-primary fw-bold"
+                                >
+                                    {{ item.adjusted_mh|floatformat:1 }}H
+                                </span>
+                            </td>
+                            <td class="col-assign text-start">
+                                {% for assign in item.assignments.all %}
+                                <div class="d-inline-block me-1 mb-1">
+                                    <span
+                                        class="badge bg-white border border-secondary text-dark fw-normal shadow-sm"
+                                    >
+                                        <i
+                                            class="bi bi-person-fill text-primary me-1"
+                                        ></i
+                                        >{{ assign.worker.name }}
+                                        <span
+                                            class="badge bg-primary rounded-pill ms-1"
+                                        >
+                                            {{ assign.allocated_mh|floatformat:1 }}H
                                         </span>
-                                    </div>
-                                    {% empty %}
-                                    <span class="badge bg-light text-muted border border-dashed">미배정</span>
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            {% endif %}
-                        {% empty %}
+                                    </span>
+                                </div>
+                                {% empty %}
+                                <span
+                                    class="badge bg-light text-muted border border-dashed"
+                                    >미배정</span
+                                >
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %} {% empty %}
                         <tr>
                             <td colspan="6" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.
@@ -274,19 +354,20 @@
     </div>
 </div>
 
-<div class="modal fade" id="reassignSuccessModal" tabindex="-1" aria-hidden="true">
+<div
+    class="modal fade"
+    id="reassignSuccessModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content success-glass-modal">
-
             <div class="modal-body text-center py-4">
-
                 <div class="success-icon mb-3">
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
 
-                <h5 class="fw-bold mb-2">
-                    저장 및 재배정 완료
-                </h5>
+                <h5 class="fw-bold mb-2">저장 및 재배정 완료</h5>
 
                 <p class="text-muted mb-4">
                     변경된 명단과 데이터가 정상적으로 반영되었습니다.
@@ -299,11 +380,8 @@
                 >
                     확인
                 </button>
-
             </div>
-
         </div>
     </div>
 </div>
 {% endblock content %}
-
