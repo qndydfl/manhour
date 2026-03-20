@@ -5,9 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    const isTouchDevice =
-        window.matchMedia("(hover: none), (pointer: coarse)").matches;
-
     function safeText(el, value) {
         if (el) el.textContent = value;
     }
@@ -104,52 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     animateNumber(document.querySelector(".active-count-num"));
     animateNumber(document.querySelector(".history-count-num"));
 
-    const searchInput = document.getElementById("sessionSearch");
-    if (searchInput) {
-        const clearBtn = document.getElementById("clearSearch");
-        const filterBtns = document.querySelectorAll("[data-filter]");
-        const sessionCols = document.querySelectorAll(".session-col");
-        let currentFilter = "all";
-
-        function filterSessions() {
-            const query = searchInput.value.toLowerCase().trim();
-
-            sessionCols.forEach((col) => {
-                const shift = col.dataset.shift || "";
-                const name = (col.dataset.name || "").toLowerCase();
-
-                const matchesSearch = name.includes(query);
-                const matchesFilter =
-                    currentFilter === "all" || shift === currentFilter;
-
-                col.style.display =
-                    matchesSearch && matchesFilter ? "" : "none";
-            });
-        }
-
-        searchInput.addEventListener("input", filterSessions);
-
-        if (clearBtn) {
-            clearBtn.addEventListener("click", () => {
-                searchInput.value = "";
-                filterSessions();
-                searchInput.focus();
-            });
-        }
-
-        filterBtns.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                filterBtns.forEach((b) => {
-                    b.classList.remove("active", "btn-dark");
-                });
-
-                btn.classList.add("active", "btn-dark");
-                currentFilter = btn.dataset.filter || "all";
-                filterSessions();
-            });
-        });
-    }
-
     const modalEl = document.getElementById("videoModal");
     const frameEl = document.getElementById("youtubeFrame");
     const titleEl = document.getElementById("videoModalLabel");
@@ -227,53 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const hoverVideo = document.getElementById("hoverDanceVideo");
-    if (hoverVideo && !isTouchDevice) {
-        const wrapper = hoverVideo.closest(".video-hover-wrapper");
-
-        if (wrapper) {
-            wrapper.addEventListener("mouseenter", () => {
-                hoverVideo.currentTime = 0;
-                hoverVideo.play().catch(() => {
-                });
-            });
-
-            wrapper.addEventListener("mouseleave", () => {
-                hoverVideo.pause();
-                hoverVideo.currentTime = 0;
-            });
-        }
-    }
-
-    const dock = document.querySelector(".dock-bar");
-    const dockItems = [...document.querySelectorAll(".dock-item")];
-
-    if (dock && dockItems.length && !isTouchDevice) {
-        dock.addEventListener("mousemove", (event) => {
-            const dockRect = dock.getBoundingClientRect();
-            const pointerX = event.clientX - dockRect.left;
-
-            dockItems.forEach((item) => {
-                const itemRect = item.getBoundingClientRect();
-                const centerX = (itemRect.left + itemRect.right) / 2 - dockRect.left;
-                const distance = Math.abs(pointerX - centerX);
-
-                const scale = Math.max(1, 1.6 - distance / 90);
-                const lift = Math.max(0, 10 - distance / 7);
-
-                item.style.transform = `translateY(${-lift}px) scale(${scale})`;
-                item.style.zIndex = String(Math.round(scale * 10));
-            });
-        });
-
-        dock.addEventListener("mouseleave", () => {
-            dockItems.forEach((item) => {
-                item.style.transform = "";
-                item.style.zIndex = "";
-            });
-        });
-    }
-
     const masterDataBadgeEl = document.getElementById("masterDataBadge");
     const masterDataCountUrl =
         window.INDEX_PAGE?.masterDataCountUrl || "/api/master-data-count/";
@@ -318,4 +222,44 @@ document.addEventListener("DOMContentLoaded", () => {
         if (clockTimer) window.clearInterval(clockTimer);
         if (badgeTimer) window.clearInterval(badgeTimer);
     });
+});
+
+// 이미지 파일
+document.querySelectorAll(".images-hover-wrapper").forEach((wrapper) => {
+    const img = wrapper.querySelector(".index-hero-image");
+    let currentY = 0;
+    let isHover = false;
+
+    wrapper.addEventListener("mouseenter", () => {
+        isHover = true;
+    });
+
+    wrapper.addEventListener("mouseleave", () => {
+        isHover = false;
+        currentY = 0;
+        img.style.transform = "translateY(0)";
+    });
+
+    wrapper.addEventListener(
+        "wheel",
+        (e) => {
+            if (!isHover) return;
+
+            const imgHeight = img.offsetHeight;
+            const wrapperHeight = wrapper.offsetHeight;
+            const maxMove = Math.max(imgHeight - wrapperHeight, 0);
+
+            if (maxMove <= 0) return;
+
+            e.preventDefault();
+
+            currentY += e.deltaY * 0.4;
+
+            if (currentY < 0) currentY = 0;
+            if (currentY > maxMove) currentY = maxMove;
+
+            img.style.transform = `translateY(-${currentY}px)`;
+        },
+        { passive: false },
+    );
 });

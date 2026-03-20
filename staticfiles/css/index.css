@@ -1,11 +1,9 @@
 :root {
     --index-footer-height: 56px;
-    --index-panel-min-height: 240px;
     --index-glass-bg: rgba(255, 255, 255, 0.75);
     --index-glass-border: rgba(255, 255, 255, 0.4);
     --index-glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
     --index-panel-dark: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    --index-dock-radius: 16px;
 }
 
 /* Page scope */
@@ -24,15 +22,6 @@
         background-size: cover;
         background-position: center;
     }
-}
-
-/* Gradient text */
-.text-gradient {
-    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: inline-block;
 }
 
 /* Wave text */
@@ -73,25 +62,20 @@
     box-shadow: var(--index-glass-shadow);
 }
 
-/* Equal-height hero/time panels */
-.index-time-panel.index-equal-panel {
-    min-height: 200px;
+/* Image */
+.images-hover-wrapper {
+    height: 9.8rem;
+    overflow: hidden;
+    position: relative;
+    cursor: ns-resize;
 }
 
-/* Video */
-.index-hero-video {
-    height: 10rem;
-    object-fit: cover;
-}
-
-.video-hover-wrapper video {
-    transition: transform 0.4s ease;
-}
-
-@media (hover: hover) {
-    .video-hover-wrapper:hover video {
-        transform: scale(1.05);
-    }
+.index-hero-image {
+    width: 100%;
+    height: auto;
+    transform: translateY(0);
+    transition: transform 0.25s ease-out;
+    will-change: transform;
 }
 
 /* Time panel */
@@ -151,111 +135,7 @@
     flex-shrink: 0;
 }
 
-/* Animate in */
-.js-animate-in {
-    animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-        filter: blur(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-    }
-}
-
-.delay-1 {
-    animation-delay: 0.1s;
-}
-
-.delay-2 {
-    animation-delay: 0.2s;
-}
-
-.delay-3 {
-    animation-delay: 0.3s;
-}
-
-/* Dock */
-.dock-bar {
-    position: relative;
-}
-
-.dock-item {
-    min-height: 3rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    border-radius: var(--index-dock-radius);
-    transform-origin: center bottom;
-    transition:
-        transform 200ms ease,
-        filter 200ms ease,
-        box-shadow 200ms ease;
-    position: relative;
-    z-index: 1;
-    will-change: transform;
-    white-space: nowrap;
-}
-
-@media (hover: hover) {
-    .dock-item:hover {
-        transform: translateY(-2px) scale(1.02);
-        filter: brightness(1.05);
-    }
-
-    .dock-item:hover i,
-    .index-video-action-btn:hover i {
-        display: inline-block;
-        animation: pulse 0.8s infinite ease-in-out;
-    }
-}
-
-.dock-badge {
-    position: absolute;
-    top: -0.45rem;
-    right: -0.45rem;
-    min-width: 1.35rem;
-    height: 1.35rem;
-    padding: 0 0.35rem;
-    border-radius: 999px;
-    background: #fbbf24;
-    color: #111827;
-    font-size: 0.7rem;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
-    border: 2px solid #ffffff;
-}
-
-@keyframes pulse {
-    0%,
-    100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.25);
-    }
-}
-
 /* Footer */
-.index-footer-fixed {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
-    min-height: var(--index-footer-height);
-}
-
 .index-footer-spacer {
     height: var(--index-footer-height);
 }
@@ -290,12 +170,6 @@
 }
 
 @media (max-width: 567px), (hover: none), (pointer: coarse) {
-    .dock-item {
-        transition: none !important;
-        transform: none !important;
-        will-change: auto !important;
-    }
-
     .hover-lift {
         transition: none !important;
     }
@@ -310,12 +184,6 @@
     .font-digital {
         font-size: 1.8rem !important;
     }
-}
-
-#index-date-line,
-#index-date-line-utc {
-    font-size: 0.8rem;
-    opacity: 0.85;
 }
 
 #digital-date-line span,

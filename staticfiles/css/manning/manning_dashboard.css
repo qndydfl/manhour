@@ -1,11 +1,6 @@
 :root {
-    --ios-bg: #f2f2f7;
-    --ios-card: #ffffff;
     --ios-border: rgba(14, 6, 6, 0.08);
-    --ios-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --dark-gradient: linear-gradient(135deg, #1f1f1f 0%, #3a3a3a 100%);
-    --light-gradient: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    --ios-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
 .modal {
@@ -29,9 +24,152 @@ textarea[name="area_workers"] {
     letter-spacing: 0.02em;
 }
 
+.compact-label {
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.dashboard-panel {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--ios-border);
+    box-shadow: var(--ios-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.dashboard-title h2 {
+    font-size: 1.4rem;
+    line-height: 1.2;
+}
+
+.dashboard-title p {
+    line-height: 1.2;
+}
+
+.dashboard-panel .btn.btn-sm {
+    font-size: 0.85rem;
+}
+
+.dashboard-panel .alert {
+    font-size: 0.9rem;
+}
+
+.compact-area-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.compact-area-card .card-body {
+    padding: 0.75rem !important;
+}
+
+.area-title {
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.area-badge {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.45rem;
+    white-space: nowrap;
+}
+
+.manning-row {
+    min-height: 44px;
+}
+
+.avatar-xs {
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+.worker-name {
+    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2;
+    font-size: 0.82rem;
+    word-break: break-word;
+    min-width: 0;
+}
+
+.hour-box {
+    padding-top: 0.1rem !important;
+    padding-bottom: 0.1rem !important;
+}
+
+.compact-hour-input {
+    width: 3.2rem !important;
+    min-height: 24px;
+    font-size: 0.8rem;
+    padding: 0 !important;
+}
+
+.hour-unit {
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+.empty-state {
+    font-size: 0.8rem;
+}
+
+.area-card .form-control:focus {
+    box-shadow: none;
+}
+
+.grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+}
+
+@media (max-width: 991.98px) {
+    .glass-panel {
+        padding: 0.75rem !important;
+    }
+}
+
 @media (max-width: 767.98px) {
     .glass-panel {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding: 0.65rem !important;
+    }
+
+    .dashboard-title h2 {
+        font-size: 1.2rem;
+    }
+
+    .compact-label {
+        font-size: 0.85rem;
+    }
+
+    .compact-area-card .card-body {
+        padding: 0.6rem !important;
+    }
+
+    .area-title {
+        font-size: 0.88rem;
+    }
+
+    .worker-name {
+        font-size: 0.78rem;
+    }
+
+    .compact-hour-input {
+        width: 2.8rem !important;
+        font-size: 0.76rem;
+    }
+
+    .manning-row {
+        min-height: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .grid-2col {
+        grid-template-columns: 1fr;
     }
 }

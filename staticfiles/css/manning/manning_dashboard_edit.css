@@ -2,7 +2,7 @@
 .offcanvas-body {
     overflow-y: auto !important;
     /* 핵심: 사이드바 스크롤이 끝에 닿아도 본문으로 스크롤이 넘어가지 않음 */
-    overscroll-behavior: contain; 
+    overscroll-behavior: contain;
 }
 
 /* (선택사항) 본문 스크롤 설정 */
@@ -11,9 +11,8 @@ body {
     overscroll-behavior: none;
 }
 
-.edit-shell { 
-    margin-top: 2rem;   
-    margin-bottom: 6rem;
+.edit-shell {    
+    margin-bottom: 3.5rem;
 }
 
 .edit-header {
@@ -27,8 +26,7 @@ body {
 }
 
 .edit-table thead th {
-    background: #ffffff;
-    color: #334155;
+    background: #8d9fc7;
     font-weight: 700;
     border-bottom: 1px solid var(--soft-border);
     white-space: nowrap;
@@ -41,10 +39,19 @@ body {
 .area-row td {
     vertical-align: middle;
     background: transparent;
+    font-size: 0.8rem;
 }
 
+.area-row td input,
+.area-row td textarea,
+.area-row td select,
+.area-row td .form-control {
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    height: auto;
+}
 .area-row:hover td {
-    background: rgba(248, 250, 252, 0.8);
+    background: rgba(39, 70, 102, 0.8);
 }
 
 .worker-list-panel {
@@ -69,18 +76,44 @@ body {
 body.worker-panel-open .ios-wrap {
     margin-left: min(480px, 92vw);
     width: calc(100% - min(480px, 92vw));
-    transition: margin-left 0.25s ease, width 0.25s ease;
+    transition:
+        margin-left 0.25s ease,
+        width 0.25s ease;
 }
 
-.bottom-action-bar .btn{
+.bottom-action-bar .btn {
     padding: 5px 10px;
 }
-
 
 @media (max-width: 991.98px) {
     body.worker-panel-open .ios-wrap {
         margin-left: 0;
         width: 100%;
+    }
+}
+
+@media (max-width: 991.98px), (pointer: coarse) {
+    .area-row,
+    .new-area-row {
+        cursor: default !important;
+        touch-action: pan-y;
+        -webkit-user-drag: none;
+        user-select: none;
+    }
+
+    .area-row input,
+    .area-row textarea,
+    .area-row select,
+    .new-area-row input,
+    .new-area-row textarea,
+    .new-area-row select {
+        touch-action: manipulation;
+        -webkit-user-drag: none;
+        user-select: text;
+    }
+
+    .worker-item {
+        cursor: default;
     }
 }
 
@@ -92,5 +125,8 @@ body.worker-panel-open .ios-wrap {
     .bottom-action-bar .btn {
         font-size: 0.92rem;
     }
-}
 
+    .area-row {
+        cursor: default;
+    }
+}

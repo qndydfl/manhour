@@ -1,5 +1,3 @@
-// static/js/create_session.js
-
 document.addEventListener("DOMContentLoaded", function () {
     if (typeof CHECK_GIBUN_URL === "undefined") {
         console.error("CHECK_GIBUN_URL 정의 안됨");
