@@ -26,20 +26,21 @@
     defer
     src="{% static 'js/manning/manning_dashboard_edit.js' %}"
 ></script>
-{{ worker_names|json_script:"manhourWorkers" }} {{ default_worker_names|json_script:"defaultWorkerNames" }} 
+{{ worker_names|json_script:"manhourWorkers" }} 
+{{ default_worker_names|json_script:"defaultWorkerNames" }} 
 {% endblock js %} 
 
 {% block content %}
 <div
-    class="container edit-shell glass-panel rounded-4 mx-auto p-4"
+    class="container edit-shell rounded-4 mx-auto"
     data-aos="fade-up"
 >
     <div
         class="edit-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 px-3 px-md-4 py-2"
     >
         <div>
-            <h4 class="fw-bold mb-3 text-dark">구역 일괄 편집</h4>
-            <p class="text-muted mb-0">
+            <h4 class="fw-bold mb-3 text-white">구역 일괄 편집</h4>
+            <p class="text-info mb-0">
                 {{ session.aircraft_reg }} · {{ session.work_package_name }}
             </p>
         </div>
@@ -48,7 +49,7 @@
             <button
                 type="button"
                 id="loadWorkersBtn"
-                class="btn btn-outline-dark rounded-pill px-4 fw-semibold py-2"
+                class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold py-2"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#loadWorkersPanel"
             >
@@ -58,7 +59,7 @@
             <button
                 type="button"
                 id="addAreaRowBtn"
-                class="btn btn-primary rounded-pill px-4 fw-semibold py-2"
+                class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold py-2"
                 data-bs-toggle="modal"
                 {% comment %} data-bs-target="#addAreaModal" {% endcomment %}
             >
@@ -67,7 +68,7 @@
 
             <a
                 href="{% url 'manning:manning_dashboard' session.id %}"
-                class="btn btn-light rounded-pill px-4 fw-semibold py-2 justify-content-center d-flex align-items-center"
+                class="btn btn-light btn-sm rounded-pill px-3 fw-semibold py-2 justify-content-center d-flex align-items-center"
             >
                 <i class="bi bi-arrow-left me-1"></i> 대시보드로
             </a>
@@ -88,11 +89,13 @@
         <div class="table-responsive edit-table-wrap rounded-4 mt-3">
             <table class="table align-middle edit-table mb-0">
                 <thead>
-                    <tr>
+                    <tr class="text-dark text-center">
                         <th style="width: 20%">구역 이름</th>
                         <th style="width: 15%">위치</th>
                         <th style="width: 55%">작업자 이름</th>
-                        <th style="width: 10%" class="text-center">삭제</th>
+                        <th style="width: 10%" class="text-center text-danger">
+                            <i class="bi bi-trash"></i>
+                        </th>
                     </tr>
                 </thead>
 
@@ -382,14 +385,14 @@
                 <button
                     type="button"
                     id="cancelWorkerEditorBtn"
-                    class="btn btn-light btn-sm"
+                    class="btn btn-light btn-sm py-2"
                 >
                     닫기
                 </button>
                 <button
                     type="button"
                     id="saveWorkerEditorBtn"
-                    class="btn btn-primary btn-sm"
+                    class="btn btn-primary btn-sm py-2"
                 >
                     명단 저장
                 </button>
@@ -446,7 +449,7 @@
     <div class="offcanvas-footer d-flex align-items-center justify-content-between gap-3 p-2 border-top bg-white">
         <div
             id="workerTrashZone"
-            class="worker-trash-zone"
+            class="worker-trash-zone py-2"
             aria-label="작업자 삭제"
         >
             <i class="bi bi-trash3 me-2"></i>여기로 끌어와 삭제
@@ -454,7 +457,7 @@
         <div class="d-flex justify-content-end">
             <button
                 type="button"
-                class="btn btn-light rounded-3 bg-dark-subtle"
+                class="btn btn-dark btn-sm rounded-pill bg-white py-2"
                 data-bs-dismiss="offcanvas"
             >
                 닫기
@@ -466,23 +469,23 @@
 
 <nav class="bottom-action-bar navbar fixed-bottom">
     <div class="container-fluid justify-content-center py-2">
-        <div class="d-flex flex-wrap gap-2 fs-6">
+        <div class="d-flex flex-wrap gap-2">
             <a
                 href="{% url 'manning:manning_dashboard' session.id %}"
-                class="btn btn-light rounded-3"
+                class="btn btn-light btn-sm rounded-pill py-2"
             >
                 취소
             </a>
             <button
                 type="button"
-                class="btn btn-outline-danger rounded-3"
+                class="btn btn-outline-danger btn-sm rounded-pill py-2"
                 id="btn-clear-assigned"
             >
                 전체 이름 삭제
             </button>
             <button
                 type="submit"
-                class="btn btn-success fw-bold rounded-3"
+                class="btn btn-success btn-sm fw-bold rounded-pill py-2"
                 form="areaEditForm"
             >
                 <i class="bi bi-check-lg me-1"></i> 저장

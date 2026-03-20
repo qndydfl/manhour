@@ -1,49 +1,46 @@
-<div class="card area-card shadow-sm border-0 rounded-4">
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <p class="fw-bold mb-0 text-{{ theme }}">{{ area.name }}</p>
+<div class="card area-card compact-area-card shadow-sm border-0 rounded-3">
+    <div class="card-body p-2">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+                <p class="fw-bold mb-0 text-{{ theme }} area-title text-truncate">
+                    {{ area.name }}
+                </p>
             </div>
-            <span class="badge bg-light text-dark border"
-                >{{ area.manning_set.count }}명</span
-            >
+            <span class="badge bg-light text-dark border area-badge">
+                {{ area.manning_set.count }}명
+            </span>
         </div>
 
-        <div class="manning-items">
+        <div class="manning-items grid-2col">
             {% for manning in area.manning_set.all %}
-            <div class="d-flex align-items-center bg-light rounded-3 p-2 mb-2">
+            <div class="manning-row d-flex align-items-center bg-light rounded-3 px-2 py-1">
+                
                 <div
-                    class="avatar-sm bg-{{ theme }} text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
-                    style="width: 20px; height: 20px; font-size: 0.75rem"
+                    class="avatar-xs bg-{{ theme }} text-white rounded-circle me-2 d-flex align-items-center justify-content-center flex-shrink-0"
                 >
                     {{ manning.worker_name|slice:":1" }}
                 </div>
-                <span class="fw-bold small flex-grow-1"
-                    >{{ manning.worker_name }}</span
-                >
 
-                <div
-                    class="d-flex align-items-center bg-white rounded-2 px-2 border"
-                >
+                <span class="fw-semibold small flex-grow-1 worker-name">
+                    {{ manning.worker_name }}
+                </span>
+
+                <div class="d-flex align-items-center bg-white rounded-2 px-1 border hour-box flex-shrink-0">
                     <input
                         type="number"
                         step="0.1"
                         name="manning_hours_{{ manning.id }}"
-                        class="form-control form-control-sm border-0 bg-transparent text-end fw-bold text-{{ theme }} hour-input"
+                        class="form-control form-control-sm border-0 bg-transparent text-end fw-bold text-{{ theme }} hour-input compact-hour-input"
                         data-manning-id="{{ manning.id }}"
-                        style="width: 5rem"
                         value="{{ manning.display_hours|default_if_none:manning.hours|floatformat:'1' }}"
                         readonly
                     />
-                    <span
-                        class="ms-1 small text-muted"
-                        style="font-size: 0.7rem"
-                        >H</span
-                    >
+                    <span class="ms-1 text-muted hour-unit">H</span>
                 </div>
-            </div>
+
+            </div>            
             {% empty %}
-            <div class="text-center py-3 border border-dashed rounded-3">
+            <div class="text-center py-2 border border-dashed rounded-3 empty-state">
                 <small class="text-muted">No one assigned yet</small>
             </div>
             {% endfor %}

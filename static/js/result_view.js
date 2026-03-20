@@ -1,5 +1,3 @@
-// static/js/result_view.js
-
 document.addEventListener("DOMContentLoaded", () => {
     initReassignSuccessModal();
     initTableSearch();

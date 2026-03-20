@@ -23,14 +23,14 @@
         <div class="d-flex gap-2 align-items-center justify-content-end">
             <a
                 href="{% url 'manhour:create_session' %}"
-                class="btn btn-primary fw-bold rounded-pill px-4 py-2"
+                class="btn btn-primary btn-sm fw-bold rounded-pill px-3 py-2"
             >
                 <i class="bi bi-plus-lg me-1"></i> 세션 추가
             </a>
 
             <a
                 href="{% url 'manhour:index' %}"
-                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
+                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -55,7 +55,7 @@
         <div>
             {% if active_sessions %}
             <button
-                class="btn btn-danger fw-bold d-none d-md-inline rounded-pill px-4 py-2"
+                class="btn btn-danger btn-sm fw-bold d-none d-md-inline rounded-pill px-3 py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#resetAllModal"
                 title="전체 삭제"
@@ -93,7 +93,7 @@
                         </span>
                         {% endif %}
 
-                        {% if request.session.user_role == 'admin' %}
+                        {% comment %} {% if request.session.user_role == 'admin' %} {% endcomment %}
                         <form
                             method="POST"
                             action="{% url 'manhour:delete_session' session.id %}"
@@ -109,7 +109,7 @@
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
-                        {% endif %}
+                        {% comment %} {% endif %} {% endcomment %}
                     </div>
 
                     <h5 class="card-title fw-bold mb-1 text-truncate">

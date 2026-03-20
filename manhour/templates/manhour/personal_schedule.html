@@ -41,7 +41,7 @@ background_image %} {% endcomment %}
         <div class="d-flex gap-2 align-items-center flex-wrap ms-auto">
             <button
                 type="button"
-                class="btn btn-light rounded-pill px-4 fw-bold py-2 d-none d-md-inline-flex"
+                class="btn btn-light btn-sm rounded-pill px-3 fw-bold py-2 d-none d-md-inline-flex"
                 id="copy-schedule-btn"
             >
                 <i class="bi bi-clipboard-check me-1"></i> 복사
@@ -49,7 +49,7 @@ background_image %} {% endcomment %}
 
             <button
                 type="button"
-                class="btn btn-primary rounded-pill px-4 fw-bold py-2"
+                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#manualInputModal"
             >
@@ -58,7 +58,7 @@ background_image %} {% endcomment %}
 
             <a
                 href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-dark rounded-pill fw-bold px-4 ms-2 py-2"
+                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 ms-2 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>

@@ -30,7 +30,7 @@
         <div class="d-flex flex-wrap gap-2 align-items-center py-2 ms-auto">
             <a
                 href="{% url 'manhour:master_data_edit' %}"
-                class="btn btn-primary rounded-pill px-4 fw-bold py-2"
+                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold py-2"
             >
                 <i class="bi bi-pencil-square me-1"></i> 전체 수정
             </a>
@@ -44,7 +44,7 @@
                 <input type="hidden" name="next" value="master_data_edit" />
                 <button
                     type="submit"
-                    class="btn btn-danger rounded-pill px-4 fw-bold py-2"
+                    class="btn btn-danger btn-sm rounded-pill px-3 fw-bold py-2"
                     onclick="
                         return confirm(
                             '⚠️ 경고: 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
@@ -57,7 +57,7 @@
 
             <a
                 href="{% url 'manhour:paste_data' %}"
-                class="btn btn-dark rounded-pill px-4 fw-bold py-2"
+                class="btn btn-dark btn-sm rounded-pill px-3 fw-bold py-2"
             >
                 <i class="bi bi-arrow-left me-1"></i> 데이터 등록
             </a>

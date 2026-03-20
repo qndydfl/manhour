@@ -14,7 +14,7 @@
 {% endblock js %}
 
 {% block content %}
-<div class="container my-4 p-4 glass-panel rounded-4 manning-list-page" 
+<div class="container glass-panel py-4 rounded-4 manning-list-page" 
     data-aos="fade-in"
     >
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5 px-3">
@@ -27,13 +27,13 @@
 
         <div class="d-flex gap-2 justify-content-end ">
             <a href="{% url 'manning:create_session' %}" 
-                class="btn btn-primary fw-bold py-2 px-4 rounded-pill">
+                class="btn btn-primary btn-sm fw-bold py-2 px-4 rounded-pill">
                 <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
             </a>
         
         
             <a href="{% url 'manhour:index' %}" 
-                class="btn btn-dark fw-bold py-2 px-4 rounded-pill">
+                class="btn btn-dark btn-sm fw-bold py-2 px-4 rounded-pill">
                 <i class="bi bi-arrow-left me-1"></i> 이전 화면으로
             </a>
         </div>

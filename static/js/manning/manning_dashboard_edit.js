@@ -49,9 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const messageOk = document.getElementById("workerMessageOk");
 
     const MOBILE_MEDIA_QUERY = "(max-width: 991.98px)";
+    const isTouchDevice = () =>
+        window.matchMedia?.("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0;
+
     const isMobileDevice = () =>
-        window.matchMedia &&
-        window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+        (window.matchMedia && window.matchMedia(MOBILE_MEDIA_QUERY).matches) ||
+        isTouchDevice();
 
     const areaSortables = [];
 
@@ -151,12 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
         row.className =
             "worker-item d-flex align-items-center gap-2 border rounded-4 px-3 py-1 bg-light";
         row.setAttribute("data-worker-name", name);
-
-        if (!isMobileDevice()) {
-            row.setAttribute("draggable", "true");
-        } else {
-            row.setAttribute("draggable", "false");
-        }
+        row.setAttribute("draggable", isMobileDevice() ? "false" : "true");
 
         const checkbox = document.createElement("input");
         checkbox.className = "form-check-input worker-select";
@@ -453,6 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rebuildWorkerList();
             initWorkerDragAndDrop();
             bindFormControlGuards();
+            bindRowTouchGuards();
             updateWorkerUsage();
             return true;
         } catch (error) {
@@ -587,6 +588,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rebuildWorkerList();
             initWorkerDragAndDrop();
             bindFormControlGuards();
+            bindRowTouchGuards();
             updateWorkerUsage();
             await saveWorkerDirectory(workerNames);
         });
@@ -644,6 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
         syncAreaOrders();
         bindAutoResizeTextareas();
         bindFormControlGuards();
+        bindRowTouchGuards();
     }
 
     function addNewRow(values = {}) {
@@ -710,6 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
         bindDropTargets();
         bindAutoResizeTextareas();
         bindFormControlGuards();
+        bindRowTouchGuards();
         updateWorkerUsage();
     }
 
@@ -728,6 +732,9 @@ document.addEventListener("DOMContentLoaded", () => {
         destroyAreaSortables();
 
         if (isMobileDevice()) {
+            document.querySelectorAll(".area-row, .new-area-row").forEach((row) => {
+                row.setAttribute("draggable", "false");
+            });
             return;
         }
 
@@ -796,12 +803,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
             el.dataset.mobileGuardBound = "true";
         });
+    }
 
-        if (isMobileDevice()) {
-            document.querySelectorAll(".area-row").forEach((row) => {
-                row.setAttribute("draggable", "false");
+    function bindRowTouchGuards() {
+        const rows = document.querySelectorAll(".area-row, .new-area-row");
+
+        rows.forEach((row) => {
+            if (row.dataset.rowTouchGuardBound === "true") {
+                return;
+            }
+
+            row.addEventListener(
+                "touchstart",
+                (event) => {
+                    if (isMobileDevice()) {
+                        event.stopPropagation();
+                    }
+                },
+                { passive: true },
+            );
+
+            row.addEventListener("pointerdown", (event) => {
+                if (isMobileDevice()) {
+                    event.stopPropagation();
+                }
             });
-        }
+
+            row.addEventListener("dragstart", (event) => {
+                if (isMobileDevice()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            });
+
+            row.dataset.rowTouchGuardBound = "true";
+        });
     }
 
     function getDuplicateNamesWithModalInput(modalWorkersValue) {
@@ -904,6 +940,7 @@ document.addEventListener("DOMContentLoaded", () => {
         rebuildWorkerList();
         initWorkerDragAndDrop();
         bindFormControlGuards();
+        bindRowTouchGuards();
         updateWorkerUsage();
     }
 
@@ -947,6 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rebuildWorkerList();
             initWorkerDragAndDrop();
             bindFormControlGuards();
+            bindRowTouchGuards();
             updateWorkerUsage();
         });
     }
@@ -968,6 +1006,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rebuildWorkerList();
             initWorkerDragAndDrop();
             bindFormControlGuards();
+            bindRowTouchGuards();
             updateWorkerUsage();
 
             const saved = await saveWorkerDirectory(updatedNames);
@@ -976,6 +1015,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 rebuildWorkerList();
                 initWorkerDragAndDrop();
                 bindFormControlGuards();
+                bindRowTouchGuards();
                 updateWorkerUsage();
                 return;
             }
@@ -1036,6 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rebuildWorkerList();
             initWorkerDragAndDrop();
             bindFormControlGuards();
+            bindRowTouchGuards();
             updateWorkerUsage();
             await saveWorkerDirectory(workerNames);
         });
@@ -1173,6 +1214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         initAreaSortable();
         initWorkerDragAndDrop();
         bindFormControlGuards();
+        bindRowTouchGuards();
     }
 
     if (window.matchMedia) {
@@ -1194,4 +1236,5 @@ document.addEventListener("DOMContentLoaded", () => {
     syncAreaOrders();
     bindAutoResizeTextareas();
     bindFormControlGuards();
+    bindRowTouchGuards();
 });

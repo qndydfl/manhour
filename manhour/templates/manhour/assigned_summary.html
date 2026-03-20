@@ -23,12 +23,9 @@
     <div class="d-flex align-items-center mb-3 px-2" data-aos="fade-down">
         <h4 class="fw-bold text-white my-3">📅 배정 현황 요약</h4>
         <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
-            <span class="badge bg-primary rounded-pill px-3 py-3">
-                총 인원: {{ workers_schedule|length }}명
-            </span>
             <a
                 href="{% if not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
-                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
+                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -39,7 +36,10 @@
     <div
         class="alert border-0 d-flex align-items-center gap-2 small text-dark mb-3 py-3 shadow-sm"
         data-aos="fade-in"
-    >
+    >   
+        <span class="badge bg-primary btn-sm rounded-pill px-3 py-2">
+            총 인원: {{ workers_schedule|length }}명
+        </span>
         <i class="bi bi-info-circle-fill text-primary fs-5"></i>
         <span class="text-white fw-bold">
             직비가 근무 한도를 초과하면&nbsp;
@@ -161,7 +161,7 @@
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
                                 <a
                                     href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
-                                    class="btn btn-outline-secondary rounded-pill py-2 px-2 fw-bold"
+                                    class="btn btn-outline-secondary btn-sm rounded-pill py-2 px-3 fw-bold"
                                 >
                                     <i class="bi bi-calendar-check me-1"></i>
                                     개인 시간표

@@ -33,7 +33,7 @@
             <button
                 type="submit"
                 form="masterDataEditForm"
-                class="btn btn-primary rounded-pill px-4 fw-bold py-2"
+                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold py-2"
             >
                 <i class="bi bi-save me-1"></i> 저장 하기
             </button>
@@ -43,7 +43,7 @@
                 name="action"
                 value="delete_selected"
                 formnovalidate
-                class="btn btn-danger rounded-pill px-4 fw-bold py-2"
+                class="btn btn-danger btn-sm rounded-pill px-3 fw-bold py-2"
                 onclick="
                     return confirm(
                         '선택한 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
@@ -56,7 +56,7 @@
             
             <a
                 href="{% url 'manhour:master_data_list' %}"
-                class="btn btn-dark rounded-pill px-4 fw-bold py-2"
+                class="btn btn-dark btn-sm rounded-pill px-3 fw-bold py-2"
             >
                 <i class="bi bi-arrow-left me-1"></i> 목록으로
             </a>

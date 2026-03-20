@@ -45,7 +45,7 @@ background_image %} {% endcomment %}
             {% if manning_list_available %}
             <a
                 href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"
-                class="btn btn-warning rounded-pill fw-bold px-4 py-2"
+                class="btn btn-warning btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-list-ul"></i>
                 <span class="d-none d-md-inline">Manning 데시 보드</span>
@@ -53,7 +53,7 @@ background_image %} {% endcomment %}
             {% endif %} {% if not session.is_active %}
             <a
                 href="{% url 'manhour:history' %}"
-                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
+                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
@@ -61,7 +61,7 @@ background_image %} {% endcomment %}
             {% else %}
             <a
                 href="{% url 'manhour:session_list' %}"
-                class="btn btn-dark rounded-pill fw-bold px-4 py-2"
+                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
                 <span class="d-none d-md-inline">이전 화면으로</span>
