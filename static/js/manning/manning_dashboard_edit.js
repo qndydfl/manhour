@@ -109,6 +109,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let allowedWorkerSet = new Set();
     let lastDuplicateNames = [];
+    let modalConfirmAction = null;
+    const modalDefaultOkText = messageOk
+        ? messageOk.textContent || "확인"
+        : "확인";
+    let allowDuplicateSubmit = false;
 
     function normalizeName(name) {
         return String(name || "")
@@ -244,7 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return Array.from(invalid);
     }
 
-    function openMessageModal({ title, message, items }) {
+    function openMessageModal({
+        title,
+        message,
+        items,
+        confirmText,
+        onConfirm,
+    }) {
         if (!messageModal) {
             return;
         }
@@ -271,12 +282,27 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        modalConfirmAction = typeof onConfirm === "function" ? onConfirm : null;
+        if (messageOk) {
+            messageOk.textContent = confirmText || modalDefaultOkText;
+            if (modalConfirmAction) {
+                messageOk.classList.add("btn-danger");
+            } else {
+                messageOk.classList.remove("btn-danger");
+            }
+        }
+
         messageModal.classList.remove("d-none");
     }
 
     function closeMessageModal() {
         if (messageModal) {
             messageModal.classList.add("d-none");
+        }
+        modalConfirmAction = null;
+        if (messageOk) {
+            messageOk.textContent = modalDefaultOkText;
+            messageOk.classList.remove("btn-danger");
         }
     }
 
@@ -732,9 +758,11 @@ document.addEventListener("DOMContentLoaded", () => {
         destroyAreaSortables();
 
         if (isMobileDevice()) {
-            document.querySelectorAll(".area-row, .new-area-row").forEach((row) => {
-                row.setAttribute("draggable", "false");
-            });
+            document
+                .querySelectorAll(".area-row, .new-area-row")
+                .forEach((row) => {
+                    row.setAttribute("draggable", "false");
+                });
             return;
         }
 
@@ -746,8 +774,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const sortable = new Sortable(group, {
                 group: "areas",
                 draggable: "tr.area-row",
-                filter:
-                    ".area-group-header, input, textarea, select, option, button, a, label",
+                filter: ".area-group-header, input, textarea, select, option, button, a, label",
                 preventOnFilter: false,
                 animation: 150,
                 onAdd: (event) => {
@@ -1121,7 +1148,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (messageOk) {
-        messageOk.addEventListener("click", closeMessageModal);
+        messageOk.addEventListener("click", () => {
+            if (modalConfirmAction) {
+                const action = modalConfirmAction;
+                closeMessageModal();
+                action();
+                return;
+            }
+            closeMessageModal();
+        });
     }
 
     if (messageModal) {
@@ -1153,6 +1188,11 @@ document.addEventListener("DOMContentLoaded", () => {
         formEl.addEventListener("submit", (event) => {
             syncAreaOrders();
 
+            if (allowDuplicateSubmit) {
+                allowDuplicateSubmit = false;
+                return;
+            }
+
             const invalidNames = getInvalidNames();
             if (invalidNames.length > 0) {
                 event.preventDefault();
@@ -1175,8 +1215,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 openMessageModal({
                     title: "중복 작업자 오류",
                     message:
-                        "중복된 작업자 이름이 있습니다. 저장 전에 수정해주세요.",
+                        "중복된 작업자 이름이 있습니다. 그래도 저장하시겠습니까?",
                     items: lastDuplicateNames.slice(0, 10),
+                    onConfirm: () => {
+                        allowDuplicateSubmit = true;
+                        if (typeof formEl.requestSubmit === "function") {
+                            formEl.requestSubmit();
+                        } else {
+                            formEl.submit();
+                        }
+                    },
                 });
             }
         });
