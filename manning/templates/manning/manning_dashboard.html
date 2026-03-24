@@ -1,13 +1,19 @@
-{% extends 'manhour/base/base.html' %}
-{% load static %}
+{% extends 'manhour/base/base.html' %} 
+{% load static %} 
 
-{% block title %}매닝 대시보드 | {{ session.aircraft_reg }}{% endblock %}
+{% block title %}매닝 대시보드 | {{ session.aircraft_reg }}{% endblock %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
-<link rel="stylesheet" href="{% static 'css/manning/manning_components.css' %}" />
-<link rel="stylesheet" href="{% static 'css/manning/manning_dashboard.css' %}" />
-{% endblock css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_components.css' %}"
+/>
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/manning_dashboard.css' %}"
+/>
+{% endblock css %} 
 
 {% block js %}
 <script>
@@ -17,17 +23,19 @@
     };
 </script>
 <script src="{% static 'js/manning/manning_dashboard.js' %}"></script>
-{% endblock js %}
+{% endblock js %} 
 
 {% block content %}
-<div class="container rounded-4" data-aos="fade-up">
+<div class="container rounded-4 manning-aircraft-bg" data-aos="fade-up">
     {% if show_empty_assignments %}
     <div class="alert alert-warning" role="alert">
         작업 배정/시간 입력 데이터가 없습니다.
     </div>
     {% endif %}
 
-    <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-5 px-3">
+    <div
+        class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-5 px-3"
+    >
         <div>
             <h2 class="fw-bold text-white mb-1">{{ session.aircraft_reg }}</h2>
             <p class="text-info mb-1">{{ session.work_package_name }}</p>
@@ -40,7 +48,9 @@
             <a
                 href="{% if is_same_site and has_assignments %}{% url 'manning:assignment_view' session.id %}{% else %}#{% endif %}"
                 class="btn btn-dark btn-sm rounded-4 fw-bold px-3 py-2 {% if not is_same_site or not has_assignments %}disabled pe-none{% endif %}"
-                {% if not is_same_site or not has_assignments %}aria-disabled="true" tabindex="-1"{% endif %}
+                {% if not is_same_site or not has_assignments %}aria-disabled="true"
+                tabindex="-1"
+                {% endif %}
             >
                 작업 배정 &amp; 시간 입력
             </a>
@@ -48,7 +58,9 @@
             <a
                 href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
                 class="btn btn-primary btn-sm rounded-4 fw-bold px-3 py-2 {% if not is_same_site %}disabled pe-none{% endif %}"
-                {% if not is_same_site %}aria-disabled="true" tabindex="-1"{% endif %}
+                {% if not is_same_site %}aria-disabled="true"
+                tabindex="-1"
+                {% endif %}
             >
                 세션 일괄 편집
             </a>
@@ -64,42 +76,48 @@
 
     <div class="row g-4 justify-content-center">
         <div class="col-xl-4 col-md-6">
-            <div class="area-group-label mb-3 ps-2 border-start border-primary border-4 fw-bold text-dark">
-                LEFT SIDE
+            <div
+                class="area-group-label mb-3 ps-2 border-start border-primary border-4 fw-bold"
+            >
+                LEFT SIDE (총 {{ left_unique_count }}명)
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %}
-                    {% if area.position == 'LEFT' %}
-                        {% include "partials/_area_card.html" with area=area theme="primary" %}
-                    {% endif %}
+                {% for area in session_areas %} 
+                {% if area.position == 'LEFT' %}
+                    {% include "partials/_area_card.html" with area=area theme="primary" %} 
+                {% endif %} 
                 {% empty %}
-                    <div class="text-muted small">등록된 구역이 없습니다.</div>
+                <div class="text-muted small">등록된 구역이 없습니다.</div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="col-xl-4 col-md-6">
-            <div class="area-group-label mb-3 ps-2 border-start border-info border-4 fw-bold text-dark">
-                NONE
+            <div
+                class="area-group-label mb-3 ps-2 border-start border-info border-4 fw-bold"
+            >
+                NONE (총 {{ none_unique_count }}명)
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %}
-                    {% if area.position == 'NONE' %}
-                        {% include "partials/_area_card.html" with area=area theme="info" %}
-                    {% endif %}
+                {% for area in session_areas %} 
+                {% if area.position == 'NONE' %}
+                {% include "partials/_area_card.html" with area=area theme="info" %} 
+                {% endif %} 
                 {% endfor %}
             </div>
         </div>
 
         <div class="col-xl-4 col-md-6">
-            <div class="area-group-label text-end mb-3 pe-2 border-end border-danger border-4 fw-bold text-dark">
-                RIGHT SIDE
+            <div
+                class="area-group-label text-end mb-3 pe-2 border-end border-danger border-4 fw-bold"
+            >
+                RIGHT SIDE (총 {{ right_unique_count }}명)
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %}
-                    {% if area.position == 'RIGHT' %}
-                        {% include "partials/_area_card.html" with area=area theme="danger" %}
-                    {% endif %}
+                {% for area in session_areas %} 
+                {% if area.position == 'RIGHT' %} 
+                {% include "partials/_area_card.html" with area=area theme="danger" %} 
+                {% endif %} 
                 {% endfor %}
             </div>
         </div>

@@ -31,7 +31,7 @@ bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
 background_image %} {% endcomment %} 
 
 {% block content %}
-<div class="container my-4 rounded-3">
+<div class="container rounded-3">
     <div
         class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2"
     >
@@ -199,57 +199,50 @@ background_image %} {% endcomment %}
                     <table
                         id="manageItemsTable"
                         class="table table-hover mb-0 align-middle text-center"
-                    >
-                        <thead
-                            class="table-light sticky-top"
-                            style="z-index: 4"
-                        >
+                    >   
+                        <colgroup>
+                            <col style="width: 40px" />
+                            <col style="width: 40px" />
+                            <col style="width: 100px" />
+                            <col style="width: 120px" />
+                            <col style="width: 60px" />
+                            <col style="width: 300px" />
+                            <col style="width: 40px" />
+                            <col style="width: 50px" />
+                            <col />
+                        </colgroup>
+                        
+                        <thead class="table-light sticky-top" style="z-index: 4">
                             <tr class="text-secondary small">
-                                <th
-                                    style="width: 5%"
-                                    class="text-danger col-delete"
-                                >
+                                <th class="col-delete text-danger">
                                     <i class="bi bi-trash3-fill"></i>
                                 </th>
-                                <th style="width: 5%" class="col-order">
-                                    순서
-                                </th>
-                                <th style="width: 8%" class="col-gibun">
-                                    기번
-                                </th>
-                                <th style="width: 10%" class="col-wo">W/O</th>
-                                <th style="width: 5%" class="col-op">OP</th>
-                                <th style="width: 10%" class="col-desc">
-                                    작업 내용
-                                </th>
-                                <th style="width: 10%" class="col-mh">
-                                    Plan M/H
-                                </th>
-                                <th style="width: 15%" class="col-mh-adjust">
+                                <th class="col-order">순서</th>
+                                <th class="col-gibun">기번</th>
+                                <th class="col-wo">W/O</th>
+                                <th class="col-op">OP</th>
+                                <th class="col-desc">작업 내용</th>
+                                <th class="col-mh">Plan M/H</th>
+                                <th class="col-mh-adjust">
                                     <div
                                         class="d-flex align-items-center justify-content-center gap-2"
                                     >
-                                        <span>조정 M/H</span>
                                         <select
-                                            class="form-select form-select-sm w-auto mh-adjust-select text-primary fw-bold"
+                                            class="form-select form-select-sm mh-adjust-select text-primary fw-bold"
                                             name="mh_percent"
-                                            style="
-                                                min-width: 100px;
-                                                display: inline-block;
-                                            "
+                                            style="min-width: 100px; display: inline-block;"
                                         >
                                             <option value="0">원래값</option>
                                             <option value="10">+10%</option>
                                             <option value="20">+20%</option>
                                             <option value="30">+30%</option>
                                             <option value="custom">
-                                                개별 수정
+                                                개별수정
                                             </option>
                                         </select>
                                     </div>
                                 </th>
                                 <th
-                                    style=""
                                     class="bg-primary bg-opacity-10 text-primary col-assign"
                                 >
                                     고정 배정 (이름)
@@ -362,7 +355,6 @@ background_image %} {% endcomment %}
 
                                 <td
                                     class="text-danger col-order"
-                                    style="width: 40px"
                                 >
                                     {% if form.instance.pk %}
                                     <div

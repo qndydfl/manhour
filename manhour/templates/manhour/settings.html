@@ -1,10 +1,12 @@
 {% extends "manhour/base/base.html" %} 
 {% load static %} 
+
 {% block title %}설정 | manhour System{% endblock %} 
 
-{% comment %} {% block background_image %} 
-{% include "manhour/image/background_url.html" with bg_key="settings" bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %} 
-{% endblock background_image %}  {% endcomment %}
+{% comment %} {% block background_image %} {%
+include "manhour/image/background_url.html" with bg_key="settings"
+bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %} {% endblock
+background_image %} {% endcomment %} 
 
 {% block content %}
 <div class="container" style="max-width: 1000px">
@@ -14,12 +16,11 @@
         >
             <div>
                 <h1 class="h4 fw-bold mb-2">UI 설정</h1>
-                <p class="text-muted mb-0">
-                    일부 설정은 서버에 저장되며 전체 사용자에게 적용됩니다.
-                </p>
             </div>
 
-            <div class="d-flex gap-2 justify-content-between align-items-center">
+            <div
+                class="d-flex gap-2 justify-content-between align-items-center"
+            >
                 <button
                     type="submit"
                     class="btn btn-primary btn-sm rounded-pill px-3 py-2 fw-bold"
@@ -34,6 +35,15 @@
                     <i class="bi bi-arrow-left"></i>
                     <span class="d-none d-md-inline">이전 화면으로</span>
                 </a>
+            </div>
+        </div>
+        <div class="alert alert-info mb-4" role="alert">
+            <p class="text-danger fw-bold small mb-1">
+                일부 설정은 서버에 저장되며 전체 사용자에게 적용됩니다.
+            </p>
+            <div class="text-primary fw-bold small mb-0">
+                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본 근무
+                한도는 통합 관리 화면의 기본값에 적용됩니다.
             </div>
         </div>
         <div class="accordion mb-4" id="settings-accordion">
@@ -62,7 +72,10 @@
                             비활성화할 수 있습니다.
                         </p>
 
-                        <form method="POST" class="row g-2 align-items-end mb-3">
+                        <form
+                            method="POST"
+                            class="row g-2 align-items-end mb-3"
+                        >
                             {% csrf_token %}
                             <input
                                 type="hidden"
@@ -163,7 +176,9 @@
                                     />
 
                                     <div class="col-12 col-sm-3">
-                                        <label class="form-label small">코드</label>
+                                        <label class="form-label small"
+                                            >코드</label
+                                        >
                                         <input
                                             class="form-control form-control-sm"
                                             value="{{ workplace.code }}"
@@ -184,7 +199,9 @@
                                     </div>
 
                                     <div class="col-12 col-sm-2">
-                                        <label class="form-label small">정렬</label>
+                                        <label class="form-label small"
+                                            >정렬</label
+                                        >
                                         <input
                                             name="sort_order"
                                             class="form-control form-control-sm"
@@ -262,7 +279,7 @@
             </div>
         </div>
 
-        <form method="POST" class="mb-4" id="settings-form">
+        <form method="POST" class="" id="settings-form">
             {% csrf_token %}
 
             <h2 class="h6 fw-bold mb-3">기본 작업자 명단</h2>
@@ -332,7 +349,24 @@
                         value="{{ history_visibility_hours }}"
                     />
                 </div>
-            </div>            
+            </div>
+
+            <h2 class="h6 fw-bold mb-3">데이터 관리 보관 시간</h2>
+            <div class="row g-2 align-items-center mb-4">
+                <div class="col-12 col-sm-6">
+                    <label class="form-label" for="taskmaster-retention-hours">
+                        데이터 관리 보관(시간)
+                    </label>
+                    <input
+                        type="number"
+                        id="taskmaster-retention-hours"
+                        name="taskmaster_retention_hours"
+                        class="form-control"
+                        min="1"
+                        value="{{ taskmaster_retention_hours }}"
+                    />
+                </div>
+            </div>
 
             <h2 class="h6 fw-bold mb-3">관리자 사이드바</h2>
             <div class="col-12 mb-4">
@@ -353,7 +387,7 @@
             </div>
 
             <h2 class="h6 fw-bold mb-3">위치 이동</h2>
-            <div class="mb-4">
+            <div class="mb-0">
                 <h2 class="h6 mb-3">사이드바 위치</h2>
                 <div class="d-flex flex-wrap gap-4 mb-4">
                     <div class="form-check">
@@ -387,9 +421,9 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-0">
                     <h2 class="h6 mb-3">Navbar 토글 버튼 위치</h2>
-                    <div class="d-flex flex-wrap gap-4 mb-4">
+                    <div class="d-flex flex-wrap gap-4">
                         <div class="form-check">
                             <input
                                 class="form-check-input"
@@ -427,11 +461,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="form-text mb-0">
-                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본 근무
-                한도는 통합 관리 화면의 기본값에 적용됩니다.
             </div>
         </form>
     </div>

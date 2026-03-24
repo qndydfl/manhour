@@ -696,6 +696,9 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
             )
             .order_by("position_order", "ordering", "id")
         )
+        left_names = set()
+        none_names = set()
+        right_names = set()
         target_workplace = session.site or workplace
         manhour_session = session.manhour_session or _find_matching_manhour_session(
             session,
@@ -719,6 +722,12 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
         for area in session_areas:
             for manning in area.manning_set.all():
                 manning.display_hours = manhour_hours.get(manning.worker_name)
+                if area.position == SessionArea.POSITION_LEFT:
+                    left_names.add(manning.worker_name)
+                elif area.position == SessionArea.POSITION_RIGHT:
+                    right_names.add(manning.worker_name)
+                else:
+                    none_names.add(manning.worker_name)
         worker_names = (
             ManhourWorker.objects.filter(session__site=target_workplace)
             .values_list("name", flat=True)
@@ -737,6 +746,9 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
                 "is_same_site": is_same_site,
                 "show_empty_assignments": show_empty_assignments,
                 "has_assignments": has_assignments,
+                "left_unique_count": len(left_names),
+                "none_unique_count": len(none_names),
+                "right_unique_count": len(right_names),
             },
         )
 

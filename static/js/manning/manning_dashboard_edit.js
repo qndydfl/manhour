@@ -38,9 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const defaultWorkerDataEl = document.getElementById("defaultWorkerNames");
     const workerCountEl = document.getElementById("workerCount");
     const workerUsageMessage = document.getElementById("workerUsageMessage");
-    const formDuplicateMessage = document.getElementById(
-        "workerDuplicateMessage",
-    );
+    // const formDuplicateMessage = document.getElementById(
+    //     "workerDuplicateMessage",
+    // );
     const messageModal = document.getElementById("workerMessageModal");
     const messageTitle = document.getElementById("workerMessageTitle");
     const messageText = document.getElementById("workerMessageText");
@@ -388,21 +388,21 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        if (formDuplicateMessage) {
-            if (hasDuplicates) {
-                formDuplicateMessage.textContent =
-                    "작업자 이름이 중복되었습니다. 중복된 구역을 수정해주세요.";
-                formDuplicateMessage.classList.remove("d-none");
-            } else {
-                formDuplicateMessage.textContent = "";
-                formDuplicateMessage.classList.add("d-none");
-            }
-        }
+        // if (formDuplicateMessage) {
+        //     if (hasDuplicates) {
+        //         formDuplicateMessage.textContent =
+        //             "중복된 이름이 있습니다.";
+        //         formDuplicateMessage.classList.remove("d-none");
+        //     } else {
+        //         formDuplicateMessage.textContent = "";
+        //         formDuplicateMessage.classList.add("d-none");
+        //     }
+        // }
 
         if (workerUsageMessage) {
             if (duplicateCount > 0) {
                 workerUsageMessage.textContent =
-                    "중복된 이름이 있습니다. 수정해주세요.";
+                    "중복된 이름이 있습니다.";
                 workerUsageMessage.classList.remove("d-none");
             } else {
                 workerUsageMessage.textContent = "";

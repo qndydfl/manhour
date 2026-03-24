@@ -143,8 +143,6 @@ urlpatterns = [
     ),
     path("reset_all/", views.ResetAllSessionsView.as_view(), name="reset_all_sessions"),
     path("api/check_gibun/", views.CheckGibunView.as_view(), name="check_gibun"),
-    # ✅ SaveDirectInputView가 없으면 일단 제거
-    # path('session/<int:session_id>/direct/save/', views.SaveDirectInputView.as_view(), name='save_direct_input'),
     path("master-data/", views.MasterDataListView.as_view(), name="master_data_list"),
     path(
         "master-data/edit/",
@@ -174,4 +172,5 @@ urlpatterns = [
         views.MasterDataCountApiView.as_view(),
         name="master_data_count_api",
     ),
+    path("api/dashboard-counts/", views.DashboardCountsApiView.as_view(), name="dashboard_counts_api"),
 ]

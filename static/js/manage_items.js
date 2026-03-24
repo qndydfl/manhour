@@ -5,12 +5,27 @@ document.addEventListener("DOMContentLoaded", () => {
     initMasterItemsTab();
     initDeleteState();
     initAssignedText();
+    initDescriptionText();
     initClearAssignedButton();
     initSortableRows();
 });
 
 window.addEventListener("load", refreshAssignedTextLayout);
 window.addEventListener("pageshow", refreshAssignedTextLayout);
+
+function initDescriptionText() {
+    document.querySelectorAll(".desc-one-line").forEach((el) => {
+        autoResizeDescription(el);
+
+        el.addEventListener("input", () => autoResizeDescription(el));
+        el.addEventListener("change", () => autoResizeDescription(el));
+    });
+}
+
+function autoResizeDescription(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+}
 
 function initDeleteState() {
     document.querySelectorAll(".delete-trigger").forEach((chk) => {

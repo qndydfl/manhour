@@ -2,6 +2,13 @@
     letter-spacing: -0.02em;
 }
 
+.input-error-msg {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 4px;
+    display: none;
+}
+
 .tag-input-container {
     min-height: 52px;
     width: 100%;

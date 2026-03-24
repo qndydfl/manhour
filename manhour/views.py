@@ -23,6 +23,7 @@ from django.views.generic import (
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from requests import Session
 
 from manhour.planner import Planner
 from manhour.utils import ScheduleCalculator, format_min_to_time, get_adjusted_min
@@ -136,8 +137,20 @@ def get_item_or_404(request, item_id: int, **kwargs):
 
 
 def purge_expired_taskmasters():
-    cutoff = timezone.now() - timedelta(hours=TASKMASTER_RETENTION_HOURS)
+    cutoff = timezone.now() - timedelta(hours=get_taskmaster_retention_hours())
     TaskMaster.objects.filter(created_at__lt=cutoff).delete()
+
+
+def get_taskmaster_retention_hours() -> int:
+    value = (
+        AppSetting.objects.filter(key="taskmaster_retention_hours", site="")
+        .values_list("int_value", flat=True)
+        .first()
+    )
+    try:
+        return int(value) if value else TASKMASTER_RETENTION_HOURS
+    except (TypeError, ValueError):
+        return TASKMASTER_RETENTION_HOURS
 
 
 def get_auto_archive_hours() -> int:
@@ -322,7 +335,23 @@ class ChangeWorkplaceView(SimpleLoginRequiredMixin, View):
         return redirect(next_url or "manhour:index")
 
 
-class IndexView(SimpleLoginRequiredMixin, TemplateView):
+class MasterDataBaseMixin:
+    """
+    Master Data 관련 공통 queryset / count 로직
+    """
+
+    def get_master_data_queryset(self):
+        # 데이터 관리 페이지 기준과 동일하게 맞추는 것이 핵심
+        workplace = get_current_workplace(self.request)
+        if not workplace:
+            return TaskMaster.objects.none()
+        return TaskMaster.objects.filter(site=workplace)
+
+    def get_master_data_count(self):
+        return self.get_master_data_queryset().count()
+
+
+class IndexView(MasterDataBaseMixin, TemplateView):
     template_name = "manhour/index.html"
 
     def get_context_data(self, **kwargs):
@@ -346,7 +375,7 @@ class IndexView(SimpleLoginRequiredMixin, TemplateView):
             .count()
         )
 
-        master_data_count = TaskMaster.objects.filter(site=workplace).count()
+        master_data_count = self.get_master_data_count()
 
         video_qs = FeaturedVideo.objects.filter(is_active=True)
         if workplace:
@@ -395,6 +424,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             {
                 "auto_archive_hours": get_auto_archive_hours(),
                 "history_visibility_hours": get_history_visibility_hours(),
+                "taskmaster_retention_hours": get_taskmaster_retention_hours(),
                 "show_settings_menu": get_show_settings_menu(),
                 "default_worker_limit_mh": get_default_worker_limit_mh(workplace),
                 "sidebar_position": get_sidebar_position(workplace),
@@ -464,6 +494,9 @@ class SettingsView(SimpleLoginRequiredMixin, View):
 
         raw_hours = request.POST.get("auto_archive_hours", "").strip()
         raw_history = request.POST.get("history_visibility_hours", "").strip()
+        raw_taskmaster_retention = request.POST.get(
+            "taskmaster_retention_hours", ""
+        ).strip()
         raw_default_limit = request.POST.get("default_worker_limit_mh", "").strip()
         raw_default_workers = request.POST.get("default_worker_names", "")
         sidebar_position = (request.POST.get("sidebar_position") or "").strip()
@@ -486,6 +519,9 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             history_hours = int(raw_history)
             if history_hours <= 0:
                 raise ValueError("history hours must be positive")
+            taskmaster_retention = int(raw_taskmaster_retention)
+            if taskmaster_retention <= 0:
+                raise ValueError("taskmaster retention must be positive")
             default_limit = float(raw_default_limit)
             if default_limit <= 0:
                 raise ValueError("default limit must be positive")
@@ -502,6 +538,11 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             key="history_visibility_hours",
             site="",
             defaults={"int_value": history_hours},
+        )
+        AppSetting.objects.update_or_create(
+            key="taskmaster_retention_hours",
+            site="",
+            defaults={"int_value": taskmaster_retention},
         )
         AppSetting.objects.update_or_create(
             key="show_settings_menu",
@@ -584,6 +625,7 @@ class SessionListView(SimpleLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_count"] = self.object_list.count()
+        context["auto_archive_hours"] = get_auto_archive_hours()
         return context
 
 
@@ -1503,7 +1545,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 
 
 # @method_decorator(csrf_exempt, name="dispatch")
-class PasteDataView(SimpleLoginRequiredMixin, View):
+class PasteDataView(MasterDataBaseMixin, View):
     def get(self, request):
         return render(request, "manhour/paste_data.html")
 
@@ -3169,11 +3211,23 @@ class MasterDataBulkEditView(SimpleLoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-class MasterDataCountApiView(View):
+class MasterDataCountApiView(MasterDataBaseMixin, View):
     def get(self, request):
-        workplace = get_current_workplace(request)
-        count = TaskMaster.objects.filter(site=workplace).count()
+        count = self.get_master_data_count()
         return JsonResponse({"count": count})
+
+
+class DashboardCountsApiView(View):
+    def get(self, request, *args, **kwargs):
+        active_count = Session.objects.filter(status="ACTIVE").count()
+        history_count = Session.objects.filter(status="HISTORY").count()
+
+        return JsonResponse(
+            {
+                "active_count": active_count,
+                "history_count": history_count,
+            }
+        )
 
 
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):

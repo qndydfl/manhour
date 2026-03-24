@@ -18,7 +18,7 @@
 
 {% block content %}
 <div
-    class="container rounded-3 master-data-edit my-4"
+    class="container rounded-3 master-data-edit"
 >
     <div
         class="d-flex flex-wrap text-white justify-content-between align-items-center pb-4 gap-2"
@@ -105,10 +105,20 @@
                 <div class="table-responsive">
                     <table
                         class="table table-hover align-middle mb-0 master-data-table"
-                    >
+                    >   
+                        <colgroup>
+                            <col style="width: 50px;">
+                            <col style="width: 100px;">
+                            <col style="width: 100px;">
+                            <col style="width: 100px;">
+                            <col />
+                            <col style="width: 100px;">
+                            <col style="width: 150px;">
+                        </colgroup>
+
                         <thead class="bg-light">
                             <tr>
-                                <th class="py-3 ps-4">
+                                <th class="col-delete py-3 ps-4">
                                     <div class="form-check m-0 text-danger">
                                         <input
                                             class="form-check-input js-select-all"
@@ -118,22 +128,12 @@
                                         />
                                     </div>
                                 </th>
-                                <th class="py-3 ps-4">
-                                    기번
-                                </th>
-                                <th class="py-3">
-                                    Work Order
-                                </th>
-                                <th class="py-3">OP</th>
-                                <th class="py-3">
-                                    설명 (Description)
-                                </th>
-                                <th class="py-3 text-center">
-                                    M/H
-                                </th>
-                                <th class="py-3" style="min-width: 150px;">
-                                    생성 시간
-                                </th>
+                                <th class="col-gibun py-3 ps-4">기번</th>
+                                <th class="col-wo py-3">Work Order</th>
+                                <th class="col-op py-3">OP</th>
+                                <th class="col-desc py-3">설명 (Description)</th>
+                                <th class="col-mh py-3 text-center">M/H</th>
+                                <th class="col-created-at py-3">생성 시간</th>
                             </tr>
                         </thead>
                         <tbody class="border-top-0">

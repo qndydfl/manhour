@@ -15,7 +15,7 @@
 
 {% block content %}
 <div
-    class="container rounded-3 master-data-page my-4"
+    class="container rounded-3 master-data-page"
 >
     <div
         class="d-flex flex-wrap text-white justify-content-between align-items-center pb-4 gap-2"
@@ -104,29 +104,37 @@
             <div class="table-responsive">
                 <table
                     class="table table-hover align-middle mb-0 master-data-table"
-                >
+                >   
+                    <colgroup>
+                        <col style="width: 100px;">
+                        <col style="width: 130px;">
+                        <col style="width: 80px;">
+                        <col />
+                        <col style="width: 100px;">
+                        <col style="width: 150px;">
+                    </colgroup>
                     <thead class="bg-light text-muted small">
                         <tr>
                             <th
-                                class="py-3 ps-4 text-nowrap"
+                                class="col-gibun py-3 ps-4 text-nowrap"
                             >
                                 기번
                             </th>
-                            <th class="py-3 text-nowrap">
+                            <th class="col-wo py-3 text-nowrap">
                                 Work Order
                             </th>
-                            <th class="py-3 text-nowrap">
+                            <th class="col-op py-3 text-nowrap">
                                 OP
                             </th>
-                            <th class="py-3">
+                            <th class="col-desc py-3">
                                 설명 (Description)
                             </th>
                             <th
-                                class="py-3 text-center text-nowrap"
+                                class="col-mh py-3 text-center text-nowrap"
                             >
                                 M/H
                             </th>
-                            <th class="py-3 text-nowrap">
+                            <th class="col-created-at py-3 text-nowrap">
                                 생성 시간
                             </th>
                         </tr>

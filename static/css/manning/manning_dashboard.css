@@ -55,10 +55,13 @@ textarea[name="area_workers"] {
 
 .compact-area-card {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(6px);
 }
 
 .compact-area-card .card-body {
     padding: 0.75rem !important;
+    background: transparent;
 }
 
 .area-title {
@@ -127,17 +130,7 @@ textarea[name="area_workers"] {
     gap: 0.4rem;
 }
 
-@media (max-width: 991.98px) {
-    .glass-panel {
-        padding: 0.75rem !important;
-    }
-}
-
 @media (max-width: 767.98px) {
-    .glass-panel {
-        padding: 0.65rem !important;
-    }
-
     .dashboard-title h2 {
         font-size: 1.2rem;
     }
@@ -168,8 +161,15 @@ textarea[name="area_workers"] {
     }
 }
 
+
 @media (max-width: 576px) {
     .grid-2col {
         grid-template-columns: 1fr;
+    }
+
+    .manning-aircraft-bg::before {
+        background-position: center 45%;
+        background-size: 120% auto;
+        opacity: 0.12;
     }
 }

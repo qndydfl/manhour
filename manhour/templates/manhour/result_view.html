@@ -18,7 +18,7 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div
-    class="container rounded-3 my-4"
+    class="container rounded-3"
     data-aos="fade-up"
     data-aos-duration="1000"
 >
@@ -41,7 +41,7 @@ background_image %} {% endcomment %}
             {% endif %}
         </h2>
 
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex flex-wrap gap-2 ms-auto">
             {% if manning_list_available %}
             <a
                 href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"

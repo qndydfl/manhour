@@ -11,6 +11,7 @@
 <script>
     window.INDEX_PAGE = {
         masterDataCountUrl: "{% url 'manhour:master_data_count_api' %}",
+        dashboardCountsUrl: "{% url 'manhour:dashboard_counts_api' %}",
     };
 </script>
 <script defer src="{% static 'js/index.js' %}"></script>
@@ -62,7 +63,7 @@
                     <div class="col-md-6 d-none d-md-block">
                         <div class="card rounded-4 overflow-hidden shadow-sm images-hover-wrapper">
                             <img
-                                src="{% static 'images/index.jpg' %}"
+                                src="{% static 'images/index2.jpg' %}"
                                 alt="Dashboard Preview"
                                 class="w-100 index-hero-image"
                             />
