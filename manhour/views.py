@@ -23,7 +23,6 @@ from django.views.generic import (
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-from requests import Session
 
 from manhour.planner import Planner
 from manhour.utils import ScheduleCalculator, format_min_to_time, get_adjusted_min
@@ -3197,8 +3196,23 @@ class MasterDataCountApiView(MasterDataBaseMixin, View):
 
 class DashboardCountsApiView(View):
     def get(self, request, *args, **kwargs):
-        active_count = Session.objects.filter(status="ACTIVE").count()
-        history_count = Session.objects.filter(status="HISTORY").count()
+        workplace = get_current_workplace(request)
+        active_count = WorkSession.objects.filter(
+            is_active=True,
+            site=workplace,
+        ).count()
+
+        history_cutoff = timezone.now() - timedelta(
+            hours=get_history_visibility_hours()
+        )
+        history_count = (
+            WorkSession.objects.filter(is_active=False, site=workplace)
+            .filter(
+                Q(finished_at__gte=history_cutoff)
+                | Q(finished_at__isnull=True, created_at__gte=history_cutoff)
+            )
+            .count()
+        )
 
         return JsonResponse(
             {
