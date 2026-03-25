@@ -3,16 +3,39 @@
 from django.db import migrations
 
 
-class Migration(migrations.Migration):
+def rename_index_if_exists(apps, schema_editor):
+    model = apps.get_model("manhour", "GibunPriority")
+    table = model._meta.db_table
+    old_name = "manning_gib_session_3525d4_idx"
+    new_name = "manhour_gib_session_e6338f_idx"
 
+    with schema_editor.connection.cursor() as cursor:
+        constraints = schema_editor.connection.introspection.get_constraints(
+            cursor,
+            table,
+        )
+
+    if old_name not in constraints:
+        return
+
+    vendor = schema_editor.connection.vendor
+    if vendor == "postgresql":
+        schema_editor.execute(f'ALTER INDEX "{old_name}" RENAME TO "{new_name}"')
+    elif vendor == "mysql":
+        schema_editor.execute(
+            f"ALTER TABLE `{table}` RENAME INDEX `{old_name}` TO `{new_name}`"
+        )
+    else:
+        schema_editor.execute(
+            f'ALTER TABLE "{table}" RENAME INDEX "{old_name}" TO "{new_name}"'
+        )
+
+
+class Migration(migrations.Migration):
     dependencies = [
-        ('manhour', '0020_appsetting'),
+        ("manhour", "0020_appsetting"),
     ]
 
     operations = [
-        migrations.RenameIndex(
-            model_name='gibunpriority',
-            new_name='manhour_gib_session_e6338f_idx',
-            old_name='manning_gib_session_3525d4_idx',
-        ),
+        migrations.RunPython(rename_index_if_exists, migrations.RunPython.noop),
     ]

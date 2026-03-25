@@ -25,15 +25,15 @@ allowed_hosts = os.getenv(
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
 )
 
-ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
+# ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
+# DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # -----개발 환경 시작-----
 
-# DEBUG = True
+DEBUG = True
 
-# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"]
 
 # -----개발 환경 끝-----
 
