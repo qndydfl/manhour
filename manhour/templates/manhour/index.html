@@ -66,6 +66,9 @@
                                 src="{% static 'images/index2.jpg' %}"
                                 alt="Dashboard Preview"
                                 class="w-100 index-hero-image"
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="top" 
+                                title="마우스 휠을 움직이세요"
                             />
                         </div>
                     </div>
@@ -306,7 +309,9 @@
 
     <div class="index-footer-spacer"></div>
 </div>
-{% endblock content %} {% block footer %}
+{% endblock content %} 
+
+{% block footer %}
 <footer class="index-footer-glass text-center py-3">
     <div class="container">
         <small class="text-muted">
@@ -314,10 +319,8 @@
         </small>
         <span class="mx-2 text-muted">|</span>
         <small class="text-muted">All rights reserved</small>
-        {% if request.session.user_role == "admin" %}
         <span class="mx-2 text-muted">|</span>
-        <small class="text-muted">version 1.0.2</small>
-        {% endif %}
+        <small class="text-muted">version 1.0.3</small>
     </div>
 </footer>
 {% endblock footer %}

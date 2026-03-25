@@ -80,7 +80,6 @@ WORKPLACE_LABEL_SESSION_KEY = "workplace_label"
 TASKMASTER_RETENTION_HOURS = 12
 DEFAULT_HISTORY_VISIBILITY_HOURS = 24
 DEFAULT_AUTO_ARCHIVE_HOURS = 12
-DEFAULT_SHOW_SETTINGS_MENU = True
 DEFAULT_WORKER_LIMIT_MH = 9.0
 
 
@@ -175,20 +174,6 @@ def get_history_visibility_hours() -> int:
         return int(value) if value else DEFAULT_HISTORY_VISIBILITY_HOURS
     except (TypeError, ValueError):
         return DEFAULT_HISTORY_VISIBILITY_HOURS
-
-
-def get_show_settings_menu() -> bool:
-    value = (
-        AppSetting.objects.filter(key="show_settings_menu", site="")
-        .values_list("int_value", flat=True)
-        .first()
-    )
-    if value is None:
-        return DEFAULT_SHOW_SETTINGS_MENU
-    try:
-        return bool(int(value))
-    except (TypeError, ValueError):
-        return DEFAULT_SHOW_SETTINGS_MENU
 
 
 def get_default_worker_limit_mh(workplace: str) -> float:
@@ -425,7 +410,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "auto_archive_hours": get_auto_archive_hours(),
                 "history_visibility_hours": get_history_visibility_hours(),
                 "taskmaster_retention_hours": get_taskmaster_retention_hours(),
-                "show_settings_menu": get_show_settings_menu(),
                 "default_worker_limit_mh": get_default_worker_limit_mh(workplace),
                 "sidebar_position": get_sidebar_position(workplace),
                 "navbar_toggle_position": get_navbar_toggle_position(workplace),
@@ -503,7 +487,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         navbar_toggle_position = (
             request.POST.get("navbar_toggle_position") or ""
         ).strip()
-        show_settings_menu = request.POST.get("show_settings_menu") == "1"
         workplace = get_current_workplace(request)
         if not workplace:
             messages.error(request, "근무지를 선택해주세요.")
@@ -543,11 +526,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             key="taskmaster_retention_hours",
             site="",
             defaults={"int_value": taskmaster_retention},
-        )
-        AppSetting.objects.update_or_create(
-            key="show_settings_menu",
-            site="",
-            defaults={"int_value": 1 if show_settings_menu else 0},
         )
         AppSetting.objects.update_or_create(
             key="default_worker_limit_mh_tenths",

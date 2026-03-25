@@ -18,7 +18,7 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div
-    class="container rounded-3"
+    class="container-fluid rounded-3"
     data-aos="fade-up"
     data-aos-duration="1000"
 >
@@ -270,19 +270,25 @@ background_image %} {% endcomment %}
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table
-                    class="table table-custom table-sticky table-hover mb-0 text-center w-100"
+                    class="table table-custom table-sticky table-hover mb-0 text-center"
                     style="font-size: 0.9rem"
                 >
+                    <colgroup>
+                        <col style="width:80px" />
+                        <col style="width: 80px" />
+                        <col style="width: 80px" />
+                        <col style="width: 300px" />
+                        <col style="width: 80px" />
+                        <col />
+                    </colgroup>
                     <thead class="bg-light">
                         <tr>
-                            <th class="col-gibun" style="width: 8%">기번</th>
-                            <th class="col-wo" style="width: 10%">WO</th>
-                            <th class="col-op" style="width: 8%">OP</th>
+                            <th class="col-gibun">기번</th>
+                            <th class="col-wo">WO</th>
+                            <th class="col-op">OP</th>
                             <th class="col-desc text-start">작업 설명</th>
-                            <th class="col-mh" style="width: 8%">M/H</th>
-                            <th class="col-assign" style="width: 40%">
-                                배정 결과
-                            </th>
+                            <th class="col-mh">M/H</th>
+                            <th class="col-assign">배정 결과</th>
                         </tr>
                     </thead>
                     <tbody>

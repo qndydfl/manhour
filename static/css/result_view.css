@@ -40,13 +40,6 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-@media (max-width: 576px) {
-    .worker-card:hover {
-        transform: none;
-        box-shadow: none;
-    }
-}
-
 .progress {
     background-color: rgba(0, 0, 0, 0.05);
     border-radius: 10px;
@@ -63,25 +56,6 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-}
-
-.table-custom th {
-    background: rgba(255, 255, 255, 0.6) !important;
-    color: var(--rv-muted);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--rv-border) !important;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.table-custom td {
-    vertical-align: middle;
-    padding: 1rem 0.75rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    background: transparent !important;
 }
 
 .table-custom tbody tr:hover {
@@ -120,27 +94,46 @@
 }
 
 @media (max-width: 576px) {
-    .table-custom {
-        min-width: 100%;
+    .worker-card:hover {
+        transform: none;
+        box-shadow: none;
     }
 
     .table-responsive {
         max-height: none;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        overflow-x: hidden;
+    }
+
+    .table-custom {
+        display: block;
+        width: 100% !important;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
     }
 
     .table-custom thead {
         display: none;
     }
 
+    .table-custom tbody {
+        display: block;
+        width: 100%;
+    }
+
     .table-custom tbody tr {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        width: 100%;
+        box-sizing: border-box;
+        grid-template-columns: 80px minmax(0, 1fr) auto;
         grid-template-areas:
             "gibun wo op"
             "mh mh mh"
             "assign assign assign";
         padding: 15px;
-        margin-bottom: 10px;
+        margin: 0 0 10px 0;
         background: rgba(255, 255, 255, 0.3) !important;
         border: 1px solid var(--rv-border);
         border-radius: 12px;
@@ -150,38 +143,44 @@
     .table-custom td {
         font-size: 0.95rem;
         padding: 0.35rem 0.25rem;
-        border-bottom: none;
+        border: none !important;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        background: rgba(255, 255, 255, 0.3) !important;
     }
 
     .col-gibun {
         grid-area: gibun;
         font-weight: bold;
+        border: none !important;
     }
 
     .col-wo {
         grid-area: wo;
+        min-width: 0;
     }
 
     .col-op {
         grid-area: op;
         text-align: right;
+        white-space: nowrap;
     }
 
     .col-mh {
         grid-area: mh;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
         padding-top: 8px !important;
     }
 
     .col-assign {
         grid-area: assign;
-        background: rgba(255, 255, 255, 0.2);
         border-radius: 8px;
         padding: 10px !important;
     }
 
     .col-desc {
-        display: none;
+        display: none !important;
     }
 }
 

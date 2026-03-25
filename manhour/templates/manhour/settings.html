@@ -47,6 +47,7 @@ background_image %} {% endcomment %}
             </div>
         </div>
         <div class="accordion mb-4" id="settings-accordion">
+            <h2 class="h6 fw-bold mb-3">1. 근무지 설정</h2>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="workplace-heading">
                     <button
@@ -282,7 +283,7 @@ background_image %} {% endcomment %}
         <form method="POST" class="" id="settings-form">
             {% csrf_token %}
 
-            <h2 class="h6 fw-bold mb-3">기본 작업자 명단</h2>
+            <h2 class="h6 fw-bold mb-3">2. 기본 작업자 명단</h2>
             <div class="mb-4">
                 <label class="form-label" for="default-worker-names">
                     근무지 기본 명단 (콤마 구분)
@@ -304,7 +305,7 @@ background_image %} {% endcomment %}
                 </div>
             </div>
 
-            <h2 class="h6 fw-bold mb-3">기본 근무 한도</h2>
+            <h2 class="h6 fw-bold mb-3">3. 기본 근무 한도</h2>
             <div class="col-12 col-sm-6 mb-4">
                 <label class="form-label" for="default-worker-limit">
                     기본 근무 한도(M/H)
@@ -320,7 +321,7 @@ background_image %} {% endcomment %}
                 />
             </div>
 
-            <h2 class="h6 fw-bold mb-3">자동 아카이브 이동 시간</h2>
+            <h2 class="h6 fw-bold mb-3">4. 자동 아카이브 이동 시간</h2>
             <div class="row g-2 align-items-center mb-4">
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="auto-archive-hours">
@@ -351,7 +352,7 @@ background_image %} {% endcomment %}
                 </div>
             </div>
 
-            <h2 class="h6 fw-bold mb-3">데이터 관리 보관 시간</h2>
+            <h2 class="h6 fw-bold mb-3">5. 데이터 관리 보관 시간</h2>
             <div class="row g-2 align-items-center mb-4">
                 <div class="col-12 col-sm-6">
                     <label class="form-label" for="taskmaster-retention-hours">
@@ -368,25 +369,7 @@ background_image %} {% endcomment %}
                 </div>
             </div>
 
-            <h2 class="h6 fw-bold mb-3">관리자 사이드바</h2>
-            <div class="col-12 mb-4">
-                <div class="form-check mt-2">
-                    <input type="hidden" name="show_settings_menu" value="0" />
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="show-settings-menu"
-                        name="show_settings_menu"
-                        value="1"
-                        {% if show_settings_menu %}checked{% endif %}
-                    />
-                    <label class="form-check-label" for="show-settings-menu">
-                        관리자 사이드바에 Settings 메뉴 표시
-                    </label>
-                </div>
-            </div>
-
-            <h2 class="h6 fw-bold mb-3">위치 이동</h2>
+            <h2 class="h6 fw-bold mb-3">6. 위치 이동</h2>
             <div class="mb-0">
                 <h2 class="h6 mb-3">사이드바 위치</h2>
                 <div class="d-flex flex-wrap gap-4 mb-4">
@@ -399,6 +382,16 @@ background_image %} {% endcomment %}
                             value="left"
                             data-setting="sidebarPosition"
                             {% if sidebar_position == "left" %}checked{% endif %}
+                        />
+                        <label class="form-check-label" for="sidebar-left">
+                            좌측
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
                         />
                         <label class="form-check-label" for="sidebar-left">
                             좌측

@@ -73,6 +73,41 @@ function initMasterItemsTab() {
 
     let loaded = false;
 
+    const normalizeKey = (gibun, wo, op) => {
+        const g = String(gibun || "")
+            .trim()
+            .toUpperCase();
+        const w = String(wo || "")
+            .trim()
+            .toUpperCase();
+        const o = String(op || "")
+            .trim()
+            .toUpperCase();
+        if (!g || !w || !o) return "";
+        return `${g}::${w}::${o}`;
+    };
+
+    const getExistingKeySet = () => {
+        const rows = document.querySelectorAll(
+            "#manageItemsTable tbody tr.sortable-row",
+        );
+        const keys = new Set();
+
+        rows.forEach((row) => {
+            const gibunInput = row.querySelector(".col-gibun input");
+            const woInput = row.querySelector(".col-wo input");
+            const opInput = row.querySelector(".col-op input");
+            const key = normalizeKey(
+                gibunInput?.value,
+                woInput?.value,
+                opInput?.value,
+            );
+            if (key) keys.add(key);
+        });
+
+        return keys;
+    };
+
     const renderRows = (items) => {
         tableBody.innerHTML = "";
 
@@ -84,6 +119,7 @@ function initMasterItemsTab() {
 
         items.forEach((item) => {
             const tr = document.createElement("tr");
+            tr.dataset.key = normalizeKey(item.gibun, item.work_order, item.op);
             tr.dataset.search =
                 `${item.gibun || ""} ${item.work_order || ""} ${item.op || ""} ${item.description || ""}`.toLowerCase();
 
@@ -93,7 +129,7 @@ function initMasterItemsTab() {
                 <td>${escapeHtml(item.work_order || "")}</td>
                 <td>${escapeHtml(item.op || "")}</td>
                 <td class="text-start">${escapeHtml(item.description || "")}</td>
-                <td class="text-end">${Number(item.work_mh || 0).toFixed(1)}</td>
+                <td class="text-center">${Number(item.work_mh || 0).toFixed(1)}</td>
             `;
 
             tableBody.appendChild(tr);
@@ -146,12 +182,30 @@ function initMasterItemsTab() {
     }
 
     addBtn.addEventListener("click", async () => {
+        const existingKeys = getExistingKeySet();
+        const duplicatedKeys = new Set();
         const checked = Array.from(tableBody.querySelectorAll("tr"))
             .filter((row) => row.style.display !== "none")
             .flatMap((row) => {
                 const chk = row.querySelector(".master-item-check:checked");
-                return chk ? [parseInt(chk.value, 10)] : [];
+                if (!chk) return [];
+
+                const key = row.dataset.key || "";
+                if (key && existingKeys.has(key)) {
+                    duplicatedKeys.add(key.replaceAll("::", " / "));
+                    return [];
+                }
+
+                return [parseInt(chk.value, 10)];
             });
+
+        if (duplicatedKeys.size > 0) {
+            const preview = Array.from(duplicatedKeys).slice(0, 10).join("\n");
+            alert(
+                `이미 데이터 목록에 있는 항목이 포함되어 있습니다.\n(기번 / W/O / OP 기준)\n\n${preview}`,
+            );
+            return;
+        }
 
         if (!checked.length) {
             alert("추가할 항목을 선택해주세요.");

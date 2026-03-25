@@ -32,9 +32,7 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div class="container rounded-3">
-    <div
-        class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2"
-    >
+    <div class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="mb-0 text-white fw-bold">
@@ -199,20 +197,23 @@ background_image %} {% endcomment %}
                     <table
                         id="manageItemsTable"
                         class="table table-hover mb-0 align-middle text-center"
-                    >   
+                    >
                         <colgroup>
+                            <col style="width: 60px" />
                             <col style="width: 40px" />
-                            <col style="width: 40px" />
-                            <col style="width: 100px" />
-                            <col style="width: 120px" />
+                            <col style="width: 80px" />
+                            <col style="width: 140px" />
                             <col style="width: 60px" />
                             <col style="width: 300px" />
-                            <col style="width: 40px" />
-                            <col style="width: 50px" />
+                            <col style="width: 10px" />
+                            <col style="width: 10px" />
                             <col />
                         </colgroup>
-                        
-                        <thead class="table-light sticky-top" style="z-index: 4">
+
+                        <thead
+                            class="table-light sticky-top"
+                            style="z-index: 4"
+                        >
                             <tr class="text-secondary small">
                                 <th class="col-delete text-danger">
                                     <i class="bi bi-trash3-fill"></i>
@@ -230,7 +231,10 @@ background_image %} {% endcomment %}
                                         <select
                                             class="form-select form-select-sm mh-adjust-select text-primary fw-bold"
                                             name="mh_percent"
-                                            style="min-width: 100px; display: inline-block;"
+                                            style="
+                                                min-width: 100px;
+                                                display: inline-block;
+                                            "
                                         >
                                             <option value="0">원래값</option>
                                             <option value="10">+10%</option>
@@ -353,9 +357,7 @@ background_image %} {% endcomment %}
                                     {% endif %}
                                 </td>
 
-                                <td
-                                    class="text-danger col-order"
-                                >
+                                <td class="text-danger col-order">
                                     {% if form.instance.pk %}
                                     <div
                                         class="d-flex flex-column align-items-center lh-1"
@@ -412,7 +414,7 @@ background_image %} {% endcomment %}
                                 <td
                                     class="bg-primary bg-opacity-10 col-assign mb-0"
                                 >
-                                    {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}                                    
+                                    {% render_field form.assigned_text class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" %}
                                 </td>
                             </tr>
                             {% empty %}
@@ -514,8 +516,7 @@ background_image %} {% endcomment %}
                             class="instruction-box p-3 rounded-3 mb-4 bg-light border"
                         >
                             <h6 class="fw-bold text-primary mb-2">
-                                <i class="bi bi-info-circle me-1"></i>데이터
-                                순서 (엑셀 컬럼)
+                                <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)
                             </h6>
                             <div
                                 class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
@@ -563,16 +564,16 @@ background_image %} {% endcomment %}
                                     <thead>
                                         <tr>
                                             <th style="width: 15%">
-                                                기번 (Gibun)
+                                                기번
                                             </th>
                                             <th style="width: 15%">
-                                                Work Order
+                                                WO
                                             </th>
                                             <th style="width: 10%">OP</th>
                                             <th style="width: 45%">
-                                                설명 (Description)
+                                                작업 내용
                                             </th>
-                                            <th style="width: 15%">기준 M/H</th>
+                                            <th style="width: 15%">M/H</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -605,8 +606,7 @@ background_image %} {% endcomment %}
                                         onclick="saveData()"
                                         class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
                                     >
-                                        <i class="bi bi-save me-1"></i> 저장
-                                        하기
+                                        <i class="bi bi-save me-1"></i> 저장 하기
                                     </button>
                                 </div>
                             </div>
@@ -642,7 +642,7 @@ background_image %} {% endcomment %}
                             </button>
                         </div>
 
-                        <div class="table-responsive border rounded-3">
+                        <div class="table-responsive border rounded-3 text-center">
                             <table class="table table-sm align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
@@ -653,7 +653,7 @@ background_image %} {% endcomment %}
                                             />
                                         </th>
                                         <th style="width: 12%">기번</th>
-                                        <th style="width: 14%">W/O</th>
+                                        <th style="width: 14%">WO</th>
                                         <th style="width: 10%">OP</th>
                                         <th>작업 내용</th>
                                         <th style="width: 10%">M/H</th>

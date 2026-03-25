@@ -67,7 +67,7 @@
     height: 9.8rem;
     overflow: hidden;
     position: relative;
-    cursor: ns-resize;
+    cursor: pointer;
 }
 
 .index-hero-image {
