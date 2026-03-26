@@ -3,6 +3,12 @@
     --rv-muted: #495057;
     --rv-glass-bg: rgba(226, 231, 231, 0.45);
     --rv-glass-blur: blur(12px) saturate(130%);
+    --content-max-width: 1360px;
+}
+
+.result-view-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
 }
 
 .table-responsive {
@@ -16,7 +22,6 @@
     border: 1px solid var(--rv-border) !important;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1) !important;
 }
-
 
 .glass-panel .card {
     background: transparent !important;
@@ -40,13 +45,6 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-@media (max-width: 576px) {
-    .worker-card:hover {
-        transform: none;
-        box-shadow: none;
-    }
-}
-
 .progress {
     background-color: rgba(0, 0, 0, 0.05);
     border-radius: 10px;
@@ -63,25 +61,6 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-}
-
-.table-custom th {
-    background: rgba(255, 255, 255, 0.6) !important;
-    color: var(--rv-muted);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--rv-border) !important;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.table-custom td {
-    vertical-align: middle;
-    padding: 1rem 0.75rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    background: transparent !important;
 }
 
 .table-custom tbody tr:hover {
@@ -119,69 +98,90 @@
     border-radius: 10px 0 0 10px;
 }
 
+.original-gibun-badge {
+    font-size: 0.8rem;
+    padding: 6px 6px;
+}
+
 @media (max-width: 576px) {
     .table-custom {
-        min-width: 100%;
-    }
-
-    .table-responsive {
-        max-height: none;
+        display: block;
+        width: 100%;
     }
 
     .table-custom thead {
         display: none;
     }
 
+    .table-custom tbody {
+        display: block;
+        width: 100%;
+    }
+
     .table-custom tbody tr {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        width: 100%;
+        box-sizing: border-box;
+        grid-template-columns: 64px minmax(0, 1fr) auto;
         grid-template-areas:
             "gibun wo op"
             "mh mh mh"
             "assign assign assign";
-        padding: 15px;
-        margin-bottom: 10px;
-        background: rgba(255, 255, 255, 0.3) !important;
-        border: 1px solid var(--rv-border);
-        border-radius: 12px;
         gap: 8px;
+        padding: 8px;
+        margin: 0 0 10px 0;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.56);
     }
 
     .table-custom td {
-        font-size: 0.95rem;
-        padding: 0.35rem 0.25rem;
-        border-bottom: none;
+        border: none !important;
+        padding: 0.2rem;
+        font-size: 0.9rem;
+        background: transparent !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        overflow-x: auto;
     }
 
     .col-gibun {
         grid-area: gibun;
-        font-weight: bold;
+        font-weight: 700;
     }
 
     .col-wo {
         grid-area: wo;
+        min-width: 0;
     }
 
     .col-op {
         grid-area: op;
         text-align: right;
+        white-space: nowrap;
     }
 
     .col-mh {
         grid-area: mh;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-        padding-top: 8px !important;
+        padding-top: 0.2rem !important;
     }
 
     .col-assign {
         grid-area: assign;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        padding: 10px !important;
+        display: grid !important; /* 그리드 레이아웃 적용 */
+        grid-template-columns: repeat(3, 1fr); /* 한 줄에 정확히 3개 배치 */
+        gap: 6px; /* 뱃지 사이 간격 */
+        width: 100%; /* 부모 그리드 너비에 맞춤 */
+        padding: 0.5rem 0.2rem !important;
+        white-space: normal !important; /* 가로 스크롤 방지 */
+        overflow-x: visible !important; /* 스크롤바 제거 */
     }
 
+    .col-assign .d-inline-block {
+        width: 100%; /* 부모 그리드 너비에 맞춤 */
+        margin: 0 !important;
+    }
     .col-desc {
-        display: none;
+        display: none !important;
     }
 }
 

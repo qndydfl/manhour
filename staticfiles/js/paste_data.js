@@ -10,11 +10,15 @@ const COLUMN_PLACEHOLDERS = [
     "0.0",
 ];
 
-function initTable() {
+function ensureMinimumRows(count = ROW_COUNT) {
     if (!tableBody) return;
-    for (let i = 0; i < ROW_COUNT; i++) {
+    while (tableBody.children.length < count) {
         createRow();
     }
+}
+
+function initTable() {
+    ensureMinimumRows();
 }
 
 function createInputByColumn(colIndex) {
@@ -86,7 +90,9 @@ function handleCellInput(e, colIndex) {
 }
 
 function normalizeGibunRaw(value) {
-    return String(value || "").replace(/\D/g, "").slice(0, 4);
+    return String(value || "")
+        .replace(/\D/g, "")
+        .slice(0, 4);
 }
 
 function formatGibunForSave(value) {
@@ -95,15 +101,21 @@ function formatGibunForSave(value) {
 }
 
 function normalizeWoRaw(value) {
-    return String(value || "").replace(/\D/g, "").slice(0, 10);
+    return String(value || "")
+        .replace(/\D/g, "")
+        .slice(0, 10);
 }
 
 function normalizeOpRaw(value) {
-    return String(value || "").replace(/\D/g, "").slice(0, 4);
+    return String(value || "")
+        .replace(/\D/g, "")
+        .slice(0, 4);
 }
 
 function normalizeOp(value) {
-    const digits = String(value || "").replace(/\D/g, "").slice(0, 4);
+    const digits = String(value || "")
+        .replace(/\D/g, "")
+        .slice(0, 4);
     return digits ? digits.padStart(4, "0") : "";
 }
 
@@ -215,7 +227,9 @@ function collectRowData() {
         const mh = normalizeMhRaw(inputs[4].value.trim());
 
         const values = [gibunRaw, wo, op, desc, mh];
-        const filledCount = values.filter((v) => String(v || "").trim() !== "").length;
+        const filledCount = values.filter(
+            (v) => String(v || "").trim() !== "",
+        ).length;
 
         // 완전 공란 행 스킵
         if (filledCount === 0) continue;
@@ -271,7 +285,9 @@ function findDuplicates(data) {
 
 window.saveData = function () {
     if (typeof PASTE_DATA_POST_URL === "undefined") {
-        alert("PASTE_DATA_POST_URL이 정의되지 않았습니다. template의 script 블록을 확인하세요.");
+        alert(
+            "PASTE_DATA_POST_URL이 정의되지 않았습니다. template의 script 블록을 확인하세요.",
+        );
         return;
     }
 
@@ -279,7 +295,9 @@ window.saveData = function () {
     if (data === null) return;
 
     if (data.length === 0) {
-        alert("저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 4자리 필요)");
+        alert(
+            "저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 4자리 필요)",
+        );
         return;
     }
 
@@ -287,11 +305,13 @@ window.saveData = function () {
     if (duplicates.length > 0) {
         const preview = duplicates
             .slice(0, 5)
-            .map((d) => `기번+WO+OP(${d.key}) : ${d.firstRow}행 ↔ ${d.dupRow}행`)
+            .map(
+                (d) => `기번+WO+OP(${d.key}) : ${d.firstRow}행 ↔ ${d.dupRow}행`,
+            )
             .join("\n");
 
         alert(
-            `중복된 기번/Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`
+            `중복된 기번/Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`,
         );
         return;
     }
@@ -365,3 +385,10 @@ window.saveData = function () {
 };
 
 initTable();
+
+const pasteModal = document.getElementById("pasteDataModal");
+if (pasteModal) {
+    pasteModal.addEventListener("shown.bs.modal", () => {
+        ensureMinimumRows();
+    });
+}

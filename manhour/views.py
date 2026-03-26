@@ -335,7 +335,7 @@ class MasterDataBaseMixin:
         return self.get_master_data_queryset().count()
 
 
-class IndexView(MasterDataBaseMixin, TemplateView):
+class IndexView(SimpleLoginRequiredMixin, MasterDataBaseMixin, TemplateView):
     template_name = "manhour/index.html"
 
     def get_context_data(self, **kwargs):
@@ -925,22 +925,14 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
 
         filter_worker = self.request.GET.get("worker")
 
-        # 2. 우선순위 맵핑 준비
+        # 2. 우선순위 맵핑 준비 (대문자 기준 통일)
         gibun_priorities = GibunPriority.objects.filter(session=session)
-        prio_map = {gp.gibun: gp.order for gp in gibun_priorities}
-        whens = [When(gibun_input=k, then=v) for k, v in prio_map.items()]
+        prio_map = {
+            (gp.gibun or "").strip().upper(): gp.order for gp in gibun_priorities
+        }
 
         # 3. 아이템 조회 (Assignment와 Worker를 미리 가져옴 - Prefetch)
-        items_qs = (
-            session.workitem_set.all()
-            .prefetch_related("assignments__worker")
-            .annotate(
-                prio_order=Case(
-                    *whens, default=999, output_field=django_models.IntegerField()
-                )
-            )
-            .order_by("prio_order", "gibun_input", "ordering", "id")
-        )
+        items_qs = session.workitem_set.all().prefetch_related("assignments__worker")
 
         if filter_worker:
             items_qs = items_qs.filter(
@@ -949,6 +941,13 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
 
         # [핵심 수정] 템플릿에서 쉽게 쓰도록 Python 단에서 이름 합치기 처리
         items = list(items_qs)
+        items.sort(
+            key=lambda x: (
+                prio_map.get((x.gibun_input or "").strip().upper(), 999),
+                int(x.ordering or 0),
+                x.id,
+            )
+        )
         # 조정값 복원
         adjusted_mh_map = self.request.session.get(f"adjusted_mh_map_{session.id}", {})
         adjusted_mh_list = self.request.session.get(f"adjusted_mh_{session.id}")
@@ -1106,7 +1105,8 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # 1. [정렬 로직] 기번 우선순위 -> 작업순서 -> 등록순서
         # ---------------------------------------------------------
         gibun_priority_map = {
-            gp.gibun: gp.order for gp in GibunPriority.objects.filter(session=session)
+            (gp.gibun or "").strip().upper(): gp.order
+            for gp in GibunPriority.objects.filter(session=session)
         }
 
         all_items = WorkItem.objects.filter(session=session)
@@ -1369,6 +1369,16 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     continue
 
                 instance = form.save(commit=False)
+                if instance.pk and not instance.original_gibun:
+                    db_row = (
+                        WorkItem.objects.filter(pk=instance.pk)
+                        .values("original_gibun", "gibun_input")
+                        .first()
+                    )
+                    if db_row and not db_row["original_gibun"]:
+                        instance.original_gibun = db_row["gibun_input"]
+                if not instance.original_gibun and instance.gibun_input:
+                    instance.original_gibun = instance.gibun_input
                 if idx < len(mh_adjusted_list):
                     raw_adjusted = (mh_adjusted_list[idx] or "").strip()
                     if raw_adjusted == "":
@@ -3007,18 +3017,17 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
                 work_mh=mh,
             )
 
-            # 2. 우선순위 등록
+            # 2. 기번 우선순위 보장
             if not GibunPriority.objects.filter(session=session, gibun=gibun).exists():
-                last_prio_dict = GibunPriority.objects.filter(
-                    session=session
-                ).aggregate(Max("order"))
-                last_prio = last_prio_dict["order__max"]
+                last_prio = GibunPriority.objects.filter(session=session).aggregate(
+                    Max("order")
+                )["order__max"]
                 new_order = (last_prio or 0) + 1
                 GibunPriority.objects.create(
                     session=session, gibun=gibun, order=new_order
                 )
 
-            # 3. 작업자 수동 배정 (있을 경우만)
+            # 3. 작업자 배정 (선택)
             if worker_name:
                 worker, created = Worker.objects.get_or_create(
                     session=session,
@@ -3037,7 +3046,10 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
                     defaults={"allocated_mh": mh, "is_fixed": False},
                 )
                 item.is_manual = True
-                item.save()
+            else:
+                item.is_manual = False
+
+            item.save(update_fields=["is_manual"])
 
             # 4. 자동 배정 및 갱신
             adjusted_mh_map = request.session.get(f"adjusted_mh_map_{session.id}", {})
@@ -3348,12 +3360,37 @@ class ReorderItemsView(SimpleLoginRequiredMixin, View):
 
             item_map = {item.id: item for item in items}
 
+            # 기번 우선순위는 화면에서 첫 등장 순서대로 재계산
+            gibun_order = []
+            seen_gibun = set()
+            for item_id in ordered_ids_int:
+                item = item_map.get(item_id)
+                if not item:
+                    continue
+                gibun = (item.gibun_input or "").strip()
+                if gibun and gibun not in seen_gibun:
+                    gibun_order.append(gibun)
+                    seen_gibun.add(gibun)
+
             with transaction.atomic():
-                for idx, item_id in enumerate(ordered_ids_int):
+                for idx, gibun in enumerate(gibun_order, start=1):
+                    GibunPriority.objects.update_or_create(
+                        session=session,
+                        gibun=gibun,
+                        defaults={"order": idx},
+                    )
+
+                # 기번 내부 순서 저장
+                per_gibun_index = {}
+                for item_id in ordered_ids_int:
                     item = item_map.get(item_id)
                     if not item:
                         continue
-                    new_ordering = (idx + 1) * 10
+                    gibun = (item.gibun_input or "").strip()
+                    if gibun not in per_gibun_index:
+                        per_gibun_index[gibun] = 0
+                    per_gibun_index[gibun] += 1
+                    new_ordering = per_gibun_index[gibun] * 10
                     if item.ordering != new_ordering:
                         item.ordering = new_ordering
                         item.save(update_fields=["ordering"])

@@ -122,6 +122,7 @@ class WorkItem(models.Model):
     )
     session = models.ForeignKey(WorkSession, on_delete=models.CASCADE)
     gibun_input = models.CharField(max_length=50, blank=True, null=True)
+    original_gibun = models.CharField(max_length=50, blank=True, null=True)
     work_order = models.CharField(max_length=100, blank=True, default="")
     op = models.CharField(max_length=50, blank=True, default="")
     description = models.TextField(blank=True, default="")
@@ -140,6 +141,11 @@ class WorkItem(models.Model):
     class Meta:
         # 기본 정렬: 기번 -> 순서 -> ID
         ordering = ["gibun_input", "ordering", "id"]
+
+    def save(self, *args, **kwargs):
+        if not self.original_gibun and self.gibun_input:
+            self.original_gibun = self.gibun_input
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.work_order} ({self.description})"

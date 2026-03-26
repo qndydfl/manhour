@@ -36,6 +36,10 @@ background_image %} {% endcomment %}
         <div class="mb-2 border-start border-4 border-primary ps-3">
             <span class="text-white fw-bold fs-4">{{ worker_name }}</span>
             <span class="text-warning small fs-5 ms-2">님의 시간표</span>
+            <div class="text-white-50 small mt-1">
+                생성 날짜: {{ session.created_at|date:"Y-m-d" }}
+                {% comment %} 생성 날짜: {{ session.created_at|date:"Y-m-d H:i" }} {% endcomment %}
+            </div>
         </div>
 
         <div class="d-flex gap-2 align-items-center flex-wrap ms-auto">
@@ -108,9 +112,13 @@ background_image %} {% endcomment %}
                         Task Count
                     </div>
                     <div class="fs-4 fw-bold text-dark">
-                        {{ unique_wo_count }} <span class="fs-6 text-muted">건</span>
-                        <span class="fs-6 text-muted">(OP 기준 :</span> 
-                        <span class="fs-5 text-dark fw-bold">{{ task_count }}</span> <span class="fs-6 text-muted">건)</span>
+                        {{ unique_wo_count }}
+                        <span class="fs-6 text-muted">건</span>
+                        <span class="fs-6 text-muted">(OP 기준 :</span>
+                        <span class="fs-5 text-dark fw-bold"
+                            >{{ task_count }}</span
+                        >
+                        <span class="fs-6 text-muted">건)</span>
                     </div>
                 </div>
             </div>

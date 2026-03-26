@@ -1,9 +1,11 @@
 body {
     padding-bottom: 5rem;
 }
+
 .glass-panel {
     max-width: 1400px !important;
 }
+
 .table-input {
     border: 1px solid transparent;
     background-color: transparent;
@@ -30,7 +32,6 @@ body {
     text-align: right;
 }
 
-
 #manageItemsTable tbody tr.sortable-row td {
     padding-top: 0rem;
     padding-bottom: 0rem;
@@ -38,9 +39,8 @@ body {
 
 #manageItemsTable tbody tr td.col-desc {
     padding-top: 0.5rem;
-    padding-bottom: 0rem;
+    padding-bottom: 0.5rem;
 }
-
 
 tr.deleted-row {
     background-color: #ffe6e6 !important;
@@ -52,7 +52,6 @@ tr.deleted-row .table-input {
     color: #dc3545;
     pointer-events: none;
 }
-
 
 .sticky-sidebar {
     position: sticky;
@@ -66,7 +65,6 @@ tr.deleted-row .table-input {
     border-top: 1px solid #dee2e6;
 }
 
-
 .js-assigned-text {
     display: block;
     width: 100%;
@@ -79,6 +77,27 @@ tr.deleted-row .table-input {
     min-height: 2.1rem;
 }
 
+.col-gibun { 
+    position: relative; 
+}
+
+.original-gibun-badge {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    z-index: 5;
+    font-size: 0.9rem;
+    padding: 2px 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+tr.gibun-changed .col-gibun input,
+.gibun-locked {
+    color: transparent;
+    text-shadow: none;
+    caret-color: transparent;
+    pointer-events: none;
+}
 
 .message-overlay {
     position: fixed;
@@ -119,22 +138,24 @@ tr.deleted-row .table-input {
     transition: all 0.3s ease-in;
 }
 
-
 .desc-one-line {
-    height: 1.5rem;
-    line-height: 1.5rem;
-    padding-top: 0;
-    padding-bottom: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
     resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 0;
+    height: auto;
+    line-height: 1.25;
+    /* padding: 0.1rem 1rem; */
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .desc-one-line::-webkit-scrollbar {
     display: none;
 }
-
 
 #pasteDataModal {
     z-index: 2051 !important;
@@ -161,7 +182,6 @@ body.modal-open .fixed-bottom {
 .modal-content {
     pointer-events: auto !important;
 }
-
 
 .drag-handle {
     cursor: grab;
@@ -191,23 +211,25 @@ body.modal-open .fixed-bottom {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-
 .adjusted-mh-custom {
     background-color: #fff3cd !important;
     border-color: #ffe69c !important;
     box-shadow: inset 0 0 0 1px #ffe69c;
 }
 
-.mh-adjust-select {
-    border: 2px dashed #a767b8 !important;
+.adjusted-mh-input {
+    font-size: 0.9rem;
 }
 
+.mh-adjust-select {
+    border: 2px dashed #a767b8 !important;
+    font-size: 0.8rem;
+}
 
 .page-content.has-sidebar .ios-wrap {
     max-width: none !important;
     width: 100% !important;
 }
-
 
 @media (max-width: 576px) {
     #manageItemsTable thead {
@@ -216,18 +238,20 @@ body.modal-open .fixed-bottom {
 
     #manageItemsTable tbody tr.sortable-row {
         display: grid;
-        grid-template-columns: 0.7fr 1.2fr 1.9fr 0.8fr 1fr;
+        grid-template-columns:
+            40px minmax(80px, 1.2fr) minmax(110px, 1.6fr)
+            50px minmax(70px, 1fr);
         grid-template-areas:
             "delete gibun wo op mhadj"
             "assign assign assign assign assign";
-        grid-template-rows: 2.4rem auto;
-        align-items: start;
-        row-gap: 6px;
+        grid-template-rows: auto auto;
+        align-items: stretch;
+        gap: 6px;
         margin-bottom: 0.75rem;
         border: 1px solid #dee2e6;
         border-radius: 0.75rem;
         background: rgba(255, 255, 255, 0.95);
-        padding: 0.4rem;
+        padding: 0.5rem;
     }
 
     #manageItemsTable tbody tr.group-header {
@@ -244,40 +268,38 @@ body.modal-open .fixed-bottom {
         display: none;
     }
 
+    #manageItemsTable td {
+        padding: 0;
+        border: 0;
+        min-width: 0;
+    }
+
     #manageItemsTable .col-delete {
         grid-area: delete;
-        height: 2.4rem;
         display: flex;
         align-items: center;
+        justify-content: center;
+        min-height: 42px;
     }
 
     #manageItemsTable .col-gibun {
         grid-area: gibun;
-        height: 2.4rem;
-        display: flex;
-        align-items: center;
+        min-width: 0;
     }
 
     #manageItemsTable .col-wo {
         grid-area: wo;
         min-width: 0;
-        height: 2.4rem;
-        display: flex;
-        align-items: center;
     }
 
     #manageItemsTable .col-op {
         grid-area: op;
-        height: 2.4rem;
-        display: flex;
-        align-items: center;
+        min-width: 0;
     }
 
     #manageItemsTable .col-mh-adjust {
         grid-area: mhadj;
-        height: 2.4rem;
-        display: flex;
-        align-items: center;
+        min-width: 0;
     }
 
     #manageItemsTable .col-assign {
@@ -285,35 +307,37 @@ body.modal-open .fixed-bottom {
         width: 100%;
     }
 
-    #manageItemsTable td {
-        padding: 0.6rem 0.5rem;
-        white-space: normal;
-        word-break: break-word;
-        overflow-wrap: anywhere;
+    #manageItemsTable .table-input,
+    #manageItemsTable .adjusted-mh-input,
+    #manageItemsTable .js-assigned-text {
+        width: 100%;
+        min-width: 0;
+        font-size: 0.9rem;
+        line-height: 1.25;
+        padding: 0.4rem 0.5rem;
     }
 
     #manageItemsTable .col-gibun .table-input,
     #manageItemsTable .col-wo .table-input,
     #manageItemsTable .col-op .table-input,
     #manageItemsTable .col-mh-adjust .adjusted-mh-input {
-        height: 2rem;
-        padding: 0.2rem 0.35rem;
-        line-height: 1.2;
+        height: 42px;
     }
 
-    .table-input {
-        font-size: 0.9rem;
-        padding: 0.35rem 0.4rem;
-        line-height: 1.2;
+    #manageItemsTable .col-assign .js-assigned-text,
+    #manageItemsTable .col-assign .table-input {
+        line-height: 1.3rem;
+        min-height: 44px;
     }
 
-    .js-assigned-text {
-        min-height: 2.6rem;
-        font-size: 0.95rem;
+    #manageItemsTable input,
+    #manageItemsTable textarea {
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
-    .drag-handle {
-        padding: 6px;
+    #manageItemsTable .drag-handle {
+        display: none;
     }
 }
 
@@ -342,4 +366,3 @@ body.modal-open .fixed-bottom {
     background-color: #7cc5ff;
     border-color: #7cc5ff;
 }
-

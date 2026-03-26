@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("createSessionForm");
     const gibunContainer = document.getElementById("gibunContainer");
     const gibunInput = document.getElementById("gibunInput");
+    const gibunError = document.getElementById("gibunError");
     const realGibunField = document.getElementById("realGibunField");
     const gibunWarning = document.getElementById("gibunWarning");
 
@@ -171,6 +172,22 @@ document.addEventListener("DOMContentLoaded", function () {
             gibunContainer.insertBefore(badge, gibunInput);
         });
     }
+
+    gibunInput.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        if (value === "") {
+            gibunError.style.display = "none";
+            return;
+        }
+
+        if (!/^\d+$/.test(value)) {
+            gibunError.textContent = "숫자로 입력해 주세요";
+            gibunError.style.display = "block";
+        } else {
+            gibunError.style.display = "none";
+        }
+    });
 
     function updateRealField() {
         realGibunField.value = gibunList.join(",");

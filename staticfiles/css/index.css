@@ -31,6 +31,10 @@
     animation-delay: calc(var(--i) * 0.08s);
 }
 
+.index-page[data-workplace^="icn-1"] .wave-text span { color:#fd7e14; }
+.index-page[data-workplace^="icn-2"] .wave-text span { color:#198754; }
+.index-page[data-workplace^="icn-3"] .wave-text span { color:#0d6efd; }
+
 @keyframes waveBounce {
     0%,
     100% {
@@ -67,7 +71,7 @@
     height: 9.8rem;
     overflow: hidden;
     position: relative;
-    cursor: ns-resize;
+    cursor: pointer;
 }
 
 .index-hero-image {

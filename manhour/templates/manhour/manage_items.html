@@ -32,7 +32,9 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div class="container rounded-3">
-    <div class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2">
+    <div
+        class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2"
+    >
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="mb-0 text-white fw-bold">
@@ -204,9 +206,9 @@ background_image %} {% endcomment %}
                             <col style="width: 80px" />
                             <col style="width: 140px" />
                             <col style="width: 60px" />
-                            <col style="width: 300px" />
-                            <col style="width: 10px" />
-                            <col style="width: 10px" />
+                            <col style="width: 250px" />
+                            <col style="width: 60px" />
+                            <col style="width: 60px" />
                             <col />
                         </colgroup>
 
@@ -320,9 +322,10 @@ background_image %} {% endcomment %}
                             {% endifchanged %}
 
                             <tr
-                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row"
+                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row{% if form.instance.original_gibun and form.instance.original_gibun != form.instance.gibun_input %} gibun-changed{% endif %}"
                                 data-item-id="{{ form.instance.pk }}"
                                 data-gibun="{{ form.instance.gibun_input|escape }}"
+                                data-original-gibun="{{ form.instance.original_gibun|default:form.instance.gibun_input|escape }}"
                             >
                                 <td class="d-none">
                                     {{ form.id }} 
@@ -377,7 +380,17 @@ background_image %} {% endcomment %}
                                 </td>
 
                                 <td class="col-gibun">
-                                    {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
+                                    {% if form.instance.original_gibun and form.instance.original_gibun != form.instance.gibun_input %}
+                                        {% render_field form.gibun_input class="table-input fw-bold gibun-locked" placeholder="기번" readonly="readonly" tabindex="-1" aria-readonly="true" %}
+                                    {% else %}
+                                        {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge {% if not form.instance.original_gibun or form.instance.original_gibun == form.instance.gibun_input %}d-none{% endif %}"
+                                            data-original-gibun-badge
+                                        >{{ form.instance.original_gibun }}</span>
+                                    </div>
                                 </td>
 
                                 <td class="col-wo">
@@ -393,7 +406,7 @@ background_image %} {% endcomment %}
                                 </td>
 
                                 <td class="col-mh">
-                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" readonly="readonly" tabindex="-1" aria-readonly="true" %}
+                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1"readonly="readonly" tabindex="-1" aria-readonly="true" %}
                                 </td>
 
                                 <td class="col-mh-adjust">
@@ -516,7 +529,8 @@ background_image %} {% endcomment %}
                             class="instruction-box p-3 rounded-3 mb-4 bg-light border"
                         >
                             <h6 class="fw-bold text-primary mb-2">
-                                <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)
+                                <i class="bi bi-info-circle me-1"></i>데이터
+                                순서 (엑셀 컬럼)
                             </h6>
                             <div
                                 class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
@@ -563,12 +577,8 @@ background_image %} {% endcomment %}
                                 >
                                     <thead>
                                         <tr>
-                                            <th style="width: 15%">
-                                                기번
-                                            </th>
-                                            <th style="width: 15%">
-                                                WO
-                                            </th>
+                                            <th style="width: 15%">기번</th>
+                                            <th style="width: 15%">WO</th>
                                             <th style="width: 10%">OP</th>
                                             <th style="width: 45%">
                                                 작업 내용
@@ -606,7 +616,8 @@ background_image %} {% endcomment %}
                                         onclick="saveData()"
                                         class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
                                     >
-                                        <i class="bi bi-save me-1"></i> 저장 하기
+                                        <i class="bi bi-save me-1"></i> 저장
+                                        하기
                                     </button>
                                 </div>
                             </div>
@@ -642,7 +653,9 @@ background_image %} {% endcomment %}
                             </button>
                         </div>
 
-                        <div class="table-responsive border rounded-3 text-center">
+                        <div
+                            class="table-responsive border rounded-3 text-center"
+                        >
                             <table class="table table-sm align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>

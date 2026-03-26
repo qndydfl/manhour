@@ -18,7 +18,7 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div
-    class="container-fluid rounded-3"
+    class="container result-view-container rounded-3"
     data-aos="fade-up"
     data-aos-duration="1000"
 >
@@ -231,7 +231,7 @@ background_image %} {% endcomment %}
     </div>
 
     <div
-        class="d-flex flex-wrap justify-content-between align-items-center mb-3 px-1 gap-2"
+        class="d-flex flex-wrap justify-content-between align-items-center mb-3 px-1 gap-2 rv-desktop-only"
         data-aos="fade-up"
         data-aos-delay="200"
     >
@@ -250,7 +250,8 @@ background_image %} {% endcomment %}
                 href="{% url 'manhour:assigned_summary' session.id %}"
                 class="btn btn-primary rounded-pill fw-bold px-4 py-2"
             >
-                <i class="bi bi-calendar-range me-1"></i> 시간별 보기 {% if not session.is_active %}
+                <i class="bi bi-calendar-range me-1"></i> 시간별 보기 
+                {% if not session.is_active %}
                 <span
                     class="badge text-bg-secondary ms-2"
                     style="font-size: 0.7rem"
@@ -274,11 +275,11 @@ background_image %} {% endcomment %}
                     style="font-size: 0.9rem"
                 >
                     <colgroup>
-                        <col style="width:80px" />
-                        <col style="width: 80px" />
-                        <col style="width: 80px" />
+                        <col style="width: 100px" />
+                        <col style="width: 100px" />
+                        <col style="width: 100px" />
                         <col style="width: 300px" />
-                        <col style="width: 80px" />
+                        <col style="width: 100px" />
                         <col />
                     </colgroup>
                     <thead class="bg-light">
@@ -300,14 +301,23 @@ background_image %} {% endcomment %}
                                 class="col-gibun fw-bold text-dark"
                                 style="font-size: 0.9rem"
                             >
-                                {{ item.gibun_input }}
+                                {% if not item.original_gibun or item.original_gibun == item.gibun_input %} 
+                                {{ item.gibun_input }} {% else %}
+                                <div class="mt-1">
+                                    <span
+                                        class="badge bg-warning text-dark original-gibun-badge"
+                                    >
+                                        {{ item.original_gibun }}
+                                    </span>
+                                </div>
+                                {% endif %}
                             </td>
-                            <td class="col-wo">
-                                <span class="badge bg-light text-dark border"
-                                    >{{ item.work_order }}</span
-                                >
+                            <td class="col-wo text-dark fw-bold">
+                                {{ item.work_order }}
                             </td>
-                            <td class="col-op text-muted">{{ item.op }}</td>
+                            <td class="col-op text-dark fw-bold">
+                                {{ item.op }}
+                            </td>
                             <td
                                 class="col-desc text-start desc-hide"
                                 title="{{ item.description }}"

@@ -1,7 +1,7 @@
 {% extends 'manhour/base/base.html' %} 
 {% load static %} 
 
-{% block title %}작업슬롯 현황 | manhour System{% endblock %} 
+{% block title %}작업슬롯 현황 | manhour System{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/session_list.css' %}" />
@@ -84,6 +84,11 @@ background_image %} {% endcomment %}
             <div
                 class="card h-100 border-0 shadow-sm card-hover position-relative"
             >
+                <a
+                    href="{% url 'manhour:result_view' session.id %}"
+                    class="stretched-link"
+                    aria-label="{{ session.name }} 입장"
+                ></a>
                 <div
                     class="w-100 {% if session.shift_type == 'NIGHT' %}bg-dark{% else %}bg-warning{% endif %}"
                     style="height: 6px"
@@ -137,12 +142,12 @@ background_image %} {% endcomment %}
                         생성일 {{ session.created_at|date:"Y-m-d" }}
                     </p>
 
-                    <p class="text-muted small mb-4">
+                    <p class="text-muted small">
                         작업자 {{ session.worker_count }}명 • 아이템 {{ session.item_count }}개
                     </p>
 
                     <div
-                        class="d-flex justify-content-between bg-light p-2 rounded-3 mb-3"
+                        class="d-flex justify-content-between bg-light rounded-3 mb-2"
                     >
                         <div class="text-center w-50 border-end">
                             <small class="text-muted" style="font-size: 0.7rem"
@@ -164,16 +169,19 @@ background_image %} {% endcomment %}
                     <div class="mt-auto d-grid gap-2 position-relative">
                         <a
                             href="{% url 'manhour:result_view' session.id %}"
-                            class="stretched-link"
-                            aria-label="{{ session.name }} 입장"
-                        ></a>
-                        <a
-                            href="{% url 'manhour:result_view' session.id %}"
                             class="btn btn-primary fw-bold shadow-sm position-relative z-2"
                         >
                             입장하기
                         </a>
                     </div>
+                    <div class="mt-1 d-grid gap-2 position-relative">
+                        <a
+                            href="{% url 'manhour:assigned_summary' session.id %}"
+                            class="btn btn-secondary rounded-3 fw-bold shadow-sm position-relative z-2"
+                        >
+                            배정 현황 바로 가기
+                        </a>
+                    </div> 
                 </div>
             </div>
         </div>

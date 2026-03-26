@@ -25,15 +25,15 @@ allowed_hosts = os.getenv(
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
 )
 
-# ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
-# DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # -----개발 환경 시작-----
 
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 # -----개발 환경 끝-----
 
@@ -155,6 +155,9 @@ SESSION_COOKIE_HTTPS_ONLY = True  # HTTPS 사용 시에만 쿠키 전송
 SESSION_COOKIE_SECURE = True  # HTTPS 사용 시에만 쿠키 전송
 SESSION_COOKIE_SAMESITE = "Strict"  # CSRF 공격 방지
 CSRF_COOKIE_SECURE = True  # HTTPS 사용 시에만 CSRF 쿠키 전송
+
+# 로그인 리다이렉트 설정
+LOGIN_URL = "/login/"
 
 
 # Default primary key field type

@@ -59,7 +59,10 @@
     </head>
 
     {% with url_name=request.resolver_match.url_name %}
-    <body class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %}" data-sidebar-position="{{ sidebar_position|default:'left' }}" data-navbar-toggle-position="{{ navbar_toggle_position|default:'left' }}">
+    <body class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %}" 
+            data-sidebar-position="{{ sidebar_position|default:'left' }}" 
+            data-navbar-toggle-position="{{ navbar_toggle_position|default:'left' }}">
+
         {% block background_image %}{% endblock background_image %}
         
         {% if url_name != "login" and request.session.is_authenticated %}

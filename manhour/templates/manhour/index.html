@@ -25,14 +25,17 @@
 {% endblock background_image %} 
 
 {% block content %}
-<div class="index-page my-3 my-lg-5">
+<div
+    class="index-page my-3 my-lg-5"
+        data-workplace="{{ request.session.workplace_label|lower }}"
+>
     <div
-        class="row g-4 align-items-stretch "
+        class="row g-4 align-items-stretch"
         data-aos="fade-up"
         data-aos-duration="1000"
     >
         <div class="col-lg-12">
-            <h5 class="text-secondary mb-1">환영합니다,</h5>
+            <h5 class="text-secondary mb-2">환영합니다,</h5>
             <h3 class="fw-bold text-dark mb-0 wave-text">
                 {% for ch in request.session.workplace_label %}
                 <span style="--i:{{ forloop.counter0 }}">{{ ch }}</span>
@@ -44,9 +47,7 @@
         </div>
 
         <div class="col-lg-8 d-flex flex-column justify-content-center">
-            <div
-                class="p-3 index-glass-panel index-equal-panel rounded-4"
-            >
+            <div class="p-3 index-glass-panel index-equal-panel rounded-4">
                 <div class="row align-items-center g-2">
                     <div class="col-md-6">
                         <h1 class="h3 fw-bold text-dark">
@@ -54,28 +55,30 @@
                             Manage Better.
                         </h1>
 
-                        <p class="text-secondary  index-hero-desc">
-                            작업 세션을 생성하고 실시간으로 인력을
-                            관리하세요.
+                        <p class="text-secondary index-hero-desc">
+                            작업 세션을 생성하고 실시간으로 인력을 관리하세요.
                             효율적인 업무 배정이 여기서 시작됩니다.
                         </p>
                     </div>
                     <div class="col-md-6 d-none d-md-block">
-                        <div class="card rounded-4 overflow-hidden shadow-sm images-hover-wrapper">
+                        <div
+                            class="card rounded-4 overflow-hidden shadow-sm images-hover-wrapper"
+                        >
                             <img
                                 src="{% static 'images/index2.jpg' %}"
                                 alt="Dashboard Preview"
                                 class="w-100 index-hero-image"
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="top" 
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
                                 title="마우스 휠을 움직이세요"
                             />
                         </div>
                     </div>
-                    {% comment %} <div class="col-md-6 d-none d-md-block">
+                    {% comment %}
+                    <div class="col-md-6 d-none d-md-block">
                         <div
                             class="card rounded-4 overflow-hidden shadow-sm video-hover-wrapper"
-                        >   
+                        >
                             <video
                                 id="hoverDanceVideo"
                                 class="w-100 index-hero-video"
@@ -89,15 +92,14 @@
                                 />
                             </video>
                         </div>
-                    </div> {% endcomment %}
+                    </div>
+                    {% endcomment %}
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div
-                class="card shadow-lg index-time-panel index-equal-panel py-3"
-            >
+            <div class="card shadow-lg index-time-panel index-equal-panel py-3">
                 <div class="index-time-panel__bg-icon">
                     <i class="bi bi-clock"></i>
                 </div>
@@ -169,25 +171,39 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-lg h-100 rounded-4 hover-lift">
                 <div class="card-body p-4 d-flex align-items-center">
-                    <div class="index-icon-circle bg-info bg-opacity-10 text-info me-3">
+                    <div
+                        class="index-icon-circle bg-info bg-opacity-10 text-info me-3"
+                    >
                         <i class="bi bi-database-add"></i>
                     </div>
 
                     <div class="flex-grow-1">
-                        <h6 class="text-muted text-uppercase fw-bold small mb-1">Master Data</h6>
-                        
+                        <h6
+                            class="text-muted text-uppercase fw-bold small mb-1"
+                        >
+                            Master Data
+                        </h6>
+
                         <div class="d-flex align-items-center gap-2">
                             <h5 class="fw-bold text-dark mb-0">데이터 관리</h5>
-                            
-                            <span id="masterDataBadge" 
+
+                            <span
+                                id="masterDataBadge"
                                 class="badge rounded-pill bg-danger {% if master_data_count == 0 %}d-none{% endif %}"
-                                style="font-size: 0.75rem; padding: 0.35em 0.65em;">
+                                style="
+                                    font-size: 0.75rem;
+                                    padding: 0.35em 0.65em;
+                                "
+                            >
                                 {{ master_data_count }}
                             </span>
                         </div>
                     </div>
 
-                    <a href="{% url 'manhour:paste_data' %}" class="stretched-link"></a>
+                    <a
+                        href="{% url 'manhour:paste_data' %}"
+                        class="stretched-link"
+                    ></a>
                 </div>
             </div>
         </div>
@@ -248,7 +264,7 @@
                     ></a>
                 </div>
             </div>
-        </div>        
+        </div>
     </div>
 
     <div

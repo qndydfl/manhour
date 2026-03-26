@@ -1,7 +1,10 @@
 # 가상 환경 및 설정 파일
+venv/
 .env
 __pycache__/
 *.pyc
-# db.sqlite3
+db.sqlite3
 .vscode/
 .idea/
+staticfiles/
+media/

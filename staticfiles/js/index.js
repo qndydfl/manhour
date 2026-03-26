@@ -178,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // 자동 갱신 - 마스터 데이터 배지
     const masterDataBadgeEl = document.getElementById("masterDataBadge");
     const masterDataCountUrl =
         window.INDEX_PAGE?.masterDataCountUrl || "/api/master-data-count/";
@@ -202,6 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (count > 0) {
                 masterDataBadgeEl.textContent = String(count);
+                masterDataBadgeEl.style.display = "";
                 masterDataBadgeEl.classList.remove("d-none");
             } else {
                 masterDataBadgeEl.textContent = "";
@@ -218,9 +220,52 @@ document.addEventListener("DOMContentLoaded", () => {
         badgeTimer = window.setInterval(refreshMasterDataBadge, 10000);
     }
 
+    // 자동 갱신 - 대시보드 작업 세션 카운트 / 히스토리 카운트
+    const activeCountEl = document.querySelector(".active-count-num");
+    const historyCountEl = document.querySelector(".history-count-num");
+
+    const dashboardCountsUrl =
+        window.INDEX_PAGE?.dashboardCountsUrl || "/api/dashboard-counts/";
+
+    async function refreshDashboardCounts() {
+        try {
+            const response = await fetch(dashboardCountsUrl, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                credentials: "same-origin",
+                cache: "no-store",
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (activeCountEl) {
+                activeCountEl.textContent = String(data.active_count ?? 0);
+            }
+
+            if (historyCountEl) {
+                historyCountEl.textContent = String(data.history_count ?? 0);
+            }
+        } catch (error) {
+            console.error("Dashboard counts refresh failed:", error);
+        }
+    }
+
+    let dashboardTimer = null;
+    if (activeCountEl || historyCountEl) {
+        refreshDashboardCounts();
+        dashboardTimer = window.setInterval(refreshDashboardCounts, 10000);
+    }
+
     window.addEventListener("beforeunload", () => {
         if (clockTimer) window.clearInterval(clockTimer);
         if (badgeTimer) window.clearInterval(badgeTimer);
+        if (dashboardTimer) window.clearInterval(dashboardTimer);
     });
 });
 

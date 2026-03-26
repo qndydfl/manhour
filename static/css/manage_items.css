@@ -77,6 +77,28 @@ tr.deleted-row .table-input {
     min-height: 2.1rem;
 }
 
+.col-gibun { 
+    position: relative; 
+}
+
+.original-gibun-badge {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    z-index: 5;
+    font-size: 0.9rem;
+    padding: 2px 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+tr.gibun-changed .col-gibun input,
+.gibun-locked {
+    color: transparent;
+    text-shadow: none;
+    caret-color: transparent;
+    pointer-events: none;
+}
+
 .message-overlay {
     position: fixed;
     top: 50%;
@@ -304,6 +326,7 @@ body.modal-open .fixed-bottom {
 
     #manageItemsTable .col-assign .js-assigned-text,
     #manageItemsTable .col-assign .table-input {
+        line-height: 1.3rem;
         min-height: 44px;
     }
 

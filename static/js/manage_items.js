@@ -7,11 +7,30 @@ document.addEventListener("DOMContentLoaded", () => {
     initAssignedText();
     initDescriptionText();
     initClearAssignedButton();
+    initOriginalGibunBadges();
     initSortableRows();
 });
 
 window.addEventListener("load", refreshAssignedTextLayout);
 window.addEventListener("pageshow", refreshAssignedTextLayout);
+window.addEventListener("resize", scheduleLayoutRefresh);
+window.addEventListener("orientationchange", scheduleLayoutRefresh);
+
+let layoutRefreshTimer = null;
+
+function scheduleLayoutRefresh() {
+    if (layoutRefreshTimer) {
+        clearTimeout(layoutRefreshTimer);
+    }
+
+    layoutRefreshTimer = setTimeout(() => {
+        refreshAssignedTextLayout();
+        document.querySelectorAll(".desc-one-line").forEach((el) => {
+            autoResizeDescription(el);
+        });
+        layoutRefreshTimer = null;
+    }, 150);
+}
 
 function initDescriptionText() {
     document.querySelectorAll(".desc-one-line").forEach((el) => {
@@ -144,6 +163,16 @@ function initMasterItemsTab() {
             const res = await fetch(MASTER_ITEMS_URL, {
                 credentials: "same-origin",
             });
+
+            const contentType = res.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                if (res.redirected) {
+                    window.location.href = res.url;
+                    return;
+                }
+                throw new Error("invalid response");
+            }
+
             const data = await res.json();
 
             if (!res.ok || data.status !== "success") {
@@ -569,6 +598,15 @@ function autosizeTextarea(el) {
     el.style.height = el.scrollHeight + "px";
 }
 
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 function refreshAssignedTextLayout() {
     document.querySelectorAll(".js-assigned-text").forEach((el) => {
         formatAssignedText(el);
@@ -601,21 +639,19 @@ function initSortableRows() {
         filter: "input, textarea, select, button, a, label",
         preventOnFilter: false,
 
-        onMove: function (evt) {
-            const dragged = evt.dragged;
-            const related = evt.related;
-            if (!dragged || !related) return true;
-
-            const fromGibun = (dragged.dataset.gibun || "").trim();
-            const toGibun = (related.dataset.gibun || "").trim();
-
-            return fromGibun === toGibun;
+        onMove: function () {
+            return true;
         },
 
         onEnd: function (evt) {
             const draggedRow = evt.item;
-            const gibun = (draggedRow.dataset.gibun || "").trim();
-            persistReorder(gibun, tbody);
+            const prevGibun = (draggedRow.dataset.gibun || "").trim();
+            const nextGibun =
+                applyGibunFromPosition(draggedRow, tbody) || prevGibun;
+            persistReorder(nextGibun, tbody);
+            if (prevGibun && nextGibun && prevGibun !== nextGibun) {
+                persistReorder(prevGibun, tbody);
+            }
             syncOrderingInputs(tbody);
         },
     });
@@ -673,9 +709,6 @@ function initNativeDragRows(tbody) {
         const targetRow = e.target.closest("tr.sortable-row");
         if (!targetRow || targetRow === draggedRow) return;
 
-        const targetGibun = (targetRow.dataset.gibun || "").trim();
-        if (draggedGibun && targetGibun && draggedGibun !== targetGibun) return;
-
         const rect = targetRow.getBoundingClientRect();
         const after = e.clientY - rect.top > rect.height / 2;
 
@@ -689,7 +722,13 @@ function initNativeDragRows(tbody) {
     tbody.addEventListener("drop", (e) => {
         if (!draggedRow) return;
         e.preventDefault();
-        persistReorder(draggedGibun, tbody);
+        const prevGibun = draggedGibun;
+        const nextGibun =
+            applyGibunFromPosition(draggedRow, tbody) || prevGibun;
+        persistReorder(nextGibun, tbody);
+        if (prevGibun && nextGibun && prevGibun !== nextGibun) {
+            persistReorder(prevGibun, tbody);
+        }
         syncOrderingInputs(tbody);
     });
 
@@ -713,36 +752,131 @@ function syncOrderingInputs(tbody) {
     });
 }
 
+function initOriginalGibunBadges() {
+    const rows = document.querySelectorAll(
+        "#manageItemsTable tbody tr.sortable-row",
+    );
+    rows.forEach((row) => {
+        if (!row.dataset.originalGibun) return;
+
+        const input = row.querySelector(".col-gibun input");
+        if (input) {
+            row.dataset.gibun = input.value.trim();
+            input.addEventListener("input", () => {
+                row.dataset.gibun = input.value.trim();
+                updateOriginalGibunBadge(row);
+            });
+        }
+
+        updateOriginalGibunBadge(row);
+    });
+}
+
+function updateOriginalGibunBadge(row) {
+    const original = (row.dataset.originalGibun || "").trim();
+    const input = row.querySelector(".col-gibun input");
+    const current = (input ? input.value : row.dataset.gibun || "").trim();
+    const badge = row.querySelector("[data-original-gibun-badge]");
+
+    if (original && current && original !== current) {
+        row.classList.add("gibun-changed");
+        if (badge) {
+            badge.textContent = original;
+            badge.classList.remove("d-none");
+        }
+    } else {
+        row.classList.remove("gibun-changed");
+        if (badge) {
+            badge.textContent = "";
+            badge.classList.add("d-none");
+        }
+    }
+
+    updateOriginalGibunBadgesInHeaders();
+}
+
+function updateOriginalGibunBadgesInHeaders() {
+    const headerBadges = document.querySelectorAll(
+        "[data-original-gibun-group]",
+    );
+    headerBadges.forEach((el) => {
+        el.innerHTML = "";
+    });
+
+    const movedByOriginal = {};
+    document
+        .querySelectorAll("#manageItemsTable tbody tr.sortable-row")
+        .forEach((row) => {
+            const original = (row.dataset.originalGibun || "").trim();
+            const input = row.querySelector(".col-gibun input");
+            const current = (
+                input ? input.value : row.dataset.gibun || ""
+            ).trim();
+            if (!original || !current || original === current) return;
+
+            movedByOriginal[original] = (movedByOriginal[original] || 0) + 1;
+        });
+
+    document
+        .querySelectorAll("#manageItemsTable tbody tr.group-header")
+        .forEach((row) => {
+            const gibun = (row.dataset.gibun || "").trim();
+            if (!gibun || !movedByOriginal[gibun]) return;
+
+            const container = row.querySelector("[data-original-gibun-group]");
+            if (!container) return;
+
+            const badge = document.createElement("span");
+            badge.className =
+                "badge bg-warning text-dark original-gibun-group-badge";
+            badge.textContent = `이동됨 ${movedByOriginal[gibun]}건`;
+            container.appendChild(badge);
+        });
+}
+
+function applyGibunFromPosition(row, tbody) {
+    if (!row || !tbody) return "";
+
+    let cursor = row.previousElementSibling;
+    while (cursor) {
+        if (cursor.classList.contains("group-header")) {
+            break;
+        }
+        cursor = cursor.previousElementSibling;
+    }
+
+    const targetGibun = cursor ? (cursor.dataset.gibun || "").trim() : "";
+    if (!targetGibun) return "";
+
+    const input = row.querySelector(".col-gibun input");
+    if (input) {
+        input.value = targetGibun;
+    }
+
+    row.dataset.gibun = targetGibun;
+    row.querySelectorAll("[data-gibun]").forEach((el) => {
+        el.dataset.gibun = targetGibun;
+    });
+
+    updateOriginalGibunBadge(row);
+    return targetGibun;
+}
 function persistReorder(gibun, tbody) {
     if (!gibun || !tbody) return;
-
     const rows = Array.from(tbody.querySelectorAll("tr.sortable-row")).filter(
         (row) => (row.dataset.gibun || "").trim() === gibun,
     );
-
     const orderedIds = rows.map((row) => row.dataset.itemId).filter(Boolean);
     if (orderedIds.length === 0) return;
     if (typeof REORDER_ITEMS_URL === "undefined") return;
 
     const csrf = getCsrfToken();
-    if (!csrf) return;
-
     fetch(REORDER_ITEMS_URL, {
         method: "POST",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": csrf,
         },
         body: JSON.stringify({ gibun, ordered_ids: orderedIds }),
-    }).catch((error) => console.error("reorder failed", error));
-}
-
-function escapeHtml(value) {
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    }).catch((err) => console.warn("reorder failed", err));
 }

@@ -52,17 +52,10 @@ body {
 }
 
 .glass-panel {
-    /* 하얀색 45% -> 네이비/블랙 계열 30~40%로 변경 */
     background: rgba(15, 23, 42, 0.4) !important;
-
-    /* 블러는 그대로 유지하되 채도를 살짝 낮춰 차분하게 조절 */
     backdrop-filter: blur(15px) saturate(140%) !important;
     -webkit-backdrop-filter: blur(15px) saturate(140%) !important;
-
-    /* 테두리는 너무 밝지 않게 10% 정도로 유지 (유리 경계선 효과) */
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-
-    /* 그림자는 더 어둡고 무겁게 깔아줍니다 */
     box-shadow:
         0 8px 32px 0 rgba(0, 0, 0, 0.4),
         inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;

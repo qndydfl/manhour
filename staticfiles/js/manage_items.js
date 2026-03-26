@@ -5,12 +5,46 @@ document.addEventListener("DOMContentLoaded", () => {
     initMasterItemsTab();
     initDeleteState();
     initAssignedText();
+    initDescriptionText();
     initClearAssignedButton();
+    initOriginalGibunBadges();
     initSortableRows();
 });
 
 window.addEventListener("load", refreshAssignedTextLayout);
 window.addEventListener("pageshow", refreshAssignedTextLayout);
+window.addEventListener("resize", scheduleLayoutRefresh);
+window.addEventListener("orientationchange", scheduleLayoutRefresh);
+
+let layoutRefreshTimer = null;
+
+function scheduleLayoutRefresh() {
+    if (layoutRefreshTimer) {
+        clearTimeout(layoutRefreshTimer);
+    }
+
+    layoutRefreshTimer = setTimeout(() => {
+        refreshAssignedTextLayout();
+        document.querySelectorAll(".desc-one-line").forEach((el) => {
+            autoResizeDescription(el);
+        });
+        layoutRefreshTimer = null;
+    }, 150);
+}
+
+function initDescriptionText() {
+    document.querySelectorAll(".desc-one-line").forEach((el) => {
+        autoResizeDescription(el);
+
+        el.addEventListener("input", () => autoResizeDescription(el));
+        el.addEventListener("change", () => autoResizeDescription(el));
+    });
+}
+
+function autoResizeDescription(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+}
 
 function initDeleteState() {
     document.querySelectorAll(".delete-trigger").forEach((chk) => {
@@ -58,6 +92,41 @@ function initMasterItemsTab() {
 
     let loaded = false;
 
+    const normalizeKey = (gibun, wo, op) => {
+        const g = String(gibun || "")
+            .trim()
+            .toUpperCase();
+        const w = String(wo || "")
+            .trim()
+            .toUpperCase();
+        const o = String(op || "")
+            .trim()
+            .toUpperCase();
+        if (!g || !w || !o) return "";
+        return `${g}::${w}::${o}`;
+    };
+
+    const getExistingKeySet = () => {
+        const rows = document.querySelectorAll(
+            "#manageItemsTable tbody tr.sortable-row",
+        );
+        const keys = new Set();
+
+        rows.forEach((row) => {
+            const gibunInput = row.querySelector(".col-gibun input");
+            const woInput = row.querySelector(".col-wo input");
+            const opInput = row.querySelector(".col-op input");
+            const key = normalizeKey(
+                gibunInput?.value,
+                woInput?.value,
+                opInput?.value,
+            );
+            if (key) keys.add(key);
+        });
+
+        return keys;
+    };
+
     const renderRows = (items) => {
         tableBody.innerHTML = "";
 
@@ -69,6 +138,7 @@ function initMasterItemsTab() {
 
         items.forEach((item) => {
             const tr = document.createElement("tr");
+            tr.dataset.key = normalizeKey(item.gibun, item.work_order, item.op);
             tr.dataset.search =
                 `${item.gibun || ""} ${item.work_order || ""} ${item.op || ""} ${item.description || ""}`.toLowerCase();
 
@@ -78,7 +148,7 @@ function initMasterItemsTab() {
                 <td>${escapeHtml(item.work_order || "")}</td>
                 <td>${escapeHtml(item.op || "")}</td>
                 <td class="text-start">${escapeHtml(item.description || "")}</td>
-                <td class="text-end">${Number(item.work_mh || 0).toFixed(1)}</td>
+                <td class="text-center">${Number(item.work_mh || 0).toFixed(1)}</td>
             `;
 
             tableBody.appendChild(tr);
@@ -93,6 +163,16 @@ function initMasterItemsTab() {
             const res = await fetch(MASTER_ITEMS_URL, {
                 credentials: "same-origin",
             });
+
+            const contentType = res.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                if (res.redirected) {
+                    window.location.href = res.url;
+                    return;
+                }
+                throw new Error("invalid response");
+            }
+
             const data = await res.json();
 
             if (!res.ok || data.status !== "success") {
@@ -131,12 +211,30 @@ function initMasterItemsTab() {
     }
 
     addBtn.addEventListener("click", async () => {
+        const existingKeys = getExistingKeySet();
+        const duplicatedKeys = new Set();
         const checked = Array.from(tableBody.querySelectorAll("tr"))
             .filter((row) => row.style.display !== "none")
             .flatMap((row) => {
                 const chk = row.querySelector(".master-item-check:checked");
-                return chk ? [parseInt(chk.value, 10)] : [];
+                if (!chk) return [];
+
+                const key = row.dataset.key || "";
+                if (key && existingKeys.has(key)) {
+                    duplicatedKeys.add(key.replaceAll("::", " / "));
+                    return [];
+                }
+
+                return [parseInt(chk.value, 10)];
             });
+
+        if (duplicatedKeys.size > 0) {
+            const preview = Array.from(duplicatedKeys).slice(0, 10).join("\n");
+            alert(
+                `이미 데이터 목록에 있는 항목이 포함되어 있습니다.\n(기번 / W/O / OP 기준)\n\n${preview}`,
+            );
+            return;
+        }
 
         if (!checked.length) {
             alert("추가할 항목을 선택해주세요.");
@@ -500,6 +598,15 @@ function autosizeTextarea(el) {
     el.style.height = el.scrollHeight + "px";
 }
 
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 function refreshAssignedTextLayout() {
     document.querySelectorAll(".js-assigned-text").forEach((el) => {
         formatAssignedText(el);
@@ -532,21 +639,19 @@ function initSortableRows() {
         filter: "input, textarea, select, button, a, label",
         preventOnFilter: false,
 
-        onMove: function (evt) {
-            const dragged = evt.dragged;
-            const related = evt.related;
-            if (!dragged || !related) return true;
-
-            const fromGibun = (dragged.dataset.gibun || "").trim();
-            const toGibun = (related.dataset.gibun || "").trim();
-
-            return fromGibun === toGibun;
+        onMove: function () {
+            return true;
         },
 
         onEnd: function (evt) {
             const draggedRow = evt.item;
-            const gibun = (draggedRow.dataset.gibun || "").trim();
-            persistReorder(gibun, tbody);
+            const prevGibun = (draggedRow.dataset.gibun || "").trim();
+            const nextGibun =
+                applyGibunFromPosition(draggedRow, tbody) || prevGibun;
+            persistReorder(nextGibun, tbody);
+            if (prevGibun && nextGibun && prevGibun !== nextGibun) {
+                persistReorder(prevGibun, tbody);
+            }
             syncOrderingInputs(tbody);
         },
     });
@@ -604,9 +709,6 @@ function initNativeDragRows(tbody) {
         const targetRow = e.target.closest("tr.sortable-row");
         if (!targetRow || targetRow === draggedRow) return;
 
-        const targetGibun = (targetRow.dataset.gibun || "").trim();
-        if (draggedGibun && targetGibun && draggedGibun !== targetGibun) return;
-
         const rect = targetRow.getBoundingClientRect();
         const after = e.clientY - rect.top > rect.height / 2;
 
@@ -620,7 +722,13 @@ function initNativeDragRows(tbody) {
     tbody.addEventListener("drop", (e) => {
         if (!draggedRow) return;
         e.preventDefault();
-        persistReorder(draggedGibun, tbody);
+        const prevGibun = draggedGibun;
+        const nextGibun =
+            applyGibunFromPosition(draggedRow, tbody) || prevGibun;
+        persistReorder(nextGibun, tbody);
+        if (prevGibun && nextGibun && prevGibun !== nextGibun) {
+            persistReorder(prevGibun, tbody);
+        }
         syncOrderingInputs(tbody);
     });
 
@@ -644,36 +752,131 @@ function syncOrderingInputs(tbody) {
     });
 }
 
+function initOriginalGibunBadges() {
+    const rows = document.querySelectorAll(
+        "#manageItemsTable tbody tr.sortable-row",
+    );
+    rows.forEach((row) => {
+        if (!row.dataset.originalGibun) return;
+
+        const input = row.querySelector(".col-gibun input");
+        if (input) {
+            row.dataset.gibun = input.value.trim();
+            input.addEventListener("input", () => {
+                row.dataset.gibun = input.value.trim();
+                updateOriginalGibunBadge(row);
+            });
+        }
+
+        updateOriginalGibunBadge(row);
+    });
+}
+
+function updateOriginalGibunBadge(row) {
+    const original = (row.dataset.originalGibun || "").trim();
+    const input = row.querySelector(".col-gibun input");
+    const current = (input ? input.value : row.dataset.gibun || "").trim();
+    const badge = row.querySelector("[data-original-gibun-badge]");
+
+    if (original && current && original !== current) {
+        row.classList.add("gibun-changed");
+        if (badge) {
+            badge.textContent = original;
+            badge.classList.remove("d-none");
+        }
+    } else {
+        row.classList.remove("gibun-changed");
+        if (badge) {
+            badge.textContent = "";
+            badge.classList.add("d-none");
+        }
+    }
+
+    updateOriginalGibunBadgesInHeaders();
+}
+
+function updateOriginalGibunBadgesInHeaders() {
+    const headerBadges = document.querySelectorAll(
+        "[data-original-gibun-group]",
+    );
+    headerBadges.forEach((el) => {
+        el.innerHTML = "";
+    });
+
+    const movedByOriginal = {};
+    document
+        .querySelectorAll("#manageItemsTable tbody tr.sortable-row")
+        .forEach((row) => {
+            const original = (row.dataset.originalGibun || "").trim();
+            const input = row.querySelector(".col-gibun input");
+            const current = (
+                input ? input.value : row.dataset.gibun || ""
+            ).trim();
+            if (!original || !current || original === current) return;
+
+            movedByOriginal[original] = (movedByOriginal[original] || 0) + 1;
+        });
+
+    document
+        .querySelectorAll("#manageItemsTable tbody tr.group-header")
+        .forEach((row) => {
+            const gibun = (row.dataset.gibun || "").trim();
+            if (!gibun || !movedByOriginal[gibun]) return;
+
+            const container = row.querySelector("[data-original-gibun-group]");
+            if (!container) return;
+
+            const badge = document.createElement("span");
+            badge.className =
+                "badge bg-warning text-dark original-gibun-group-badge";
+            badge.textContent = `이동됨 ${movedByOriginal[gibun]}건`;
+            container.appendChild(badge);
+        });
+}
+
+function applyGibunFromPosition(row, tbody) {
+    if (!row || !tbody) return "";
+
+    let cursor = row.previousElementSibling;
+    while (cursor) {
+        if (cursor.classList.contains("group-header")) {
+            break;
+        }
+        cursor = cursor.previousElementSibling;
+    }
+
+    const targetGibun = cursor ? (cursor.dataset.gibun || "").trim() : "";
+    if (!targetGibun) return "";
+
+    const input = row.querySelector(".col-gibun input");
+    if (input) {
+        input.value = targetGibun;
+    }
+
+    row.dataset.gibun = targetGibun;
+    row.querySelectorAll("[data-gibun]").forEach((el) => {
+        el.dataset.gibun = targetGibun;
+    });
+
+    updateOriginalGibunBadge(row);
+    return targetGibun;
+}
 function persistReorder(gibun, tbody) {
     if (!gibun || !tbody) return;
-
     const rows = Array.from(tbody.querySelectorAll("tr.sortable-row")).filter(
         (row) => (row.dataset.gibun || "").trim() === gibun,
     );
-
     const orderedIds = rows.map((row) => row.dataset.itemId).filter(Boolean);
     if (orderedIds.length === 0) return;
     if (typeof REORDER_ITEMS_URL === "undefined") return;
 
     const csrf = getCsrfToken();
-    if (!csrf) return;
-
     fetch(REORDER_ITEMS_URL, {
         method: "POST",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": csrf,
         },
         body: JSON.stringify({ gibun, ordered_ids: orderedIds }),
-    }).catch((error) => console.error("reorder failed", error));
-}
-
-function escapeHtml(value) {
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    }).catch((err) => console.warn("reorder failed", err));
 }
