@@ -242,6 +242,7 @@ class AppSetting(models.Model):
         default="",
     )
     int_value = models.IntegerField(null=True, blank=True)
+    text_value = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

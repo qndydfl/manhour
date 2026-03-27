@@ -1,30 +1,30 @@
-{% extends "manhour/base/base.html" %}
-{% load static %}
+{% extends "manhour/base/base.html" %} 
+{% load static %} 
 
-{% block title %}배정 요약 | manhour System{% endblock title %}
+{% block title %}배정 요약 | manhour System{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}" />
-{% endblock css %}
+{% endblock css %} 
 
 {% block script %}
 <script src="{% static 'js/assigned_summary.js' %}"></script>
-{% endblock script %}
+{% endblock script %} 
 
-{% comment %} {% block background_image %}
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
-{% endblock background_image %} {% endcomment %}
+{% comment %} {% block background_image %} {% include
+"manhour/image/background_url.html" with bg_key="session_list"
+bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
+background_image %} {% endcomment %} 
 
 {% block content %}
-<div
-    class="container rounded-3"
-    style="max-width: 1000px"
->
+<div class="container rounded-3" style="max-width: 1000px">
     <div class="d-flex align-items-center mb-3 px-2" data-aos="fade-down">
         <h4 class="fw-bold text-white my-3">📅 배정 현황 요약</h4>
-        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
+        <div
+            class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end"
+        >
             <a
-                href="{% if not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
+                href="{% if request.GET.from == 'session_list' %}{% url 'manhour:session_list' %}{% elif not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
                 class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
             >
                 <i class="bi bi-arrow-left"></i>
@@ -36,7 +36,7 @@
     <div
         class="alert border-0 d-flex align-items-center gap-2 small text-dark mb-3 py-3 shadow-sm"
         data-aos="fade-in"
-    >   
+    >
         <span class="badge bg-primary btn-sm rounded-pill px-3 py-2">
             총 인원: {{ workers_schedule|length }}명
         </span>
@@ -53,21 +53,25 @@
     >
         <div class="table-responsive">
             <table class="table table-hover align-middle summary-table mb-0">
-                <thead class="bg-white bg-opacity-50 p-0">
-                    <tr class="text-secondary text-center">
-                        <th style="width: 25%">작업자 / 근무조</th>
-                        <th style="width: 8%" class="text-center">건수</th>
-                        <th style="width: 12%" class="text-center">상태</th>
-                        <th style="width: 30%" class="text-center">M/H 진행률</th>
-                        <th style="width: 25%" class="text-center">상세보기</th>
+                <thead class="bg-opacity-50 p-0">
+                    <tr class="text-center">
+                        <th style="width: 25%" class="text-white">작업자 / 근무조</th>
+                        <th style="width: 8%" class="text-white">건수</th>
+                        <th style="width: 12%" class="text-white">상태</th>
+                        <th style="width: 30%" class="text-white">M/H 진행률</th>
+                        <th style="width: 25%" class="text-white">상세보기</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for w in workers_schedule %}
-                    <tr class="hover-row {% if w.is_overload %}summary-overload-row{% endif %}">
+                    <tr
+                        class="hover-row {% if w.is_overload %}summary-overload-row{% endif %}"
+                    >
                         <td class="text-center">
-                            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
-                                <div class="fw-bold text-dark text-center fs-6">
+                            <div
+                                class="d-flex align-items-center justify-content-center gap-2 flex-wrap"
+                            >
+                                <div class="fw-bold text-dark text-center">
                                     {{ w.worker_name }}
                                 </div>
 
@@ -97,11 +101,15 @@
 
                         <td class="text-center">
                             {% if w.is_overload %}
-                            <span class="badge bg-danger rounded-pill shadow-sm status-badge">
+                            <span
+                                class="badge bg-danger rounded-pill shadow-sm status-badge"
+                            >
                                 Overload
                             </span>
                             {% else %}
-                            <span class="badge bg-success bg-opacity-75 text-white rounded-pill shadow-sm status-badge">
+                            <span
+                                class="badge bg-success bg-opacity-75 text-white rounded-pill shadow-sm status-badge"
+                            >
                                 Normal
                             </span>
                             {% endif %}
@@ -113,7 +121,10 @@
                                     <div class="flex-grow-1">
                                         <div
                                             class="progress bg-dark bg-opacity-10"
-                                            style="height: 10px; border-radius: 5px;"
+                                            style="
+                                                height: 10px;
+                                                border-radius: 5px;
+                                            "
                                         >
                                             <div
                                                 class="progress-bar bg-primary"
@@ -134,23 +145,37 @@
                                         </div>
                                     </div>
 
-                                    <div class="text-end" style="min-width: 85px">
-                                        <span class="fw-bold {% if w.is_overload %}text-danger{% else %}text-dark{% endif %}">
+                                    <div
+                                        class="text-end"
+                                        style="min-width: 85px"
+                                    >
+                                        <span
+                                            class="fw-bold {% if w.is_overload %}text-danger{% else %}text-dark{% endif %}"
+                                        >
                                             {{ w.total_mh|floatformat:1 }}
                                         </span>
-                                        <span class="text-muted" style="font-size: 0.8rem">
+                                        <span
+                                            class="text-muted"
+                                            style="font-size: 0.8rem"
+                                        >
                                             / {% if w.is_night %}11.0{% else %}10.5{% endif %}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-end gap-3 small text-muted flex-wrap">
+                                <div
+                                    class="d-flex justify-content-end gap-3 small text-muted flex-wrap"
+                                >
                                     <span>
-                                        <i class="bi bi-square-fill text-primary me-1"></i>
+                                        <i
+                                            class="bi bi-square-fill text-primary me-1"
+                                        ></i>
                                         직비 {{ w.direct_mh|floatformat:1 }}
                                     </span>
                                     <span>
-                                        <i class="bi bi-square-fill text-warning me-1"></i>
+                                        <i
+                                            class="bi bi-square-fill text-warning me-1"
+                                        ></i>
                                         간비 {{ w.kanbi_mh|floatformat:1 }}
                                     </span>
                                 </div>
@@ -158,13 +183,17 @@
                         </td>
 
                         <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <div
+                                class="d-flex justify-content-center gap-2 flex-wrap"
+                            >
                                 <a
                                     href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
                                     class="btn btn-outline-secondary btn-sm rounded-pill py-2 px-3 fw-bold"
                                 >
                                     <i class="bi bi-calendar-check me-1"></i>
-                                    개인 시간표
+                                    <span class="d-none d-md-inline">
+                                    개인 시간표 
+                                    </span>
                                     {% if not session.is_active %}
                                     <span
                                         class="badge text-bg-secondary ms-2"
@@ -173,14 +202,16 @@
                                         작업 완료
                                     </span>
                                     {% endif %}
-                                </a>                                
+                                </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+                            <i
+                                class="bi bi-people fs-1 d-block mb-3 opacity-25"
+                            ></i>
                             배정된 작업자가 없습니다.
                         </td>
                     </tr>

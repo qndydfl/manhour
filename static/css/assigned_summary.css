@@ -1,12 +1,12 @@
-/* assigned_summary.css */
-
 /* 테이블 헤더 */
 .summary-table th {
-    font-size: 0.85rem;
+    font-size: 1rem;
+    padding: 1rem;
     font-weight: 700;
     color: #495057;
-    background-color: rgba(255, 255, 255, 0.4) !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    /* background-color: rgba(255, 255, 255, 0.4) !important; */
+    background-color: #0a0909;
+    border-bottom: 1px solid rgba(51, 43, 43, 0.05);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
@@ -16,7 +16,7 @@
 .summary-table td {
     font-size: 0.9rem;
     vertical-align: middle;
-    padding: 1rem;
+    padding: 0.8rem;
     background: transparent !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.03);
     color: #212529;

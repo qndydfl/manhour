@@ -32,9 +32,7 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div class="container rounded-3">
-    <div
-        class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2"
-    >
+    <div class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="mb-0 text-white fw-bold">
@@ -51,7 +49,8 @@ background_image %} {% endcomment %}
                 data-bs-toggle="modal"
                 data-bs-target="#pasteDataModal"
             >
-                <i class="bi bi-clipboard-plus me-1"></i>데이터 등록
+                <i class="bi bi-clipboard-plus me-1"></i>
+                <span class="d-none d-md-inline">데이터 등록</span>
             </button>
             <a
                 href="{% url 'manhour:result_view' session.id %}"
@@ -79,8 +78,39 @@ background_image %} {% endcomment %}
     >
         {% csrf_token %} {{ formset.management_form }}
 
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
+        <div class="row g-4 mb-4 d-none d-md-flex">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div
+                        class="card-header bg-white fw-bold border-bottom py-2"
+                    >
+                        <i class="text-secondary me-1"></i>
+                        사용 설명서
+                        <span
+                            class="text-white bg-primary rounded-pill ms-2"
+                            style="font-size: 0.75rem; padding: 0.15rem 0.5rem"
+                        >
+                            아래의 사용 설명서를 참고하세요.
+                        </span>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <textarea
+                            name="manual_text"
+                            class="form-control border-0 bg-light small p-3 h-100"
+                            style="
+                                min-height: 150px;
+                                resize: none;
+                                font-size: 0.8rem;
+                            "
+                            placeholder="사용 설명서를 입력하세요."
+                            {% if not is_admin %}readonly{% endif %}
+                        >{{ manual_text }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div
                         class="card-header bg-white fw-bold border-bottom py-2"
@@ -134,7 +164,7 @@ background_image %} {% endcomment %}
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div
                         class="card-header bg-white fw-bold border-bottom py-2"
@@ -142,7 +172,7 @@ background_image %} {% endcomment %}
                         <i class="bi bi-person-gear text-secondary me-1"></i>
                         근무 한도
                         <span
-                            class="text-white btn btn-primary ms-2"
+                            class="text-white bg-primary rounded-pill ms-2"
                             style="font-size: 0.75rem; padding: 0.15rem 0.5rem"
                         >
                             근무 한도는 직비만 해당 됩니다.
@@ -380,16 +410,16 @@ background_image %} {% endcomment %}
                                 </td>
 
                                 <td class="col-gibun">
-                                    {% if form.instance.original_gibun and form.instance.original_gibun != form.instance.gibun_input %}
-                                        {% render_field form.gibun_input class="table-input fw-bold gibun-locked" placeholder="기번" readonly="readonly" tabindex="-1" aria-readonly="true" %}
-                                    {% else %}
-                                        {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
+                                    {% if form.instance.original_gibun and form.instance.original_gibun != form.instance.gibun_input %} 
+                                    {% render_field form.gibun_input class="table-input fw-bold gibun-locked" placeholder="기번" readonly="readonly" tabindex="-1" aria-readonly="true" %} 
+                                    {% else %} {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %} 
                                     {% endif %}
                                     <div class="mt-1">
                                         <span
                                             class="badge bg-warning text-dark original-gibun-badge {% if not form.instance.original_gibun or form.instance.original_gibun == form.instance.gibun_input %}d-none{% endif %}"
                                             data-original-gibun-badge
-                                        >{{ form.instance.original_gibun }}</span>
+                                            >{{ form.instance.original_gibun }}</span
+                                        >
                                     </div>
                                 </td>
 
@@ -406,7 +436,7 @@ background_image %} {% endcomment %}
                                 </td>
 
                                 <td class="col-mh">
-                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1"readonly="readonly" tabindex="-1" aria-readonly="true" %}
+                                    {% render_field form.work_mh class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" readonly="readonly" tabindex="-1" aria-readonly="true" %}
                                 </td>
 
                                 <td class="col-mh-adjust">
@@ -475,7 +505,7 @@ background_image %} {% endcomment %}
                 form="manage-form"
                 class="btn btn-success btn-sm fw-bold px-4 shadow border border-0 rounded-pill"
             >
-                <i class="bi bi-check-lg me-1"></i>저장 및 재배정
+                <i class="bi bi-check-lg me-1"></i>저장
             </button>
         </div>
     </div>

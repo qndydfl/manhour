@@ -1100,6 +1100,9 @@ class EditItemView(SimpleLoginRequiredMixin, View):
 class ManageItemsView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
         session = get_session_any_status_or_404(request, session_id)
+        is_admin = (
+            request.session.get("user_role") == "admin" or request.user.is_superuser
+        )
 
         # ---------------------------------------------------------
         # 1. [정렬 로직] 기번 우선순위 -> 작업순서 -> 등록순서
@@ -1176,6 +1179,16 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             worker_names_list.append(f"{w.name}: {limit_str}")
         worker_names_str = "\n".join(worker_names_list)
 
+        manual_text = (
+            AppSetting.objects.filter(
+                key="manage_items_manual",
+                site=session.site,
+            )
+            .values_list("text_value", flat=True)
+            .first()
+            or ""
+        )
+
         # --- 조정 % 및 조정값 복원 (세션에서) ---
         last_mh_percent = request.session.get(f"mh_percent_{session.id}")
         last_adjusted_mh_map = request.session.get(f"adjusted_mh_map_{session.id}", {})
@@ -1219,6 +1232,8 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 "gibun_priorities": gibun_priorities,
                 "worker_names_str": worker_names_str,
                 "custom_limit_workers": custom_limit_workers,
+                "manual_text": manual_text,
+                "is_admin": is_admin,
                 "non_common_count": WorkItem.objects.filter(session=session)
                 .exclude(gibun_input="COMMON")
                 .count(),
@@ -1230,7 +1245,18 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         )
 
     def post(self, request, session_id):
-        session = get_session_or_404(request, session_id)
+        session = get_session_any_status_or_404(request, session_id)
+        is_admin = (
+            request.session.get("user_role") == "admin" or request.user.is_superuser
+        )
+
+        if is_admin:
+            manual_text = (request.POST.get("manual_text") or "").strip()
+            AppSetting.objects.update_or_create(
+                key="manage_items_manual",
+                site=session.site,
+                defaults={"text_value": manual_text},
+            )
 
         # ---------------------------------------------------------
         # 0. 기번 우선순위 업데이트 (prio_ 로 들어오는 값)

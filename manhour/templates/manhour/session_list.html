@@ -1,4 +1,4 @@
-{% extends 'manhour/base/base.html' %} 
+{% extends 'manhour/base/base.html' %}
 {% load static %} 
 
 {% block title %}작업슬롯 현황 | manhour System{% endblock title %} 
@@ -143,7 +143,8 @@ background_image %} {% endcomment %}
                     </p>
 
                     <p class="text-muted small">
-                        작업자 {{ session.worker_count }}명 • 아이템 {{ session.item_count }}개
+                        작업자 {{ session.worker_count }}명 • 아이템 {{
+                        session.item_count }}개
                     </p>
 
                     <div
@@ -176,12 +177,12 @@ background_image %} {% endcomment %}
                     </div>
                     <div class="mt-1 d-grid gap-2 position-relative">
                         <a
-                            href="{% url 'manhour:assigned_summary' session.id %}"
+                            href="{% url 'manhour:assigned_summary' session.id %}?from=session_list"
                             class="btn btn-secondary rounded-3 fw-bold shadow-sm position-relative z-2"
                         >
                             배정 현황 바로 가기
                         </a>
-                    </div> 
+                    </div>
                 </div>
             </div>
         </div>
