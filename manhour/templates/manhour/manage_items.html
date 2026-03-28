@@ -1,6 +1,6 @@
 {% extends "manhour/base/base.html" %} 
 {% load static %} 
-{% load widget_tweaks %} 
+{% load widget_tweaks %}
 
 {% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
 
@@ -32,7 +32,9 @@ background_image %} {% endcomment %}
 
 {% block content %}
 <div class="container rounded-3">
-    <div class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2">
+    <div
+        class="d-flex justify-content-between align-items-center py-2 flex-wrap gap-2"
+    >
         <div class="d-flex align-items-center gap-3">
             <div>
                 <h4 class="mb-0 text-white fw-bold">
@@ -95,17 +97,20 @@ background_image %} {% endcomment %}
                     </div>
 
                     <div class="card-body p-0">
-                        <textarea
-                            name="manual_text"
-                            class="form-control border-0 bg-light small p-3 h-100"
-                            style="
-                                min-height: 150px;
-                                resize: none;
-                                font-size: 0.8rem;
-                            "
-                            placeholder="사용 설명서를 입력하세요."
-                            {% if not is_admin %}readonly{% endif %}
-                        >{{ manual_text }}</textarea>
+                        <div
+                            class="bg-light small p-3 h-100"
+                            style="min-height: 150px; font-size: 0.8rem"
+                        >
+                            <div class="fw-bold">1. 근무 한도</div>
+                            <ul class="mb-2 ps-3 list-unstyled">
+                                <li>🐯 근무 한도 변경 가능</li>
+                            </ul>
+                            <div class="fw-bold">2. 데이터 목록</div>
+                            <ul class="mb-0 ps-3 list-unstyled">
+                                <li>🐯 체크박스 선택 후 저장 시 삭제</li>
+                                <li>🐯 이름 미입력 시 자동 배정</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -201,7 +206,8 @@ background_image %} {% endcomment %}
                             class="form-control border-0 bg-light small font-monospace p-3 h-100"
                             style="min-height: 150px; resize: none"
                             placeholder="이름: 시간 (줄바꿈)"
-                        >{{ worker_names_str }}</textarea>
+                        >{{ worker_names_str }}
+                        </textarea>
                     </div>
                 </div>
             </div>
@@ -219,8 +225,8 @@ background_image %} {% endcomment %}
                     </span>
                 </div>
                 <span class="text-danger small fw-bold">
-                    <i class="bi bi-check-square me-1"></i>체크박스 선택 후 저장
-                    시 삭제됩니다.
+                    <i class="bi bi-check-square me-1"></i>
+                    체크박스 선택 후 저장 시 삭제됩니다.
                 </span>
             </div>
 
@@ -411,8 +417,12 @@ background_image %} {% endcomment %}
 
                                 <td class="col-gibun">
                                     {% if form.instance.original_gibun and form.instance.original_gibun != form.instance.gibun_input %} 
-                                    {% render_field form.gibun_input class="table-input fw-bold gibun-locked" placeholder="기번" readonly="readonly" tabindex="-1" aria-readonly="true" %} 
-                                    {% else %} {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %} 
+                                    {% render_field form.instance.gibun_input %} 
+                                    {% render_field form.gibun_input class="table-input fw-bold gibun-locked" placeholder="기번"
+                                    readonly="readonly" tabindex="-1"
+                                    aria-readonly="true" %} 
+                                    {% else %} 
+                                    {% render_field form.gibun_input class="table-input fw-bold" placeholder="기번" %}
                                     {% endif %}
                                     <div class="mt-1">
                                         <span

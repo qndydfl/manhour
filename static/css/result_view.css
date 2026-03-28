@@ -21,6 +21,9 @@
     -webkit-backdrop-filter: var(--rv-glass-blur) !important;
     border: 1px solid var(--rv-border) !important;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1) !important;
+
+    will-change: transform; 
+    transform: translateZ(0);
 }
 
 .glass-panel .card {
@@ -104,6 +107,11 @@
 }
 
 @media (max-width: 576px) {
+    .table-sticky thead th {
+        position: static !important; /* sticky 해제 */
+        backdrop-filter: none !important;
+    }
+
     .table-custom {
         display: block;
         width: 100%;
@@ -131,7 +139,8 @@
         padding: 8px;
         margin: 0 0 10px 0;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.56);
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .table-custom td {
