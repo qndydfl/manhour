@@ -1,86 +1,112 @@
 {% comment %} 사용 방법: 폼:
 <form data-loading data-loading-title="..." data-loading-text="...">
-버튼/링크: <button data-loading ...> 또는 <a data-loading ...>{% endcomment %}
+    버튼/링크:
+    <button data-loading ...>
+        또는
+        <a data-loading ...
+            >{% endcomment %}
 
-<script
-    defer
-    src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
-></script>
+<style>
+    /* 1. 로딩 상태의 버튼 스타일 */
+    [data-loading]:disabled, 
+    a[data-loading][style*="pointer-events: none"] {
+        cursor: not-allowed !important;
+        opacity: 0.85 !important;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    /* 2. 버튼 내부 레이아웃 (2줄 대응) */
+    .loading-content-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .loading-text-group {
+        display: flex;
+        flex-column: column;
+        line-height: 1.2;
+    }
+
+    .loading-title {
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 1px;
+    }
+
+    .loading-desc {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        display: block;
+    }
+
+    /* 3. 스피너 크기 미세 조정 */
+    .spinner-border-sm {
+        width: 1.1rem;
+        height: 1.1rem;
+        border-width: 0.15em;
+    }
+</style>
+
 <script>
     (function () {
-        const defaultTitle = "처리 중";
-        const defaultText = "잠시만 기다려 주세요";
+        function showSpinner(el) {
+            if (!el || el.disabled) return;
 
-        function showLoading(target) {
-            if (!window.Swal) {
-                return;
+            // 데이터 추출 (버튼 자체 우선, 없으면 부모 폼에서)
+            const parentForm = el.closest('form');
+            const title = el.dataset.loadingTitle || parentForm?.dataset.loadingTitle;
+            const text = el.dataset.loadingText || parentForm?.dataset.loadingText;
+
+            // 버튼 크기 고정 (레이아웃 뒤틀림 방지)
+            const originalWidth = el.offsetWidth;
+            const originalHeight = el.offsetHeight;
+            el.style.width = originalWidth + 'px';
+            el.style.minHeight = originalHeight + 'px';
+            el.disabled = true;
+
+            // HTML 구조 생성
+            let innerHTML = `<div class="loading-content-wrapper">
+                <span class="spinner-border spinner-border-sm" role="status"></span>`;
+            
+            if (title || text) {
+                innerHTML += `<div class="loading-text-group">`;
+                if (title) innerHTML += `<span class="loading-title">${title}</span>`;
+                if (text) innerHTML += `<span class="loading-desc">${text}</span>`;
+                innerHTML += `</div>`;
+            } else {
+                // 문구가 아예 없을 경우 기본 처리
+                innerHTML += `<span>처리 중...</span>`;
             }
+            
+            innerHTML += `</div>`;
 
-            const title =
-                target?.dataset?.loadingTitle || defaultTitle;
-            const text =
-                target?.dataset?.loadingText || defaultText;
-
-            Swal.fire({
-                title,
-                text,
-                width: "min(420px, 90vw)",
-                padding: "2rem",
-                background: "rgba(255,255,255,0.95)",
-                color: "#1f2937",
-                backdrop: "rgba(15, 23, 42, 0.45)",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                customClass: {
-                    popup: "manning-loading-popup",
-                    title: "manning-loading-title",
-                    htmlContainer: "manning-loading-text",
-                },
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
+            el.innerHTML = innerHTML;
         }
 
-        document.addEventListener("submit", (event) => {
-            const form = event.target;
-            if (form && form.matches("form[data-loading]")) {
-                showLoading(form);
+        // [이벤트] 폼 제출 시
+        document.addEventListener("submit", (e) => {
+            if (e.target.hasAttribute("data-loading")) {
+                const btn = e.target.querySelector('button[type="submit"]');
+                if (btn) showSpinner(btn);
             }
         });
 
-        document.addEventListener("click", (event) => {
-            const target = event.target.closest("[data-loading]");
-            if (!target || target.matches("form")) {
-                return;
+        // [이벤트] 일반 버튼 및 링크 클릭 시
+        document.addEventListener("click", (e) => {
+            const target = e.target.closest('a[data-loading], button[data-loading]');
+            if (target && target.tagName !== 'FORM') {
+                if (target.tagName === 'A') {
+                    // a 태그 클릭 시 실제 이동 전까지 중복 클릭 방지
+                    target.style.pointerEvents = 'none';
+                }
+                showSpinner(target);
             }
-            showLoading(target);
         });
     })();
 </script>
-
-<style>
-    .manning-loading-popup {
-        border-radius: 20px !important;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22) !important;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-
-    .manning-loading-title {
-        font-weight: 700 !important;
-        font-size: 1.25rem !important;
-    }
-
-    .manning-loading-text {
-        font-size: 0.95rem !important;
-        color: #64748b !important;
-    }
-
-    div:where(.swal2-container) .swal2-loader {
-        width: 3rem !important;
-        height: 3rem !important;
-        border-width: 0.3em !important;
-    }
-</style>
