@@ -192,6 +192,11 @@
     .col-desc {
         display: none !important;
     }
+
+    .modal-dialog {
+        max-width: 80%;
+        margin: auto;
+    }
 }
 
 .success-glass-modal {

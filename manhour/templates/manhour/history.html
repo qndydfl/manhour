@@ -10,7 +10,7 @@ endblock background_image %} {% endcomment %}
 
 {% block content %}
 <div class="container glass-panel p-4 rounded-4" style="max-width: 1000px">
-    <div class="d-flex justify-content-between align-items-center my-4 pb-2">
+    <div class="d-flex justify-content-between align-items-center pb-2">
         <h4 class="fw-bold mb-0 text-white">
             <i class="bi bi-clock-history text-warning me-2"></i>작업 이력(History)
         </h4>
@@ -22,7 +22,7 @@ endblock background_image %} {% endcomment %}
                 method="POST"
                 onsubmit="
                     return confirm(
-                        '⚠️ 정말로 모든 작업 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+                        '⚠️ 정말로 모든 작업 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'
                     );
                 "
             >
@@ -46,7 +46,7 @@ endblock background_image %} {% endcomment %}
         </div>
     </div>
 
-    <div class="row justify-content-end mb-3">
+    <div class="row justify-content-end my-4">
         <div class="col-md-6 col-lg-4">
             <form method="GET" class="d-flex gap-2">
                 <input
