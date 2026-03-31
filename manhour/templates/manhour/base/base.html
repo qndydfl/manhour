@@ -65,6 +65,8 @@
 
         {% block background_image %}{% endblock background_image %}
         
+        {% include "manhour/loading/loading.html" %}
+        
         {% if url_name != "login" and request.session.is_authenticated %}
         <div class="app-shell">
             <aside class="app-sidebar" aria-label="Primary">
@@ -136,7 +138,8 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% endif %} {% block content %}{% endblock content %}
+                {% endif %} 
+                {% block content %}{% endblock content %}
             </main>
 
             {% block footer %}{% endblock footer %}
@@ -174,6 +177,44 @@
             })();
 
         </script>
-        {% include "manhour/loading/loading.html" %}
+
+        <!-- loading icon -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const loader = document.getElementById('common-loader');
+                const loaderTitle = document.getElementById('loader-title');
+                const loaderText = document.getElementById('loader-text');
+                
+                // 중요: 폼 전송 중인지 체크하는 변수
+                let isFormSubmitting = false;
+
+                function showLoader(title, text) {
+                    if (loader) {
+                        loaderTitle.innerText = title;
+                        loaderText.innerText = text;
+                        loader.style.display = 'flex';
+                    }
+                }
+
+                // 1. [폼 전송] 
+                document.querySelectorAll('form[data-loading]').forEach(form => {
+                    form.addEventListener('submit', function() {
+                        isFormSubmitting = true; // 폼 전송 시작됨을 표시
+                        const title = this.getAttribute('data-loading-title') || '처리 중';
+                        const text = this.getAttribute('data-loading-text') || '잠시만 기다려 주세요';
+                        
+                        showLoader(title, text);
+                    });
+                });
+
+                // 2. [페이지 이동]
+                window.onbeforeunload = function() {
+                    // 만약 폼 전송 중이라면, 여기서 다시 "페이지 이동 중"을 띄우지 않음
+                    if (!isFormSubmitting) {
+                        showLoader('페이지 이동 중', '데이터를 불러오고 있습니다.');
+                    }
+                };
+            });
+        </script>
     </body>
 </html>

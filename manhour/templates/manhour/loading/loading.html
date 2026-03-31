@@ -1,112 +1,36 @@
-{% comment %} 사용 방법: 폼:
-<form data-loading data-loading-title="..." data-loading-text="...">
-    버튼/링크:
-    <button data-loading ...>
-        또는
-        <a data-loading ...
-            >{% endcomment %}
+<!-- 적용 방법
+1. `base.html`에 로딩 오버레이 HTML 추가
+2. `base.html`의 JavaScript에 페이지 이동 시 로딩 오버레이 표시 코드 추가    
+3. 필요 시 개별 페이지나 폼에 `data-loading` 속성 추가하여 로딩 오버레이 자동 표시 기능 활용
+4. 표시 방법
+    - 폼에 `data-loding, data-loading-title, data-loading-text` 속성 추가
+    - 현재 login.html, create_session.html, manage_items.html에서 적용된 예시 참고
+    - 페이지 이동 시 자동으로 로딩 오버레이 표시 (모든 링크 클릭 시 표시하려면 `window.onbeforeunload` 주석 해제)
+5. 로딩 오버레이는 `common-loader` ID를 가진 요소로, JavaScript에서 제어하여 표시/숨김 처리 
+-->
+
+<!-- 공통 로딩 오버레이 -->
+<div id="common-loader" class="loading-overlay" style="display: none;">
+    <div class="loader-content">
+        <div class="spinner-grow text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 id="loader-title" class="mt-4 fw-bold text-dark">데이터 처리 중</h4>
+        <p id="loader-text" class="text-muted">잠시만 기다려 주세요.</p>
+    </div>
+</div>
 
 <style>
-    /* 1. 로딩 상태의 버튼 스타일 */
-    [data-loading]:disabled, 
-    a[data-loading][style*="pointer-events: none"] {
-        cursor: not-allowed !important;
-        opacity: 0.85 !important;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    /* 2. 버튼 내부 레이아웃 (2줄 대응) */
-    .loading-content-wrapper {
-        display: inline-flex;
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(4px); /* 배경 살짝 흐리게 */
+        z-index: 99999;
+        display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        text-align: left;
-        vertical-align: middle;
     }
-
-    .loading-text-group {
-        display: flex;
-        flex-column: column;
-        line-height: 1.2;
-    }
-
-    .loading-title {
-        font-weight: 700;
-        font-size: 0.85rem;
-        display: block;
-        margin-bottom: 1px;
-    }
-
-    .loading-desc {
-        font-size: 0.75rem;
-        opacity: 0.9;
-        display: block;
-    }
-
-    /* 3. 스피너 크기 미세 조정 */
-    .spinner-border-sm {
-        width: 1.1rem;
-        height: 1.1rem;
-        border-width: 0.15em;
-    }
+    .loader-content { text-align: center; }
 </style>
-
-<script>
-    (function () {
-        function showSpinner(el) {
-            if (!el || el.disabled) return;
-
-            // 데이터 추출 (버튼 자체 우선, 없으면 부모 폼에서)
-            const parentForm = el.closest('form');
-            const title = el.dataset.loadingTitle || parentForm?.dataset.loadingTitle;
-            const text = el.dataset.loadingText || parentForm?.dataset.loadingText;
-
-            // 버튼 크기 고정 (레이아웃 뒤틀림 방지)
-            const originalWidth = el.offsetWidth;
-            const originalHeight = el.offsetHeight;
-            el.style.width = originalWidth + 'px';
-            el.style.minHeight = originalHeight + 'px';
-            el.disabled = true;
-
-            // HTML 구조 생성
-            let innerHTML = `<div class="loading-content-wrapper">
-                <span class="spinner-border spinner-border-sm" role="status"></span>`;
-            
-            if (title || text) {
-                innerHTML += `<div class="loading-text-group">`;
-                if (title) innerHTML += `<span class="loading-title">${title}</span>`;
-                if (text) innerHTML += `<span class="loading-desc">${text}</span>`;
-                innerHTML += `</div>`;
-            } else {
-                // 문구가 아예 없을 경우 기본 처리
-                innerHTML += `<span>처리 중...</span>`;
-            }
-            
-            innerHTML += `</div>`;
-
-            el.innerHTML = innerHTML;
-        }
-
-        // [이벤트] 폼 제출 시
-        document.addEventListener("submit", (e) => {
-            if (e.target.hasAttribute("data-loading")) {
-                const btn = e.target.querySelector('button[type="submit"]');
-                if (btn) showSpinner(btn);
-            }
-        });
-
-        // [이벤트] 일반 버튼 및 링크 클릭 시
-        document.addEventListener("click", (e) => {
-            const target = e.target.closest('a[data-loading], button[data-loading]');
-            if (target && target.tagName !== 'FORM') {
-                if (target.tagName === 'A') {
-                    // a 태그 클릭 시 실제 이동 전까지 중복 클릭 방지
-                    target.style.pointerEvents = 'none';
-                }
-                showSpinner(target);
-            }
-        });
-    })();
-</script>

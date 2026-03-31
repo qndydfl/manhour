@@ -93,8 +93,7 @@
                     <span class="badge bg-white text-dark border shadow-sm px-2 py-1">5. 기준 M/H</span>
                 </div>
             </div>
-
-            <form id="pasteForm" onsubmit="return false;">
+            <form id="pasteForm" data-loadingonsubmit="return false;">
                 {% csrf_token %}
 
                 <div class="table-responsive mb-4 border rounded-3">

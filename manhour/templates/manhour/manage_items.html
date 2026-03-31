@@ -76,6 +76,9 @@ background_image %} {% endcomment %}
     <form
         method="POST"
         id="manage-form"
+        data-loading
+        data-loading-title="데이터 저장 중"
+        data-loading-text="잠시만 기다려 주세요."
         action="{% url 'manhour:manage_items' session.id %}"
     >
         {% csrf_token %} {{ formset.management_form }}

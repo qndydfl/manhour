@@ -55,17 +55,8 @@ from .services import run_auto_assign, refresh_worker_totals, run_sync_schedule
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.views import View
-# from django.contrib.auth.mixins import LoginRequiredMixin
-# from django.db import transaction
-# from django.forms import modelformset_factory
-# from django.db.models import Case, When  # ✅ 정렬 순서 보장을 위해 필수
-
-# from .models import WorkSession, WorkItem, Worker, GibunPriority, Assignment
-# from .forms import WorkItemForm
-# from .services import run_auto_assign, run_sync_schedule
-
+from django.utils.timezone import now
+from .models import WorkSession
 
 # -----------------------------------------------------------
 # 공용 헬퍼 함수

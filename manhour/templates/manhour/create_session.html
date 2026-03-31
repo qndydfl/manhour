@@ -41,9 +41,13 @@
         </div>
 
         <div class="card-body px-4 px-md-5 pb-2 pt-3">
-            <form method="POST" id="createSessionForm">
+            <form method="POST" 
+                id="createSessionForm"
+                data-loading
+                data-loading-title="세션 생성 중"
+                data-loading-text="잠시만 기다려 주세요.">
+                
                 {% csrf_token %}
-
                 <div class="row g-4 mb-4">
                     <div class="col-12">
                         <label

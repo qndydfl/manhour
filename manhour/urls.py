@@ -166,11 +166,14 @@ urlpatterns = [
     ),
     # 동영상
     path("video-page/", views.video_page, name="video_page"),
-
     path(
         "api/master-data-count/",
         views.MasterDataCountApiView.as_view(),
         name="master_data_count_api",
     ),
-    path("api/dashboard-counts/", views.DashboardCountsApiView.as_view(), name="dashboard_counts_api"),
+    path(
+        "api/dashboard-counts/",
+        views.DashboardCountsApiView.as_view(),
+        name="dashboard_counts_api",
+    ),
 ]
