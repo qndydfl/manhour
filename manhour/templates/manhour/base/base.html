@@ -181,39 +181,67 @@
         <!-- loading icon -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const loader = document.getElementById('common-loader');
-                const loaderTitle = document.getElementById('loader-title');
-                const loaderText = document.getElementById('loader-text');
-                
-                // 중요: 폼 전송 중인지 체크하는 변수
-                let isFormSubmitting = false;
+                const loader = document.getElementById("common-loader");
+                const loaderTitle = document.getElementById("loader-title");
+                const loaderText = document.getElementById("loader-text");
 
                 function showLoader(title, text) {
-                    if (loader) {
-                        loaderTitle.innerText = title;
-                        loaderText.innerText = text;
-                        loader.style.display = 'flex';
-                    }
+                    if (!loader) return;
+                    loaderTitle.innerText = title || "처리 중";
+                    loaderText.innerText = text || "잠시만 기다려 주세요.";
+                    loader.style.display = "flex";
                 }
 
-                // 1. [폼 전송] 
-                document.querySelectorAll('form[data-loading]').forEach(form => {
-                    form.addEventListener('submit', function() {
-                        isFormSubmitting = true; // 폼 전송 시작됨을 표시
-                        const title = this.getAttribute('data-loading-title') || '처리 중';
-                        const text = this.getAttribute('data-loading-text') || '잠시만 기다려 주세요';
-                        
+                function hideLoader() {
+                    if (!loader) return;
+                    loader.style.display = "none";
+                }
+
+                // 처음 로드될 때 숨김
+                hideLoader();
+
+                // 브라우저 뒤로가기/앞으로가기로 페이지가 복원될 때 로더 숨김
+                window.addEventListener("pageshow", function () {
+                    hideLoader();
+                });
+
+                // 일반 로드 완료 시에도 한번 더 숨김
+                window.addEventListener("load", function () {
+                    hideLoader();
+                });
+
+                // data-loading 이 지정된 form만 로딩 오버레이 표시
+                document.querySelectorAll("form[data-loading]").forEach(form => {
+                    form.addEventListener("submit", function () {
+                        const title =
+                            this.getAttribute("data-loading-title") || "처리 중";
+                        const text =
+                            this.getAttribute("data-loading-text") || "잠시만 기다려 주세요.";
+
                         showLoader(title, text);
                     });
                 });
 
-                // 2. [페이지 이동]
-                window.onbeforeunload = function() {
-                    // 만약 폼 전송 중이라면, 여기서 다시 "페이지 이동 중"을 띄우지 않음
-                    if (!isFormSubmitting) {
-                        showLoader('페이지 이동 중', '데이터를 불러오고 있습니다.');
-                    }
-                };
+                // 필요하면 data-loading 이 지정된 링크에도 적용 가능
+                document.querySelectorAll("a[data-loading]").forEach(link => {
+                    link.addEventListener("click", function (e) {
+                        const href = this.getAttribute("href");
+
+                        // 예외 처리
+                        if (!href) return;
+                        if (href.startsWith("#")) return;
+                        if (this.target === "_blank") return;
+                        if (this.hasAttribute("download")) return;
+                        if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+                        const title =
+                            this.getAttribute("data-loading-title") || "페이지 이동 중";
+                        const text =
+                            this.getAttribute("data-loading-text") || "데이터를 불러오고 있습니다.";
+
+                        showLoader(title, text);
+                    });
+                });
             });
         </script>
     </body>
