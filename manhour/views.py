@@ -1502,19 +1502,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             .annotate(assign_count=Count("assignments"))
             .filter(assign_count=0)
         )
-        unassigned_count = unassigned_qs.count()
-        if unassigned_count:
-            preview = list(
-                unassigned_qs.values_list("gibun_input", "work_order", "op")[:5]
-            )
-            preview_text = ", ".join(
-                f"{g or '-'} / {wo or '-'} / {op or '-'}" for g, wo, op in preview
-            )
-            message = (
-                f"근무 한도 제한으로 {unassigned_count}건이 미배정되었습니다."
-                f" (예: {preview_text})"
-            )
-            messages.warning(request, message)
         run_sync_schedule(session.id)
 
         return redirect(

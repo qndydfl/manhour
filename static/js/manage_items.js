@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initMasterItemsTab();
     initDeleteState();
     initAssignedText();
+    initAssignedNamesGuard();
     initDescriptionText();
     initClearAssignedButton();
     initOriginalGibunBadges();
@@ -77,6 +78,144 @@ function initAssignedText() {
     });
 
     requestAnimationFrame(refreshAssignedTextLayout);
+}
+
+function initAssignedNamesGuard() {
+    const form = document.getElementById("manage-form");
+    if (!form) return;
+
+    const saveButton = document.querySelector(
+        'button[type="submit"][form="manage-form"]',
+    );
+
+    const warningEl = document.createElement("div");
+    warningEl.className = "alert alert-warning small mt-1 mb-0 py-1";
+    warningEl.style.cssText = "display: none; white-space: pre-line;";
+    warningEl.textContent =
+        "전체 이름이 입력되었습니다.\n자동 배정을 위해 비워두거나 수정하세요.";
+
+    let lastAssignedInput = null;
+
+    let warningTimer = null;
+    const scheduleWarningCheck = () => {
+        if (warningTimer) {
+            clearTimeout(warningTimer);
+        }
+        warningTimer = setTimeout(() => {
+            updateAssignedWarning(
+                form,
+                warningEl,
+                lastAssignedInput,
+                saveButton,
+            );
+            warningTimer = null;
+        }, 150);
+    };
+
+    form.querySelectorAll(".js-assigned-text").forEach((el) => {
+        el.addEventListener("input", scheduleWarningCheck);
+        el.addEventListener("change", scheduleWarningCheck);
+        el.addEventListener("blur", scheduleWarningCheck);
+        el.addEventListener("focus", () => {
+            if (warningEl._lockedInput && warningEl._lockedInput !== el) {
+                el.blur();
+                warningEl._lockedInput.focus();
+                return;
+            }
+            lastAssignedInput = el;
+        });
+        el.addEventListener("input", () => {
+            if (warningEl._lockedInput && warningEl._lockedInput !== el) {
+                warningEl._lockedInput.focus();
+                return;
+            }
+            lastAssignedInput = el;
+        });
+    });
+
+    const workerInput = form.querySelector("[name='worker_names_str']");
+    if (workerInput) {
+        workerInput.addEventListener("input", scheduleWarningCheck);
+        workerInput.addEventListener("change", scheduleWarningCheck);
+        workerInput.addEventListener("blur", scheduleWarningCheck);
+    }
+
+    scheduleWarningCheck();
+}
+
+function updateAssignedWarning(form, warningEl, lastAssignedInput, saveButton) {
+    if (!form || !warningEl) return;
+    let targetInput =
+        lastAssignedInput || form.querySelector(".js-assigned-text");
+    if (warningEl._lockedInput) {
+        targetInput = warningEl._lockedInput;
+    } else if (targetInput) {
+        warningEl._lockedInput = targetInput;
+    }
+
+    const shouldShow = isAllNamesAssignedInInput(form, targetInput);
+    if (!shouldShow) {
+        warningEl.style.display = "none";
+        setAssignedInputsDisabled(form, false, null);
+        warningEl._lockedInput = null;
+        setSaveButtonDisabled(saveButton, false);
+        return;
+    }
+    if (targetInput) {
+        targetInput.insertAdjacentElement("afterend", warningEl);
+    } else {
+        form.prepend(warningEl);
+    }
+
+    warningEl.style.display = "block";
+    setAssignedInputsDisabled(form, true, targetInput);
+    setSaveButtonDisabled(saveButton, true);
+}
+
+function isAllNamesAssignedInInput(form, inputEl) {
+    if (!inputEl) return false;
+    const workerInput = form.querySelector("[name='worker_names_str']");
+    const validNames = parseWorkerLimitNames(workerInput?.value || "");
+    if (validNames.size === 0) return false;
+
+    const assignedNames = new Set();
+    const names = parseAssignedNames(inputEl.value || "");
+    names.forEach((name) => {
+        if (validNames.has(name)) {
+            assignedNames.add(name);
+        }
+    });
+
+    return hasAllValidNames(validNames, assignedNames);
+}
+
+function setAssignedInputsDisabled(form, shouldDisable, allowInput) {
+    form.querySelectorAll(".js-assigned-text").forEach((el) => {
+        if (shouldDisable && allowInput && el !== allowInput) {
+            el.disabled = true;
+            el.setAttribute("aria-disabled", "true");
+            el.classList.add("is-disabled");
+        } else {
+            el.disabled = false;
+            el.removeAttribute("aria-disabled");
+            el.classList.remove("is-disabled");
+        }
+    });
+}
+
+function setSaveButtonDisabled(button, shouldDisable) {
+    if (!button) return;
+    button.disabled = shouldDisable;
+    button.setAttribute("aria-disabled", shouldDisable.toString());
+}
+
+function hasAllValidNames(validNames, assignedNames) {
+    for (const name of validNames) {
+        if (!assignedNames.has(name)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function initMasterItemsTab() {
@@ -522,9 +661,7 @@ function clearAllAssignedText() {
         }
     });
 
-    alert(
-        `고정 배정 ${clearedCount}건을 비웠습니다. 아래 [저장 및 재배정]을 눌러 반영하세요.`,
-    );
+    alert(`고정 배정 ${clearedCount}건을 비웠습니다.`);
     return true;
 }
 
@@ -589,6 +726,31 @@ function formatAssignedText(el) {
     }
 
     autosizeTextarea(el);
+}
+
+function parseWorkerLimitNames(text) {
+    const names = new Set();
+    const lines = String(text || "").split("\n");
+    lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
+        const namePart = trimmed.includes(":")
+            ? trimmed.split(":", 1)[0].trim()
+            : trimmed;
+        if (namePart) names.add(namePart);
+    });
+    return names;
+}
+
+function parseAssignedNames(text) {
+    return String(text || "")
+        .split(/[\n,]+/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) =>
+            part.includes(":") ? part.split(":", 1)[0].trim() : part,
+        )
+        .filter(Boolean);
 }
 
 function autosizeTextarea(el) {
@@ -781,7 +943,7 @@ function updateOriginalGibunBadge(row) {
     if (original && current && original !== current) {
         row.classList.add("gibun-changed");
         if (badge) {
-            badge.textContent = original;
+            badge.textContent = `원래: ${original}`;
             badge.classList.remove("d-none");
         }
     } else {
@@ -854,6 +1016,7 @@ function applyGibunFromPosition(row, tbody) {
     }
 
     row.dataset.gibun = targetGibun;
+
     row.querySelectorAll("[data-gibun]").forEach((el) => {
         el.dataset.gibun = targetGibun;
     });
@@ -861,6 +1024,7 @@ function applyGibunFromPosition(row, tbody) {
     updateOriginalGibunBadge(row);
     return targetGibun;
 }
+
 function persistReorder(gibun, tbody) {
     if (!gibun || !tbody) return;
     const rows = Array.from(tbody.querySelectorAll("tr.sortable-row")).filter(

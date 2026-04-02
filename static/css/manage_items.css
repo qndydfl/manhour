@@ -77,8 +77,14 @@ tr.deleted-row .table-input {
     min-height: 2.1rem;
 }
 
-.col-gibun { 
-    position: relative; 
+.js-assigned-text.is-disabled {
+    background-color: #f1f3f5;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.col-gibun {
+    position: relative;
 }
 
 .original-gibun-badge {
@@ -88,16 +94,32 @@ tr.deleted-row .table-input {
     z-index: 5;
     font-size: 0.9rem;
     padding: 2px 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-tr.gibun-changed .col-gibun input,
+/* 기번 행 이동 */
 .gibun-locked {
-    color: transparent;
-    text-shadow: none;
-    caret-color: transparent;
+    background-color: #f8f9fa;
     pointer-events: none;
 }
+
+tr.gibun-changed .col-gibun input {
+    color: inherit;
+    text-shadow: none;
+    caret-color: auto;
+}
+
+.original-gibun-badge {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    z-index: 5;
+    font-size: 0.78rem;
+    padding: 3px 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+}
+
 
 .message-overlay {
     position: fixed;
