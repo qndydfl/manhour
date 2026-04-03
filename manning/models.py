@@ -125,20 +125,24 @@ class Manning(models.Model):
 
 
 class WorkerDirectory(models.Model):
-    site = models.CharField(
-        max_length=20,
-        verbose_name="근무지",
+    session = models.ForeignKey(
+        "WorkSession",
+        on_delete=models.CASCADE,
+        related_name="worker_directories",
+        null=True,
+        blank=True,
+        verbose_name="세션",
     )
     name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("site", "name")
+        unique_together = ("session", "name")
         ordering = ["name", "id"]
 
     def __str__(self):
-        return f"{self.name} ({self.site})"
-
+        return f"{self.name} ({self.session_id})"
+    
 
 class AreaTemplate(models.Model):
     key = models.CharField(max_length=50, unique=True)

@@ -18,7 +18,7 @@
 {% block js %}
 <script>
     window.MANNING_WORKER_DIR = {
-        updateUrl: "{% url 'manning:update_worker_directory' %}",
+        updateUrl: "{% url 'manning:update_worker_directory' session.id %}",
         csrfToken: "{{ csrf_token }}",
     };
 </script>

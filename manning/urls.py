@@ -64,7 +64,7 @@ urlpatterns = [
         name="update_manning_hours",
     ),
     path(
-        "workers/update/",
+        "sessions/<int:session_id>/worker-directory/update/",
         views.WorkerDirectoryUpdateView.as_view(),
         name="update_worker_directory",
     ),

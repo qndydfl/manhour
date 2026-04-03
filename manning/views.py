@@ -85,19 +85,15 @@ def _get_default_worker_directory(workplace):
     )
 
 
-def _get_worker_directory(workplace):
-    if not workplace:
+def _get_worker_directory(session):
+    if not session:
         return []
 
-    resolved = _resolve_workplace_key(workplace)
-    candidates = {workplace}
-    if resolved:
-        candidates.add(resolved)
-
-    existing = WorkerDirectory.objects.filter(site__in=candidates).order_by("name")
-    if existing.exists():
-        return list(existing.values_list("name", flat=True))
-    return []
+    return list(
+        WorkerDirectory.objects.filter(session=session)
+        .values_list("name", flat=True)
+        .order_by("name", "id")
+    )
 
 
 def _resolve_workplace_key(workplace):
@@ -320,9 +316,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     if manhour_session:
                         session.manhour_session = manhour_session
                         session.save(update_fields=["manhour_session"])
-
-                    # Reset worker directory for a fresh session start.
-                    WorkerDirectory.objects.filter(site=workplace).delete()
 
                     template_label = next(
                         (
@@ -667,10 +660,7 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
         session = get_object_or_404(WorkSession, id=session_id)
         if session.manhour_session_id:
             session.manhour_session.delete()
-        session_site = session.site or _get_current_workplace(request)
         session.delete()
-        if session_site:
-            WorkerDirectory.objects.filter(site=session_site).delete()
         messages.success(request, "세션이 삭제되었습니다.")
         return redirect("manning:manning_list")
 
@@ -921,8 +911,9 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
             )
             .order_by("position_order", "ordering", "id")
         )
-        worker_names = _get_worker_directory(workplace)
+        worker_names = _get_worker_directory(session)
         default_worker_names = _get_default_worker_directory(workplace)
+
         return render(
             request,
             "manning/manning_dashboard_edit.html",
@@ -1031,18 +1022,22 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
 class WorkerDirectoryUpdateView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, session_id, *args, **kwargs):
         workplace = _get_current_workplace(request)
-        if not workplace:
+        session = get_object_or_404(WorkSession, id=session_id)
+
+        if session.site != workplace:
             return JsonResponse(
-                {"status": "error", "message": "No workplace"}, status=400
+                {"status": "error", "message": "Invalid session"},
+                status=403,
             )
 
         try:
             payload = json.loads(request.body.decode("utf-8"))
         except json.JSONDecodeError:
             return JsonResponse(
-                {"status": "error", "message": "Invalid payload"}, status=400
+                {"status": "error", "message": "Invalid payload"},
+                status=400,
             )
 
         raw_names = payload.get("worker_names")
@@ -1054,30 +1049,34 @@ class WorkerDirectoryUpdateView(ManningSessionRequiredMixin, View):
 
         cleaned = []
         seen = set()
+
         for raw in raw_names:
             name = (raw or "").strip()
             if not name:
                 continue
-            if name in seen:
+
+            key = name.lower()
+            if key in seen:
                 continue
+
             cleaned.append(name)
-            seen.add(name)
+            seen.add(key)
 
         with transaction.atomic():
             existing = set(
-                WorkerDirectory.objects.filter(site=workplace).values_list(
+                WorkerDirectory.objects.filter(session=session).values_list(
                     "name", flat=True
                 )
             )
             desired = set(cleaned)
 
-            WorkerDirectory.objects.filter(site=workplace).exclude(
+            WorkerDirectory.objects.filter(session=session).exclude(
                 name__in=desired
             ).delete()
 
             WorkerDirectory.objects.bulk_create(
                 [
-                    WorkerDirectory(site=workplace, name=name)
+                    WorkerDirectory(session=session, name=name)
                     for name in cleaned
                     if name not in existing
                 ],
