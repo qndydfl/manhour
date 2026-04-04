@@ -9,19 +9,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const shiftHelpMessage = document.getElementById("shiftHelpMessage");
     const activeShiftDataEl = document.getElementById("activeShiftCombos");
 
-    const activeShiftCombos = activeShiftDataEl
-        ? JSON.parse(activeShiftDataEl.textContent)
-        : [];
+    let activeShiftCombos = [];
+
+    if (activeShiftDataEl) {
+        try {
+            activeShiftCombos = JSON.parse(activeShiftDataEl.textContent || "[]");
+        } catch (error) {
+            console.error("activeShiftCombos JSON parsing error:", error);
+            activeShiftCombos = [];
+        }
+    }
 
     function normalizeAircraft(value) {
         return String(value || "").trim().toUpperCase();
     }
 
     function formatAircraftInput(value) {
-        const digits = String(value || "")
-            .replace(/\D/g, "")
-            .slice(0, 4);
+        const raw = String(value || "")
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "");
 
+        const digits = raw.replace(/^HL/, "").replace(/\D/g, "").slice(0, 4);
         return digits ? `HL${digits}` : "";
     }
 
@@ -34,6 +42,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function resetShiftOptions() {
+        if (!shiftSelect) return;
+
+        Array.from(shiftSelect.options).forEach((option) => {
+            option.disabled = false;
+        });
+
+        shiftSelect.value = "";
+    }
+
+    function updateShiftHelpMessage(disabledShiftValues) {
+        if (!shiftHelpMessage) return;
+
+        if (!disabledShiftValues.length) {
+            shiftHelpMessage.classList.add("d-none");
+            shiftHelpMessage.textContent = "";
+            return;
+        }
+
+        shiftHelpMessage.textContent =
+            `이미 사용 중인 Shift: ${disabledShiftValues.join(", ")}. 다른 Shift를 선택해주세요.`;
+        shiftHelpMessage.classList.remove("d-none");
+    }
+
     function updateShiftAvailability() {
         if (!shiftSelect || !blockCheckSelect || !aircraftInput) {
             return;
@@ -41,6 +73,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const aircraftReg = normalizeAircraft(aircraftInput.value);
         const blockCheck = String(blockCheckSelect.value || "").trim();
+
+        const hasRequiredInfo = aircraftReg && blockCheck;
+
+        shiftSelect.disabled = !hasRequiredInfo;
+
+        if (!hasRequiredInfo) {
+            resetShiftOptions();
+            updateShiftHelpMessage([]);
+            return;
+        }
 
         const disabledShiftSet = new Set(
             activeShiftCombos
@@ -51,10 +93,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
                 })
                 .map((item) => String(item.shift_type || "").trim())
+                .filter(Boolean)
         );
 
+        const disabledShiftValues = [];
         let selectedDisabled = false;
-        let disabledCount = 0;
 
         Array.from(shiftSelect.options).forEach((option) => {
             if (!option.value) {
@@ -62,15 +105,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            option.disabled = disabledShiftSet.has(option.value);
+            const shouldDisable = disabledShiftSet.has(option.value);
+            option.disabled = shouldDisable;
 
-            if (option.disabled) {
-                disabledCount += 1;
+            if (shouldDisable) {
+                disabledShiftValues.push(option.value);
             }
 
-            if (option.disabled && option.selected) {
+            if (shouldDisable && option.selected) {
                 selectedDisabled = true;
-                option.selected = false;
             }
         });
 
@@ -78,13 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
             shiftSelect.value = "";
         }
 
-        if (shiftHelpMessage) {
-            if (disabledCount > 0) {
-                shiftHelpMessage.classList.remove("d-none");
-            } else {
-                shiftHelpMessage.classList.add("d-none");
-            }
-        }
+        updateShiftHelpMessage(disabledShiftValues);
     }
 
     if (blockCheckSelect) {
@@ -98,13 +135,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (aircraftInput) {
         aircraftInput.addEventListener("input", (event) => {
-            const formatted = formatAircraftInput(event.target.value);
-            event.target.value = formatted;
+            const start = event.target.selectionStart;
+            const beforeLength = event.target.value.length;
+
+            event.target.value = formatAircraftInput(event.target.value);
+
+            const afterLength = event.target.value.length;
+            const diff = afterLength - beforeLength;
+            const newPos = Math.max(0, (start || 0) + diff);
+
+            try {
+                event.target.setSelectionRange(newPos, newPos);
+            } catch (e) {
+                // 일부 환경에서는 setSelectionRange 실패 가능
+            }
+
             updateShiftAvailability();
         });
 
         aircraftInput.addEventListener("blur", (event) => {
             event.target.value = formatAircraftInput(event.target.value);
+            updateShiftAvailability();
         });
 
         aircraftInput.value = formatAircraftInput(aircraftInput.value || "");
@@ -120,8 +171,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 'input[name="area_template"]:checked'
             );
 
+            let hasError = false;
+
             if (!selectedTemplate) {
-                event.preventDefault();
+                hasError = true;
 
                 if (templateArea) {
                     templateArea.classList.remove("template-required-active");
@@ -132,6 +185,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (templateErrorMessage) {
                     templateErrorMessage.classList.remove("d-none");
                 }
+            } else {
+                clearTemplateError();
+            }
+
+            if (shiftSelect && !shiftSelect.disabled && !shiftSelect.value) {
+                hasError = true;
+                shiftSelect.focus();
+            }
+
+            if (hasError) {
+                event.preventDefault();
             }
         });
     }

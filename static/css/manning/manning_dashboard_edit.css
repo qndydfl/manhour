@@ -1,4 +1,4 @@
-/* 사이드바 내부 스크롤 설정 */
+사이드바 내부 스크롤 설정
 .offcanvas-body {
     overflow-y: auto !important;
     /* 핵심: 사이드바 스크롤이 끝에 닿아도 본문으로 스크롤이 넘어가지 않음 */
@@ -11,9 +11,8 @@ body {
     overscroll-behavior: none;
 }
 
-.edit-shell {    
+.edit-shell {
     margin-bottom: 3.5rem;
-    /* padding: 0rem; */
 }
 
 .edit-header {
@@ -41,6 +40,7 @@ body {
     vertical-align: middle;
     background: transparent;
     font-size: 0.8rem;
+    transition: background-color 0.22s ease, color 0.22s ease;
 }
 
 .area-row td input,
@@ -52,13 +52,12 @@ body {
     height: auto;
 }
 .area-row:hover td {
-    background: rgba(39, 70, 102, 0.8);
+    background: rgba(39, 70, 102, 0.18);
 }
 
 .worker-list-panel {
     max-height: calc(100vh - 260px);
     overflow-y: auto;
-    /* padding: 2px; */
     font-size: 0.89rem;
 }
 
@@ -74,12 +73,31 @@ body {
     opacity: 0.45;
 }
 
-body.worker-panel-open .ios-wrap {
-    margin-left: min(480px, 92vw);
-    width: calc(100% - min(480px, 92vw));
+body.manning-page-body {
+    --worker-panel-width: 0px;
+    --dashboard-bottom-bar-height: 56px;
+}
+
+#loadWorkersPanel.worker-offcanvas {
+    top: 0;
+    bottom: calc(
+        var(--dashboard-bottom-bar-height) + env(safe-area-inset-bottom, 0px)
+    );
+    height: auto;
+}
+
+body.manning-page-body .ios-wrap {
     transition:
-        margin-left 0.25s ease,
-        width 0.25s ease;
+        transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+        width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+        margin-left 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+        /* margin-left 0.25s ease,
+        width 0.25s ease; */
+}
+
+body.worker-panel-open .ios-wrap {
+    margin-left: var(--worker-panel-width);
+    width: calc(100% - var(--worker-panel-width));
 }
 
 .bottom-action-bar .btn {
@@ -119,22 +137,8 @@ body.worker-panel-open .ios-wrap {
 }
 
 @media (max-width: 575.98px) {
-    .edit-shell {  
-        padding: 0rem;
-        margin: 0 0 3.5rem;
-    }
-
     .edit-header h4 {
         font-size: 1.1rem;
-    }
-
-    .form-control,
-    .form-select {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        font-size: 0.8rem;
-        padding: 0.25rem 0.4rem;
     }
 
     .bottom-action-bar .btn {
@@ -143,13 +147,5 @@ body.worker-panel-open .ios-wrap {
 
     .area-row {
         cursor: default;
-    }
-    
-    .edit-table thead th,
-    .area-group-header th,
-    .edit-table .form-select,
-    .area-row td input,
-    .area-row td textarea {
-        font-size: 0.8rem !important;
     }
 }

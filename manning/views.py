@@ -186,7 +186,7 @@ class ManningListView(ManningSessionRequiredMixin, View):
         workplace = _get_current_workplace(request)
         active_sessions = list(
             WorkSession.objects.filter(is_active=True).order_by(
-                # "shift_type",
+                "shift_type",
                 "-created_at",
             )
         )
@@ -335,9 +335,9 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         ]
                     )
 
-                messages.success(
-                    request, f"새 세션과 '{template_label}' 구역이 생성되었습니다."
-                )
+                # messages.success(
+                #     request, f"새 세션과 '{template_label}' 구역이 생성되었습니다."
+                # )
                 return redirect("manning:manning_dashboard", session_id=session.id)
 
             except Exception as e:
@@ -443,7 +443,7 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
         elif updated.manhour_session_id:
             updated.manhour_session = None
             updated.save(update_fields=["manhour_session"])
-        messages.success(request, "세션 정보가 수정되었습니다.")
+        # messages.success(request, "세션 정보가 수정되었습니다.")
         return redirect("manning:manning_list")
 
 
@@ -478,29 +478,35 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
         )
 
     def post(self, request):
-        template_ids = request.POST.getlist("template_id")
-        template_keys = request.POST.getlist("template_key")
-        template_labels = request.POST.getlist("template_label")
-        template_orders = request.POST.getlist("template_order")
-        template_items = request.POST.getlist("template_items")
-        template_left_items = request.POST.getlist("template_left_items")
-        template_none_items = request.POST.getlist("template_none_items")
-        template_right_items = request.POST.getlist("template_right_items")
-        delete_ids = set(request.POST.getlist("template_delete"))
+        template_ids = request.POST.getlist("template_ids")
+        delete_ids = set(request.POST.getlist("template_delete_ids"))
 
-        new_keys = request.POST.getlist("new_template_key")
-        new_labels = request.POST.getlist("new_template_label")
-        new_orders = request.POST.getlist("new_template_order")
-        new_items = request.POST.getlist("new_template_items")
-        new_left_items = request.POST.getlist("new_template_left_items")
-        new_none_items = request.POST.getlist("new_template_none_items")
-        new_right_items = request.POST.getlist("new_template_right_items")
+        def existing_value(prefix, raw_id, default=""):
+            return request.POST.get(f"{prefix}_{raw_id}", default)
+
+        def list_or_single_value(name):
+            values = [
+                value for value in request.POST.getlist(name) if value is not None
+            ]
+            if values:
+                return values
+            single_value = request.POST.get(name)
+            if single_value is None:
+                return []
+            return [single_value]
+
+        new_keys = list_or_single_value("new_template_key")
+        new_labels = list_or_single_value("new_template_label")
+        new_orders = list_or_single_value("new_template_order")
+        new_left_items = list_or_single_value("new_template_left_items")
+        new_none_items = list_or_single_value("new_template_none_items")
+        new_right_items = list_or_single_value("new_template_right_items")
 
         normalized_existing_keys = []
-        for idx, raw_id in enumerate(template_ids):
+        for raw_id in template_ids:
             if raw_id in delete_ids:
                 continue
-            key = (template_keys[idx] or "").strip()
+            key = (existing_value("template_key", raw_id) or "").strip()
             if key:
                 normalized_existing_keys.append(key.lower())
 
@@ -561,11 +567,13 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
                         AreaTemplate.objects.filter(id=raw_id).delete()
                         continue
 
-                    key = (template_keys[idx] or "").strip()
-                    label = (template_labels[idx] or "").strip() or key
+                    key = (existing_value("template_key", raw_id) or "").strip()
+                    label = (
+                        existing_value("template_label", raw_id) or ""
+                    ).strip() or key
                     try:
-                        order = int(template_orders[idx])
-                    except (TypeError, ValueError, IndexError):
+                        order = int(existing_value("template_order", raw_id, 0))
+                    except (TypeError, ValueError):
                         order = 0
                     if not key:
                         continue
@@ -582,24 +590,9 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
 
                     AreaTemplateItem.objects.filter(template=template).delete()
                     for position, name, order_idx in parse_items(
-                        raw_text=(
-                            template_items[idx] if idx < len(template_items) else ""
-                        ),
-                        left_text=(
-                            template_left_items[idx]
-                            if idx < len(template_left_items)
-                            else None
-                        ),
-                        none_text=(
-                            template_none_items[idx]
-                            if idx < len(template_none_items)
-                            else None
-                        ),
-                        right_text=(
-                            template_right_items[idx]
-                            if idx < len(template_right_items)
-                            else None
-                        ),
+                        left_text=existing_value("template_left_items", raw_id, None),
+                        none_text=existing_value("template_none_items", raw_id, None),
+                        right_text=existing_value("template_right_items", raw_id, None),
                     ):
                         AreaTemplateItem.objects.create(
                             template=template,
@@ -628,7 +621,6 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
                     )
                     AreaTemplateItem.objects.filter(template=template).delete()
                     for position, name, order_idx in parse_items(
-                        raw_text=new_items[idx] if idx < len(new_items) else "",
                         left_text=(
                             new_left_items[idx] if idx < len(new_left_items) else None
                         ),
@@ -646,8 +638,8 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
                             sort_order=order_idx,
                         )
 
-            messages.success(request, "템플릿이 저장되었습니다.")
-            return redirect("manning:create_session")
+            # messages.success(request, "템플릿이 저장되었습니다.")
+            return redirect("manning:template_editor")
         except Exception as exc:
             messages.error(request, f"템플릿 저장 중 오류가 발생했습니다: {exc}")
             return redirect("manning:template_editor")
@@ -661,7 +653,7 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
         if session.manhour_session_id:
             session.manhour_session.delete()
         session.delete()
-        messages.success(request, "세션이 삭제되었습니다.")
+        # messages.success(request, "세션이 삭제되었습니다.")
         return redirect("manning:manning_list")
 
 
@@ -670,8 +662,8 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
         workplace = _get_current_workplace(request)
         session = get_object_or_404(WorkSession, id=session_id)
         created_defaults = ensure_default_areas(session)
-        if created_defaults:
-            messages.success(request, "표준 구역이 자동 생성되었습니다.")
+        # if created_defaults:
+        #     messages.success(request, "표준 구역이 자동 생성되었습니다.")
         show_empty_assignments = request.GET.get("no_assignments") == "1"
         session_areas = (
             session.areas.all()
@@ -776,8 +768,8 @@ class PopulateAreasView(ManningSessionRequiredMixin, View):
     def post(self, request, session_id):
         session = get_object_or_404(WorkSession, id=session_id)
         created_defaults = ensure_default_areas(session)
-        if created_defaults:
-            messages.success(request, "표준 구역이 생성되었습니다.")
+        # if created_defaults:
+        #     messages.success(request, "표준 구역이 생성되었습니다.")
         return redirect("manning:manning_dashboard", session_id=session.id)
 
 
@@ -791,7 +783,7 @@ class AddAreaView(ManningSessionRequiredMixin, View):
             area = form.save(commit=False)
             area.session = session
             area.save()
-            messages.success(request, "새 구역이 추가되었습니다.")
+            # messages.success(request, "새 구역이 추가되었습니다.")
         else:
             messages.error(request, "구역 추가에 실패했습니다. 입력값을 확인해주세요.")
         return redirect("manning:manning_dashboard", session_id=session.id)
@@ -810,7 +802,7 @@ class UpdateAreaView(ManningSessionRequiredMixin, View):
             form.save()
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
                 return JsonResponse({"status": "success"})
-            messages.success(request, "구역 정보가 수정되었습니다.")
+            # messages.success(request, "구역 정보가 수정되었습니다.")
         else:
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
                 return JsonResponse(
@@ -830,7 +822,7 @@ class DeleteAreaView(ManningSessionRequiredMixin, View):
         )
         session_id = area.session_id
         area.delete()
-        messages.success(request, "구역이 삭제되었습니다.")
+        # messages.success(request, "구역이 삭제되었습니다.")
         return redirect("manning:manning_dashboard", session_id=session_id)
 
 
@@ -1014,8 +1006,8 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
 
         if errors:
             messages.error(request, "수정 중 일부 문제가 발생했습니다.")
-        else:
-            messages.success(request, "구역 정보가 저장되었습니다.")
+        # else:
+        #     messages.success(request, "구역 정보가 저장되었습니다.")
         return redirect("manning:manning_dashboard", session_id=session.id)
 
 

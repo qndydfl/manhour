@@ -73,24 +73,24 @@ body {
     opacity: 0.45;
 }
 
-body.worker-panel-open .ios-wrap {
-    margin-left: min(480px, 92vw);
-    width: calc(100% - min(480px, 92vw));
+/* body.worker-panel-open .ios-wrap {
+    margin-left: min(80px, 90vw);
+    width: calc(100% - min(80px, 90vw));
     transition:
         margin-left 0.25s ease,
         width 0.25s ease;
-}
+} */
 
 .bottom-action-bar .btn {
     padding: 5px 10px;
 }
 
-@media (max-width: 991.98px) {
+/* @media (max-width: 991.98px) {
     body.worker-panel-open .ios-wrap {
         margin-left: 0;
         width: 100%;
     }
-}
+} */
 
 @media (max-width: 991.98px), (pointer: coarse) {
     .area-row,

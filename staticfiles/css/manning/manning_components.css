@@ -59,12 +59,16 @@
 
 /* worker offcanvas */
 .worker-offcanvas {
-    top: 4.5rem !important;
-    height: calc(100vh - 4.5rem) !important;
-    z-index: 1040;
+    top: 0;
+    height: 100vh;
     width: min(33rem, 92vw) !important;
+    z-index: 1045;
     border-right: 1px solid rgba(226, 232, 240, 0.9);
     box-shadow: 10px 0 30px rgba(15, 23, 42, 0.08);
+}
+
+.worker-offcanvas .offcanvas-body {
+    overflow-y: auto;
 }
 
 /* worker item */

@@ -355,8 +355,8 @@ body {
 .app-sidebar {
     position: fixed;
     top: var(--navbar-height);
+    bottom: 3.5rem;
     left: 0;
-    bottom: 0;
     width: var(--sidebar-width);
     padding: 20px 18px 24px;
     background: linear-gradient(180deg, #0f172a 0%, #111827 100%);

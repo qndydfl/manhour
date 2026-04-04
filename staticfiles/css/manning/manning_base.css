@@ -126,3 +126,16 @@ body.modal-open .bottom-action-bar {
 .text-danger {
     margin-left: 2px;
 }
+
+body.manning-page-body .ios-wrap {
+    padding-top: 20px !important;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+body.manning-page-body .page-content,
+body.manning-page-body .page-content.has-sidebar {
+    padding-top: 0 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+}

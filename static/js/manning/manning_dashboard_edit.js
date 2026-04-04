@@ -38,17 +38,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const defaultWorkerDataEl = document.getElementById("defaultWorkerNames");
     const workerCountEl = document.getElementById("workerCount");
     const workerUsageMessage = document.getElementById("workerUsageMessage");
-    // const formDuplicateMessage = document.getElementById(
-    //     "workerDuplicateMessage",
-    // );
+
     const messageModal = document.getElementById("workerMessageModal");
     const messageTitle = document.getElementById("workerMessageTitle");
     const messageText = document.getElementById("workerMessageText");
     const messageList = document.getElementById("workerMessageList");
     const messageClose = document.getElementById("workerMessageClose");
     const messageOk = document.getElementById("workerMessageOk");
+    const bottomActionBar = document.querySelector(".bottom-action-bar");
 
     const MOBILE_MEDIA_QUERY = "(max-width: 991.98px)";
+    const areaSortables = [];
+
     const isTouchDevice = () =>
         window.matchMedia?.("(pointer: coarse)").matches ||
         "ontouchstart" in window ||
@@ -58,41 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
         (window.matchMedia && window.matchMedia(MOBILE_MEDIA_QUERY).matches) ||
         isTouchDevice();
 
-    const areaSortables = [];
-
     if (!workerDataEl || !workerCountEl) {
         return;
-    }
-
-    if (addAreaModal && addAreaRowBtn && window.bootstrap?.Modal) {
-        const addAreaModalInstance = new window.bootstrap.Modal(addAreaModal);
-
-        const showAddAreaModal = () => {
-            if (addAreaModal.parentElement !== document.body) {
-                document.body.appendChild(addAreaModal);
-            }
-            addAreaModalInstance.show();
-        };
-
-        addAreaRowBtn.addEventListener("click", (event) => {
-            event.preventDefault();
-
-            if (workerPanel && workerPanel.classList.contains("show")) {
-                const offcanvasInstance =
-                    window.bootstrap.Offcanvas.getInstance(workerPanel);
-                if (offcanvasInstance) {
-                    workerPanel.addEventListener(
-                        "hidden.bs.offcanvas",
-                        showAddAreaModal,
-                        { once: true },
-                    );
-                    offcanvasInstance.hide();
-                    return;
-                }
-            }
-
-            showAddAreaModal();
-        });
     }
 
     const parsedWorkerNames = workerDataEl
@@ -114,6 +82,28 @@ document.addEventListener("DOMContentLoaded", () => {
         ? messageOk.textContent || "확인"
         : "확인";
     let allowDuplicateSubmit = false;
+
+    function syncWorkerPanelWidth() {
+        const width = workerPanel
+            ? Math.ceil(workerPanel.getBoundingClientRect().width)
+            : 0;
+        document.body.style.setProperty("--worker-panel-width", `${width}px`);
+    }
+
+    function syncBottomBarHeight() {
+        const height = bottomActionBar
+            ? Math.ceil(bottomActionBar.getBoundingClientRect().height)
+            : 0;
+        document.body.style.setProperty(
+            "--dashboard-bottom-bar-height",
+            `${height}px`,
+        );
+    }
+
+    syncWorkerPanelWidth();
+    syncBottomBarHeight();
+    window.addEventListener("resize", syncWorkerPanelWidth);
+    window.addEventListener("resize", syncBottomBarHeight);
 
     function normalizeName(name) {
         return String(name || "")
@@ -148,68 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateWorkerCount();
     }
 
-    function removeWorker(name) {
-        setWorkerNames(workerNames.filter((item) => item !== name));
-        updateWorkerUsage();
-    }
-
-    function buildWorkerRow(name) {
-        const col = document.createElement("div");
-        col.className = "col-12 col-md-6 col-lg-4";
-
-        const row = document.createElement("div");
-        row.className =
-            "worker-item d-flex align-items-center gap-2 border rounded-4 px-3 py-1 bg-light";
-        row.setAttribute("data-worker-name", name);
-        row.setAttribute("draggable", isMobileDevice() ? "false" : "true");
-
-        const checkbox = document.createElement("input");
-        checkbox.className = "form-check-input worker-select";
-        checkbox.type = "checkbox";
-
-        const label = document.createElement("div");
-        label.className = "flex-grow-1 text-truncate";
-        label.textContent = name;
-
-        const usedBadge = document.createElement("span");
-        usedBadge.className =
-            "badge bg-success-subtle text-success worker-status d-none";
-        usedBadge.textContent = "사용중";
-
-        const dupBadge = document.createElement("span");
-        dupBadge.className =
-            "badge bg-danger-subtle text-danger worker-dup-status d-none";
-        dupBadge.textContent = "중복";
-
-        row.appendChild(checkbox);
-        row.appendChild(label);
-        row.appendChild(usedBadge);
-        row.appendChild(dupBadge);
-        col.appendChild(row);
-
-        return col;
-    }
-
-    function rebuildWorkerList() {
-        if (!workerListPanel) {
-            return;
-        }
-
-        workerListPanel.innerHTML = "";
-
-        if (!workerNames.length) {
-            const empty = document.createElement("div");
-            empty.className = "text-center text-muted py-4";
-            empty.textContent = "등록된 작업자가 없습니다.";
-            workerListPanel.appendChild(empty);
-            return;
-        }
-
-        workerNames.forEach((name) => {
-            workerListPanel.appendChild(buildWorkerRow(name));
-        });
-    }
-
     function getWorkerFields() {
         return Array.from(
             document.querySelectorAll(
@@ -223,10 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const names = [];
 
         inputs.forEach((field) => {
-            if (field.disabled) {
-                return;
-            }
-
+            if (field.disabled) return;
             splitWorkerNames(field.value).forEach((item) => names.push(item));
         });
 
@@ -238,15 +163,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
         collectInputNames().forEach((name) => {
             const key = normalizeName(name);
-            if (!key) {
-                return;
-            }
+            if (!key) return;
             if (!allowedWorkerSet.has(key)) {
                 invalid.add(name.trim());
             }
         });
 
         return Array.from(invalid);
+    }
+
+    function getDuplicateNamesFromList(names) {
+        const counts = new Map();
+        const displayNameMap = new Map();
+
+        names.forEach((name) => {
+            const key = normalizeName(name);
+            if (!key) return;
+
+            counts.set(key, (counts.get(key) || 0) + 1);
+            if (!displayNameMap.has(key)) {
+                displayNameMap.set(key, name.trim());
+            }
+        });
+
+        return Array.from(counts.entries())
+            .filter(([, count]) => count > 1)
+            .map(([key]) => displayNameMap.get(key) || key);
+    }
+
+    function getDuplicateNamesWithModalInput(modalWorkersValue) {
+        const allNames = [
+            ...collectInputNames(),
+            ...splitWorkerNames(modalWorkersValue),
+        ];
+        return getDuplicateNamesFromList(allNames);
     }
 
     function openMessageModal({
@@ -256,22 +206,15 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmText,
         onConfirm,
     }) {
-        if (!messageModal) {
-            return;
-        }
+        if (!messageModal) return;
 
         if (addAreaModal && addAreaModal.classList.contains("show")) {
             const modal = window.bootstrap?.Modal.getInstance(addAreaModal);
             modal?.hide();
         }
 
-        if (messageTitle) {
-            messageTitle.textContent = title;
-        }
-
-        if (messageText) {
-            messageText.innerHTML = message;
-        }
+        if (messageTitle) messageTitle.textContent = title;
+        if (messageText) messageText.innerHTML = message;
 
         if (messageList) {
             messageList.innerHTML = "";
@@ -283,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         modalConfirmAction = typeof onConfirm === "function" ? onConfirm : null;
+
         if (messageOk) {
             messageOk.textContent = confirmText || modalDefaultOkText;
             if (modalConfirmAction) {
@@ -312,14 +256,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         collectInputNames().forEach((name) => {
             const key = normalizeName(name);
-            if (!key) {
-                return;
-            }
+            if (!key) return;
 
             if (!displayNameMap.has(key)) {
                 displayNameMap.set(key, name.trim());
             }
-
             counts.set(key, (counts.get(key) || 0) + 1);
         });
 
@@ -356,8 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
         }
 
-        const hasDuplicates = lastDuplicateNames.length > 0;
-
         getWorkerFields().forEach((field) => {
             if (field.disabled) {
                 field.classList.remove("worker-duplicate-input");
@@ -388,21 +327,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // if (formDuplicateMessage) {
-        //     if (hasDuplicates) {
-        //         formDuplicateMessage.textContent =
-        //             "중복된 이름이 있습니다.";
-        //         formDuplicateMessage.classList.remove("d-none");
-        //     } else {
-        //         formDuplicateMessage.textContent = "";
-        //         formDuplicateMessage.classList.add("d-none");
-        //     }
-        // }
-
         if (workerUsageMessage) {
             if (duplicateCount > 0) {
-                workerUsageMessage.textContent =
-                    "중복된 이름이 있습니다.";
+                workerUsageMessage.textContent = "중복된 이름이 있습니다.";
                 workerUsageMessage.classList.remove("d-none");
             } else {
                 workerUsageMessage.textContent = "";
@@ -415,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const normalized = String(text || "")
             .replace(/\r/g, "")
             .replace(/,/g, "\n");
+
         const raw = normalized
             .split("\n")
             .map((name) => name.trim())
@@ -425,9 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         raw.forEach((name) => {
             const key = normalizeName(name);
-            if (!key || seen.has(key)) {
-                return;
-            }
+            if (!key || seen.has(key)) return;
             seen.add(key);
             cleaned.push(name);
         });
@@ -490,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function appendWorkerName(target, workerName) {
         const currentValue = target.value.trim();
-        let workers = currentValue ? splitWorkerNames(currentValue) : [];
+        const workers = currentValue ? splitWorkerNames(currentValue) : [];
 
         if (!workers.includes(workerName)) {
             workers.push(workerName);
@@ -501,18 +427,74 @@ document.addEventListener("DOMContentLoaded", () => {
         target.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
+    function removeWorker(name) {
+        setWorkerNames(workerNames.filter((item) => item !== name));
+        updateWorkerUsage();
+    }
+
+    function buildWorkerRow(name) {
+        const col = document.createElement("div");
+        col.className = "col-12 col-md-6 col-lg-4";
+
+        const row = document.createElement("div");
+        row.className =
+            "worker-item d-flex align-items-center gap-2 border rounded-4 px-3 py-1 bg-light";
+        row.setAttribute("data-worker-name", name);
+        row.setAttribute("draggable", isMobileDevice() ? "false" : "true");
+
+        const checkbox = document.createElement("input");
+        checkbox.className = "form-check-input worker-select";
+        checkbox.type = "checkbox";
+
+        const label = document.createElement("div");
+        label.className = "flex-grow-1 text-truncate";
+        label.textContent = name;
+
+        const usedBadge = document.createElement("span");
+        usedBadge.className =
+            "badge bg-success-subtle text-success worker-status d-none";
+        usedBadge.textContent = "사용중";
+
+        const dupBadge = document.createElement("span");
+        dupBadge.className =
+            "badge bg-danger-subtle text-danger worker-dup-status d-none";
+        dupBadge.textContent = "중복";
+
+        row.appendChild(checkbox);
+        row.appendChild(label);
+        row.appendChild(usedBadge);
+        row.appendChild(dupBadge);
+        col.appendChild(row);
+
+        return col;
+    }
+
+    function rebuildWorkerList() {
+        if (!workerListPanel) return;
+
+        workerListPanel.innerHTML = "";
+
+        if (!workerNames.length) {
+            const empty = document.createElement("div");
+            empty.className = "text-center text-muted py-4";
+            empty.textContent = "등록된 작업자가 없습니다.";
+            workerListPanel.appendChild(empty);
+            return;
+        }
+
+        workerNames.forEach((name) => {
+            workerListPanel.appendChild(buildWorkerRow(name));
+        });
+    }
+
     function bindDropTargets() {
         const dropTargets = document.querySelectorAll(".worker-drop-target");
 
         dropTargets.forEach((target) => {
-            if (target.dataset.dropBound === "true") {
-                return;
-            }
+            if (target.dataset.dropBound === "true") return;
 
             target.addEventListener("dragover", (e) => {
-                if (isMobileDevice()) {
-                    return;
-                }
+                if (isMobileDevice()) return;
                 e.preventDefault();
                 e.dataTransfer.dropEffect = "copy";
                 target.classList.add("drop-active");
@@ -523,17 +505,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             target.addEventListener("drop", (e) => {
-                if (isMobileDevice()) {
-                    return;
-                }
+                if (isMobileDevice()) return;
 
                 e.preventDefault();
                 target.classList.remove("drop-active");
 
                 const workerName = e.dataTransfer.getData("text/plain").trim();
-                if (!workerName) {
-                    return;
-                }
+                if (!workerName) return;
 
                 appendWorkerName(target, workerName);
                 bindAutoResizeTextareas();
@@ -541,6 +519,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
             target.dataset.dropBound = "true";
         });
+    }
+
+    function bindTrashDropZone() {
+        if (!workerTrashZone) return;
+        if (workerTrashZone.dataset.dropBound === "true") return;
+
+        workerTrashZone.addEventListener("dragover", (event) => {
+            if (isMobileDevice()) return;
+            event.preventDefault();
+            workerTrashZone.classList.add("is-active");
+        });
+
+        workerTrashZone.addEventListener("dragleave", () => {
+            workerTrashZone.classList.remove("is-active");
+        });
+
+        workerTrashZone.addEventListener("drop", async (event) => {
+            if (isMobileDevice()) return;
+
+            event.preventDefault();
+            workerTrashZone.classList.remove("is-active");
+
+            const workerName = event.dataTransfer.getData("text/plain").trim();
+            if (!workerName) return;
+
+            removeWorker(workerName);
+            rebuildWorkerList();
+            initWorkerDragAndDrop();
+            bindFormControlGuards();
+            bindRowTouchGuards();
+            updateWorkerUsage();
+            await saveWorkerDirectory(workerNames);
+        });
+
+        workerTrashZone.dataset.dropBound = "true";
     }
 
     function initWorkerDragAndDrop() {
@@ -554,9 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             item.setAttribute("draggable", "true");
 
-            if (item.dataset.dragBound === "true") {
-                return;
-            }
+            if (item.dataset.dragBound === "true") return;
 
             item.addEventListener("dragstart", (e) => {
                 const workerName = item.dataset.workerName || "";
@@ -576,66 +587,17 @@ document.addEventListener("DOMContentLoaded", () => {
         bindTrashDropZone();
     }
 
-    function bindTrashDropZone() {
-        if (!workerTrashZone) {
-            return;
-        }
-
-        if (workerTrashZone.dataset.dropBound === "true") {
-            return;
-        }
-
-        workerTrashZone.addEventListener("dragover", (event) => {
-            if (isMobileDevice()) {
-                return;
-            }
-            event.preventDefault();
-            workerTrashZone.classList.add("is-active");
-        });
-
-        workerTrashZone.addEventListener("dragleave", () => {
-            workerTrashZone.classList.remove("is-active");
-        });
-
-        workerTrashZone.addEventListener("drop", async (event) => {
-            if (isMobileDevice()) {
-                return;
-            }
-
-            event.preventDefault();
-            workerTrashZone.classList.remove("is-active");
-
-            const workerName = event.dataTransfer.getData("text/plain").trim();
-            if (!workerName) {
-                return;
-            }
-
-            removeWorker(workerName);
-            rebuildWorkerList();
-            initWorkerDragAndDrop();
-            bindFormControlGuards();
-            bindRowTouchGuards();
-            updateWorkerUsage();
-            await saveWorkerDirectory(workerNames);
-        });
-
-        workerTrashZone.dataset.dropBound = "true";
-    }
-
     function getAreaGroup(position) {
         return areaGroups.find((group) => group.dataset.position === position);
     }
 
     function syncRowPosition(row, position) {
-        if (!row) {
-            return;
-        }
+        if (!row) return;
 
         row.dataset.position = position;
         const select = row.querySelector(
             "select[name='area_position'], select[name='new_area_position']",
         );
-
         if (select) {
             select.value = position;
         }
@@ -657,9 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function moveRowToGroup(row, position) {
         const targetGroup = getAreaGroup(position);
-        if (!targetGroup) {
-            return;
-        }
+        if (!targetGroup) return;
 
         const headerRow = targetGroup.querySelector(".area-group-header");
         if (headerRow && headerRow.nextSibling) {
@@ -676,9 +636,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function addNewRow(values = {}) {
-        if (!newAreaTemplate) {
-            return;
-        }
+        if (!newAreaTemplate) return;
 
         const fragment = newAreaTemplate.content.cloneNode(true);
         const row = fragment.querySelector("tr");
@@ -691,9 +649,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 row.querySelectorAll("input, select, textarea").forEach(
                     (el) => {
-                        if (el === deleteCheckbox) {
-                            return;
-                        }
+                        if (el === deleteCheckbox) return;
                         el.disabled = shouldDisable;
                     },
                 );
@@ -723,9 +679,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const positionValue = values.position || positionInput?.value || "LEFT";
         const targetGroup = getAreaGroup(positionValue);
-        if (!targetGroup) {
-            return;
-        }
+        if (!targetGroup) return;
 
         const headerRow = targetGroup.querySelector(".area-group-header");
         if (headerRow && headerRow.nextSibling) {
@@ -766,9 +720,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        if (typeof Sortable === "undefined") {
-            return;
-        }
+        if (typeof Sortable === "undefined") return;
 
         areaGroups.forEach((group) => {
             const sortable = new Sortable(group, {
@@ -795,9 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function stopRowDragFromControl(event) {
-        if (!isMobileDevice()) {
-            return;
-        }
+        if (!isMobileDevice()) return;
         event.stopPropagation();
     }
 
@@ -812,9 +762,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `);
 
         controls.forEach((el) => {
-            if (el.dataset.mobileGuardBound === "true") {
-                return;
-            }
+            if (el.dataset.mobileGuardBound === "true") return;
 
             el.addEventListener("touchstart", stopRowDragFromControl, {
                 passive: true,
@@ -836,9 +784,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const rows = document.querySelectorAll(".area-row, .new-area-row");
 
         rows.forEach((row) => {
-            if (row.dataset.rowTouchGuardBound === "true") {
-                return;
-            }
+            if (row.dataset.rowTouchGuardBound === "true") return;
 
             row.addEventListener(
                 "touchstart",
@@ -867,37 +813,73 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function getDuplicateNamesWithModalInput(modalWorkersValue) {
-        const counts = new Map();
-        const displayNameMap = new Map();
+    function autoResizeTextarea(textarea) {
+        if (!textarea) return;
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    }
 
-        collectInputNames().forEach((name) => {
-            const key = normalizeName(name);
-            if (!key) {
+    function bindAutoResizeTextareas() {
+        const textareas = document.querySelectorAll("textarea.auto-resize");
+
+        textareas.forEach((textarea) => {
+            if (textarea.dataset.resizeBound === "true") {
+                autoResizeTextarea(textarea);
                 return;
             }
 
-            counts.set(key, (counts.get(key) || 0) + 1);
-            if (!displayNameMap.has(key)) {
-                displayNameMap.set(key, name.trim());
-            }
+            const resizeHandler = () => autoResizeTextarea(textarea);
+
+            textarea.addEventListener("input", resizeHandler);
+            textarea.addEventListener("change", resizeHandler);
+            textarea.addEventListener("drop", () => {
+                setTimeout(() => autoResizeTextarea(textarea), 0);
+            });
+
+            textarea.dataset.resizeBound = "true";
+            autoResizeTextarea(textarea);
         });
+    }
 
-        splitWorkerNames(modalWorkersValue).forEach((name) => {
-            const key = normalizeName(name);
-            if (!key) {
-                return;
+    function handleViewportChange() {
+        initAreaSortable();
+        initWorkerDragAndDrop();
+        bindFormControlGuards();
+        bindRowTouchGuards();
+    }
+
+    if (addAreaModal && addAreaRowBtn && window.bootstrap?.Modal) {
+        const addAreaModalInstance = new window.bootstrap.Modal(addAreaModal);
+
+        const showAddAreaModal = () => {
+            if (addAreaModal.parentElement !== document.body) {
+                document.body.appendChild(addAreaModal);
+            }
+            addAreaModalInstance.show();
+        };
+
+        addAreaRowBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+
+            if (workerPanel?.classList.contains("show")) {
+                const offcanvasInstance =
+                    window.bootstrap?.Offcanvas?.getOrCreateInstance(
+                        workerPanel,
+                    );
+
+                if (offcanvasInstance) {
+                    workerPanel.addEventListener(
+                        "hidden.bs.offcanvas",
+                        showAddAreaModal,
+                        { once: true },
+                    );
+                    offcanvasInstance.hide();
+                    return;
+                }
             }
 
-            counts.set(key, (counts.get(key) || 0) + 1);
-            if (!displayNameMap.has(key)) {
-                displayNameMap.set(key, name.trim());
-            }
+            showAddAreaModal();
         });
-
-        return Array.from(counts.entries())
-            .filter(([, count]) => count > 1)
-            .map(([key]) => displayNameMap.get(key) || key);
     }
 
     if (addAreaConfirmBtn) {
@@ -928,6 +910,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            const duplicateNames =
+                getDuplicateNamesWithModalInput(workersValue);
+            if (duplicateNames.length > 0) {
+                openMessageModal({
+                    title: "중복 작업자 오류",
+                    message:
+                        "중복된 작업자 이름이 있습니다. 그래도 추가하시겠습니까?",
+                    items: duplicateNames.slice(0, 10),
+                    onConfirm: () => {
+                        addNewRow({
+                            name: nameValue,
+                            position: positionValue,
+                            workers: workersValue,
+                        });
+
+                        if (newAreaNameInput) newAreaNameInput.value = "";
+                        if (newAreaPositionInput)
+                            newAreaPositionInput.value = "LEFT";
+                        if (newAreaWorkersInput) newAreaWorkersInput.value = "";
+
+                        if (addAreaModal && window.bootstrap?.Modal) {
+                            const modal =
+                                window.bootstrap.Modal.getOrCreateInstance(
+                                    addAreaModal,
+                                );
+                            modal.hide();
+                        }
+
+                        updateWorkerUsage();
+                    },
+                });
+                return;
+            }
+
             addNewRow({
                 name: nameValue,
                 position: positionValue,
@@ -950,14 +966,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addWorkerName(name) {
         const trimmed = String(name || "").trim();
-        if (!trimmed) {
-            return;
-        }
+        if (!trimmed) return;
 
         const normalized = normalizeName(trimmed);
-        if (allowedWorkerSet.has(normalized)) {
-            return;
-        }
+        if (allowedWorkerSet.has(normalized)) return;
 
         const nextNames = [...workerNames, trimmed].sort((a, b) =>
             a.localeCompare(b, "ko", { sensitivity: "base" }),
@@ -972,9 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function addWorkerAndSave() {
-        if (!addWorkerNameInput) {
-            return;
-        }
+        if (!addWorkerNameInput) return;
 
         const name = addWorkerNameInput.value;
         addWorkerName(name);
@@ -1007,12 +1017,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loadDefaultWorkerEditorBtn && workerEditorInput) {
         loadDefaultWorkerEditorBtn.addEventListener("click", () => {
             workerEditorInput.value = defaultWorkerNames.join("\n");
-            setWorkerNames([...defaultWorkerNames]);
-            rebuildWorkerList();
-            initWorkerDragAndDrop();
-            bindFormControlGuards();
-            bindRowTouchGuards();
-            updateWorkerUsage();
         });
     }
 
@@ -1047,7 +1051,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            if (saved && workerEditor) {
+            if (workerEditor) {
                 workerEditor.classList.add("d-none");
             }
         });
@@ -1072,9 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectAllWorkersBtn.addEventListener("click", () => {
             const checkboxes =
                 workerListPanel.querySelectorAll(".worker-select");
-            if (!checkboxes.length) {
-                return;
-            }
+            if (!checkboxes.length) return;
 
             const allSelected = Array.from(checkboxes).every(
                 (checkbox) => checkbox.checked,
@@ -1111,9 +1113,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("input", (event) => {
         const target = event.target;
-        if (!(target instanceof HTMLElement)) {
-            return;
-        }
+        if (!(target instanceof HTMLElement)) return;
 
         if (
             target.matches("textarea[name='area_workers']") ||
@@ -1129,17 +1129,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (workerPanel) {
         workerPanel.addEventListener("shown.bs.offcanvas", () => {
+            syncWorkerPanelWidth();
             document.body.classList.add("worker-panel-open");
         });
 
         workerPanel.addEventListener("hidden.bs.offcanvas", () => {
             document.body.classList.remove("worker-panel-open");
-        });
-    }
-
-    if (loadWorkersBtn) {
-        loadWorkersBtn.addEventListener("click", () => {
-            document.body.classList.add("worker-panel-open");
         });
     }
 
@@ -1170,9 +1165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (formEl) {
         formEl.addEventListener("change", (event) => {
             const target = event.target;
-            if (!(target instanceof HTMLElement)) {
-                return;
-            }
+            if (!(target instanceof HTMLElement)) return;
 
             if (
                 target.matches("select[name='area_position']") ||
@@ -1228,41 +1221,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
         });
-    }
-
-    function autoResizeTextarea(textarea) {
-        if (!textarea) return;
-        textarea.style.height = "auto";
-        textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-
-    function bindAutoResizeTextareas() {
-        const textareas = document.querySelectorAll("textarea.auto-resize");
-
-        textareas.forEach((textarea) => {
-            if (textarea.dataset.resizeBound === "true") {
-                autoResizeTextarea(textarea);
-                return;
-            }
-
-            const resizeHandler = () => autoResizeTextarea(textarea);
-
-            textarea.addEventListener("input", resizeHandler);
-            textarea.addEventListener("change", resizeHandler);
-            textarea.addEventListener("drop", () => {
-                setTimeout(() => autoResizeTextarea(textarea), 0);
-            });
-
-            textarea.dataset.resizeBound = "true";
-            autoResizeTextarea(textarea);
-        });
-    }
-
-    function handleViewportChange() {
-        initAreaSortable();
-        initWorkerDragAndDrop();
-        bindFormControlGuards();
-        bindRowTouchGuards();
     }
 
     if (window.matchMedia) {

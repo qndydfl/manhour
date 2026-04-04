@@ -1,4 +1,4 @@
-{% extends "manhour/base/base.html" %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %}구역 일괄 편집 | {{ session.aircraft_reg }}{% endblock %} 
@@ -28,20 +28,18 @@
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }} 
 {{ default_worker_names|json_script:"defaultWorkerNames" }} 
+
 {% endblock js %} 
 
 {% block content %}
-<div
-    class="container edit-shell"
-    data-aos="fade-up"
->
+<div class="container edit-shell" data-aos="fade-up">
     <div
         class="edit-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 px-3 px-md-4 py-2"
     >
         <div>
             <h4 class="fw-bold mb-3 text-white">구역 일괄 편집</h4>
             <p class="text-info mb-0">
-                {{ session.aircraft_reg }} · {{ session.work_package_name }}
+                {{ session.aircraft_reg }} · {{ session.work_package_name }} · {{ session.get_shift_type_display }}
             </p>
         </div>
 
@@ -61,7 +59,9 @@
                 id="addAreaRowBtn"
                 class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold py-2"
                 data-bs-toggle="modal"
-                {% comment %} data-bs-target="#addAreaModal" {% endcomment %}
+                {% comment %}
+                data-bs-target="#addAreaModal"
+                {% endcomment %}
             >
                 <i class="bi bi-plus-circle me-1"></i> 행 추가
             </button>
@@ -137,7 +137,8 @@
                                 name="area_workers"
                                 class="form-control worker-drop-target auto-resize"
                                 rows="1"
-                            >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
+                            >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
+                            >
                         </td>
                         <td class="text-center">
                             <input
@@ -191,9 +192,7 @@
                                 name="area_workers"
                                 class="form-control worker-drop-target auto-resize"
                                 rows="1"
-                            >
-{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
-                            >
+                            >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
                         </td>
                         <td class="text-center">
                             <input
@@ -245,9 +244,7 @@
                                 name="area_workers"
                                 class="form-control worker-drop-target auto-resize"
                                 rows="1"
-                            >
-{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
-                            >
+                            >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
                         </td>
                         <td class="text-center">
                             <input
@@ -444,7 +441,9 @@
         </div>
     </div>
 
-    <div class="offcanvas-footer d-flex align-items-center justify-content-between gap-3 p-2 border-top bg-white">
+    <div
+        class="offcanvas-footer d-flex align-items-center justify-content-between gap-3 p-2 border-top bg-white"
+    >
         <div
             id="workerTrashZone"
             class="worker-trash-zone py-2"
@@ -463,7 +462,6 @@
         </div>
     </div>
 </div>
-
 
 <nav class="bottom-action-bar navbar fixed-bottom">
     <div class="container-fluid justify-content-center py-2">
@@ -491,9 +489,7 @@
         </div>
     </div>
 </nav>
-{% endblock content %}
-
-{% block footer %}
+{% endblock content %} {% block footer %}
 <div
     class="modal fade"
     id="addAreaModal"

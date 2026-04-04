@@ -1,14 +1,10 @@
-{% extends "manhour/base/base.html" %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %}정비 세션 수정 | Manning{% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
-<link
-    rel="stylesheet"
-    href="{% static 'css/manning/manning_components.css' %}"
-/>
 <link
     rel="stylesheet"
     href="{% static 'css/manning/manning_edit_session.css' %}"
@@ -20,8 +16,8 @@
 {% endblock js %} 
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
+<div class="container">
+    <div class="row justify-content-center p-0">
         <div class="col-lg-8 col-xl-7">
             <div class="card shadow border-0 rounded-4 overflow-hidden">
                 <div class="card-header bg-primary text-white py-3 px-4">
@@ -40,7 +36,8 @@
                                     항공기 기번
                                     <span class="text-danger">*</span>
                                 </label>
-                                {{ form.aircraft_reg }} {% if form.aircraft_reg.errors %}
+                                {{ form.aircraft_reg }} 
+                                {% if form.aircraft_reg.errors %}
                                 <div class="text-danger small mt-1">
                                     {{ form.aircraft_reg.errors }}
                                 </div>
@@ -119,8 +116,15 @@
                                             name="area_template"
                                             id="tpl_{{ tpl.key|slugify }}"
                                             value="{{ tpl.key }}"
-                                            {% if selected_template and tpl.key|lower == selected_template|lower %}checked{% endif %}
-                                            
+                                            {%
+                                            if
+                                            selected_template
+                                            and
+                                            tpl.key|lower=""
+                                            ="selected_template|lower"
+                                            %}checked{%
+                                            endif
+                                            %}
                                         />
                                         <label
                                             class="template-card w-100 text-center"
