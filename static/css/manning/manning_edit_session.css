@@ -2,6 +2,32 @@
     margin-top: 0.5rem;
 }
 
+.template-required-active {
+    border: 1px solid #dc3545;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    animation: templateShake 0.25s ease-in-out 2;
+    background-color: rgba(220, 53, 69, 0.04);
+}
+
+@keyframes templateShake {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-4px);
+    }
+    50% {
+        transform: translateX(4px);
+    }
+    75% {
+        transform: translateX(-4px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
 .readonly-template-card {
     padding: 1rem 1.1rem;
     border: 1px solid #dbe5f0;
