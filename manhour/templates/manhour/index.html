@@ -26,7 +26,7 @@
 
 {% block content %}
 <div
-    class="index-page my-3 my-lg-5"
+    class="index-page my-lg-4"
         data-workplace="{{ request.session.workplace_label|lower }}"
 >
     <div
@@ -98,14 +98,14 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card shadow-lg index-time-panel index-equal-panel py-3">
+        <div class="col-lg-4 d-flex flex-column justify-content-center">
+            <div class="card shadow-lg index-time-panel index-equal-panel rounded-4">
                 <div class="index-time-panel__bg-icon">
                     <i class="bi bi-clock"></i>
                 </div>
 
                 <div
-                    class="card-body border-0 d-flex flex-column justify-content-center index-time-panel__body py-2"
+                    class="card-body border-0 d-flex flex-column justify-content-center index-time-panel__body py-4"
                 >
                     <div
                         class="d-flex justify-content-between align-items-center mb-4"
@@ -164,7 +164,7 @@
     </div>
 
     <div
-        class="row g-4 mt-4 opacity-75"
+        class="row g-4 mt-2 mt-lg-4 opacity-75"
         data-aos="fade-down"
         data-aos-duration="1000"
     >

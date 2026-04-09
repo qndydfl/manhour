@@ -1,0 +1,266 @@
+/* Navbar */
+.app-navbar {
+    min-height: var(--navbar-height);
+    background: var(--navbar-bg) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    z-index: var(--z-navbar);
+    font-size: 0.85rem;
+}
+
+.app-navbar .navbar-brand,
+.app-navbar .navbar-brand:hover,
+.app-navbar .navbar-brand:focus {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    margin-right: 0;
+    background: none !important;
+    background-clip: initial !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+}
+
+.app-navbar__brand-icon {
+    width: 2.2rem;
+    height: 2rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 193, 7, 0.16);
+    color: #ffd54f;
+    border: 1px solid rgba(255, 193, 7, 0.24);
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.1);
+    flex-shrink: 0;
+}
+
+.app-navbar__brand-text {
+    background: var(--primary-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+}
+
+/* Sidebar Toggle */
+.app-navbar .sidebar-toggle {
+    position: static;
+    transform: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff !important;
+    transition: all 0.2s ease;
+    margin-right: 10px;
+}
+
+.app-navbar .sidebar-toggle:hover,
+.app-navbar .sidebar-toggle:focus {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Actions */
+.app-navbar__actions {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.app-navbar__action-btn {
+    min-height: 2rem;
+    padding-inline: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-navbar__btn {
+    min-height: 2rem;
+    padding-inline: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+
+.app-navbar__btn:hover,
+.app-navbar__btn:focus {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.app-navbar__btn--warning {
+    background: var(--warning-gradient);
+    color: #212529;
+}
+
+.app-navbar__btn--warning:hover,
+.app-navbar__btn--warning:focus {
+    background: linear-gradient(135deg, #ffd54f, #d39e00);
+    color: #212529;
+}
+
+.app-navbar__btn--danger {
+    background: var(--danger-gradient);
+    color: #fff;
+}
+
+.app-navbar__btn--danger:hover,
+.app-navbar__btn--danger:focus {
+    background: linear-gradient(135deg, #e55360, #a52834);
+    color: #fff;
+}
+
+/* Status */
+.app-navbar__status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.app-navbar__status-pill--active {
+    background: rgba(25, 135, 84, 0.16);
+    color: #fff;
+    border-color: rgba(25, 135, 84, 0.22);
+}
+
+.app-navbar__status-pill--idle {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Workplace */
+.app-navbar__workplace-pill {
+    min-height: 2rem;
+    padding: 0.35rem 0.45rem 0.35rem 0.95rem;
+    border-radius: 999px;
+    background: var(--navbar-pill-bg);
+    border: 1px solid var(--navbar-pill-border);
+    color: #fff;
+    flex-wrap: nowrap;
+}
+
+.app-navbar__workplace-label {
+    font-size: 0.78rem;
+    color: var(--navbar-text-soft);
+    white-space: nowrap;
+}
+
+.app-navbar__workplace-value {
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.app-navbar__workplace-select {
+    min-width: 132px;
+    min-height: 34px;
+    padding-inline: 0.9rem 2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: none !important;
+    color: #fff;
+}
+
+.app-navbar__workplace-select:focus {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.app-navbar__workplace-select option {
+    color: #111827;
+    background: #fff;
+}
+
+/* Dropdown */
+.app-navbar__dropdown {
+    min-width: 220px;
+    background: rgba(17, 24, 39, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.app-navbar__dropdown .dropdown-item {
+    padding: 0.7rem 0.9rem;
+    font-weight: 500;
+}
+
+.app-navbar__dropdown .dropdown-item:hover,
+.app-navbar__dropdown .dropdown-item:focus {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Toggler */
+.app-navbar .navbar-toggler {
+    padding: 0.4rem 0.55rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 0;
+}
+
+.app-navbar .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+.app-navbar .navbar-toggler:focus {
+    box-shadow: none;
+}
+
+@media (max-width: 768px) {
+    .app-navbar .navbar-collapse {
+        text-align: center;
+    }
+
+    .app-navbar .app-navbar__actions {
+        width: 100%;
+        align-items: center !important;
+        justify-content: center;
+    }
+
+    .app-navbar .app-navbar__actions > * {
+        width: 100%;
+        max-width: 320px;
+        margin-inline: auto;
+    }
+
+    .app-navbar .app-navbar__workplace-pill {
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-inline: auto;
+    }
+
+    .app-navbar .dropdown-menu {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%);
+    }
+}

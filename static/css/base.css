@@ -1,11 +1,11 @@
 :root {
     /* Layout */
-    --navbar-height: 3.5rem;
+    --navbar-height: 4rem;
     --sidebar-width: 240px;
     --content-max-width: 1200px;
 
     /* Navbar */
-    --navbar-bg: rgba(17, 24, 39, 0.88);
+    --navbar-bg: #111827;
     --navbar-border: rgba(255, 255, 255, 0.08);
     --navbar-pill-bg: rgba(255, 255, 255, 0.08);
     --navbar-pill-border: rgba(255, 255, 255, 0.12);
@@ -23,6 +23,13 @@
     --danger-gradient: linear-gradient(135deg, #dc3545, #b02a37);
     --warning-gradient: linear-gradient(135deg, #ffc107, #e0a800);
     --dark-gradient: linear-gradient(135deg, #343a40, #1d2124);
+
+    /* Z-index */
+    --z-navbar: 1100;
+    --z-sidebar: 1010;
+    --z-overlay: 1005;
+    --z-modal: 2005;
+    --z-modal-backdrop: 2000;
 }
 
 body {
@@ -48,9 +55,9 @@ body {
         26px 26px,
         26px 26px,
         auto;
-
     font-family:
-            -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -133,228 +140,6 @@ body {
     padding: calc(var(--navbar-height) + 38px) 18px 24px;
 }
 
-/* Navbar */
-.app-navbar {
-    min-height: var(--navbar-height);
-    background: var(--navbar-bg) !important;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--navbar-border);
-    z-index: 1100;
-}
-
-.app-navbar .container-fluid {
-    min-height: var(--navbar-height);
-}
-
-.app-navbar .navbar-brand,
-.app-navbar .navbar-brand:hover,
-.app-navbar .navbar-brand:focus {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-weight: 800;
-    font-size: 1.15rem;
-    letter-spacing: -0.03em;
-    text-decoration: none;
-    margin-right: 0;
-    background: none !important;
-    background-clip: initial !important;
-    -webkit-background-clip: initial !important;
-    -webkit-text-fill-color: initial !important;
-}
-
-.brand-icon {
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 193, 7, 0.16);
-    color: #ffd54f;
-    border: 1px solid rgba(255, 193, 7, 0.24);
-    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.1);
-    flex-shrink: 0;
-}
-
-.brand-text {
-    background: var(--primary-gradient);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-    font-size: 1.3rem;
-    letter-spacing: -0.02em;
-}
-
-/* Sidebar Toggle */
-.app-navbar .sidebar-toggle {
-    position: static;
-    transform: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.5rem;
-    padding: 0.45rem 0.95rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff !important;
-    transition: all 0.2s ease;
-    margin-right: 10px;
-}
-
-.app-navbar .sidebar-toggle:hover {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.14);
-}
-
-/* Navbar Action Area */
-.navbar-actions {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-}
-
-.nav-action-btn {
-    min-height: 2.5rem;
-    padding-inline: 1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-@media (max-width: 768px) {
-    .navbar-collapse {
-        text-align: center;
-    }
-
-    .navbar-actions {
-        width: 100%;
-        align-items: center !important;
-        justify-content: center;
-    }
-
-    .navbar-actions > * {
-        width: 100%;
-        max-width: 320px;
-        margin-inline: auto;
-    }
-
-    .workplace-pill {
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-inline: auto;
-    }
-
-    .dropdown-menu {
-        left: 50% !important;
-        right: auto !important;
-        transform: translateX(-50%);
-    }
-}
-
-/* Status Pills */
-.status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 40px;
-    padding: 0.5rem 0.95rem;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    line-height: 1;
-    border: 1px solid transparent;
-    white-space: nowrap;
-}
-
-.status-pill--active {
-    background: rgba(25, 135, 84, 0.16);
-    color: #fff;
-    border-color: rgba(25, 135, 84, 0.22);
-}
-
-.status-pill--idle {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.92);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Workplace Pill */
-.workplace-pill {
-    min-height: 2.5rem;
-    padding: 0.35rem 0.45rem 0.35rem 0.95rem;
-    border-radius: 999px;
-    background: var(--navbar-pill-bg);
-    border: 1px solid var(--navbar-pill-border);
-    color: #fff;
-    flex-wrap: nowrap;
-}
-
-.workplace-label {
-    font-size: 0.78rem;
-    color: var(--navbar-text-soft);
-    white-space: nowrap;
-}
-
-.workplace-value {
-    font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
-}
-
-.workplace-select {
-    min-width: 132px;
-    min-height: 34px;
-    padding-inline: 0.9rem 2rem;
-    border: 0;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    box-shadow: none !important;
-}
-
-.workplace-select:focus {
-    background: rgba(255, 255, 255, 0.14);
-    color: #fff;
-}
-
-.workplace-select option {
-    color: #111827;
-    background: #fff;
-}
-
-/* Dropdown */
-.app-dropdown {
-    min-width: 220px;
-    background: rgba(17, 24, 39, 0.96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.app-dropdown .dropdown-item {
-    padding: 0.7rem 0.9rem;
-    font-weight: 500;
-}
-
-.app-dropdown .dropdown-item:hover,
-.app-dropdown .dropdown-item:focus {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-/* Navbar Toggler */
-.app-navbar .navbar-toggler {
-    padding: 0.4rem 0.55rem;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 0;
-}
-
-.app-navbar .navbar-toggler:focus {
-    box-shadow: none;
-}
-
 /* Sidebar */
 .app-sidebar {
     position: fixed;
@@ -365,10 +150,11 @@ body {
     padding: 20px 18px 24px;
     background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
     color: #e2e8f0;
-    z-index: 1010;
+    z-index: var(--z-sidebar);
     box-shadow: 6px 0 24px rgba(15, 23, 42, 0.25);
     transform: translateX(-100%);
     transition: none;
+    overflow-y: auto;
 }
 
 .sidebar-ready .app-sidebar {
@@ -425,6 +211,7 @@ body.sidebar-open.sidebar-right .app-sidebar {
     transform: translateX(0);
 }
 
+/* 기존 push 동작은 유지 */
 body.sidebar-open .page-content.has-sidebar {
     margin-left: var(--sidebar-width);
 }
@@ -432,6 +219,15 @@ body.sidebar-open .page-content.has-sidebar {
 body.sidebar-open.sidebar-right .page-content.has-sidebar {
     margin-left: 0;
     margin-right: var(--sidebar-width);
+}
+
+/* 모바일에서는 본문 밀림 제거 */
+@media (max-width: 991.98px) {
+    body.sidebar-open .page-content.has-sidebar,
+    body.sidebar-open.sidebar-right .page-content.has-sidebar {
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 /* Sidebar Overlay */
@@ -444,7 +240,7 @@ body.sidebar-open.sidebar-right .page-content.has-sidebar {
     transition:
         opacity 0.2s ease,
         visibility 0.2s ease;
-    z-index: 1005;
+    z-index: var(--z-overlay);
 }
 
 body.sidebar-open .sidebar-overlay {
@@ -460,7 +256,7 @@ body.sidebar-open .sidebar-overlay {
     right: 0;
     width: 100%;
     height: var(--navbar-height);
-    z-index: 1100;
+    z-index: var(--z-navbar);
     display: flex;
     align-items: center;
     transition: background 0.3s ease;
@@ -489,13 +285,21 @@ body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
     padding-right: var(--sidebar-width);
 }
 
+@media (max-width: 991.98px) {
+    body.sidebar-open .page-content.has-sidebar .ios-topbar,
+    body.sidebar-open.sidebar-right .page-content.has-sidebar .ios-topbar {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
 /* Modal Layer Fix */
 .modal {
-    z-index: 2005;
+    z-index: var(--z-modal);
 }
 
 .modal-backdrop {
-    z-index: 2000;
+    z-index: var(--z-modal-backdrop);
 }
 
 /* Buttons */

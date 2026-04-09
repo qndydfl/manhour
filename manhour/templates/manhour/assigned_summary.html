@@ -77,14 +77,14 @@ background_image %} {% endcomment %}
 
                                 {% if w.is_night %}
                                 <span
-                                    class="badge bg-dark rounded-pill ms-1"
+                                    class="badge bg-dark rounded-pill ms-1 worker-shift-badge"
                                     style="font-size: 0.7em"
                                 >
                                     야간
                                 </span>
                                 {% else %}
                                 <span
-                                    class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill ms-1"
+                                    class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill ms-1 worker-shift-badge"
                                     style="font-size: 0.7em"
                                 >
                                     주간
@@ -146,8 +146,8 @@ background_image %} {% endcomment %}
                                     </div>
 
                                     <div
-                                        class="text-end"
-                                        style="min-width: 85px"
+                                        class="text-center"
+                                        style="min-width: 3.8rem"
                                     >
                                         <span
                                             class="fw-bold {% if w.is_overload %}text-danger{% else %}text-dark{% endif %}"
@@ -188,7 +188,7 @@ background_image %} {% endcomment %}
                             >
                                 <a
                                     href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
-                                    class="btn btn-outline-secondary btn-sm rounded-pill py-2 px-3 fw-bold"
+                                    class="btn btn-outline-secondary btn-sm rounded-pill py-2 px-2 fw-bold"
                                 >
                                     <i class="bi bi-calendar-check me-1"></i>
                                     <span class="d-none d-md-inline">
