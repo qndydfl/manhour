@@ -23,6 +23,7 @@ SIMPLE_PASSWORD_USER = os.getenv("SIMPLE_PASSWORD_USER")
 allowed_hosts = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
+    "manhour.herokuapp.com",
 )
 
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
@@ -31,9 +32,9 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # -----개발 환경 시작-----
 
-# DEBUG = True
+DEBUG = True
 
-# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"]
 
 # -----개발 환경 끝-----
 
@@ -59,6 +60,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # django-session-timeout 미들웨어
     "django_session_timeout.middleware.SessionTimeoutMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -138,6 +140,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
@@ -167,3 +171,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 유튜브 보안 설정
 SECURE_REFERRER_POLICY = "origin-when-cross-origin"
+
+
+# heroku 패포 데이터베이스 설정
+import os
+import dj_database_url
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
