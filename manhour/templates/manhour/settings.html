@@ -69,8 +69,9 @@ background_image %} {% endcomment %}
                 >
                     <div class="accordion-body">
                         <p class="text-muted small mb-3">
-                            근무지 이름을 추가하거나 수정하고, 필요하면
-                            비활성화할 수 있습니다.
+                            이 화면에서 근무지 코드와 표시 이름을 직접 관리할 수
+                            있습니다. 코드가 바뀌면 관련 데이터의 근무지 값도
+                            함께 새 코드로 변경됩니다.
                         </p>
 
                         <form
@@ -159,7 +160,27 @@ background_image %} {% endcomment %}
 
                         <div class="d-flex flex-column gap-2">
                             {% for workplace in workplaces %}
-                            <div class="border rounded p-2">
+                            <div
+                                class="border rounded p-2 {% if not workplace.is_active %}bg-light border-secondary-subtle{% endif %}"
+                            >
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-2"
+                                >
+                                    <div
+                                        class="small fw-semibold text-body-secondary"
+                                    >
+                                        근무지 항목
+                                    </div>
+                                    {% if workplace.is_active %}
+                                    <span class="badge text-bg-primary"
+                                        >사용 중</span
+                                    >
+                                    {% else %}
+                                    <span class="badge text-bg-secondary"
+                                        >비활성</span
+                                    >
+                                    {% endif %}
+                                </div>
                                 <form
                                     method="POST"
                                     class="row g-2 align-items-end"
@@ -181,9 +202,10 @@ background_image %} {% endcomment %}
                                             >코드</label
                                         >
                                         <input
+                                            name="code"
                                             class="form-control form-control-sm"
                                             value="{{ workplace.code }}"
-                                            readonly
+                                            required
                                         />
                                     </div>
 
@@ -260,10 +282,21 @@ background_image %} {% endcomment %}
                                     <button
                                         type="submit"
                                         class="btn btn-outline-danger btn-sm"
+                                    onclick="return confirm('근무지를 삭제할까요?');"
                                     >
-                                        비활성화
+                                        삭제
                                     </button>
                                 </form>
+
+                                {% if not workplace.is_active %}
+                                <div class="form-text text-muted mt-2">
+                                    현재 비활성 상태입니다. 다시 사용하려면
+                                    체크박스를 켜고 저장하세요.
+                                </div>
+                                    {% endif %}
+                                    <div class="form-text text-muted mt-2">
+                                        삭제하면 해당 근무지 항목이 목록에서 제거됩니다.
+                                    </div>
                             </div>
                             {% empty %}
                             <div class="text-muted small">
@@ -297,7 +330,8 @@ background_image %} {% endcomment %}
                     class="form-control"
                     rows="4"
                     placeholder="예: 홍길동, 김철수"
-                >{{ default_worker_names }}</textarea>
+                >{{ default_worker_names }}
+                </textarea>
 
                 <div class="form-text text-primary">
                     이 명단은 구역 일괄 편집의 “기본 명단 불러오기”에서
@@ -389,10 +423,7 @@ background_image %} {% endcomment %}
                     </div>
 
                     <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                        />
+                        <input class="form-check-input" type="radio" />
                         <label class="form-check-label" for="sidebar-left">
                             좌측
                         </label>

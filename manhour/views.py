@@ -43,6 +43,8 @@ from .workplaces import (
     get_workplace_choices,
     get_workplace_label_map,
     normalize_workplace,
+    rename_workplace_code,
+    ensure_default_workplaces,
 )
 from .forms import (
     KanbiAssignmentForm,
@@ -392,6 +394,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             .order_by("name", "id")
         )
         default_worker_count = len(default_worker_names)
+        ensure_default_workplaces()
         workplaces = list(Workplace.objects.all().order_by("sort_order", "id"))
         return render(
             request,
@@ -410,6 +413,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         )
 
     def post(self, request):
+        ensure_default_workplaces()
         action = (request.POST.get("action") or "").strip()
         if action.startswith("workplace_"):
             code = (request.POST.get("code") or "").strip()
@@ -450,19 +454,39 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 return redirect("manhour:settings")
 
             if action == "workplace_delete":
-                workplace.is_active = False
-                workplace.save(update_fields=["is_active"])
-                messages.success(request, "근무지가 비활성화되었습니다.")
+                deleted_code = workplace.code
+                workplace.delete()
+                if request.session.get(WORKPLACE_SESSION_KEY) == deleted_code:
+                    request.session.pop(WORKPLACE_SESSION_KEY, None)
+                    request.session.pop(WORKPLACE_LABEL_SESSION_KEY, None)
+                messages.success(request, "근무지가 삭제되었습니다.")
                 return redirect("manhour:settings")
 
             if action == "workplace_update":
-                if not label:
-                    messages.error(request, "표시 이름을 입력해주세요.")
+                if not code or not label:
+                    messages.error(request, "근무지 코드와 표시 이름을 입력해주세요.")
                     return redirect("manhour:settings")
+                duplicate = Workplace.objects.exclude(id=workplace.id).filter(code=code)
+                if duplicate.exists():
+                    messages.error(request, "이미 존재하는 근무지 코드입니다.")
+                    return redirect("manhour:settings")
+                old_code = workplace.code
+                current_workplace = request.session.get(WORKPLACE_SESSION_KEY)
                 workplace.label = label
+                workplace.code = code
                 workplace.sort_order = sort_order
                 workplace.is_active = is_active
-                workplace.save(update_fields=["label", "sort_order", "is_active"])
+                workplace.save(
+                    update_fields=["code", "label", "sort_order", "is_active"]
+                )
+                if old_code != code:
+                    rename_workplace_code(old_code, code)
+                if current_workplace:
+                    current_key = current_workplace.casefold()
+                    old_key = old_code.casefold()
+                    new_key = code.casefold()
+                    if current_key in {old_key, new_key}:
+                        set_workplace_in_session(request, code)
                 messages.success(request, "근무지가 수정되었습니다.")
                 return redirect("manhour:settings")
 
@@ -1397,25 +1421,39 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 
                 raw_inputs = [
                     n.strip()
-                    for n in re.split(r"[\n\s,]+", worker_name_input)
+                    for n in re.split(r"[\n,]+", worker_name_input)
                     if n.strip()
                 ]
-                clean_names_list = []
+                ordered_entries = []
                 for item in raw_inputs:
                     if ":" in item:
-                        clean_names_list.append(item.split(":")[0].strip())
+                        name_part, mh_part = item.split(":", 1)
+                        name = name_part.strip()
+                        if name:
+                            ordered_entries.append((name, None))
                     else:
-                        clean_names_list.append(item)
+                        for name in re.split(r"\s+", item):
+                            if name.strip():
+                                ordered_entries.append((name.strip(), None))
 
                 if valid_names:
-                    clean_names_list = [n for n in clean_names_list if n in valid_names]
+                    ordered_entries = [
+                        (name, mh_val)
+                        for name, mh_val in ordered_entries
+                        if name in valid_names
+                    ]
 
                 ordered_names = []
                 seen_names = set()
-                for n in clean_names_list:
-                    if n not in seen_names:
-                        ordered_names.append(n)
-                        seen_names.add(n)
+                name_to_mh = {}
+                for name, mh_val in ordered_entries:
+                    if name in seen_names:
+                        if name_to_mh.get(name) is None and mh_val is not None:
+                            name_to_mh[name] = mh_val
+                        continue
+                    ordered_names.append(name)
+                    seen_names.add(name)
+                    name_to_mh[name] = mh_val
 
                 new_names_set = set(ordered_names)
 
@@ -1457,10 +1495,73 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     ]
 
                     if selected_workers:
-                        base = round(total_mh / len(selected_workers), 2)
-                        allocations = [base] * len(selected_workers)
-                        diff = round(total_mh - sum(allocations), 2)
-                        allocations[-1] = round(allocations[-1] + diff, 2)
+                        unit = 0.1
+                        total_rounded = round(total_mh, 1)
+                        applied_adjusted_total = None
+
+                        def _spread_by_tenth(total, count):
+                            if count <= 0:
+                                return []
+                            base = math.floor((total / count) * 10) / 10
+                            allocations = [round(base, 1)] * count
+                            remain = round(total - sum(allocations), 1)
+                            if remain < 0:
+                                remain = 0.0
+                            steps = int(round(remain / unit))
+                            for i in range(steps):
+                                idx = i % count
+                                allocations[idx] = round(allocations[idx] + unit, 1)
+                            return allocations
+
+                        explicit_vals = [
+                            name_to_mh.get(w.name) for w in selected_workers
+                        ]
+                        has_explicit = any(v is not None for v in explicit_vals)
+
+                        if has_explicit:
+                            allocations = []
+                            provided_sum = 0.0
+                            missing_indexes = []
+                            for idx, val in enumerate(explicit_vals):
+                                if val is None:
+                                    allocations.append(None)
+                                    missing_indexes.append(idx)
+                                else:
+                                    rounded_val = round(max(val, 0.0), 1)
+                                    allocations.append(rounded_val)
+                                    provided_sum += rounded_val
+
+                            remaining = round(total_rounded - provided_sum, 1)
+                            if remaining < 0:
+                                remaining = 0.0
+
+                            if missing_indexes:
+                                spread = _spread_by_tenth(
+                                    remaining, len(missing_indexes)
+                                )
+                                for idx, alloc in zip(missing_indexes, spread):
+                                    allocations[idx] = alloc
+                            elif remaining > 0:
+                                steps = int(round(remaining / unit))
+                                for i in range(steps):
+                                    idx = i % len(allocations)
+                                    allocations[idx] = round(allocations[idx] + unit, 1)
+
+                        else:
+                            allocations = _spread_by_tenth(
+                                total_rounded, len(selected_workers)
+                            )
+                            count = len(selected_workers)
+                            target_per = math.ceil((total_rounded / count) * 10) / 10
+                            target_total = round(target_per * count, 1)
+                            cap_total = round(total_rounded * 1.3, 1)
+                            if (
+                                target_total > total_rounded
+                                and target_total <= cap_total
+                            ):
+                                allocations = [target_per] * count
+                                applied_adjusted_total = target_total
+
                         for worker_obj, alloc in zip(selected_workers, allocations):
                             Assignment.objects.create(
                                 work_item=instance,
@@ -1468,6 +1569,14 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                                 is_fixed=True,
                                 allocated_mh=alloc,
                             )
+                        if applied_adjusted_total is not None:
+                            instance.adjusted_mh = applied_adjusted_total
+                            instance.save(update_fields=["adjusted_mh"])
+                            adjusted_mh_map[str(instance.pk)] = str(
+                                applied_adjusted_total
+                            )
+                            if idx < len(mh_adjusted_list):
+                                mh_adjusted_list[idx] = str(applied_adjusted_total)
                 else:
                     if current_names_set:
                         instance.assignments.all().delete()

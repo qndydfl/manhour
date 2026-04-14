@@ -2,21 +2,6 @@ from django.db import models
 
 
 class WorkSession(models.Model):
-    SITE_ICN_1 = "ICN-1그룹"
-    SITE_ICN_2 = "ICN-2그룹"
-    SITE_ICN_3 = "ICN-3그룹"
-    SITE_GMP_1 = "GMP-1그룹"
-    SITE_GMP_2 = "GMP-2그룹"
-    SITE_GMP_3 = "GMP-3그룹"
-    SITE_CHOICES = [
-        (SITE_ICN_1, "ICN-1그룹"),
-        (SITE_ICN_2, "ICN-2그룹"),
-        (SITE_ICN_3, "ICN-3그룹"),
-        (SITE_GMP_1, "GMP-1그룹"),
-        (SITE_GMP_2, "GMP-2그룹"),
-        (SITE_GMP_3, "GMP-3그룹"),
-    ]
-
     BLOCK_CHECK_1A = "1A"
     BLOCK_CHECK_2A = "2A"
     BLOCK_CHECK_3A = "3A"
@@ -57,7 +42,7 @@ class WorkSession(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     site = models.CharField(
-        max_length=20,
+        max_length=50,
         verbose_name="근무지",
         blank=True,
         default="",
@@ -142,7 +127,7 @@ class WorkerDirectory(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.session_id})"
-    
+
 
 class AreaTemplate(models.Model):
     key = models.CharField(max_length=50, unique=True)

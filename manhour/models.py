@@ -2,21 +2,16 @@ from django.utils import timezone
 from urllib.parse import parse_qs, urlparse
 from django.db import models
 from django.db.models import Q
+from .workplace_config import get_default_workplace_choices
 
 
-DEFAULT_WORKPLACE_CHOICES = [
-    ("ICN-1그룹", "ICN-1그룹"),
-    ("ICN-2그룹", "ICN-2그룹"),
-    ("ICN-3그룹", "ICN-3그룹"),
-    ("GMP-1그룹", "GMP-1그룹"),
-    ("GMP-2그룹", "GMP-2그룹"),
-    ("GMP-3그룹", "GMP-3그룹"),
-]
+DEFAULT_WORKPLACE_CHOICES = get_default_workplace_choices()
 
 
 class Workplace(models.Model):
-    code = models.CharField(max_length=20, unique=True)
-    label = models.CharField(max_length=50)
+    config_key = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    code = models.CharField(max_length=50, unique=True)
+    label = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     sort_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -38,7 +33,7 @@ class TaskMaster(models.Model):
     default_mh = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
     site = models.CharField(
-        max_length=20,
+        max_length=50,
         verbose_name="근무지",
     )
 
@@ -61,7 +56,7 @@ class WorkSession(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     site = models.CharField(
-        max_length=20,
+        max_length=50,
         verbose_name="근무지",
     )
 
@@ -219,7 +214,7 @@ class FeaturedVideo(models.Model):
         default=VideoKind.VIDEO,
     )
     site = models.CharField(
-        max_length=20,
+        max_length=50,
         blank=True,
         default="",
         help_text="Blank = all sites",
@@ -237,7 +232,7 @@ class FeaturedVideo(models.Model):
 class AppSetting(models.Model):
     key = models.CharField(max_length=50)
     site = models.CharField(
-        max_length=20,
+        max_length=50,
         blank=True,
         default="",
     )
@@ -255,7 +250,7 @@ class AppSetting(models.Model):
 
 class DefaultWorkerDirectory(models.Model):
     site = models.CharField(
-        max_length=20,
+        max_length=50,
         verbose_name="근무지",
     )
     name = models.CharField(max_length=50)

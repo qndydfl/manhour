@@ -1,6 +1,5 @@
 <nav class="navbar navbar-expand-lg app-navbar fixed-top w-100">
     <div class="container-fluid px-3 px-lg-4">
-
         {% if request.session.user_role == "admin" and request.resolver_match.url_name != "login" %}
         <button
             type="button"
@@ -23,10 +22,18 @@
         </a>
 
         {% if request.resolver_match.url_name != "login" %}
-        <div class="d-none d-lg-flex align-items-center ms-3" aria-live="polite">
+        <div
+            class="d-none d-lg-flex align-items-center ms-3"
+            aria-live="polite"
+        >
             {% if active_count > 0 %}
-            <span class="app-navbar__status-pill app-navbar__status-pill--active">
-                <span class="spinner-grow spinner-grow-sm text-warning" aria-hidden="true"></span>
+            <span
+                class="app-navbar__status-pill app-navbar__status-pill--active"
+            >
+                <span
+                    class="spinner-grow spinner-grow-sm text-warning"
+                    aria-hidden="true"
+                ></span>
                 가동 중
             </span>
             {% else %}
@@ -49,12 +56,11 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
-            <div class="app-navbar__actions d-flex flex-column flex-lg-row align-items-lg-center gap-2 ms-lg-auto">
-
+            <div
+                class="app-navbar__actions d-flex flex-column flex-lg-row align-items-lg-center gap-2 ms-lg-auto"
+            >
                 {% if request.session.user_role == "admin" %}
-                <a href="/admin/" class="app-navbar__btn">
-                    ADMIN
-                </a>
+                <a href="/admin/" class="app-navbar__btn"> ADMIN </a>
                 {% endif %}
 
                 <a
@@ -75,43 +81,68 @@
                     >
                         <i class="bi bi-grid me-1"></i> Menu
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg border-0 rounded-4 p-2 app-dropdown">
+                    <ul
+                        class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg border-0 rounded-4 p-2 app-dropdown"
+                    >
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:index' %}">
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:index' %}"
+                            >
                                 <i class="bi bi-house me-2"></i>Home
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:session_list' %}">
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:session_list' %}"
+                            >
                                 <i class="bi bi-grid me-2"></i>Session List
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:create_session' %}">
-                                <i class="bi bi-plus-circle me-2"></i>New Session
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:create_session' %}"
+                            >
+                                <i class="bi bi-plus-circle me-2"></i>New
+                                Session
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:history' %}">
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:history' %}"
+                            >
                                 <i class="bi bi-clock-history me-2"></i>History
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:master_data_list' %}">
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:master_data_list' %}"
+                            >
                                 <i class="bi bi-database me-2"></i>Master Data
                             </a>
                         </li>
 
                         {% if session and session.id %}
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:result_view' session.id %}">
-                                <i class="bi bi-clipboard-plus me-2"></i>Data View
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:result_view' session.id %}"
+                            >
+                                <i class="bi bi-clipboard-plus me-2"></i>Data
+                                View
                             </a>
                         </li>
                         {% endif %}
 
                         <li>
-                            <a class="dropdown-item rounded-3" href="{% url 'manhour:settings' %}">
+                            <a
+                                class="dropdown-item rounded-3"
+                                href="{% url 'manhour:settings' %}"
+                            >
                                 <i class="bi bi-gear me-2"></i>Settings
                             </a>
                         </li>
@@ -128,7 +159,9 @@
                     >
                         <i class="bi bi-play-btn-fill me-1"></i>동영상
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg border-0 rounded-4 p-2 app-dropdown">
+                    <ul
+                        class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg border-0 rounded-4 p-2 app-dropdown"
+                    >
                         {% if index_videos %}
                         <li><h6 class="dropdown-header">YouTube Videos</h6></li>
                         {% for video in index_videos %}
@@ -144,11 +177,8 @@
                                 {{ video.title }}
                             </button>
                         </li>
-                        {% endfor %}
-                        {% endif %}
-
-                        {% if index_shorts %}
-                        <li><hr class="dropdown-divider"></li>
+                        {% endfor %} {% endif %} {% if index_shorts %}
+                        <li><hr class="dropdown-divider" /></li>
                         <li><h6 class="dropdown-header">Shorts</h6></li>
                         {% for short in index_shorts %}
                         <li>
@@ -163,15 +193,18 @@
                                 {{ short.title }}
                             </button>
                         </li>
-                        {% endfor %}
-                        {% endif %}
+                        {% endfor %} {% endif %}
                     </ul>
                 </div>
                 {% endif %}
 
-                <div class="app-navbar__workplace-pill d-flex align-items-center gap-2">
+                <div
+                    class="app-navbar__workplace-pill d-flex align-items-center gap-2"
+                >
                     <span class="app-navbar__workplace-label">근무지</span>
-                    <span class="app-navbar__workplace-value">{{ request.session.workplace_label }}</span>
+                    <span class="app-navbar__workplace-value"
+                        >{{ request.session.workplace_label }}</span
+                    >
 
                     {% if request.session.user_role == "admin" %}
                     <form
@@ -186,16 +219,14 @@
                             onchange="this.form.submit()"
                             aria-label="근무지 선택"
                         >
-                            {% with groups="ICN-1그룹 ICN-2그룹 ICN-3그룹" %}
-                            {% for group in groups.split %}
+                            {% for workplace_code, workplace_label in navbar_workplace_options %}
                             <option
-                                value="{{ group }}"
-                                {% if request.session.workplace == group %}selected{% endif %}
+                                value="{{ workplace_code }}"
+                                {% if request.session.workplace == workplace_code %}selected{% endif %} 
                             >
-                                {{ group }}
+                                {{ workplace_label }}
                             </option>
                             {% endfor %}
-                            {% endwith %}
                         </select>
                     </form>
                     {% endif %}
