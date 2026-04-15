@@ -1497,7 +1497,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     if selected_workers:
                         unit = 0.1
                         total_rounded = round(total_mh, 1)
-                        applied_adjusted_total = None
 
                         def _spread_by_tenth(total, count):
                             if count <= 0:
@@ -1551,16 +1550,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                             allocations = _spread_by_tenth(
                                 total_rounded, len(selected_workers)
                             )
-                            count = len(selected_workers)
-                            target_per = math.ceil((total_rounded / count) * 10) / 10
-                            target_total = round(target_per * count, 1)
-                            cap_total = round(total_rounded * 1.3, 1)
-                            if (
-                                target_total > total_rounded
-                                and target_total <= cap_total
-                            ):
-                                allocations = [target_per] * count
-                                applied_adjusted_total = target_total
 
                         for worker_obj, alloc in zip(selected_workers, allocations):
                             Assignment.objects.create(
@@ -1569,14 +1558,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                                 is_fixed=True,
                                 allocated_mh=alloc,
                             )
-                        if applied_adjusted_total is not None:
-                            instance.adjusted_mh = applied_adjusted_total
-                            instance.save(update_fields=["adjusted_mh"])
-                            adjusted_mh_map[str(instance.pk)] = str(
-                                applied_adjusted_total
-                            )
-                            if idx < len(mh_adjusted_list):
-                                mh_adjusted_list[idx] = str(applied_adjusted_total)
                 else:
                     if current_names_set:
                         instance.assignments.all().delete()

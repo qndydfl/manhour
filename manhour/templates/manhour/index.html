@@ -336,8 +336,10 @@
         </small>
         <span class="mx-2 text-muted">|</span>
         <small class="text-muted">All rights reserved</small>
-        <span class="mx-2 text-muted">|</span>
-        <small class="text-muted">version 1.3.0</small>
+        {% if request.session.user_role == "admin" %}
+            <span class="mx-2 text-muted">|</span>
+            <small class="text-muted">version 1.3.0</small>
+        {% endif %}
     </div>
 </footer>
 {% endblock footer %}
