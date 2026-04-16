@@ -164,7 +164,7 @@
     </div>
 
     <div
-        class="row g-4 mt-2 mt-lg-4 opacity-75"
+        class="row g-4 {% if request.session.user_role == 'admin' %}py-4 py-lg-0 mt-lg-4{% else %}mt-2 mt-lg-4{% endif %} opacity-75"
         data-aos="fade-down"
         data-aos-duration="1000"
     >
@@ -330,7 +330,7 @@
 
 {% block footer %}
 <footer class="index-footer-glass text-center py-3">
-    <div class="container">
+    <div class="container d-flex flex-wrap justify-content-center align-items-center gap-1">
         <small class="text-muted">
             © 2026 <strong>Man Hour Calculator System</strong>
         </small>
