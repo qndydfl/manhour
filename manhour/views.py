@@ -183,15 +183,6 @@ def get_default_worker_limit_mh(workplace: str) -> float:
         return DEFAULT_WORKER_LIMIT_MH
 
 
-def get_sidebar_position(workplace: str) -> str:
-    value = (
-        AppSetting.objects.filter(key="sidebar_position", site=workplace)
-        .values_list("int_value", flat=True)
-        .first()
-    )
-    return "right" if value == 1 else "left"
-
-
 def get_navbar_toggle_position(workplace: str) -> str:
     value = (
         AppSetting.objects.filter(key="navbar_toggle_position", site=workplace)
@@ -404,7 +395,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "history_visibility_hours": get_history_visibility_hours(),
                 "taskmaster_retention_hours": get_taskmaster_retention_hours(),
                 "default_worker_limit_mh": get_default_worker_limit_mh(workplace),
-                "sidebar_position": get_sidebar_position(workplace),
                 "navbar_toggle_position": get_navbar_toggle_position(workplace),
                 "default_worker_names": ", ".join(default_worker_names),
                 "default_worker_count": default_worker_count,
@@ -497,7 +487,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         ).strip()
         raw_default_limit = request.POST.get("default_worker_limit_mh", "").strip()
         raw_default_workers = request.POST.get("default_worker_names", "")
-        sidebar_position = (request.POST.get("sidebar_position") or "").strip()
         navbar_toggle_position = (
             request.POST.get("navbar_toggle_position") or ""
         ).strip()
@@ -505,8 +494,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         if not workplace:
             messages.error(request, "근무지를 선택해주세요.")
             return redirect("manhour:settings")
-        if sidebar_position not in {"left", "right"}:
-            sidebar_position = "left"
         if navbar_toggle_position not in {"left", "right"}:
             navbar_toggle_position = "left"
         try:
@@ -545,11 +532,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             key="default_worker_limit_mh_tenths",
             site=workplace,
             defaults={"int_value": int(round(default_limit * 10))},
-        )
-        AppSetting.objects.update_or_create(
-            key="sidebar_position",
-            site=workplace,
-            defaults={"int_value": 1 if sidebar_position == "right" else 0},
         )
         AppSetting.objects.update_or_create(
             key="navbar_toggle_position",

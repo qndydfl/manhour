@@ -4,7 +4,7 @@
     background: var(--navbar-bg) !important;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     z-index: var(--z-navbar);
     font-size: 0.85rem;
 }
@@ -48,29 +48,6 @@
     font-weight: 800;
     font-size: 1.3rem;
     letter-spacing: -0.02em;
-}
-
-/* Sidebar Toggle */
-.app-navbar .sidebar-toggle {
-    position: static;
-    transform: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2rem;
-    padding: 0.45rem 0.95rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff !important;
-    transition: all 0.2s ease;
-    margin-right: 10px;
-}
-
-.app-navbar .sidebar-toggle:hover,
-.app-navbar .sidebar-toggle:focus {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* Actions */

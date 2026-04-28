@@ -29,8 +29,8 @@ urlpatterns = [
         "favicon.ico",
         RedirectView.as_view(url="/static/favicon.svg", permanent=False),
     ),
-    path("admin/", admin.site.urls),    
-    path("", include("manhour.urls")),
+    path("admin/", admin.site.urls),
+    path("", include("manhour.urls", namespace="manhour")),
     path("manning/", include("manning.urls")),
 ]
 

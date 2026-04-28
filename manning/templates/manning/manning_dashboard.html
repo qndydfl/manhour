@@ -26,7 +26,7 @@
 {% endblock js %} 
 
 {% block content %}
-<div class="container rounded-4 manning-aircraft-bg" data-aos="fade-up">
+<div class="container-fluid rounded-4 manning-aircraft-bg" data-aos="fade-up">
     {% if show_empty_assignments %}
     <div class="alert alert-warning" role="alert">
         작업 배정/시간 입력 데이터가 없습니다.
@@ -48,7 +48,8 @@
             <a
                 href="{% if is_same_site and has_assignments %}{% url 'manning:assignment_view' session.id %}{% else %}#{% endif %}"
                 class="btn btn-dark btn-sm rounded-4 fw-bold px-3 py-2 {% if not is_same_site or not has_assignments %}disabled pe-none{% endif %}"
-                {% if not is_same_site or not has_assignments %}aria-disabled="true" tabindex="-1"
+                {% if not is_same_site or not has_assignments %}aria-disabled="true"
+                tabindex="-1"
                 {% endif %}
             >
                 작업 배정<span class="d-none d-md-inline">
@@ -59,7 +60,9 @@
             <a
                 href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
                 class="btn btn-primary btn-sm rounded-4 fw-bold px-3 py-2 {% if not is_same_site %}disabled pe-none{% endif %}"
-                {% if not is_same_site %}aria-disabled="true" tabindex="-1" {% endif %}
+                {% if not is_same_site %}aria-disabled="true"
+                tabindex="-1"
+                {% endif %}
             >
                 <i class="bi bi-pencil-square ms-1"></i>
                 <span class="d-none d-md-inline">세션 일괄</span>편집
@@ -76,12 +79,11 @@
     </div>
 
     <div class="row g-4 justify-content-center">
-        <div class="col-xl-4 col-md-6">
+        <div class="col-xl-3 col-md-6">
             <div
                 class="area-group-label mb-3 ps-2 border-start border-primary border-4 fw-bold"
             >
-                LEFT SIDE 
-                {% comment %} (총 {{ left_unique_count }}명) {% endcomment %}
+                LEFT SIDE {% comment %} (총 {{ left_unique_count }}명) {% endcomment %}
             </div>
             <div class="d-flex flex-column gap-3">
                 {% for area in session_areas %} {% if area.position == 'LEFT' %}
@@ -91,13 +93,12 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6">
+        <div class="col-xl-3 col-md-6">
             <div class="d-flex justify-content-center">
                 <div
                     class="area-group-label text-center mb-3 ps-2 border-start border-info border-4 fw-bold"
                 >
-                    NONE 
-                    {% comment %} (총 {{ none_unique_count }}명) {% endcomment %}
+                    NONE {% comment %} (총 {{ none_unique_count }}명) {% endcomment %}
                 </div>
             </div>
             <div class="d-flex flex-column gap-3">
@@ -106,16 +107,33 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6">
+        <div class="col-xl-3 col-md-6">
             <div
                 class="area-group-label text-end mb-3 pe-2 border-end border-danger border-4 fw-bold"
             >
-                RIGHT SIDE 
-                {% comment %} (총 {{ right_unique_count }}명) {% endcomment %}
+                RIGHT SIDE {% comment %} (총 {{ right_unique_count }}명) {% endcomment %}
             </div>
             <div class="d-flex flex-column gap-3">
-                {% for area in session_areas %} {% if area.position == 'RIGHT' %} 
-                {% include "partials/_area_card.html" with area=area theme="danger" %} {% endif %} {% endfor %}
+                {% for area in session_areas %} {% if area.position == 'RIGHT' %} {% include "partials/_area_card.html" with area=area theme="danger" %} {% endif %} {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div
+                class="area-group-label text-end mb-3 pe-2 border-end border-dark border-4 fw-bold"
+            >
+                SESSION MEMO
+            </div>
+            <div
+                class="dashboard-panel session-memo-panel p-3 rounded-4 border border-dark"
+            >
+                {% if session.memo %}
+                <div class="session-memo-text small">
+                    {{ session.memo|safe }}
+                </div>
+                {% else %}
+                <div class="text-muted small m-0">등록된 메모가 없습니다.</div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -932,8 +932,11 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
         new_positions = request.POST.getlist("new_area_position")
         new_workers = request.POST.getlist("new_area_workers")
         new_orders = request.POST.getlist("new_area_order")
+        session_memo = (request.POST.get("session_memo") or "").strip()
 
         with transaction.atomic():
+            session.memo = session_memo
+            session.save(update_fields=["memo"])
             for idx, area_id in enumerate(area_ids):
                 area = get_object_or_404(SessionArea, id=area_id, session=session)
                 if str(area_id) in delete_ids:

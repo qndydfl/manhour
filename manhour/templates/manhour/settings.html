@@ -405,49 +405,8 @@ background_image %} {% endcomment %}
 
             <h2 class="h6 fw-bold mb-3">6. 위치 이동</h2>
             <div class="mb-0">
-                <h2 class="h6 mb-3">사이드바 위치</h2>
-                <div class="d-flex flex-wrap gap-4 mb-4">
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            name="sidebar_position"
-                            id="sidebar-left"
-                            value="left"
-                            data-setting="sidebarPosition"
-                            {% if sidebar_position == "left" %}checked{% endif %}
-                        />
-                        <label class="form-check-label" for="sidebar-left">
-                            좌측
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" />
-                        <label class="form-check-label" for="sidebar-left">
-                            좌측
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            name="sidebar_position"
-                            id="sidebar-right"
-                            value="right"
-                            data-setting="sidebarPosition"
-                            {% if sidebar_position == "right" %}checked{% endif %}
-                        />
-                        <label class="form-check-label" for="sidebar-right">
-                            우측
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mb-0">
-                    <h2 class="h6 mb-3">Navbar 토글 버튼 위치</h2>
-                    <div class="d-flex flex-wrap gap-4">
+                <h2 class="h6 mb-3">Navbar 토글 버튼 위치</h2>
+                <div class="d-flex flex-wrap gap-4">
                         <div class="form-check">
                             <input
                                 class="form-check-input"

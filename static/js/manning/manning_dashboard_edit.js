@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const defaultWorkerDataEl = document.getElementById("defaultWorkerNames");
     const workerCountEl = document.getElementById("workerCount");
     const workerUsageMessage = document.getElementById("workerUsageMessage");
+    const memoEditor = document.querySelector(".memo-editor");
+    const memoInput = document.getElementById("sessionMemoInput");
 
     const messageModal = document.getElementById("workerMessageModal");
     const messageTitle = document.getElementById("workerMessageTitle");
@@ -58,6 +60,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const isMobileDevice = () =>
         (window.matchMedia && window.matchMedia(MOBILE_MEDIA_QUERY).matches) ||
         isTouchDevice();
+
+    if (formEl && memoEditor && memoInput) {
+        formEl.addEventListener("submit", () => {
+            const plainText = memoEditor.innerText.trim();
+            memoInput.value = plainText ? memoEditor.innerHTML.trim() : "";
+        });
+    }
+
+    if (memoEditor) {
+        const normalizeInputText = (node) => {
+            const value = node.textContent.replace(/\u00a0/g, "").trim();
+            const hasValue = value.length > 0;
+
+            node.classList.toggle("has-value", hasValue);
+            if (!hasValue) {
+                node.innerHTML = "&nbsp;";
+            }
+        };
+
+        const syncMemoInputColors = () => {
+            memoEditor.querySelectorAll(".input-text").forEach((node) => {
+                normalizeInputText(node);
+            });
+        };
+
+        memoEditor.addEventListener("input", (event) => {
+            const target = event.target;
+            if (target && target.classList?.contains("input-text")) {
+                normalizeInputText(target);
+                return;
+            }
+            syncMemoInputColors();
+        });
+
+        syncMemoInputColors();
+    }
 
     if (!workerDataEl || !workerCountEl) {
         return;

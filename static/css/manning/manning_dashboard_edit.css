@@ -1,4 +1,4 @@
-사이드바 내부 스크롤 설정
+/* Sidebar inner scroll */
 .offcanvas-body {
     overflow-y: auto !important;
     /* 핵심: 사이드바 스크롤이 끝에 닿아도 본문으로 스크롤이 넘어가지 않음 */
@@ -9,6 +9,51 @@
 /* 마우스가 본문에 있을 때 사이드바가 움직이지 않게 하려면 */
 body {
     overscroll-behavior: none;
+}
+
+.edit-layout {
+    margin-bottom: 5rem;
+}
+
+.memo-editor {
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    min-height: 400px;
+    background: #ffffff;
+    line-height: 1.8;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.memo-editor:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.label-text {
+    color: #6c757d;
+    font-weight: 600;
+    display: inline;
+}
+
+.input-text {
+    min-width: 80px;
+    display: inline-block;
+    border-bottom: 1px solid #ccc;
+    padding: 2px 4px;
+    color: #0d6efd;
+}
+
+/* .input-text:focus {
+    outline: none;
+    border-bottom: 2px solid #0d6efd;
+} */
+
+
+@media (max-width: 991.98px) {
+    .edit-layout {
+        flex-direction: column;
+    }
 }
 
 .edit-shell {
@@ -40,7 +85,9 @@ body {
     vertical-align: middle;
     background: transparent;
     font-size: 0.8rem;
-    transition: background-color 0.22s ease, color 0.22s ease;
+    transition:
+        background-color 0.22s ease,
+        color 0.22s ease;
 }
 
 .area-row td input,
@@ -91,13 +138,26 @@ body.manning-page-body .ios-wrap {
         transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
         width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
         margin-left 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-        /* margin-left 0.25s ease,
+    /* margin-left 0.25s ease,
         width 0.25s ease; */
 }
 
 body.worker-panel-open .ios-wrap {
     margin-left: var(--worker-panel-width);
     width: calc(100% - var(--worker-panel-width));
+}
+
+body.worker-panel-open .edit-memo-panel {
+    display: none;
+}
+
+body.worker-panel-open .edit-layout .row > .col-md-4 {
+    display: none;
+}
+
+body.worker-panel-open .edit-layout .row > .col-md-8 {
+    flex: 0 0 100%;
+    max-width: 100%;
 }
 
 .bottom-action-bar .btn {

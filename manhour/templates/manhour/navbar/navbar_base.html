@@ -1,19 +1,5 @@
 <nav class="navbar navbar-expand-lg app-navbar fixed-top w-100">
     <div class="container-fluid px-3 px-lg-4">
-        {% if request.session.user_role == "admin" and request.resolver_match.url_name != "login" %}
-        <button
-            type="button"
-            class="sidebar-toggle js-sidebar-toggle d-none d-md-inline-flex"
-            data-sidebar-action="toggle"
-            aria-label="사이드바 토글"
-            aria-expanded="false"
-            aria-controls="appSidebar"
-        >
-            <i class="bi bi-layout-sidebar-inset me-1"></i>
-            사이드바
-        </button>
-        {% endif %}
-
         <a class="navbar-brand" href="{% url 'manhour:index' %}">
             <span class="app-navbar__brand-icon">
                 <i class="bi bi-airplane-engines-fill"></i>
@@ -136,8 +122,7 @@
                                 View
                             </a>
                         </li>
-                        {% endif %}
-
+                        {% endif %} 
                         {% if request.session.user_role == "admin" %}
                         <li>
                             <a
@@ -179,7 +164,8 @@
                                 {{ video.title }}
                             </button>
                         </li>
-                        {% endfor %} {% endif %} {% if index_shorts %}
+                        {% endfor %} {% endif %} 
+                        {% if index_shorts %}
                         <li><hr class="dropdown-divider" /></li>
                         <li><h6 class="dropdown-header">Shorts</h6></li>
                         {% for short in index_shorts %}
@@ -224,7 +210,7 @@
                             {% for workplace_code, workplace_label in navbar_workplace_options %}
                             <option
                                 value="{{ workplace_code }}"
-                                {% if request.session.workplace == workplace_code %}selected{% endif %} 
+                                {% if request.session.workplace == workplace_code %}selected{% endif %}
                             >
                                 {{ workplace_label }}
                             </option>

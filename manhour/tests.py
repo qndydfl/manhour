@@ -30,7 +30,6 @@ class WorkplaceSyncTests(TestCase):
             site="ICN-1그룹",
         )
         DefaultWorkerDirectory.objects.create(site="ICN-1그룹", name="홍길동")
-        AppSetting.objects.create(key="sidebar_position", site="ICN-1그룹", int_value=1)
         ManningWorkSession.objects.create(name="Manning", site="ICN-1그룹")
 
         workplace.code = "ICN-A"
@@ -44,12 +43,6 @@ class WorkplaceSyncTests(TestCase):
         self.assertTrue(WorkSession.objects.filter(site="ICN-A").exists())
         self.assertTrue(TaskMaster.objects.filter(site="ICN-A").exists())
         self.assertTrue(DefaultWorkerDirectory.objects.filter(site="ICN-A").exists())
-        self.assertTrue(
-            AppSetting.objects.filter(
-                key="sidebar_position",
-                site="ICN-A",
-            ).exists()
-        )
         self.assertTrue(ManningWorkSession.objects.filter(site="ICN-A").exists())
 
     def test_default_workplaces_are_created_when_empty(self):

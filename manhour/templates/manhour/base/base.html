@@ -2,234 +2,182 @@
 
 <!doctype html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="theme-color" content="#f2f2f7" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=yes"
-    />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="theme-color" content="#f2f2f7" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=yes"
+        />
 
-    <title>{% block title %}Manning System{% endblock title %}</title>
+        <title>{% block title %}Manning System{% endblock title %}</title>
 
-    <link
-        rel="stylesheet"
-        crossorigin
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
-    />
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    />
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    />
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/aos@2.3.1/dist/aos.css"
-    />
+        <link
+            rel="stylesheet"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/aos@2.3.1/dist/aos.css"
+        />
 
-    <link
-        rel="icon"
-        href="{% static 'favicon.svg' %}"
-        type="image/svg+xml"
-    />
+        <link
+            rel="icon"
+            href="{% static 'favicon.svg' %}"
+            type="image/svg+xml"
+        />
 
-    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
 
-    {% block css %}{% endblock css %}
+        {% block css %}{% endblock css %}
 
-    <script
-        defer
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-    ></script>
-    <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script
-        defer
-        src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
-    ></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        ></script>
+        <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+        ></script>
 
-    <script defer src="{% static 'js/base.js' %}"></script>
-    {% block js %}{% endblock js %}
-</head>
+        <script defer src="{% static 'js/base.js' %}"></script>
+        {% block js %}{% endblock js %}
+    </head>
 
-{% with url_name=request.resolver_match.url_name %}
-<body
-    class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %} {% block body_class %}{% endblock %}"
-    data-sidebar-position="{{ sidebar_position|default:'left' }}"
-    data-navbar-toggle-position="{{ navbar_toggle_position|default:'left' }}"
->
+    {% with url_name=request.resolver_match.url_name %}
+    <body
+        class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %} {% block body_class %}{% endblock %}"
+        data-navbar-toggle-position="{{ navbar_toggle_position|default:'left' }}"
+    >
+        {% block background_image %}{% endblock background_image %} 
+        {% include "manhour/loading/loading.html" %}
 
-    {% block background_image %}{% endblock background_image %}
-
-    {% include "manhour/loading/loading.html" %}
-
-    {% if url_name != "login" and request.session.is_authenticated %}
-    <div class="app-shell">
-        {% block sidebar %}
-        <aside class="app-sidebar" aria-label="Primary">
-            <div class="app-sidebar__brand">Menu</div>
-            <nav class="app-sidebar__nav ">
-                <a class="app-sidebar__link" href="{% url 'manhour:index' %}">
-                    <i class="bi bi-house"></i> Dash Board(Home)
-                </a>
-                <a class="app-sidebar__link" href="{% url 'manhour:session_list' %}">
-                    <i class="bi bi-grid"></i> Session List
-                </a>
-                <a class="app-sidebar__link" href="{% url 'manhour:create_session' %}">
-                    <i class="bi bi-plus-circle"></i> New Session
-                </a>
-                <a class="app-sidebar__link" href="{% url 'manhour:history' %}">
-                    <i class="bi bi-clock-history"></i> History
-                </a>
-                <a class="app-sidebar__link" href="{% url 'manhour:master_data_list' %}">
-                    <i class="bi bi-database"></i> Master Data
-                </a>
-
-                {% if session and session.id %}
-                <a class="app-sidebar__link" href="{% url 'manhour:result_view' session.id %}">
-                    <i class="bi bi-clipboard-plus"></i> Data View
-                </a>
-                {% endif %}
-
-                {% if request.session.user_role == 'admin' or request.user.is_superuser %}
-                <a class="app-sidebar__link" href="{% url 'manhour:settings' %}">
-                    <i class="bi bi-gear"></i> Settings
-                </a>
-                {% endif %}
-            </nav>
-        </aside>
-        <div
-            class="sidebar-overlay js-sidebar-toggle"
-            data-sidebar-action="close"
-            aria-hidden="true"
-        ></div>
-        {% endblock sidebar %}
-        <div class="page-content">
-    {% else %}
-    <div class="page-content{% block page_content_class %}{% endblock %}">
-    {% endif %}
-
-        {% if url_name != "login" %}
-            {% block navbar %}
+        <div class="page-content{% block page_content_class %}{% endblock %}">
+            {% if url_name != "login" %} {% block navbar %}
             <header class="ios-topbar">
                 {% include "manhour/navbar/navbar_base.html" %}
             </header>
-            {% endblock navbar %}
-        {% endif %}
+            {% endblock navbar %} {% endif %}
 
-        <main class="ios-wrap">
-
-            {% if messages %}
-            <div class="toast-container position-fixed top-0 end-0 p-3">
-                {% for message in messages %}
-                <div
-                    class="toast align-items-center text-white bg-dark border-0 shadow-lg"
-                    role="alert"
-                    aria-live="assertive"
-                    aria-atomic="true"
-                >
-                    <div class="d-flex">
-                        <div class="toast-body">{{ message }}</div>
-                        <button
-                            type="button"
-                            class="btn-close btn-close-white me-2 m-auto"
-                            data-bs-dismiss="toast"
-                            aria-label="Close"
-                        ></button>
+            <main class="ios-wrap">
+                {% if messages %}
+                <div class="toast-container position-fixed top-0 end-0 p-3">
+                    {% for message in messages %}
+                    <div
+                        class="toast align-items-center text-white bg-dark border-0 shadow-lg"
+                        role="alert"
+                        aria-live="assertive"
+                        aria-atomic="true"
+                    >
+                        <div class="d-flex">
+                            <div class="toast-body">{{ message }}</div>
+                            <button
+                                type="button"
+                                class="btn-close btn-close-white me-2 m-auto"
+                                data-bs-dismiss="toast"
+                                aria-label="Close"
+                            ></button>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+                {% endif %} {% block content %}{% endblock content %}
+            </main>
 
-            {% block content %}{% endblock content %}
+            {% block footer %}{% endblock footer %}
+        </div>
 
-        </main>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (typeof AOS !== "undefined") {
+                    AOS.init({
+                        duration: 800,
+                        easing: "ease-in-out",
+                        once: true,
+                    });
+                }
+            });
+        </script>
 
-        {% block footer %}{% endblock footer %}
-    </div>
-    {% if url_name != "login" and request.session.is_authenticated %}
-    </div>
-    {% endif %}
+        <!-- loading icon -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const loader = document.getElementById("common-loader");
+                const loaderTitle = document.getElementById("loader-title");
+                const loaderText = document.getElementById("loader-text");
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            if (typeof AOS !== "undefined") {
-                AOS.init({
-                    duration: 800,
-                    easing: "ease-in-out",
-                    once: true,
-                });
-            }
-        });
-    </script>
+                function showLoader(title, text) {
+                    if (!loader) return;
+                    loaderTitle.innerText = title || "처리 중";
+                    loaderText.innerText = text || "잠시만 기다려 주세요.";
+                    loader.style.display = "flex";
+                }
 
-    <!-- loading icon -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const loader = document.getElementById("common-loader");
-            const loaderTitle = document.getElementById("loader-title");
-            const loaderText = document.getElementById("loader-text");
+                function hideLoader() {
+                    if (!loader) return;
+                    loader.style.display = "none";
+                }
 
-            function showLoader(title, text) {
-                if (!loader) return;
-                loaderTitle.innerText = title || "처리 중";
-                loaderText.innerText = text || "잠시만 기다려 주세요.";
-                loader.style.display = "flex";
-            }
-
-            function hideLoader() {
-                if (!loader) return;
-                loader.style.display = "none";
-            }
-
-            hideLoader();
-
-            window.addEventListener("pageshow", function () {
                 hideLoader();
-            });
 
-            window.addEventListener("load", function () {
-                hideLoader();
-            });
+                window.addEventListener("pageshow", function () {
+                    hideLoader();
+                });
 
-            document.querySelectorAll("form[data-loading]").forEach(form => {
-                form.addEventListener("submit", function () {
-                    const title =
-                        this.getAttribute("data-loading-title") || "처리 중";
-                    const text =
-                        this.getAttribute("data-loading-text") || "잠시만 기다려 주세요.";
+                window.addEventListener("load", function () {
+                    hideLoader();
+                });
 
-                    showLoader(title, text);
+                document
+                    .querySelectorAll("form[data-loading]")
+                    .forEach((form) => {
+                        form.addEventListener("submit", function () {
+                            const title =
+                                this.getAttribute("data-loading-title") ||
+                                "처리 중";
+                            const text =
+                                this.getAttribute("data-loading-text") ||
+                                "잠시만 기다려 주세요.";
+
+                            showLoader(title, text);
+                        });
+                    });
+
+                document.querySelectorAll("a[data-loading]").forEach((link) => {
+                    link.addEventListener("click", function (e) {
+                        const href = this.getAttribute("href");
+
+                        if (!href) return;
+                        if (href.startsWith("#")) return;
+                        if (this.target === "_blank") return;
+                        if (this.hasAttribute("download")) return;
+                        if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+                        const title =
+                            this.getAttribute("data-loading-title") ||
+                            "페이지 이동 중";
+                        const text =
+                            this.getAttribute("data-loading-text") ||
+                            "데이터를 불러오고 있습니다.";
+
+                        showLoader(title, text);
+                    });
                 });
             });
-
-            document.querySelectorAll("a[data-loading]").forEach(link => {
-                link.addEventListener("click", function (e) {
-                    const href = this.getAttribute("href");
-
-                    if (!href) return;
-                    if (href.startsWith("#")) return;
-                    if (this.target === "_blank") return;
-                    if (this.hasAttribute("download")) return;
-                    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-
-                    const title =
-                        this.getAttribute("data-loading-title") || "페이지 이동 중";
-                    const text =
-                        this.getAttribute("data-loading-text") || "데이터를 불러오고 있습니다.";
-
-                    showLoader(title, text);
-                });
-            });
-        });
-    </script>
-
-</body>
+        </script>
+    </body>
 </html>
 {% endwith %}

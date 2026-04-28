@@ -54,6 +54,7 @@ class WorkSession(models.Model):
         blank=True,
         related_name="manning_sessions",
     )
+    memo = models.TextField(blank=True, default="")
 
     def __str__(self):
         label = self.work_package_name or self.name
@@ -100,6 +101,7 @@ class Manning(models.Model):
     worker_name = models.CharField(max_length=50)
     hours = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    memo = models.TextField(blank=True, default="")
 
     class Meta:
         unique_together = ("area", "worker_name")

@@ -41,11 +41,6 @@ def active_session_status(request):
         )
         active_count = active_qs.count()
         current_session = active_qs.order_by("-created_at").first()
-    sidebar_value = (
-        AppSetting.objects.filter(key="sidebar_position", site=workplace)
-        .values_list("int_value", flat=True)
-        .first()
-    )
     navbar_value = (
         AppSetting.objects.filter(key="navbar_toggle_position", site=workplace)
         .values_list("int_value", flat=True)
@@ -54,6 +49,5 @@ def active_session_status(request):
     return {
         "active_count": active_count,
         "session": current_session,
-        "sidebar_position": "right" if sidebar_value == 1 else "left",
         "navbar_toggle_position": "right" if navbar_value == 1 else "left",
     }
