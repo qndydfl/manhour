@@ -1,8 +1,10 @@
 import math, json, re
 from datetime import timedelta
+import requests
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.cache import cache
 from django.db import transaction
 from django.db import models as django_models
 from django.db.models import Q, Count, Max, Case, When, Sum, FloatField, Min
@@ -73,6 +75,10 @@ TASKMASTER_RETENTION_HOURS = 12
 DEFAULT_HISTORY_VISIBILITY_HOURS = 24
 DEFAULT_AUTO_ARCHIVE_HOURS = 12
 DEFAULT_WORKER_LIMIT_MH = 9.0
+
+FINANCIAL_CACHE_KEY = "financial_indicators:v1"
+FINANCIAL_HISTORY_KEY = "financial_indicators:history:v1"
+CHECKWX_CACHE_KEY = "checkwx:metar:v1"
 
 
 def set_workplace_in_session(request, workplace: str | None) -> str:
@@ -3282,6 +3288,276 @@ class DashboardCountsApiView(View):
                 "history_count": history_count,
             }
         )
+
+
+def _parse_float(value):
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    try:
+        return float(str(value).replace(",", ""))
+    except (TypeError, ValueError):
+        return None
+
+
+def _fetch_exchange_rate_usd_krw():
+    api_key = getattr(settings, "EXCHANGE_RATE_API_KEY", "")
+    if not api_key:
+        return None
+
+    url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/USD"
+
+    try:
+        response = requests.get(url, timeout=6)
+        if not response.ok:
+            return None
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return None
+
+    rates = payload.get("conversion_rates", {}) if payload else {}
+    rate = _parse_float(rates.get("KRW"))
+    return {
+        "value": rate,
+        "as_of": payload.get("time_last_update_utc"),
+    }
+
+
+def _fetch_eia_wti():
+    api_key = getattr(settings, "EIA_API_KEY", "")
+    if not api_key:
+        return None
+
+    url = "https://api.eia.gov/v2/petroleum/pri/spt/data/"
+    end = timezone.localdate()
+    start = end - timedelta(days=10)
+
+    try:
+        response = requests.get(
+            url,
+            params={
+                "api_key": api_key,
+                "frequency": "daily",
+                "data[0]": "value",
+                "facets[product][]": "EPCWTI",
+                "start": start.strftime("%Y-%m-%d"),
+                "end": end.strftime("%Y-%m-%d"),
+                "sort[0][column]": "period",
+                "sort[0][direction]": "desc",
+                "offset": 0,
+                "length": 1,
+            },
+            timeout=6,
+        )
+        if not response.ok:
+            return None
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return None
+
+    data = payload.get("response", {}).get("data", []) if payload else []
+    if not data:
+        return None
+
+    item = data[0]
+    value = _parse_float(item.get("value"))
+    return {
+        "value": value,
+        "as_of": item.get("period"),
+    }
+
+
+def _fetch_eia_jet_fuel():
+    api_key = getattr(settings, "EIA_API_KEY", "")
+    if not api_key:
+        return None
+
+    url = "https://api.eia.gov/v2/petroleum/pri/spt/data/"
+    end = timezone.localdate()
+    start = end - timedelta(days=10)
+
+    try:
+        response = requests.get(
+            url,
+            params={
+                "api_key": api_key,
+                "frequency": "daily",
+                "data[0]": "value",
+                "facets[product][]": "EPJK",
+                "start": start.strftime("%Y-%m-%d"),
+                "end": end.strftime("%Y-%m-%d"),
+                "sort[0][column]": "period",
+                "sort[0][direction]": "desc",
+                "offset": 0,
+                "length": 1,
+            },
+            timeout=6,
+        )
+        if not response.ok:
+            return None
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return None
+
+    data = payload.get("response", {}).get("data", []) if payload else []
+    if not data:
+        return None
+
+    item = data[0]
+    value = _parse_float(item.get("value"))
+    return {
+        "value": value,
+        "as_of": item.get("period"),
+    }
+
+
+def _update_exchange_history(value):
+    if value is None:
+        return cache.get(FINANCIAL_HISTORY_KEY, [])
+
+    history = cache.get(FINANCIAL_HISTORY_KEY, [])
+    label = timezone.localtime().strftime("%H:%M")
+
+    if history and history[-1].get("value") == value:
+        return history
+
+    history.append({"label": label, "value": value})
+    max_points = getattr(settings, "FINANCIAL_HISTORY_MAX_POINTS", 48)
+    history = history[-max_points:]
+    cache.set(FINANCIAL_HISTORY_KEY, history, 24 * 60 * 60)
+    return history
+
+
+def _fetch_checkwx_metar():
+    api_key = getattr(settings, "CHECKWX_API_KEY", "")
+    if not api_key:
+        return []
+
+    stations = getattr(settings, "CHECKWX_STATIONS", "RKSI,RKSS")
+    stations = ",".join(
+        [code.strip().upper() for code in stations.split(",") if code.strip()]
+    )
+    if not stations:
+        return []
+
+    url = f"https://api.checkwx.com/metar/{stations}/decoded"
+
+    try:
+        response = requests.get(
+            url,
+            headers={"X-API-Key": api_key},
+            timeout=6,
+        )
+        if not response.ok:
+            return []
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    data = payload.get("data", []) if payload else []
+    results = []
+    for item in data:
+        wind_dir = item.get("wind", {}).get("direction")
+        wind_speed = item.get("wind", {}).get("speed_kts")
+        pressure_hpa = item.get("barometer", {}).get("hpa") or item.get(
+            "altimeter", {}
+        ).get("hpa")
+
+        results.append(
+            {
+                "icao": item.get("icao"),
+                "station": item.get("station", {}).get("name"),
+                "observed": item.get("observed"),
+                "raw_text": item.get("raw_text"),
+                "flight_category": item.get("flight_category"),
+                "temp_c": item.get("temperature", {}).get("celsius"),
+                "wind": wind_dir and wind_speed and f"{wind_dir}° {wind_speed}kt",
+                "wind_dir": wind_dir,
+                "wind_speed": wind_speed,
+                "pressure_hpa": pressure_hpa,
+                "visibility": item.get("visibility", {}).get("meters"),
+            }
+        )
+    return results
+
+
+class FinancialIndicatorsApiView(View):
+    def get(self, request, *args, **kwargs):
+        cached = cache.get(FINANCIAL_CACHE_KEY)
+        if cached:
+            return JsonResponse(cached)
+
+        exchange = _fetch_exchange_rate_usd_krw()
+        wti = _fetch_eia_wti()
+        jet_fuel = _fetch_eia_jet_fuel()
+        history = cache.get(FINANCIAL_HISTORY_KEY, [])
+
+        if exchange and exchange.get("value") is not None:
+            history = _update_exchange_history(exchange["value"])
+
+        if exchange and exchange.get("value") is not None and not history:
+            now = timezone.localtime()
+            seed_points = []
+            for offset in range(5, -1, -1):
+                point_time = now - timedelta(minutes=offset * 5)
+                seed_points.append(
+                    {
+                        "label": point_time.strftime("%H:%M"),
+                        "value": exchange["value"],
+                    }
+                )
+            history = seed_points
+            cache.set(FINANCIAL_HISTORY_KEY, history, 24 * 60 * 60)
+
+        change = None
+        change_percent = None
+        if len(history) >= 2:
+            prev = history[-2].get("value")
+            current = history[-1].get("value")
+            if prev:
+                change = current - prev
+                change_percent = (change / prev) * 100
+
+        response_data = {
+            "exchange_rate": {
+                "value": exchange.get("value") if exchange else None,
+                "unit": "USD/KRW",
+                "change": change,
+                "change_percent": change_percent,
+                "as_of": exchange.get("as_of") if exchange else None,
+            },
+            "wti": {
+                "value": wti.get("value") if wti else None,
+                "unit": "USD/bbl",
+                "as_of": wti.get("as_of") if wti else None,
+            },
+            "jet_fuel": {
+                "value": jet_fuel.get("value") if jet_fuel else None,
+                "unit": "USD/bbl",
+                "as_of": jet_fuel.get("as_of") if jet_fuel else None,
+            },
+            "series": {
+                "labels": [item.get("label") for item in history],
+                "values": [item.get("value") for item in history],
+            },
+        }
+
+        cache_seconds = getattr(settings, "FINANCIAL_CACHE_SECONDS", 900)
+        cache.set(FINANCIAL_CACHE_KEY, response_data, cache_seconds)
+        return JsonResponse(response_data)
+
+
+class CheckWxMetarApiView(View):
+    def get(self, request, *args, **kwargs):
+        cached = cache.get(CHECKWX_CACHE_KEY)
+        if cached is not None:
+            return JsonResponse({"stations": cached})
+
+        stations = _fetch_checkwx_metar()
+        cache_seconds = getattr(settings, "CHECKWX_CACHE_SECONDS", 600)
+        cache.set(CHECKWX_CACHE_KEY, stations, cache_seconds)
+        return JsonResponse({"stations": stations})
 
 
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):

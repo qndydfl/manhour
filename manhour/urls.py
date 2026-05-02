@@ -176,4 +176,14 @@ urlpatterns = [
         views.DashboardCountsApiView.as_view(),
         name="dashboard_counts_api",
     ),
+    path(
+        "api/financial-indicators/",
+        views.FinancialIndicatorsApiView.as_view(),
+        name="financial_indicators_api",
+    ),
+    path(
+        "api/checkwx-metar/",
+        views.CheckWxMetarApiView.as_view(),
+        name="checkwx_metar_api",
+    ),
 ]

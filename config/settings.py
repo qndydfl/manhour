@@ -5,7 +5,6 @@ from re import DEBUG
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,6 +19,19 @@ if not SECRET_KEY:
 SIMPLE_PASSWORD_ADMIN = os.getenv("SIMPLE_PASSWORD_ADMIN")
 SIMPLE_PASSWORD_USER = os.getenv("SIMPLE_PASSWORD_USER")
 
+# Financial indicators API keys
+EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY", "")
+EIA_API_KEY = os.getenv("EIA_API_KEY", "")
+
+# CheckWX METAR API
+CHECKWX_API_KEY = os.getenv("CHECKWX_API_KEY", "")
+CHECKWX_STATIONS = os.getenv("CHECKWX_STATIONS", "RKSI,RKSS")
+CHECKWX_CACHE_SECONDS = int(os.getenv("CHECKWX_CACHE_SECONDS", "600"))
+
+# Cache settings for external indicators
+FINANCIAL_CACHE_SECONDS = int(os.getenv("FINANCIAL_CACHE_SECONDS", "900"))
+FINANCIAL_HISTORY_MAX_POINTS = int(os.getenv("FINANCIAL_HISTORY_MAX_POINTS", "48"))
+
 allowed_hosts = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
     "qndydfl.pythonanywhere.com,localhost,127.0.0.1",
@@ -31,9 +43,9 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # -----개발 환경 시작-----
 
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 # -----개발 환경 끝-----
 
@@ -140,6 +152,14 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Basic in-memory cache for dashboard API data
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "manning-project-cache",
+    }
+}
 
 
 # 세션 설정
