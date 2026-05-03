@@ -186,4 +186,9 @@ urlpatterns = [
         views.CheckWxMetarApiView.as_view(),
         name="checkwx_metar_api",
     ),
+    path(
+        "api/weather-forecast/",
+        views.WeatherForecastApiView.as_view(),
+        name="weather_forecast_api"
+    ),
 ]

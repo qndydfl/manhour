@@ -1,5 +1,5 @@
 import math, json, re
-from datetime import timedelta
+from datetime import timedelta, datetime
 import requests
 
 from django.conf import settings
@@ -79,6 +79,23 @@ DEFAULT_WORKER_LIMIT_MH = 9.0
 FINANCIAL_CACHE_KEY = "financial_indicators:v1"
 FINANCIAL_HISTORY_KEY = "financial_indicators:history:v1"
 CHECKWX_CACHE_KEY = "checkwx:metar:v1"
+WEATHER_FORECAST_CACHE_KEY = "weather_forecast:v1"
+DEFAULT_FORECAST_LAT = 37.4602
+DEFAULT_FORECAST_LON = 126.4407
+
+
+def _fetch_weather_forecast(lat: float, lon: float):
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": "wind_speed_10m,precipitation_probability",
+        "timezone": "Asia/Seoul",
+    }
+
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
+    return response.json()
 
 
 def set_workplace_in_session(request, workplace: str | None) -> str:
@@ -3558,6 +3575,56 @@ class CheckWxMetarApiView(View):
         cache_seconds = getattr(settings, "CHECKWX_CACHE_SECONDS", 600)
         cache.set(CHECKWX_CACHE_KEY, stations, cache_seconds)
         return JsonResponse({"stations": stations})
+
+
+class WeatherForecastApiView(View):
+    def get(self, request, *args, **kwargs):
+        cache_key = WEATHER_FORECAST_CACHE_KEY
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return JsonResponse(cached)
+
+        lat = float(getattr(settings, "WEATHER_FORECAST_LAT", DEFAULT_FORECAST_LAT))
+        lon = float(getattr(settings, "WEATHER_FORECAST_LON", DEFAULT_FORECAST_LON))
+
+        try:
+            payload = _fetch_weather_forecast(lat, lon)
+            hourly = payload.get("hourly") or {}
+            times = hourly.get("time") or []
+            wind = hourly.get("wind_speed_10m") or hourly.get("windspeed_10m") or []
+            rain = hourly.get("precipitation_probability") or []
+
+            now_key = timezone.localtime().strftime("%Y-%m-%dT%H:00")
+            try:
+                start_index = times.index(now_key)
+            except ValueError:
+                start_index = 0
+
+            window = slice(start_index, start_index + 8)
+            labels = []
+            for t in times[window]:
+                try:
+                    dt = datetime.strptime(t, "%Y-%m-%dT%H:%M")
+                    labels.append(dt.strftime("%H시"))
+                except ValueError:
+                    labels.append(t)
+
+            response_data = {
+                "hours": labels,
+                "wind_speeds": [round(float(x), 1) for x in wind[window]],
+                "rain_probs": [int(round(float(x))) for x in rain[window]],
+            }
+        except Exception as exc:
+            response_data = {
+                "hours": [],
+                "wind_speeds": [],
+                "rain_probs": [],
+                "error": str(exc),
+            }
+
+        cache_seconds = int(getattr(settings, "WEATHER_FORECAST_CACHE_SECONDS", 1800))
+        cache.set(cache_key, response_data, cache_seconds)
+        return JsonResponse(response_data)
 
 
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):

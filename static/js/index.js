@@ -178,94 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 자동 갱신 - 마스터 데이터 배지
-    const masterDataBadgeEl = document.getElementById("masterDataBadge");
-    const masterDataCountUrl =
-        window.INDEX_PAGE?.masterDataCountUrl || "/api/master-data-count/";
-
-    async function refreshMasterDataBadge() {
-        if (!masterDataBadgeEl) return;
-
-        try {
-            const response = await fetch(masterDataCountUrl, {
-                method: "GET",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                credentials: "same-origin",
-                cache: "no-store",
-            });
-
-            if (!response.ok) return;
-
-            const data = await response.json();
-            const count = Number(data.count || 0);
-
-            if (count > 0) {
-                masterDataBadgeEl.textContent = String(count);
-                masterDataBadgeEl.style.display = "";
-                masterDataBadgeEl.classList.remove("d-none");
-            } else {
-                masterDataBadgeEl.textContent = "";
-                masterDataBadgeEl.classList.add("d-none");
-            }
-        } catch (error) {
-            console.error("Master Data badge refresh failed:", error);
-        }
-    }
-
-    let badgeTimer = null;
-    if (masterDataBadgeEl) {
-        refreshMasterDataBadge();
-        badgeTimer = window.setInterval(refreshMasterDataBadge, 10000);
-    }
-
-    // 자동 갱신 - 대시보드 작업 세션 카운트 / 히스토리 카운트
-    const activeCountEl = document.querySelector(".active-count-num");
-    const historyCountEl = document.querySelector(".history-count-num");
-
-    const dashboardCountsUrl =
-        window.INDEX_PAGE?.dashboardCountsUrl || "/api/dashboard-counts/";
-
-    async function refreshDashboardCounts() {
-        try {
-            const response = await fetch(dashboardCountsUrl, {
-                method: "GET",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                credentials: "same-origin",
-                cache: "no-store",
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (activeCountEl) {
-                activeCountEl.textContent = String(data.active_count ?? 0);
-            }
-
-            if (historyCountEl) {
-                historyCountEl.textContent = String(data.history_count ?? 0);
-            }
-        } catch (error) {
-            console.error("Dashboard counts refresh failed:", error);
-        }
-    }
-
-    let dashboardTimer = null;
-    if (activeCountEl || historyCountEl) {
-        refreshDashboardCounts();
-        dashboardTimer = window.setInterval(refreshDashboardCounts, 10000);
-    }
-
     window.addEventListener("beforeunload", () => {
         if (clockTimer) window.clearInterval(clockTimer);
-        if (badgeTimer) window.clearInterval(badgeTimer);
-        if (dashboardTimer) window.clearInterval(dashboardTimer);
     });
 });
 
@@ -332,10 +246,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 초기 로드 시 모바일에서는 사이드바를 열어둔다.
-    if (sidebar && sidebarBackdrop && window.innerWidth <= 991) {
-        sidebar.classList.add("mobile-open");
-        sidebarBackdrop.classList.add("show");
-    }
+    // if (sidebar && sidebarBackdrop && window.innerWidth <= 991) {
+    //     sidebar.classList.add("mobile-open");
+    //     sidebarBackdrop.classList.add("show");
+    // }
 
     // 2. 데스크톱 토글 버튼 클릭
     sidebarToggle?.addEventListener("click", function () {
@@ -359,6 +273,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // 추가
 document.addEventListener("DOMContentLoaded", function () {
     const workStatusCanvas = document.getElementById("workStatusChart");
+    if (!workStatusCanvas || !window.Chart) return;
 
     let workStatusChart = null;
 
@@ -388,10 +303,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 options: {
                     responsive: true,
-                    cutout: "68%",
+                    maintainAspectRatio: false,
+                     cutout: "80%",   // ← 도넛 더 키워서 여백 줄임
+                    layout: {
+                        padding: {
+                            top: 5,
+                            bottom: 5,
+                        },
+                    },
                     plugins: {
                         legend: {
                             position: "bottom",
+                            align: "center",
+                            labels: {
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                padding: 12,
+                                usePointStyle: true,
+                                font: {
+                                    size: 11,
+                                },
+                            },
                         },
                     },
                 },
@@ -442,10 +374,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const historyEl = document.querySelector(".history-count-num");
         const masterBadgeEls = document.querySelectorAll("#masterDataBadge");
 
-        document.querySelectorAll(".today-work-num").forEach((el) => {
-            el.textContent = data.activeCount;
-        });
-
         if (activeEl) activeEl.textContent = data.activeCount;
         if (historyEl) historyEl.textContent = data.historyCount;
 
@@ -464,203 +392,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadDashboardCounts();
 
-    setInterval(loadDashboardCounts, 30000);
+    setInterval(loadDashboardCounts, 10000);
 });
-
-// 환율/유가 차트
-document.addEventListener("DOMContentLoaded", function () {
-    const canvas = document.getElementById("financialLiveChart");
-
-    if (!canvas) {
-        console.warn("financialLiveChart canvas가 없습니다.");
-        return;
-    }
-
-    if (!window.Chart) {
-        console.error("Chart.js가 로드되지 않았습니다.");
-        return;
-    }
-
-    const rateEl = document.getElementById("current-exchange-rate");
-    const changeEl = document.getElementById("exchange-rate-change");
-    const changeValueEl = document.getElementById("exchange-rate-change-value");
-    const changePercentEl = document.getElementById("exchange-rate-change-percent");
-    const wtiEl = document.getElementById("wti-price");
-    const jetFuelEl = document.getElementById("jet-fuel-price");
-
-    const ctx = canvas.getContext("2d");
-
-    const chart = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [
-                {
-                    label: "환율 추이",
-                    data: [],
-                    borderColor: "#dc3545",
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false,
-                },
-            },
-            scales: {
-                x: {
-                    display: true,
-                    grid: {
-                        display: false,
-                    },
-                },
-                y: {
-                    display: true,
-                    position: "right",
-                    grid: {
-                        color: "#f1f1f1",
-                    },
-                },
-            },
-        },
-    });
-
-    function formatNumber(value, digits = 2) {
-        const numberValue = Number(value);
-
-        if (value === null || value === undefined || Number.isNaN(numberValue)) {
-            return "-";
-        }
-
-        return numberValue.toLocaleString("en-US", {
-            minimumFractionDigits: digits,
-            maximumFractionDigits: digits,
-        });
-    }
-
-    function setChangeDisplay(change, percent) {
-        if (!changeEl || !changeValueEl) return;
-
-        const iconEl = changeEl.querySelector("i");
-        const changeNumber = Number(change);
-        const percentNumber = Number(percent);
-
-        if (change === null || change === undefined || Number.isNaN(changeNumber)) {
-            changeEl.classList.remove("text-danger", "text-success");
-            changeEl.classList.add("text-muted");
-            changeValueEl.textContent = "-";
-
-            if (changePercentEl) {
-                changePercentEl.textContent = "-";
-            }
-
-            if (iconEl) {
-                iconEl.className = "bi bi-dash";
-            }
-
-            return;
-        }
-
-        const isUp = changeNumber >= 0;
-
-        changeEl.classList.remove("text-muted");
-        changeEl.classList.toggle("text-danger", isUp);
-        changeEl.classList.toggle("text-success", !isUp);
-
-        if (iconEl) {
-            iconEl.className = isUp
-                ? "bi bi-caret-up-fill"
-                : "bi bi-caret-down-fill";
-        }
-
-        changeValueEl.textContent = formatNumber(Math.abs(changeNumber), 2);
-
-        if (changePercentEl) {
-            if (percent === null || percent === undefined || Number.isNaN(percentNumber)) {
-                changePercentEl.textContent = "-";
-            } else {
-                changePercentEl.textContent = `${formatNumber(Math.abs(percentNumber), 2)}%`;
-            }
-        }
-    }
-
-    function applyFinancialData(payload) {
-        const exchange = payload?.exchange_rate || {};
-        const wti = payload?.wti || {};
-        const jetFuel = payload?.jet_fuel || {};
-        const series = payload?.series || {};
-
-        if (rateEl) {
-            rateEl.textContent = formatNumber(exchange.value, 2);
-        }
-
-        setChangeDisplay(exchange.change, exchange.change_percent);
-
-        if (wtiEl) {
-            wtiEl.textContent =
-                wti.value === null || wti.value === undefined
-                    ? "-"
-                    : `$${formatNumber(wti.value, 2)}`;
-        }
-
-        if (jetFuelEl) {
-            jetFuelEl.textContent =
-                jetFuel.value === null || jetFuel.value === undefined
-                    ? "-"
-                    : `$${formatNumber(jetFuel.value, 2)}`;
-        }
-
-        const labels = Array.isArray(series.labels) ? series.labels : [];
-        const values = Array.isArray(series.values) ? series.values.map(Number) : [];
-
-        chart.data.labels = labels;
-        chart.data.datasets[0].data = values;
-        chart.update();
-    }
-
-    async function loadFinancialIndicators() {
-        const url = window.INDEX_PAGE?.financialIndicatorsUrl;
-
-        if (!url) {
-            console.warn("financialIndicatorsUrl이 없습니다.");
-            return;
-        }
-
-        try {
-            const response = await fetch(url, {
-                method: "GET",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                credentials: "same-origin",
-                cache: "no-store",
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const payload = await response.json();
-            console.log("Financial payload:", payload);
-
-            applyFinancialData(payload);
-        } catch (error) {
-            console.error("Financial indicators fetch failed:", error);
-        }
-    }
-
-    loadFinancialIndicators();
-    window.setInterval(loadFinancialIndicators, 15 * 60 * 1000);
-});
-
 
 // METAR (CheckWX)
 document.addEventListener("DOMContentLoaded", function () {
@@ -739,12 +472,48 @@ document.addEventListener("DOMContentLoaded", function () {
             station.temp_c === null || station.temp_c === undefined
                 ? "-"
                 : `${station.temp_c}°C`;
-        const windDir = Number(station.wind_dir);
-        const windSpeed = Number(station.wind_speed);
-        const wind =
-            Number.isFinite(windDir) && Number.isFinite(windSpeed)
-                ? `${windDir}° / ${windSpeed}kt`
-                : "-";
+        const windDir = Number(
+            station.wind_dir ??
+                station.wind_degrees ??
+                station.wind_direction ??
+                station.wind?.degrees,
+        );
+
+        const windSpeed = Number(
+            station.wind_speed ??
+                station.wind_speed_kt ??
+                station.wind_speed_kts ??
+                station.wind?.speed_kts ??
+                station.wind?.speed,
+        );
+
+        const windGust = Number(
+            station.wind_gust ?? station.wind_gust_kt ?? station.wind?.gust_kts,
+        );
+
+        let wind = "-";
+
+        if (Number.isFinite(windDir) && Number.isFinite(windSpeed)) {
+            wind = `${windDir}° / ${windSpeed}kt`;
+
+            if (Number.isFinite(windGust)) {
+                wind += ` G${windGust}kt`;
+            }
+        } else if (station.raw_text) {
+            const match = station.raw_text.match(
+                /\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?KT\b/,
+            );
+
+            if (match) {
+                const dir = match[1] === "VRB" ? "VRB" : `${match[1]}°`;
+                const speed = `${Number(match[2])}kt`;
+                const gust = match[3] ? ` ${match[3]}kt` : "";
+
+                wind = `${dir} / ${speed}${gust}`;
+            }
+        } else {
+            wind = "-";
+        }
         const vis = formatVisibility(station.visibility);
         const pressure =
             station.pressure_hpa === null || station.pressure_hpa === undefined
@@ -799,4 +568,237 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadMetar();
     window.setInterval(loadMetar, 10 * 60 * 1000);
+});
+
+// --- 정비 예보 (Maintenance Forecast) 섹션 ---
+document.addEventListener("DOMContentLoaded", function () {
+    const forecastCanvas = document.getElementById("forecastChart");
+    const bestWorkTimeEl = document.getElementById("bestWorkTime");
+    const limitWorkTimeEl = document.getElementById("limitWorkTime");
+    const forecastCityEl = document.getElementById("forecastCity");
+
+    if (!forecastCanvas) {
+        console.warn("forecastChart canvas가 없습니다.");
+        return;
+    }
+
+    if (!window.Chart) {
+        console.error("Chart.js가 로드되지 않았습니다.");
+        if (bestWorkTimeEl) bestWorkTimeEl.textContent = "차트 로드 실패";
+        if (limitWorkTimeEl) limitWorkTimeEl.textContent = "Chart.js 확인";
+        return;
+    }
+
+    let forecastChart = null;
+
+    function setForecastStatus(bestText, limitText) {
+        if (bestWorkTimeEl) bestWorkTimeEl.textContent = bestText;
+        if (limitWorkTimeEl) limitWorkTimeEl.textContent = limitText;
+    }
+
+    function toNumberArray(arr) {
+        if (!Array.isArray(arr)) return [];
+
+        return arr.map((value) => {
+            const num = Number(value);
+            return Number.isFinite(num) ? num : 0;
+        });
+    }
+
+    function initForecastChart() {
+        const ctx = forecastCanvas.getContext("2d");
+
+        forecastChart = new Chart(ctx, {
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        type: "line",
+                        label: "풍속 (kts)",
+                        data: [],
+                        borderColor: "#0d6efd",
+                        backgroundColor: "transparent",
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        yAxisID: "y-wind",
+                    },
+                    {
+                        type: "bar",
+                        label: "강수확률 (%)",
+                        data: [],
+                        backgroundColor: "rgba(13, 202, 240, 0.25)",
+                        borderRadius: 5,
+                        yAxisID: "y-rain",
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: "index",
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.dataset.label || "";
+                                const value = context.parsed.y;
+
+                                if (context.dataset.yAxisID === "y-wind") {
+                                    return `${label}: ${value}kt`;
+                                }
+
+                                if (context.dataset.yAxisID === "y-rain") {
+                                    return `${label}: ${value}%`;
+                                }
+
+                                return `${label}: ${value}`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    "y-wind": {
+                        position: "left",
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "kts",
+                            font: { size: 10 },
+                        },
+                    },
+                    "y-rain": {
+                        position: "right",
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            display: false,
+                        },
+                        title: {
+                            display: true,
+                            text: "%",
+                            font: { size: 10 },
+                        },
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 8,
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    function updateForecastUI(payload) {
+        if (!payload || typeof payload !== "object") {
+            setForecastStatus("데이터 없음", "데이터 없음");
+            return;
+        }
+
+        const labels = Array.isArray(payload.hours) ? payload.hours : [];
+        const windData = toNumberArray(payload.wind_speeds);
+        const rainData = toNumberArray(payload.rain_probs);
+
+        if (forecastCityEl) {
+            forecastCityEl.textContent = payload.city || "Incheon";
+        }
+
+        if (!labels.length || !windData.length || !rainData.length) {
+            setForecastStatus("데이터 없음", "데이터 없음");
+
+            forecastChart.data.labels = [];
+            forecastChart.data.datasets[0].data = [];
+            forecastChart.data.datasets[1].data = [];
+            forecastChart.update();
+            return;
+        }
+
+        const dataLength = Math.min(
+            labels.length,
+            windData.length,
+            rainData.length,
+        );
+
+        const safeLabels = labels.slice(0, dataLength);
+        const safeWindData = windData.slice(0, dataLength);
+        const safeRainData = rainData.slice(0, dataLength);
+
+        forecastChart.data.labels = safeLabels;
+        forecastChart.data.datasets[0].data = safeWindData;
+        forecastChart.data.datasets[1].data = safeRainData;
+        forecastChart.update();
+
+        let bestTime = "No Slot";
+        let limitTime = "Stable";
+
+        // 최적 작업 시간:
+        // 풍속 20kt 미만 + 강수확률 20% 미만
+        for (let i = 0; i < dataLength; i++) {
+            if (safeWindData[i] < 20 && safeRainData[i] < 20) {
+                bestTime = safeLabels[i];
+                break;
+            }
+        }
+
+        // 작업 제한 주의:
+        // 풍속 25kt 이상 또는 강수확률 60% 초과
+        for (let i = 0; i < dataLength; i++) {
+            if (safeWindData[i] >= 25 || safeRainData[i] > 60) {
+                limitTime = safeLabels[i];
+                break;
+            }
+        }
+
+        setForecastStatus(bestTime, limitTime);
+    }
+
+    async function loadForecastData() {
+        const url = window.INDEX_PAGE?.weatherForecastUrl;
+
+        if (!url) {
+            console.warn("weatherForecastUrl이 설정되지 않았습니다.");
+            setForecastStatus("URL 없음", "API 확인");
+            return;
+        }
+
+        try {
+            setForecastStatus("데이터 분석 중", "확인 중");
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                credentials: "same-origin",
+                cache: "no-store",
+            });
+
+            if (!response.ok) {
+                throw new Error(`Forecast API Error: HTTP ${response.status}`);
+            }
+
+            const payload = await response.json();
+            updateForecastUI(payload);
+        } catch (error) {
+            console.error("Forecast fetch failed:", error);
+            setForecastStatus("로드 실패", "API 확인");
+        }
+    }
+
+    initForecastChart();
+    loadForecastData();
+
+    window.setInterval(loadForecastData, 30 * 60 * 1000);
 });
