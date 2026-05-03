@@ -141,7 +141,7 @@
 .ios-wrap {
     max-width: none !important;
     margin: 0;
-    padding: calc(var(--navbar-height) - 16px) 0 0;
+    padding: calc(var(--navbar-height) + 8px) 0 0;
 }
 
 .dashboard-layout {
@@ -171,7 +171,7 @@
         width 0.25s ease,
         padding 0.25s ease;
     position: sticky;
-    top: calc(var(--navbar-height) + 8px);
+    top: calc(var(--navbar-height));
     overflow: auto;
     z-index: 10;
     height: calc(100vh - var(--navbar-height) - 8px);
