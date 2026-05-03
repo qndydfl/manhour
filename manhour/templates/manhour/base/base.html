@@ -63,8 +63,8 @@
         class="{% if url_name == 'login' %}login-page{% elif url_name == 'index' %}index-page{% endif %} {% block body_class %}{% endblock %}"
         data-navbar-toggle-position="{{ navbar_toggle_position|default:'left' }}"
     >
-        {% block background_image %}{% endblock background_image %} {% include
-        "manhour/loading/loading.html" %}
+        {% block background_image %}{% endblock background_image %} 
+        {% include "manhour/loading/loading.html" %}
 
         <div class="page-content{% block page_content_class %}{% endblock %}">
             {% if url_name != "login" %} {% block navbar %}

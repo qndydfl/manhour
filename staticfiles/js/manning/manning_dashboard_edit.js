@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const addAreaRowBtn = document.getElementById("addAreaRowBtn");
     const addAreaConfirmBtn = document.getElementById("addAreaConfirmBtn");
     const newAreaNameInput = document.getElementById("newAreaNameInput");
-    const newAreaPositionInput = document.getElementById("newAreaPositionInput");
+    const newAreaPositionInput = document.getElementById(
+        "newAreaPositionInput",
+    );
     const newAreaWorkersInput = document.getElementById("newAreaWorkersInput");
 
     const areaGroups = Array.from(document.querySelectorAll(".area-group"));
@@ -14,20 +16,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const workerListPanel = document.getElementById("workerListPanel");
     const clearAssignedBtn = document.getElementById("btn-clear-assigned");
     const selectAllWorkersBtn = document.getElementById("selectAllWorkersBtn");
-    const deleteSelectedWorkersBtn = document.getElementById("deleteSelectedWorkersBtn");
-    const toggleWorkerEditorBtn = document.getElementById("toggleWorkerEditorBtn");
+    const deleteSelectedWorkersBtn = document.getElementById(
+        "deleteSelectedWorkersBtn",
+    );
+    const toggleWorkerEditorBtn = document.getElementById(
+        "toggleWorkerEditorBtn",
+    );
     const workerEditor = document.getElementById("workerEditor");
     const workerEditorInput = document.getElementById("workerEditorInput");
     const saveWorkerEditorBtn = document.getElementById("saveWorkerEditorBtn");
-    const loadDefaultWorkerEditorBtn = document.getElementById("loadDefaultWorkerEditorBtn");
+    const loadDefaultWorkerEditorBtn = document.getElementById(
+        "loadDefaultWorkerEditorBtn",
+    );
     const addWorkerNameInput = document.getElementById("addWorkerNameInput");
     const addWorkerNameBtn = document.getElementById("addWorkerNameBtn");
-    const cancelWorkerEditorBtn = document.getElementById("cancelWorkerEditorBtn");
+    const cancelWorkerEditorBtn = document.getElementById(
+        "cancelWorkerEditorBtn",
+    );
     const workerTrashZone = document.getElementById("workerTrashZone");
     const workerDataEl = document.getElementById("manhourWorkers");
     const defaultWorkerDataEl = document.getElementById("defaultWorkerNames");
     const workerCountEl = document.getElementById("workerCount");
     const workerUsageMessage = document.getElementById("workerUsageMessage");
+    const memoEditor = document.querySelector(".memo-editor");
+    const memoInput = document.getElementById("sessionMemoInput");
 
     const messageModal = document.getElementById("workerMessageModal");
     const messageTitle = document.getElementById("workerMessageTitle");
@@ -35,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const messageList = document.getElementById("workerMessageList");
     const messageClose = document.getElementById("workerMessageClose");
     const messageOk = document.getElementById("workerMessageOk");
+    const bottomActionBar = document.querySelector(".bottom-action-bar");
 
     const MOBILE_MEDIA_QUERY = "(max-width: 991.98px)";
     const areaSortables = [];
@@ -47,6 +60,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const isMobileDevice = () =>
         (window.matchMedia && window.matchMedia(MOBILE_MEDIA_QUERY).matches) ||
         isTouchDevice();
+
+    if (formEl && memoEditor && memoInput) {
+        formEl.addEventListener("submit", () => {
+            const plainText = memoEditor.innerText.trim();
+            memoInput.value = plainText ? memoEditor.innerHTML.trim() : "";
+        });
+    }
+
+    if (memoEditor) {
+        const normalizeInputText = (node) => {
+            const value = node.textContent.replace(/\u00a0/g, "").trim();
+            const hasValue = value.length > 0;
+
+            node.classList.toggle("has-value", hasValue);
+            if (!hasValue) {
+                node.innerHTML = "&nbsp;";
+            }
+        };
+
+        const syncMemoInputColors = () => {
+            memoEditor.querySelectorAll(".input-text").forEach((node) => {
+                normalizeInputText(node);
+            });
+        };
+
+        memoEditor.addEventListener("input", (event) => {
+            const target = event.target;
+            if (target && target.classList?.contains("input-text")) {
+                normalizeInputText(target);
+                return;
+            }
+            syncMemoInputColors();
+        });
+
+        syncMemoInputColors();
+    }
 
     if (!workerDataEl || !workerCountEl) {
         return;
@@ -67,11 +116,37 @@ document.addEventListener("DOMContentLoaded", () => {
     let allowedWorkerSet = new Set();
     let lastDuplicateNames = [];
     let modalConfirmAction = null;
-    const modalDefaultOkText = messageOk ? messageOk.textContent || "확인" : "확인";
+    const modalDefaultOkText = messageOk
+        ? messageOk.textContent || "확인"
+        : "확인";
     let allowDuplicateSubmit = false;
 
+    function syncWorkerPanelWidth() {
+        const width = workerPanel
+            ? Math.ceil(workerPanel.getBoundingClientRect().width)
+            : 0;
+        document.body.style.setProperty("--worker-panel-width", `${width}px`);
+    }
+
+    function syncBottomBarHeight() {
+        const height = bottomActionBar
+            ? Math.ceil(bottomActionBar.getBoundingClientRect().height)
+            : 0;
+        document.body.style.setProperty(
+            "--dashboard-bottom-bar-height",
+            `${height}px`,
+        );
+    }
+
+    syncWorkerPanelWidth();
+    syncBottomBarHeight();
+    window.addEventListener("resize", syncWorkerPanelWidth);
+    window.addEventListener("resize", syncBottomBarHeight);
+
     function normalizeName(name) {
-        return String(name || "").trim().toLowerCase();
+        return String(name || "")
+            .trim()
+            .toLowerCase();
     }
 
     function splitWorkerNames(value) {
@@ -90,7 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function rebuildAllowedSet() {
-        allowedWorkerSet = new Set(workerNames.map((name) => normalizeName(name)));
+        allowedWorkerSet = new Set(
+            workerNames.map((name) => normalizeName(name)),
+        );
     }
 
     function setWorkerNames(newNames) {
@@ -153,11 +230,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getDuplicateNamesWithModalInput(modalWorkersValue) {
-        const allNames = [...collectInputNames(), ...splitWorkerNames(modalWorkersValue)];
+        const allNames = [
+            ...collectInputNames(),
+            ...splitWorkerNames(modalWorkersValue),
+        ];
         return getDuplicateNamesFromList(allNames);
     }
 
-    function openMessageModal({ title, message, items, confirmText, onConfirm }) {
+    function openMessageModal({
+        title,
+        message,
+        items,
+        confirmText,
+        onConfirm,
+    }) {
         if (!messageModal) return;
 
         if (addAreaModal && addAreaModal.classList.contains("show")) {
@@ -223,28 +309,30 @@ document.addEventListener("DOMContentLoaded", () => {
         let duplicateCount = 0;
 
         if (workerListPanel) {
-            workerListPanel.querySelectorAll("[data-worker-name]").forEach((row) => {
-                const name = row.getAttribute("data-worker-name") || "";
-                const key = normalizeName(name);
-                const usedCount = counts.get(key) || 0;
-                const usedBadge = row.querySelector(".worker-status");
-                const dupBadge = row.querySelector(".worker-dup-status");
+            workerListPanel
+                .querySelectorAll("[data-worker-name]")
+                .forEach((row) => {
+                    const name = row.getAttribute("data-worker-name") || "";
+                    const key = normalizeName(name);
+                    const usedCount = counts.get(key) || 0;
+                    const usedBadge = row.querySelector(".worker-status");
+                    const dupBadge = row.querySelector(".worker-dup-status");
 
-                if (usedCount === 0) {
-                    row.classList.remove("worker-duplicate");
-                    usedBadge?.classList.add("d-none");
-                    dupBadge?.classList.add("d-none");
-                } else if (usedCount === 1) {
-                    row.classList.remove("worker-duplicate");
-                    usedBadge?.classList.remove("d-none");
-                    dupBadge?.classList.add("d-none");
-                } else {
-                    row.classList.add("worker-duplicate");
-                    usedBadge?.classList.add("d-none");
-                    dupBadge?.classList.remove("d-none");
-                    duplicateCount += 1;
-                }
-            });
+                    if (usedCount === 0) {
+                        row.classList.remove("worker-duplicate");
+                        usedBadge?.classList.add("d-none");
+                        dupBadge?.classList.add("d-none");
+                    } else if (usedCount === 1) {
+                        row.classList.remove("worker-duplicate");
+                        usedBadge?.classList.remove("d-none");
+                        dupBadge?.classList.add("d-none");
+                    } else {
+                        row.classList.add("worker-duplicate");
+                        usedBadge?.classList.add("d-none");
+                        dupBadge?.classList.remove("d-none");
+                        duplicateCount += 1;
+                    }
+                });
         }
 
         getWorkerFields().forEach((field) => {
@@ -331,7 +419,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`save failed (${response.status}): ${errorText}`);
+                throw new Error(
+                    `save failed (${response.status}): ${errorText}`,
+                );
             }
 
             let payload = null;
@@ -595,10 +685,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 const shouldDisable = deleteCheckbox.checked;
                 row.classList.toggle("is-deleted", shouldDisable);
 
-                row.querySelectorAll("input, select, textarea").forEach((el) => {
-                    if (el === deleteCheckbox) return;
-                    el.disabled = shouldDisable;
-                });
+                row.querySelectorAll("input, select, textarea").forEach(
+                    (el) => {
+                        if (el === deleteCheckbox) return;
+                        el.disabled = shouldDisable;
+                    },
+                );
 
                 updateWorkerUsage();
             });
@@ -609,12 +701,16 @@ document.addEventListener("DOMContentLoaded", () => {
             nameInput.value = values.name;
         }
 
-        const positionInput = row.querySelector("select[name='new_area_position']");
+        const positionInput = row.querySelector(
+            "select[name='new_area_position']",
+        );
         if (positionInput && values.position) {
             positionInput.value = values.position;
         }
 
-        const workersInput = row.querySelector("textarea[name='new_area_workers']");
+        const workersInput = row.querySelector(
+            "textarea[name='new_area_workers']",
+        );
         if (workersInput && values.workers) {
             workersInput.value = values.workers;
         }
@@ -654,9 +750,11 @@ document.addEventListener("DOMContentLoaded", () => {
         destroyAreaSortables();
 
         if (isMobileDevice()) {
-            document.querySelectorAll(".area-row, .new-area-row").forEach((row) => {
-                row.setAttribute("draggable", "false");
-            });
+            document
+                .querySelectorAll(".area-row, .new-area-row")
+                .forEach((row) => {
+                    row.setAttribute("draggable", "false");
+                });
             return;
         }
 
@@ -666,8 +764,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const sortable = new Sortable(group, {
                 group: "areas",
                 draggable: "tr.area-row",
-                filter:
-                    ".area-group-header, input, textarea, select, option, button, a, label",
+                filter: ".area-group-header, input, textarea, select, option, button, a, label",
                 preventOnFilter: false,
                 animation: 150,
                 onAdd: (event) => {
@@ -804,7 +901,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (workerPanel?.classList.contains("show")) {
                 const offcanvasInstance =
-                    window.bootstrap?.Offcanvas?.getOrCreateInstance(workerPanel);
+                    window.bootstrap?.Offcanvas?.getOrCreateInstance(
+                        workerPanel,
+                    );
 
                 if (offcanvasInstance) {
                     workerPanel.addEventListener(
@@ -849,7 +948,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const duplicateNames = getDuplicateNamesWithModalInput(workersValue);
+            const duplicateNames =
+                getDuplicateNamesWithModalInput(workersValue);
             if (duplicateNames.length > 0) {
                 openMessageModal({
                     title: "중복 작업자 오류",
@@ -864,12 +964,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         });
 
                         if (newAreaNameInput) newAreaNameInput.value = "";
-                        if (newAreaPositionInput) newAreaPositionInput.value = "LEFT";
+                        if (newAreaPositionInput)
+                            newAreaPositionInput.value = "LEFT";
                         if (newAreaWorkersInput) newAreaWorkersInput.value = "";
 
                         if (addAreaModal && window.bootstrap?.Modal) {
                             const modal =
-                                window.bootstrap.Modal.getOrCreateInstance(addAreaModal);
+                                window.bootstrap.Modal.getOrCreateInstance(
+                                    addAreaModal,
+                                );
                             modal.hide();
                         }
 
@@ -890,7 +993,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (newAreaWorkersInput) newAreaWorkersInput.value = "";
 
             if (addAreaModal && window.bootstrap?.Modal) {
-                const modal = window.bootstrap.Modal.getOrCreateInstance(addAreaModal);
+                const modal =
+                    window.bootstrap.Modal.getOrCreateInstance(addAreaModal);
                 modal.hide();
             }
 
@@ -962,9 +1066,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (saveWorkerEditorBtn && workerEditorInput) {
         saveWorkerEditorBtn.addEventListener("click", async () => {
-            const updatedNames = parseWorkerEditorText(workerEditorInput.value).sort(
-                (a, b) => a.localeCompare(b, "ko", { sensitivity: "base" }),
-            );
+            const updatedNames = parseWorkerEditorText(
+                workerEditorInput.value,
+            ).sort((a, b) => a.localeCompare(b, "ko", { sensitivity: "base" }));
             const previousNames = [...workerNames];
 
             setWorkerNames(updatedNames);
@@ -1008,7 +1112,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (selectAllWorkersBtn && workerListPanel) {
         selectAllWorkersBtn.addEventListener("click", () => {
-            const checkboxes = workerListPanel.querySelectorAll(".worker-select");
+            const checkboxes =
+                workerListPanel.querySelectorAll(".worker-select");
             if (!checkboxes.length) return;
 
             const allSelected = Array.from(checkboxes).every(
@@ -1023,15 +1128,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (deleteSelectedWorkersBtn && workerListPanel) {
         deleteSelectedWorkersBtn.addEventListener("click", async () => {
-            workerListPanel.querySelectorAll(".worker-select:checked").forEach((checkbox) => {
-                const row = checkbox.closest("[data-worker-name]");
-                const name = row?.getAttribute("data-worker-name");
+            workerListPanel
+                .querySelectorAll(".worker-select:checked")
+                .forEach((checkbox) => {
+                    const row = checkbox.closest("[data-worker-name]");
+                    const name = row?.getAttribute("data-worker-name");
 
-                if (row && name) {
-                    row.remove();
-                    removeWorker(name);
-                }
-            });
+                    if (row && name) {
+                        row.remove();
+                        removeWorker(name);
+                    }
+                });
 
             rebuildWorkerList();
             initWorkerDragAndDrop();
@@ -1060,6 +1167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (workerPanel) {
         workerPanel.addEventListener("shown.bs.offcanvas", () => {
+            syncWorkerPanelWidth();
             document.body.classList.add("worker-panel-open");
         });
 
@@ -1129,7 +1237,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const duplicateExists = document.querySelector(".worker-duplicate-input");
+            const duplicateExists = document.querySelector(
+                ".worker-duplicate-input",
+            );
             if (duplicateExists) {
                 event.preventDefault();
                 updateWorkerUsage();
