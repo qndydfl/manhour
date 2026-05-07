@@ -80,22 +80,6 @@ FINANCIAL_CACHE_KEY = "financial_indicators:v1"
 FINANCIAL_HISTORY_KEY = "financial_indicators:history:v1"
 CHECKWX_CACHE_KEY = "checkwx:metar:v1"
 WEATHER_FORECAST_CACHE_KEY = "weather_forecast:v1"
-DEFAULT_FORECAST_LAT = 37.4602
-DEFAULT_FORECAST_LON = 126.4407
-
-
-def _fetch_weather_forecast(lat: float, lon: float):
-    url = "https://api.open-meteo.com/v1/forecast"
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "hourly": "wind_speed_10m,precipitation_probability",
-        "timezone": "Asia/Seoul",
-    }
-
-    response = requests.get(url, params=params, timeout=10)
-    response.raise_for_status()
-    return response.json()
 
 
 def set_workplace_in_session(request, workplace: str | None) -> str:
@@ -732,48 +716,6 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
         return redirect("manhour:session_list")
 
 
-def parse_worker_names(worker_names: str):
-    """
-    허용 입력:
-      - 홍길동, 홍이동
-      - 홍길동\n홍이동
-      - HL8705: 홍길동, 홍이동
-      - 8705: 홍길동, 홍이동
-      - HL8398: 홍삼동
-    결과: Worker 이름 리스트(중복 제거, 입력 순서 유지)
-    """
-    if not worker_names:
-        return []
-
-    text = worker_names.replace("\r", "").strip()
-    if not text:
-        return []
-
-    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
-
-    names = []
-    for line in lines:
-        # "기번: ..." 형태면 ':' 뒤만 이름 구간으로 취급
-        part = line.split(":", 1)[1].strip() if ":" in line else line
-
-        # 콤마/탭 기준 분리 (필요하면 구분자 추가 가능)
-        tokens = re.split(r"[,\t]+", part)
-        for t in tokens:
-            n = t.strip()
-            if n:
-                names.append(n)
-
-    # 중복 제거(입력 순서 유지)
-    seen = set()
-    uniq = []
-    for n in names:
-        if n not in seen:
-            uniq.append(n)
-            seen.add(n)
-
-    return uniq
-
-
 class EditSessionView(SimpleLoginRequiredMixin, View):
     # 세션 정보 및 작업자 명단 수정
     def get(self, request, session_id):
@@ -840,90 +782,6 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         return redirect(
             f"{reverse('manhour:result_view', args=[session.id])}?reassigned=1"
         )
-
-
-class EditAllView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id):
-        session = get_session_any_status_or_404(request, session_id)
-
-        WorkItemFormSet = modelformset_factory(
-            WorkItem, form=WorkItemForm, extra=3, can_delete=True
-        )
-        formset = WorkItemFormSet(
-            request.POST,
-            request.FILES,
-            queryset=WorkItem.objects.filter(session=session),
-        )
-
-        if not formset.is_valid():
-            worker_names = "\n".join([w.name for w in session.worker_set.all()])
-            messages.error(request, "입력값에 오류가 있습니다. 다시 확인하세요.")
-            return render(
-                request,
-                "manhour/edit_all.html",
-                {
-                    "session": session,
-                    "formset": formset,
-                    "worker_names_str": worker_names,
-                },
-            )
-
-        with transaction.atomic():
-            instances = formset.save(commit=False)
-
-            for inst in instances:
-                if not inst.session_id:
-                    inst.session = session
-                inst.save()
-
-            for obj in formset.deleted_objects:
-                obj.delete()
-
-            for form in formset.forms:
-                if form in formset.deleted_forms:
-                    continue
-                if not form.instance.pk:
-                    continue
-
-                item = form.instance
-                input_str = (form.cleaned_data.get("assigned_text") or "").strip()
-
-                # 기존 배정 초기화
-                item.assignments.all().delete()
-
-                if input_str:
-                    normalized = input_str.replace("\n", ",")
-                    raw_names = [n.strip() for n in normalized.split(",") if n.strip()]
-
-                    valid_workers = list(
-                        Worker.objects.filter(session=session, name__in=raw_names)
-                    )
-
-                    if valid_workers:
-                        mh = (
-                            round(float(item.work_mh or 0) / len(valid_workers), 2)
-                            if item.work_mh
-                            else 0
-                        )
-                        for w in valid_workers:
-                            # [수정 1] create -> update_or_create (IntegrityError 방지)
-                            Assignment.objects.update_or_create(
-                                work_item=item,
-                                worker=w,
-                                start_min__isnull=True,  # 시간이 없는 건에 한해 유니크 체크
-                                end_min__isnull=True,
-                                defaults={"allocated_mh": mh},
-                            )
-                        item.is_manual = True
-                    else:
-                        item.is_manual = False
-                else:
-                    item.is_manual = False
-
-                item.save(update_fields=["is_manual"])
-
-        messages.success(request, "변경사항이 저장되었습니다.")
-        return redirect("manhour:edit_all", session_id=session.id)
 
 
 class ResultView(SimpleLoginRequiredMixin, DetailView):
@@ -1065,56 +923,6 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
         run_sync_schedule(session_id)
         messages.success(request, "자동 배정 및 동기화가 완료되었습니다! 🤖")
         return redirect("manhour:result_view", session_id=session_id)
-
-
-class EditItemView(SimpleLoginRequiredMixin, View):
-    def get(self, request, item_id):
-        item = get_item_or_404(request, item_id)
-        all_workers = item.session.worker_set.all().order_by("name")
-        assigned_worker_ids = item.assignments.values_list("worker_id", flat=True)
-
-        context = {
-            "item": item,
-            "all_workers": all_workers,
-            "assigned_ids": assigned_worker_ids,
-        }
-        return render(request, "manhour/edit_item.html", context)
-
-    def post(self, request, item_id):
-        item = get_item_or_404(request, item_id)
-
-        item.model_type = request.POST.get("model_type", "")
-        item.work_order = request.POST.get("work_order")
-        item.op = request.POST.get("op")
-        item.description = request.POST.get("description")
-        item.work_mh = float(request.POST.get("work_mh") or 0)
-
-        selected_ids = request.POST.getlist("worker_ids")
-
-        # 기존 배정 내역 삭제
-        item.assignments.all().delete()
-
-        if selected_ids:
-            item.is_manual = True
-            share_mh = round(item.work_mh / len(selected_ids), 2)
-
-            for w_id in selected_ids:
-                worker = Worker.objects.get(id=w_id)
-                # [수정 2] create -> update_or_create
-                Assignment.objects.update_or_create(
-                    work_item=item,
-                    worker=worker,
-                    start_min__isnull=True,
-                    end_min__isnull=True,
-                    defaults={"allocated_mh": share_mh},
-                )
-        else:
-            item.is_manual = False
-
-        item.save()
-
-        messages.success(request, f"'{item.work_order}' 작업이 수정되었습니다.")
-        return redirect("manhour:result_view", session_id=item.session.id)
 
 
 class ManageItemsView(SimpleLoginRequiredMixin, View):
@@ -1860,27 +1668,6 @@ def _clip_if_invalid_time(s, e):
     if e <= s:
         return None
     return (s, e)
-
-
-def _split_direct_by_indirect(d_start, d_end, k_start, k_end):
-    """
-    direct(d_start~d_end)에서 indirect(k_start~k_end) 구간을 '도려내기' (trimming)
-    반환: 남는 (start,end) 조각 리스트
-    """
-    # 안겹치면 원본 유지
-    if k_end <= d_start or k_start >= d_end:
-        return [(d_start, d_end)]
-
-    pieces = []
-    # 앞 조각
-    if d_start < k_start:
-        pieces.append((d_start, min(k_start, d_end)))
-    # 뒤 조각
-    if d_end > k_end:
-        pieces.append((max(k_end, d_start), d_end))
-
-    # 유효한 조각만
-    return [(s, e) for (s, e) in pieces if e > s]
 
 
 class SaveManualInputView(SimpleLoginRequiredMixin, View):
@@ -3499,72 +3286,6 @@ def _fetch_checkwx_metar():
     return results
 
 
-class FinancialIndicatorsApiView(View):
-    def get(self, request, *args, **kwargs):
-        cached = cache.get(FINANCIAL_CACHE_KEY)
-        if cached:
-            return JsonResponse(cached)
-
-        exchange = _fetch_exchange_rate_usd_krw()
-        wti = _fetch_eia_wti()
-        jet_fuel = _fetch_eia_jet_fuel()
-        history = cache.get(FINANCIAL_HISTORY_KEY, [])
-
-        if exchange and exchange.get("value") is not None:
-            history = _update_exchange_history(exchange["value"])
-
-        if exchange and exchange.get("value") is not None and not history:
-            now = timezone.localtime()
-            seed_points = []
-            for offset in range(5, -1, -1):
-                point_time = now - timedelta(minutes=offset * 5)
-                seed_points.append(
-                    {
-                        "label": point_time.strftime("%H:%M"),
-                        "value": exchange["value"],
-                    }
-                )
-            history = seed_points
-            cache.set(FINANCIAL_HISTORY_KEY, history, 24 * 60 * 60)
-
-        change = None
-        change_percent = None
-        if len(history) >= 2:
-            prev = history[-2].get("value")
-            current = history[-1].get("value")
-            if prev:
-                change = current - prev
-                change_percent = (change / prev) * 100
-
-        response_data = {
-            "exchange_rate": {
-                "value": exchange.get("value") if exchange else None,
-                "unit": "USD/KRW",
-                "change": change,
-                "change_percent": change_percent,
-                "as_of": exchange.get("as_of") if exchange else None,
-            },
-            "wti": {
-                "value": wti.get("value") if wti else None,
-                "unit": "USD/bbl",
-                "as_of": wti.get("as_of") if wti else None,
-            },
-            "jet_fuel": {
-                "value": jet_fuel.get("value") if jet_fuel else None,
-                "unit": "USD/bbl",
-                "as_of": jet_fuel.get("as_of") if jet_fuel else None,
-            },
-            "series": {
-                "labels": [item.get("label") for item in history],
-                "values": [item.get("value") for item in history],
-            },
-        }
-
-        cache_seconds = getattr(settings, "FINANCIAL_CACHE_SECONDS", 900)
-        cache.set(FINANCIAL_CACHE_KEY, response_data, cache_seconds)
-        return JsonResponse(response_data)
-
-
 class CheckWxMetarApiView(View):
     def get(self, request, *args, **kwargs):
         cached = cache.get(CHECKWX_CACHE_KEY)
@@ -3578,53 +3299,145 @@ class CheckWxMetarApiView(View):
 
 
 class WeatherForecastApiView(View):
+
+    AIRPORTS = {
+        "RKSI": {
+            "name": "Incheon Airport",
+            "lat": 37.4602,
+            "lon": 126.4407,
+        },
+        "RKSS": {
+            "name": "Gimpo Airport",
+            "lat": 37.5583,
+            "lon": 126.7906,
+        },
+    }
+
+    DEFAULT_AIRPORT = "RKSI"
+
     def get(self, request, *args, **kwargs):
-        cache_key = WEATHER_FORECAST_CACHE_KEY
-        cached = cache.get(cache_key)
-        if cached is not None:
-            return JsonResponse(cached)
-
-        lat = float(getattr(settings, "WEATHER_FORECAST_LAT", DEFAULT_FORECAST_LAT))
-        lon = float(getattr(settings, "WEATHER_FORECAST_LON", DEFAULT_FORECAST_LON))
-
         try:
-            payload = _fetch_weather_forecast(lat, lon)
-            hourly = payload.get("hourly") or {}
-            times = hourly.get("time") or []
-            wind = hourly.get("wind_speed_10m") or hourly.get("windspeed_10m") or []
-            rain = hourly.get("precipitation_probability") or []
+            forecast_data = self.fetch_weather_forecast(request)
 
-            now_key = timezone.localtime().strftime("%Y-%m-%dT%H:00")
+            return JsonResponse(forecast_data)
+
+        except Exception as e:
+            return JsonResponse(
+                {
+                    "error": str(e),
+                    "hours": [],
+                    "wind_speeds": [],
+                    "wind_gusts": [],
+                    "rain_probs": [],
+                    "visibility": [],
+                    "cloud_cover": [],
+                },
+                status=500,
+            )
+
+    def get_airport(self, request):
+        airport_code = request.GET.get("airport", self.DEFAULT_AIRPORT).upper()
+        return self.AIRPORTS.get(airport_code, self.AIRPORTS[self.DEFAULT_AIRPORT])
+
+    def fetch_weather_forecast(self, request):
+        """
+        Open-Meteo API 호출
+        """
+        airport = self.get_airport(request)
+
+        lat = airport["lat"]
+        lon = airport["lon"]
+
+        url = "https://api.open-meteo.com/v1/forecast"
+
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "timezone": "Asia/Seoul",
+            "forecast_days": 1,
+            "wind_speed_unit": "kn",
+            "hourly": (
+                "wind_speed_10m,"
+                "wind_gusts_10m,"
+                "precipitation_probability,"
+                "visibility,"
+                "cloud_cover"
+            ),
+        }
+
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+        return self.build_response_data(data, airport)
+
+    def build_response_data(self, data, airport):
+        """
+        프론트 전달용 데이터 변환
+        """
+
+        hourly = data.get("hourly", {})
+
+        times = hourly.get("time", [])
+
+        wind_speed = hourly.get("wind_speed_10m", [])
+        wind_gust = hourly.get("wind_gusts_10m", [])
+
+        rain_prob = hourly.get(
+            "precipitation_probability",
+            [],
+        )
+
+        visibility = hourly.get("visibility", [])
+
+        cloud_cover = hourly.get("cloud_cover", [])
+
+        labels = []
+        winds = []
+        gusts = []
+        rains = []
+        visibilities = []
+        clouds = []
+
+        now_local = timezone.localtime().replace(minute=0, second=0, microsecond=0)
+
+        start_index = 0
+
+        for i, time_text in enumerate(times):
             try:
-                start_index = times.index(now_key)
+                forecast_time = datetime.strptime(time_text, "%Y-%m-%dT%H:%M")
+                forecast_time = timezone.make_aware(
+                    forecast_time,
+                    timezone.get_current_timezone(),
+                )
+
+                if forecast_time >= now_local:
+                    start_index = i
+                    break
             except ValueError:
-                start_index = 0
+                continue
 
-            window = slice(start_index, start_index + 8)
-            labels = []
-            for t in times[window]:
-                try:
-                    dt = datetime.strptime(t, "%Y-%m-%dT%H:%M")
-                    labels.append(dt.strftime("%H시"))
-                except ValueError:
-                    labels.append(t)
+        end_index = min(start_index + 8, len(times))
 
-            response_data = {
-                "hours": labels,
-                "wind_speeds": [round(float(x), 1) for x in wind[window]],
-                "rain_probs": [int(round(float(x))) for x in rain[window]],
-            }
-        except Exception as exc:
-            response_data = {
-                "hours": [],
-                "wind_speeds": [],
-                "rain_probs": [],
-                "error": str(exc),
-            }
+        for i in range(start_index, end_index):
+            hour = times[i].split("T")[1][:2]
 
-        cache_seconds = int(getattr(settings, "WEATHER_FORECAST_CACHE_SECONDS", 1800))
-        cache.set(cache_key, response_data, cache_seconds)
-        return JsonResponse(response_data)
+            labels.append(f"{hour}시")
+            winds.append(round(float(wind_speed[i]), 1))
+            gusts.append(round(float(wind_gust[i]), 1))
+            rains.append(int(rain_prob[i]))
+            visibilities.append(int(visibility[i]))
+            clouds.append(int(cloud_cover[i]))
+
+        return {
+            "city": airport["name"],
+            "hours": labels,
+            "wind_speeds": winds,
+            "wind_gusts": gusts,
+            "rain_probs": rains,
+            "visibility": visibilities,
+            "cloud_cover": clouds,
+        }
 
 
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
@@ -3665,56 +3478,6 @@ class TaskMasterDeleteAllView(SimpleLoginRequiredMixin, View):
         if next_page == "manhour:master_data_edit":
             return redirect("manhour:master_data_edit")
         return redirect("manhour:paste_data")
-
-
-class ReorderItemView(SimpleLoginRequiredMixin, View):
-    def get(self, request, item_id, direction):
-        # 1. 이동할 대상 아이템과 세션 찾기
-        target_item = get_item_or_404(request, item_id)
-        session = target_item.session  # ✅ 세션 정보를 여기서 가져옵니다.
-
-        # 2. 같은 기번(그룹) 내의 아이템들만 가져오기
-        siblings = list(
-            WorkItem.objects.filter(
-                session=session, gibun_input=target_item.gibun_input
-            )
-        )
-
-        # 3. 화면과 똑같은 순서로 정렬 (ordering -> id 순)
-        siblings.sort(key=lambda x: (int(x.ordering or 0), x.id))
-
-        # 4. 내 위치 찾기
-        try:
-            current_idx = siblings.index(target_item)
-        except ValueError:
-            # 리스트에 없으면 그냥 관리 페이지로 복귀
-            return redirect("manhour:manage_items", session_id=session.id)
-
-        # 5. 위치 바꾸기 (Swap)
-        if direction == "up" and current_idx > 0:
-            siblings[current_idx], siblings[current_idx - 1] = (
-                siblings[current_idx - 1],
-                siblings[current_idx],
-            )
-
-        elif direction == "down" and current_idx < len(siblings) - 1:
-            siblings[current_idx], siblings[current_idx + 1] = (
-                siblings[current_idx + 1],
-                siblings[current_idx],
-            )
-
-        # 6. 순서 재저장 (10, 20, 30... 방식으로 깔끔하게 정리)
-        with transaction.atomic():
-            for i, item in enumerate(siblings):
-                new_ordering = (i + 1) * 10
-                if item.ordering != new_ordering:
-                    item.ordering = new_ordering
-                    item.save(update_fields=["ordering"])
-
-        # ✅ [핵심 해결책]
-        # 작업이 끝나면 'index'(홈페이지)가 아니라 'manage_items'(통합 관리)로 가야 합니다.
-        # 이때 session_id를 반드시 같이 넘겨줘야 에러 없이 이동합니다.
-        return redirect("manhour:manage_items", session_id=session.id)
 
 
 class ReorderItemsView(SimpleLoginRequiredMixin, View):

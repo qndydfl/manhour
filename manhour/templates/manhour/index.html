@@ -51,7 +51,14 @@
 
         <nav class="sidebar-menu">
             <div class="sidebar-group">
-                <a href="#dashboardSubmenu" class="active d-flex justify-content-between align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="dashboardSubmenu">
+                <a
+                    href="#dashboardSubmenu"
+                    class="active d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="dashboardSubmenu"
+                >
                     <span>
                         <i class="bi bi-speedometer2"></i>
                         <span class="sidebar-text">Dashboard</span>
@@ -61,32 +68,52 @@
 
                 <div class="collapse" id="dashboardSubmenu">
                     <div class="sidebar-submenu-list">
-                        <a href="{% url 'manhour:paste_data' %}" class="submenu-item d-flex align-items-center justify-content-between">
+                        <a
+                            href="{% url 'manhour:paste_data' %}"
+                            class="submenu-item d-flex align-items-center justify-content-between"
+                        >
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-database-add"></i>
-                                <span class="sidebar-text ms-2">Master Data</span>
+                                <span class="sidebar-text ms-2"
+                                    >Master Data</span
+                                >
                             </div>
-                            <span id="masterDataBadge" class="badge rounded-pill bg-danger sidebar-text">
+                            <span
+                                id="masterDataBadge"
+                                class="badge rounded-pill bg-danger sidebar-text"
+                            >
                                 {{ master_data_count }}
                             </span>
                         </a>
 
-                        <a href="{% url 'manhour:session_list' %}" class="submenu-item d-flex align-items-center justify-content-between">
+                        <a
+                            href="{% url 'manhour:session_list' %}"
+                            class="submenu-item d-flex align-items-center justify-content-between"
+                        >
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-activity"></i>
-                                <span class="sidebar-text ms-2">Active Sessions</span>
+                                <span class="sidebar-text ms-2"
+                                    >Active Sessions</span
+                                >
                             </div>
-                            <span class="badge rounded-pill bg-primary sidebar-text">
+                            <span
+                                class="badge rounded-pill bg-primary sidebar-text"
+                            >
                                 {{ active_count }}
                             </span>
                         </a>
 
-                        <a href="{% url 'manhour:history' %}" class="submenu-item d-flex align-items-center justify-content-between">
+                        <a
+                            href="{% url 'manhour:history' %}"
+                            class="submenu-item d-flex align-items-center justify-content-between"
+                        >
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-archive"></i>
                                 <span class="sidebar-text ms-2">History</span>
                             </div>
-                            <span class="badge rounded-pill bg-warning sidebar-text">
+                            <span
+                                class="badge rounded-pill bg-warning sidebar-text"
+                            >
                                 {{ history_count }}
                             </span>
                         </a>
@@ -95,7 +122,14 @@
             </div>
 
             <div class="sidebar-group">
-                <a href="#dashboardMenninglist" class="active d-flex justify-content-between align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="dashboardMenninglist">
+                <a
+                    href="#dashboardMenninglist"
+                    class="active d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="dashboardMenninglist"
+                >
                     <span>
                         <i class="bi bi-people-fill"></i>
                         <span class="sidebar-text">ManningList</span>
@@ -105,7 +139,12 @@
 
                 <div class="collapse" id="dashboardMenninglist">
                     <div class="sidebar-submenu-list">
-                        <a href="{% url 'manning:manning_list' %}" class="submenu-item" target="_blank" rel="noopener noreferrer">
+                        <a
+                            href="{% url 'manning:manning_list' %}"
+                            class="submenu-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <i class="bi bi-airplane"></i>
                             <span class="sidebar-text">Manning List</span>
                         </a>
@@ -114,7 +153,14 @@
             </div>
 
             <div class="sidebar-group">
-                <a href="#dashboardOthers" class="active d-flex justify-content-between align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="dashboardOthers">
+                <a
+                    href="#dashboardOthers"
+                    class="active d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="dashboardOthers"
+                >
                     <span>
                         <i class="bi bi-link-45deg"></i>
                         <span class="sidebar-text">Others</span>
@@ -124,22 +170,42 @@
 
                 <div class="collapse" id="dashboardOthers">
                     <div class="sidebar-submenu-list">
-                        <a href="https://login.koreanair.com/" class="submenu-item" target="_blank" rel="noopener noreferrer">
+                        <a
+                            href="https://login.koreanair.com/"
+                            class="submenu-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <i class="bi bi-box-arrow-up-right"></i>
                             <span class="sidebar-text">Korean Air Login</span>
                         </a>
 
-                        <a href="https://www.flightradar24.com/" class="submenu-item" target="_blank" rel="noopener noreferrer">
+                        <a
+                            href="https://www.flightradar24.com/"
+                            class="submenu-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <i class="bi bi-radar"></i>
                             <span class="sidebar-text">Flight Radar</span>
                         </a>
 
-                        <a href="https://ammis.flyasiana.com/kor" class="submenu-item" target="_blank" rel="noopener noreferrer">
+                        <a
+                            href="https://ammis.flyasiana.com/kor"
+                            class="submenu-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <i class="bi bi-journal-text"></i>
                             <span class="sidebar-text">AMMIS</span>
                         </a>
 
-                        <a href="https://mae.flyasiana.com/nexa/" class="submenu-item" target="_blank" rel="noopener noreferrer">
+                        <a
+                            href="https://mae.flyasiana.com/nexa/"
+                            class="submenu-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <i class="bi bi-tools"></i>
                             <span class="sidebar-text">정비 홈페이지</span>
                         </a>
@@ -151,20 +217,33 @@
 
     <main class="dashboard-main">
         <div class="dashboard-content">
-            <div class="index-page my-lg-4" data-workplace="{{ request.session.workplace_label|lower }}">
-                <div class="row g-4 align-items-stretch" data-aos="fade-up" data-aos-duration="1000">
+            <div class="index-page my-lg-4" data-workplace="{{ request.session.workplace|lower }}">
+                <div
+                    class="row g-4 align-items-stretch"
+                    data-aos="fade-up"
+                    data-aos-duration="1000"
+                >
                     <div class="col-lg-12">
                         <h5 class="text-secondary mb-2">환영합니다,</h5>
                         <h3 class="fw-bold text-dark mb-0 wave-text">
                             {% for ch in request.session.workplace_label %}
-                            <span style="--i:{{ forloop.counter0 }}">{{ ch }}</span>
+                            <span style="--i:{{ forloop.counter0 }}"
+                                >{{ ch }}</span
+                            >
                             {% endfor %}
-                            <span style="--i:{{ request.session.workplace_label|length }}">입니다.</span>
+                            <span
+                                style="--i:{{ request.session.workplace_label|length }}"
+                                >입니다.</span
+                            >
                         </h3>
                     </div>
 
-                    <div class="col-lg-8 d-flex flex-column justify-content-center">
-                        <div class="p-3 index-glass-panel index-equal-panel rounded-4">
+                    <div
+                        class="col-lg-8 d-flex flex-column justify-content-center"
+                    >
+                        <div
+                            class="p-3 index-glass-panel index-equal-panel rounded-4"
+                        >
                             <div class="row align-items-center g-2">
                                 <div class="col-md-6">
                                     <h1 class="h3 fw-bold text-dark">
@@ -173,50 +252,104 @@
                                     </h1>
 
                                     <p class="text-secondary index-hero-desc">
-                                        작업 세션을 생성하고 실시간으로 인력을 관리하세요.
-                                        효율적인 업무 배정이 여기서 시작됩니다.
+                                        작업 세션을 생성하고 실시간으로 인력을
+                                        관리하세요. 효율적인 업무 배정이 여기서
+                                        시작됩니다.
                                     </p>
                                 </div>
 
                                 <div class="col-md-6 d-none d-md-block">
-                                    <div class="card rounded-4 overflow-hidden shadow-sm images-hover-wrapper">
-                                        <img src="{% static 'images/index_background.jpg' %}" alt="Dashboard Preview" class="w-100 index-hero-image" data-bs-toggle="tooltip" data-bs-placement="top" title="마우스 휠을 움직이세요" />
+                                    <div
+                                        class="card rounded-4 overflow-hidden shadow-sm images-hover-wrapper"
+                                    >
+                                        <img
+                                            src="{% static 'images/index_background.jpg' %}"
+                                            alt="Dashboard Preview"
+                                            class="w-100 index-hero-image"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="마우스 휠을 움직이세요"
+                                        />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-4 d-flex flex-column justify-content-center">
-                        <div class="card shadow-lg index-time-panel index-equal-panel rounded-4">
+                    <div
+                        class="col-lg-4 d-flex flex-column justify-content-center"
+                    >
+                        <div
+                            class="card shadow-lg index-time-panel index-equal-panel rounded-4"
+                        >
                             <div class="index-time-panel__bg-icon">
                                 <i class="bi bi-clock"></i>
                             </div>
 
-                            <div class="card-body border-0 d-flex flex-column justify-content-center index-time-panel__body py-4">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <span class="fw-bold text-warning letter-spacing-1">
-                                        <i class="bi bi-globe2 me-1"></i> GLOBAL TIME
+                            <div
+                                class="card-body border-0 d-flex flex-column justify-content-center index-time-panel__body py-4"
+                            >
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-4"
+                                >
+                                    <span
+                                        class="fw-bold text-warning letter-spacing-1"
+                                    >
+                                        <i class="bi bi-globe2 me-1"></i> GLOBAL
+                                        TIME
                                     </span>
-                                    <span class="badge bg-danger rounded-pill px-3">LIVE</span>
+                                    <span
+                                        class="badge bg-danger rounded-pill px-3"
+                                        >LIVE</span
+                                    >
                                 </div>
 
                                 <div class="row align-items-end g-0 fw-bold">
                                     <div class="col-7">
-                                        <small class="text-white text-uppercase index-time-label">Local Time</small>
-                                        <div class="h2 fw-bold my-1 text-white font-digital" id="digital-time">00:00:00</div>
-                                        <small class="text-white" id="digital-date-line">
-                                            <span id="digital-date">Loading...</span>
+                                        <small
+                                            class="text-white text-uppercase index-time-label"
+                                            >Local Time</small
+                                        >
+                                        <div
+                                            class="h2 fw-bold my-1 text-white font-digital"
+                                            id="digital-time"
+                                        >
+                                            00:00:00
+                                        </div>
+                                        <small
+                                            class="text-white"
+                                            id="digital-date-line"
+                                        >
+                                            <span id="digital-date"
+                                                >Loading...</span
+                                            >
                                             <span id="digital-weekday"></span>
                                         </small>
                                     </div>
 
-                                    <div class="col-5 text-end border-start border-secondary ps-3">
-                                        <small class="text-white text-uppercase fw-bold index-time-label">UTC</small>
-                                        <div class="h2 fw-bold my-1 text-warning font-digital" id="digital-time-utc">00:00</div>
-                                        <small class="text-white" id="digital-date-line-utc">
-                                            <span id="digital-date-utc">Loading...</span>
-                                            <span id="digital-weekday-utc"></span>
+                                    <div
+                                        class="col-5 text-end border-start border-secondary ps-3"
+                                    >
+                                        <small
+                                            class="text-white text-uppercase fw-bold index-time-label"
+                                            >UTC</small
+                                        >
+                                        <div
+                                            class="h2 fw-bold my-1 text-warning font-digital"
+                                            id="digital-time-utc"
+                                        >
+                                            00:00
+                                        </div>
+                                        <small
+                                            class="text-white"
+                                            id="digital-date-line-utc"
+                                        >
+                                            <span id="digital-date-utc"
+                                                >Loading...</span
+                                            >
+                                            <span
+                                                id="digital-weekday-utc"
+                                            ></span>
                                         </small>
                                     </div>
                                 </div>
@@ -225,94 +358,163 @@
                     </div>
                 </div>
 
-                <div class="row g-4 mt-2 dashboard-main-section" data-aos="fade-up" data-aos-duration="1000">
+                <div
+                    class="row g-4 mt-2 dashboard-main-section"
+                    data-aos="fade-up"
+                    data-aos-duration="1000"
+                >
                     <div class="col-xl-5 col-md-6">
-                        <div class="card border-0 shadow-lg rounded-4 bg-dark text-light h-100 hover-lift" id="metarPanel">
+                        <div
+                            class="card border-0 shadow-lg rounded-4 bg-dark text-light h-100 hover-lift"
+                            id="metarPanel"
+                        >
                             <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="text-uppercase tracking-wider opacity-75">Airport Weather</h6>
-                                    <span class="badge bg-success" id="workStatusBadge">SAFE TO WORK</span>
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-3"
+                                >
+                                    <h6
+                                        class="text-uppercase tracking-wider opacity-75"
+                                    >
+                                        Airport Weather
+                                    </h6>
                                 </div>
 
-                                <div class="d-flex gap-2 mb-3" id="metarTabs"></div>
+                                <div
+                                    class="d-flex gap-2 mb-3"
+                                    id="metarTabs"
+                                ></div>
 
                                 <div class="row align-items-center mb-4">
                                     <div class="col-7">
-                                        <h2 class="fw-bold mb-0" id="metarStation">RKSI (Incheon)</h2>
-                                        <p class="small opacity-50 mb-0" id="metarUpdated">Updated: -</p>
+                                        <h2
+                                            class="fw-bold mb-0"
+                                            id="metarStation"
+                                        >
+                                            RKSI (Incheon)
+                                        </h2>
+                                        <p
+                                            class="small opacity-50 mb-0"
+                                            id="metarUpdated"
+                                        >
+                                            Updated: -
+                                        </p>
                                     </div>
 
                                     <div class="col-5 text-end">
-                                        <h1 class="display-5 fw-bold mb-0 text-info" id="metarTemp">-</h1>
+                                        <h1
+                                            class="display-5 fw-bold mb-0 text-info"
+                                            id="metarTemp"
+                                        >
+                                            -
+                                        </h1>
                                     </div>
                                 </div>
 
-                                <div class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2">
+                                <div
+                                    class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2"
+                                >
                                     <span>Wind (풍향/풍속)</span>
-                                    <span class="fw-bold" id="metarWind">-</span>
+                                    <span class="fw-bold" id="metarWind"
+                                        >-</span
+                                    >
                                 </div>
 
-                                <div class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2">
+                                <div
+                                    class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2"
+                                >
                                     <span>Visibility (시정)</span>
-                                    <span class="fw-bold text-success" id="metarVisibility">-</span>
+                                    <span
+                                        class="fw-bold text-success"
+                                        id="metarVisibility"
+                                        >-</span
+                                    >
                                 </div>
 
-                                <div class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2">
+                                <div
+                                    class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2"
+                                >
                                     <span>Pressure (QNH)</span>
-                                    <span class="fw-bold" id="metarPressure">-</span>
-                                </div>
-
-                                <div id="maintAlert" class="mt-3 p-2 rounded-3 bg-warning bg-opacity-10 text-warning small" style="display: none">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    <span id="alertMessage">강풍: 야외 고소 작업 시 주의 요망</span>
+                                    <span class="fw-bold" id="metarPressure"
+                                        >-</span
+                                    >
                                 </div>
 
                                 <div class="mt-4 p-2 bg-black rounded-3">
-                                    <code class="text-warning small metar-raw-text" id="metarRaw">-</code>
+                                    <code
+                                        class="text-warning small metar-raw-text"
+                                        id="metarRaw"
+                                        >-</code
+                                    >
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6">
-                        <div class="card border-0 shadow-lg rounded-4 h-100 dashboard-chart-card hover-lift">
+                        <div
+                            class="card border-0 shadow-lg rounded-4 h-100 dashboard-chart-card hover-lift"
+                        >
                             <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-2"
+                                >
                                     <div>
                                         <h5 class="fw-bold text-dark mb-3">
-                                            <i class="bi bi-pie-chart-fill text-primary me-1"></i>
+                                            <i
+                                                class="bi bi-pie-chart-fill text-primary me-1"
+                                            ></i>
                                             작업 현황
                                         </h5>
                                         <p class="text-muted small mb-0">
-                                            현재 작업과 완료 기록을 한눈에 확인합니다.
+                                            현재 작업과 완료 기록을 한눈에
+                                            확인합니다.
                                         </p>
                                     </div>
 
-                                    <span class="badge bg-primary rounded-pill px-3">LIVE</span>
+                                    <span
+                                        class="badge bg-primary rounded-pill px-3"
+                                        >LIVE</span
+                                    >
                                 </div>
 
                                 <div class="row g-3">
                                     <div class="col-6">
-                                        <div class="dashboard-status-box active d-flex justify-content-center">
-                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                        <div
+                                            class="dashboard-status-box active d-flex justify-content-center"
+                                        >
+                                            <div
+                                                class="d-flex align-items-center gap-2 mb-1"
+                                            >
                                                 <i class="bi bi-activity"></i>
                                                 <span>Active</span>
                                             </div>
-                                            <div class="badge fw-bold mb-0 d-flex align-items-center gap-1">
-                                                <span class="active-count-num">{{ active_count }}</span>
+                                            <div
+                                                class="badge fw-bold mb-0 d-flex align-items-center gap-1"
+                                            >
+                                                <span class="active-count-num"
+                                                    >{{ active_count }}</span
+                                                >
                                                 <small>건</small>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-6">
-                                        <div class="dashboard-status-box history d-flex justify-content-center">
-                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                        <div
+                                            class="dashboard-status-box history d-flex justify-content-center"
+                                        >
+                                            <div
+                                                class="d-flex align-items-center gap-2 mb-1"
+                                            >
                                                 <i class="bi bi-archive"></i>
                                                 <span>History</span>
                                             </div>
-                                            <div class="badge fw-bold mb-0 d-flex align-items-center gap-1">
-                                                <span class="history-count-num">{{ history_count }}</span>
+                                            <div
+                                                class="badge fw-bold mb-0 d-flex align-items-center gap-1"
+                                            >
+                                                <span class="history-count-num"
+                                                    >{{ history_count }}</span
+                                                >
                                                 <small>건</small>
                                             </div>
                                         </div>
@@ -327,14 +529,28 @@
                     </div>
 
                     <div class="col-xl-4 col-md-6">
-                        <div class="card border-0 shadow-lg rounded-4 bg-white h-100 hover-lift">
+                        <div
+                            class="card border-0 shadow-lg rounded-4 bg-white h-100 hover-lift"
+                        >
                             <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="text-uppercase fw-bold text-muted small mb-0">MRO Forecast</h6>
-                                    <span class="badge bg-primary-soft text-primary" id="forecastCity">Incheon</span>
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-3"
+                                >
+                                    <h6
+                                        class="text-uppercase fw-bold text-muted small mb-0"
+                                    >
+                                        MRO Forecast
+                                    </h6>
+                                    <span
+                                        class="badge bg-primary-soft text-primary"
+                                        id="forecastCity"
+                                        >Incheon</span
+                                    >
                                 </div>
 
-                                <h5 class="fw-bold text-dark mb-4">24H 작업 가용성 예보</h5>
+                                <h5 class="fw-bold text-dark mb-4">
+                                    24H 작업 가용성 예보
+                                </h5>
 
                                 <div class="forecast-chart-wrapper">
                                     <canvas id="forecastChart"></canvas>
@@ -343,13 +559,25 @@
                                 <div class="mt-3 p-3 bg-light rounded-3">
                                     <div class="row text-center">
                                         <div class="col-6 border-end">
-                                            <p class="small text-muted mb-1">최적 작업 시간</p>
-                                            <span class="badge bg-success text-white" id="bestWorkTime">데이터 분석 중</span>
+                                            <p class="small text-muted mb-1">
+                                                최적 작업 시간
+                                            </p>
+                                            <span
+                                                class="badge bg-success text-white"
+                                                id="bestWorkTime"
+                                                >데이터 분석 중</span
+                                            >
                                         </div>
 
                                         <div class="col-6">
-                                            <p class="small text-muted mb-1">작업 제한 주의</p>
-                                            <span class="badge bg-danger text-white" id="limitWorkTime">확인 중</span>
+                                            <p class="small text-muted mb-1">
+                                                작업 제한 주의
+                                            </p>
+                                            <span
+                                                class="badge bg-danger text-white"
+                                                id="limitWorkTime"
+                                                >확인 중</span
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -364,23 +592,55 @@
     </main>
 </div>
 
-<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+<div
+    class="modal fade"
+    id="videoModal"
+    tabindex="-1"
+    aria-labelledby="videoModalLabel"
+    aria-hidden="true"
+>
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 rounded-4 overflow-hidden">
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title" id="videoModalLabel">
                     <i class="bi bi-play-circle me-1"></i> Video
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
             </div>
 
             <div class="modal-body p-0 bg-black">
                 <div class="ratio ratio-16x9">
-                    <iframe id="youtubeFrame" src="" referrerpolicy="origin-when-cross-origin" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share;" allowfullscreen></iframe>
+                    <iframe
+                        id="youtubeFrame"
+                        src=""
+                        referrerpolicy="origin-when-cross-origin"
+                        title="YouTube video player"
+                        allow="
+                            accelerometer;
+                            autoplay;
+                            clipboard-write;
+                            encrypted-media;
+                            gyroscope;
+                            picture-in-picture;
+                            web-share;
+                        "
+                        allowfullscreen
+                    ></iframe>
                 </div>
 
                 <div class="p-3 d-flex justify-content-end gap-2 bg-dark">
-                    <a id="openOnYoutube" class="btn btn-sm btn-danger index-video-action-btn" href="#" target="_blank" rel="noopener">
+                    <a
+                        id="openOnYoutube"
+                        class="btn btn-sm btn-danger index-video-action-btn"
+                        href="#"
+                        target="_blank"
+                        rel="noopener"
+                    >
                         <i class="bi bi-youtube me-1"></i>
                         YouTube에서 열기
                     </a>
@@ -389,11 +649,11 @@
         </div>
     </div>
 </div>
-{% endblock content %}
-
-{% block footer %}
+{% endblock content %} {% block footer %}
 <footer class="index-footer-glass text-center py-3">
-    <div class="container d-flex flex-wrap justify-content-center align-items-center gap-1">
+    <div
+        class="container d-flex flex-wrap justify-content-center align-items-center gap-1"
+    >
         <small class="text-muted">
             © 2026 <strong>Man Hour Calculator System</strong>
         </small>
@@ -401,9 +661,8 @@
         <small class="text-muted">All rights reserved</small>
         {% if request.session.user_role == "admin" %}
         <span class="mx-2 text-muted">|</span>
-        <small class="text-muted">version 2.0.0</small>
+        <small class="text-muted">version 2.1.0</small>
         {% endif %}
     </div>
 </footer>
 {% endblock footer %}
-

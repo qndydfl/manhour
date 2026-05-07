@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                     cutout: "80%",   // ← 도넛 더 키워서 여백 줄임
+                    cutout: "80%", // ← 도넛 더 키워서 여백 줄임
                     layout: {
                         padding: {
                             top: 5,
@@ -446,9 +446,24 @@ document.addEventListener("DOMContentLoaded", function () {
             btn.addEventListener("click", () => {
                 const nextIndex = Number(btn.dataset.metarIndex);
                 if (Number.isNaN(nextIndex)) return;
+
                 activeIndex = nextIndex;
+
+                const selectedStation = metarStations[activeIndex];
+                const selectedAirport = selectedStation?.icao || "RKSI";
+
+                window.SELECTED_AIRPORT = selectedAirport;
+
                 renderTabs(metarStations);
                 renderMetar(metarStations);
+
+                window.dispatchEvent(
+                    new CustomEvent("airportChanged", {
+                        detail: {
+                            airport: selectedAirport,
+                        },
+                    }),
+                );
             });
         });
     }
@@ -551,6 +566,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const payload = await response.json();
             metarStations = payload?.stations || [];
             if (activeIndex >= metarStations.length) activeIndex = 0;
+
+            const selectedStation = metarStations[activeIndex];
+            window.SELECTED_AIRPORT = selectedStation?.icao || "RKSI";
+            window.dispatchEvent(
+                new CustomEvent("airportChanged", {
+                    detail: {
+                        airport: window.SELECTED_AIRPORT,
+                    },
+                }),
+            );
+
             renderTabs(metarStations);
             renderMetar(metarStations);
         } catch (error) {
@@ -614,7 +640,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [
                     {
                         type: "line",
-                        label: "풍속 (kts)",
+                        label: "풍속 (kt)",
                         data: [],
                         borderColor: "#0d6efd",
                         backgroundColor: "transparent",
@@ -623,6 +649,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         pointRadius: 3,
                         yAxisID: "y-wind",
                     },
+
+                    {
+                        type: "line",
+                        label: "돌풍 (Gust)",
+                        data: [],
+                        borderColor: "#dc3545",
+                        backgroundColor: "transparent",
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        yAxisID: "y-wind",
+                    },
+
                     {
                         type: "bar",
                         label: "강수확률 (%)",
@@ -650,15 +690,17 @@ document.addEventListener("DOMContentLoaded", function () {
                                 const label = context.dataset.label || "";
                                 const value = context.parsed.y;
 
-                                if (context.dataset.yAxisID === "y-wind") {
+                                if (context.dataset.label.includes("풍속")) {
                                     return `${label}: ${value}kt`;
                                 }
 
-                                if (context.dataset.yAxisID === "y-rain") {
-                                    return `${label}: ${value}%`;
+                                if (context.dataset.label.includes("돌풍")) {
+                                    return `${label}: ${value}kt`;
                                 }
 
-                                return `${label}: ${value}`;
+                                if (context.dataset.label.includes("강수")) {
+                                    return `${label}: ${value}%`;
+                                }
                             },
                         },
                     },
@@ -709,7 +751,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const labels = Array.isArray(payload.hours) ? payload.hours : [];
         const windData = toNumberArray(payload.wind_speeds);
+        const gustData = toNumberArray(payload.wind_gusts);
         const rainData = toNumberArray(payload.rain_probs);
+        const visibilityData = toNumberArray(payload.visibility);
+        const cloudData = toNumberArray(payload.cloud_cover);
 
         if (forecastCityEl) {
             forecastCityEl.textContent = payload.city || "Incheon";
@@ -721,6 +766,7 @@ document.addEventListener("DOMContentLoaded", function () {
             forecastChart.data.labels = [];
             forecastChart.data.datasets[0].data = [];
             forecastChart.data.datasets[1].data = [];
+            forecastChart.data.datasets[2].data = [];
             forecastChart.update();
             return;
         }
@@ -728,16 +774,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const dataLength = Math.min(
             labels.length,
             windData.length,
+            gustData.length,
             rainData.length,
+            visibilityData.length,
+            cloudData.length,
         );
 
         const safeLabels = labels.slice(0, dataLength);
         const safeWindData = windData.slice(0, dataLength);
+        const safeGustData = gustData.slice(0, dataLength);
         const safeRainData = rainData.slice(0, dataLength);
+        const safeVisibilityData = visibilityData.slice(0, dataLength);
+        const safeCloudData = cloudData.slice(0, dataLength);
 
         forecastChart.data.labels = safeLabels;
         forecastChart.data.datasets[0].data = safeWindData;
-        forecastChart.data.datasets[1].data = safeRainData;
+        forecastChart.data.datasets[1].data = safeGustData;
+        forecastChart.data.datasets[2].data = safeRainData;
         forecastChart.update();
 
         let bestTime = "No Slot";
@@ -746,7 +799,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // 최적 작업 시간:
         // 풍속 20kt 미만 + 강수확률 20% 미만
         for (let i = 0; i < dataLength; i++) {
-            if (safeWindData[i] < 20 && safeRainData[i] < 20) {
+            const wind = safeWindData[i];
+            const gust = safeGustData[i];
+            const rain = safeRainData[i];
+            const visibility = safeVisibilityData[i];
+
+            if (wind < 18 && gust < 25 && rain < 30 && visibility > 3000) {
                 bestTime = safeLabels[i];
                 break;
             }
@@ -755,7 +813,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // 작업 제한 주의:
         // 풍속 25kt 이상 또는 강수확률 60% 초과
         for (let i = 0; i < dataLength; i++) {
-            if (safeWindData[i] >= 25 || safeRainData[i] > 60) {
+            const wind = safeWindData[i];
+            const gust = safeGustData[i];
+            const rain = safeRainData[i];
+            const visibility = safeVisibilityData[i];
+
+            if (wind >= 25 || gust >= 35 || rain > 60 || visibility < 1500) {
                 limitTime = safeLabels[i];
                 break;
             }
@@ -765,7 +828,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function loadForecastData() {
-        const url = window.INDEX_PAGE?.weatherForecastUrl;
+        const baseUrl = window.INDEX_PAGE?.weatherForecastUrl;
+        const airport = window.SELECTED_AIRPORT || "RKSI";
+
+        const url = `${baseUrl}?airport=${encodeURIComponent(airport)}`;
 
         if (!url) {
             console.warn("weatherForecastUrl이 설정되지 않았습니다.");
@@ -799,6 +865,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initForecastChart();
     loadForecastData();
+
+    window.addEventListener("airportChanged", function () {
+        loadForecastData();
+    });
 
     window.setInterval(loadForecastData, 30 * 60 * 1000);
 });

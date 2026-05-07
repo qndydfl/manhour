@@ -1,7 +1,5 @@
-from encodings.punycode import T
 import os
 from pathlib import Path
-from re import DEBUG
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
@@ -28,9 +26,6 @@ CHECKWX_API_KEY = os.getenv("CHECKWX_API_KEY", "")
 CHECKWX_STATIONS = os.getenv("CHECKWX_STATIONS", "RKSI,RKSS")
 CHECKWX_CACHE_SECONDS = int(os.getenv("CHECKWX_CACHE_SECONDS", "600"))
 
-# Cache settings for external indicators
-FINANCIAL_CACHE_SECONDS = int(os.getenv("FINANCIAL_CACHE_SECONDS", "900"))
-FINANCIAL_HISTORY_MAX_POINTS = int(os.getenv("FINANCIAL_HISTORY_MAX_POINTS", "48"))
 
 allowed_hosts = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
@@ -139,8 +134,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-
-from pathlib import Path
 
 STATIC_URL = "/static/"
 
