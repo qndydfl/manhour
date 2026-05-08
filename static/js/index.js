@@ -418,6 +418,16 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${meters}m`;
     }
 
+    function notifyAirportChanged(airport) {
+        window.SELECTED_AIRPORT = airport || "RKSI";
+
+        window.dispatchEvent(
+            new CustomEvent("airportChanged", {
+                detail: { airport: window.SELECTED_AIRPORT },
+            }),
+        );
+    }
+
     function renderTabs(stations) {
         if (!tabsEl) return;
 
@@ -430,6 +440,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map((station, index) => {
                 const label = station.icao || "-";
                 const isActive = index === activeIndex;
+
                 return `
                     <button
                         type="button"
@@ -449,21 +460,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 activeIndex = nextIndex;
 
-                const selectedStation = metarStations[activeIndex];
-                const selectedAirport = selectedStation?.icao || "RKSI";
-
-                window.SELECTED_AIRPORT = selectedAirport;
-
                 renderTabs(metarStations);
                 renderMetar(metarStations);
 
-                window.dispatchEvent(
-                    new CustomEvent("airportChanged", {
-                        detail: {
-                            airport: selectedAirport,
-                        },
-                    }),
-                );
+                const selectedStation = metarStations[activeIndex];
+                notifyAirportChanged(selectedStation?.icao || "RKSI");
             });
         });
     }
@@ -481,12 +482,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const station = stations[activeIndex] || stations[0];
+
         const title = station.station || station.icao || "-";
         const icao = station.icao ? `(${station.icao})` : "";
+
         const temp =
             station.temp_c === null || station.temp_c === undefined
                 ? "-"
                 : `${station.temp_c}°C`;
+
         const windDir = Number(
             station.wind_dir ??
                 station.wind_degrees ??
@@ -526,14 +530,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 wind = `${dir} / ${speed}${gust}`;
             }
-        } else {
-            wind = "-";
         }
+
+        const visibilityNumber = Number(station.visibility);
         const vis = formatVisibility(station.visibility);
+
         const pressure =
             station.pressure_hpa === null || station.pressure_hpa === undefined
                 ? "-"
                 : `${station.pressure_hpa}hPa`;
+
         const updated = station.observed
             ? `Updated: ${station.observed}`
             : "Updated: -";
@@ -545,6 +551,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (visibilityEl) visibilityEl.textContent = vis;
         if (pressureEl) pressureEl.textContent = pressure;
         if (rawEl) rawEl.textContent = station.raw_text || "-";
+
+        window.CURRENT_METAR = {
+            airport: station.icao || "RKSI",
+            windSpeed: Number.isFinite(windSpeed) ? windSpeed : null,
+            windGust: Number.isFinite(windGust) ? windGust : null,
+            visibility: Number.isFinite(visibilityNumber)
+                ? visibilityNumber
+                : null,
+        };
     }
 
     async function loadMetar() {
@@ -564,24 +579,23 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const payload = await response.json();
-            metarStations = payload?.stations || [];
-            if (activeIndex >= metarStations.length) activeIndex = 0;
 
-            const selectedStation = metarStations[activeIndex];
-            window.SELECTED_AIRPORT = selectedStation?.icao || "RKSI";
-            window.dispatchEvent(
-                new CustomEvent("airportChanged", {
-                    detail: {
-                        airport: window.SELECTED_AIRPORT,
-                    },
-                }),
-            );
+            metarStations = payload?.stations || [];
+
+            if (activeIndex >= metarStations.length) {
+                activeIndex = 0;
+            }
 
             renderTabs(metarStations);
             renderMetar(metarStations);
+
+            const selectedStation = metarStations[activeIndex];
+            notifyAirportChanged(selectedStation?.icao || "RKSI");
         } catch (error) {
             console.error("CheckWX METAR fetch failed:", error);
+
             renderTabs([]);
+
             if (stationEl) stationEl.textContent = "-";
             if (updatedEl) updatedEl.textContent = "Updated: -";
             if (tempEl) tempEl.textContent = "-";
@@ -646,10 +660,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         backgroundColor: "transparent",
                         borderWidth: 2,
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: function (context) {
+                            return context.dataIndex === 0 ? 5 : 2;
+                        },
                         yAxisID: "y-wind",
                     },
-
                     {
                         type: "line",
                         label: "돌풍 (Gust)",
@@ -659,15 +674,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         borderDash: [5, 5],
                         borderWidth: 2,
                         tension: 0.4,
-                        pointRadius: 2,
+                        pointRadius: function (context) {
+                            return context.dataIndex === 0 ? 5 : 2;
+                        },
                         yAxisID: "y-wind",
                     },
-
                     {
                         type: "bar",
                         label: "강수확률 (%)",
                         data: [],
-                        backgroundColor: "rgba(13, 202, 240, 0.25)",
+                        backgroundColor: function (ctx) {
+                            return ctx.dataIndex === 0
+                                ? "#ffc107"
+                                : "rgba(13, 202, 240, 0.25)";
+                        },
                         borderRadius: 5,
                         yAxisID: "y-rain",
                     },
@@ -686,21 +706,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     tooltip: {
                         callbacks: {
+                            title: function (items) {
+                                if (!items.length) return "";
+                                return items[0].label === "NOW"
+                                    ? "현재 관측값"
+                                    : items[0].label;
+                            },
                             label: function (context) {
                                 const label = context.dataset.label || "";
                                 const value = context.parsed.y;
 
-                                if (context.dataset.label.includes("풍속")) {
+                                if (label.includes("풍속")) {
                                     return `${label}: ${value}kt`;
                                 }
 
-                                if (context.dataset.label.includes("돌풍")) {
+                                if (label.includes("돌풍")) {
                                     return `${label}: ${value}kt`;
                                 }
 
-                                if (context.dataset.label.includes("강수")) {
+                                if (label.includes("강수")) {
                                     return `${label}: ${value}%`;
                                 }
+
+                                return `${label}: ${value}`;
                             },
                         },
                     },
@@ -711,7 +739,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: "kts",
+                            text: "kt",
                             font: { size: 10 },
                         },
                     },
@@ -732,10 +760,23 @@ document.addEventListener("DOMContentLoaded", function () {
                         grid: {
                             display: false,
                         },
+
                         ticks: {
                             maxRotation: 0,
                             autoSkip: true,
                             maxTicksLimit: 8,
+
+                            color: function (context) {
+                                return context.index === 0
+                                    ? "#ffc107"
+                                    : "#6c757d";
+                            },
+
+                            font: function (context) {
+                                return {
+                                    weight: context.index === 0 ? "700" : "500",
+                                };
+                            },
                         },
                     },
                 },
@@ -757,10 +798,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const cloudData = toNumberArray(payload.cloud_cover);
 
         if (forecastCityEl) {
-            forecastCityEl.textContent = payload.city || "Incheon";
+            const airportCode = window.SELECTED_AIRPORT || "RKSI";
+            forecastCityEl.textContent = `${payload.city || "Incheon"} (${airportCode})`;
         }
 
-        if (!labels.length || !windData.length || !rainData.length) {
+        if (
+            !labels.length ||
+            !windData.length ||
+            !gustData.length ||
+            !rainData.length
+        ) {
             setForecastStatus("데이터 없음", "데이터 없음");
 
             forecastChart.data.labels = [];
@@ -787,6 +834,32 @@ document.addEventListener("DOMContentLoaded", function () {
         const safeVisibilityData = visibilityData.slice(0, dataLength);
         const safeCloudData = cloudData.slice(0, dataLength);
 
+        const currentMetar = window.CURRENT_METAR;
+        const selectedAirport = window.SELECTED_AIRPORT || "RKSI";
+
+        if (currentMetar && currentMetar.airport === selectedAirport) {
+            safeLabels.unshift("NOW");
+
+            safeWindData.unshift(currentMetar.windSpeed ?? safeWindData[0]);
+
+            safeGustData.unshift(currentMetar.windGust ?? safeGustData[0]);
+
+            safeRainData.unshift(0);
+
+            safeVisibilityData.unshift(
+                currentMetar.visibility ?? safeVisibilityData[0],
+            );
+
+            safeCloudData.unshift(safeCloudData[0] ?? 0);
+
+            safeLabels.pop();
+            safeWindData.pop();
+            safeGustData.pop();
+            safeRainData.pop();
+            safeVisibilityData.pop();
+            safeCloudData.pop();
+        }
+
         forecastChart.data.labels = safeLabels;
         forecastChart.data.datasets[0].data = safeWindData;
         forecastChart.data.datasets[1].data = safeGustData;
@@ -796,9 +869,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let bestTime = "No Slot";
         let limitTime = "Stable";
 
-        // 최적 작업 시간:
-        // 풍속 20kt 미만 + 강수확률 20% 미만
-        for (let i = 0; i < dataLength; i++) {
+        for (let i = 0; i < safeLabels.length; i++) {
             const wind = safeWindData[i];
             const gust = safeGustData[i];
             const rain = safeRainData[i];
@@ -810,9 +881,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // 작업 제한 주의:
-        // 풍속 25kt 이상 또는 강수확률 60% 초과
-        for (let i = 0; i < dataLength; i++) {
+        for (let i = 0; i < safeLabels.length; i++) {
             const wind = safeWindData[i];
             const gust = safeGustData[i];
             const rain = safeRainData[i];
@@ -829,15 +898,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function loadForecastData() {
         const baseUrl = window.INDEX_PAGE?.weatherForecastUrl;
-        const airport = window.SELECTED_AIRPORT || "RKSI";
 
-        const url = `${baseUrl}?airport=${encodeURIComponent(airport)}`;
-
-        if (!url) {
+        if (!baseUrl) {
             console.warn("weatherForecastUrl이 설정되지 않았습니다.");
             setForecastStatus("URL 없음", "API 확인");
             return;
         }
+
+        const airport = window.SELECTED_AIRPORT || "RKSI";
+        const url = `${baseUrl}?airport=${encodeURIComponent(airport)}`;
 
         try {
             setForecastStatus("데이터 분석 중", "확인 중");

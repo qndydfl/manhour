@@ -26,8 +26,8 @@
     defer
     src="{% static 'js/manning/manning_dashboard_edit.js' %}"
 ></script>
-{{ worker_names|json_script:"manhourWorkers" }} 
-{{default_worker_names|json_script:"defaultWorkerNames" }} 
+{{ worker_names|json_script:"manhourWorkers" }}
+{{default_worker_names|json_script:"defaultWorkerNames" }}
 {% endblock js %} 
 
 {% block content %}
@@ -58,7 +58,8 @@
                 id="addAreaRowBtn"
                 class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold py-2"
                 data-bs-toggle="modal"
-                {% comment %}data-bs-target="#addAreaModal"
+                {% comment %}
+                data-bs-target="#addAreaModal"
                 {% endcomment %}
             >
                 <i class="bi bi-plus-circle me-1"></i> 행 추가
@@ -78,7 +79,11 @@
     <div class="edit-layout">
         <div class="row g-4 justify-content-center">
             <div class="col-md-8">
-                <form method="POST" id="areaEditForm">
+                <form
+                    method="POST"
+                    id="areaEditForm"
+                    action="{% url 'manning:area_bulk_edit' session.id %}"
+                >
                     {% csrf_token %}
 
                     <div
@@ -150,8 +155,7 @@
                                             name="area_workers"
                                             class="form-control worker-drop-target auto-resize"
                                             rows="1"
-                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
-                                        >
+                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
                                     </td>
                                     <td class="text-center">
                                         <input
@@ -210,8 +214,7 @@
                                             name="area_workers"
                                             class="form-control worker-drop-target auto-resize"
                                             rows="1"
-                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
-                                        >
+                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
                                     </td>
                                     <td class="text-center">
                                         <input
@@ -272,8 +275,7 @@
                                             name="area_workers"
                                             class="form-control worker-drop-target auto-resize"
                                             rows="1"
-                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
-                                        >
+                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
                                     </td>
                                     <td class="text-center">
                                         <input
@@ -293,69 +295,203 @@
             </div>
             <div class="col-md-4">
                 <aside class="edit-memo-panel mt-3">
-                    <div class="memo-card">
-                        <div class="memo-card-header mb-3 text-warning fw-bold">
-                            <i class="bi bi-journal-text me-1"></i>
-                            전체 메모
-                        </div>
+                    <div class="memo-card border rounded-4 shadow-sm bg-white">
+                        <!-- 헤더 영역 -->
                         <div
-                            class="memo-editor rounded-4"
-                            contenteditable="true"
+                            class="memo-card-header p-3 border-bottom d-flex justify-content-between align-items-center"
                         >
-                            {% with memo_text=session.memo|striptags %} {% if memo_text %} {{ session.memo|safe }} {% else %}
-                            <div class="label-text">📋 업무 전달 사항</div>
-                            <br />
-                            <div class="label-text">[중요 공정]</div>
-                            <div>
-                                - 내용:<span class="input-text" contenteditable="true">&nbsp;</span>
+                            <div class="text-primary fw-bold">
+                                <i class="bi bi-journal-text me-1"></i> 전체 메모
                             </div>
-                            <br />
-
-                            <div class="label-text">[오전 업무]</div>
-                            <div>
-                                - Tool 준비:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <div>
-                                - 자재 준비:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <div>
-                                - 작업대 준비:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <div>
-                                - Towing:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <br />
-
-                            <div class="label-text">[오후 업무]</div>
-                            <div>
-                                - 정리 정돈:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <div>
-                                - Card 100%:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <div>
-                                - Towing:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            <br />
-                            <div>
-                                - 특이사항:
-                                <span class="input-text" contenteditable="true">&nbsp;</span>
-                            </div>
-                            {% endif %} {% endwith %}
+                            <span
+                                class="badge bg-light text-dark border shadow-sm"
+                                >📋 업무 전달 사항</span
+                            >
                         </div>
-                        <textarea
-                            id="sessionMemoInput"
-                            name="session_memo"
-                            form="areaEditForm"
-                            class="d-none"
-                        >{% if session.memo %}{{ session.memo }}{% endif %}</textarea>
+
+                        <!-- 메모 입력 영역 -->
+                        <div
+                            class="memo-body p-3"
+                            style="max-height: 700px; overflow-y: auto"
+                        >
+                            <!-- [업무 전달] -->
+                            <div class="memo-section mb-4">
+                                <label class="fw-bold text-secondary mb-2 small"
+                                    >[업무 전달]</label
+                                >
+                                <div class="ms-2">
+                                    <div class="d-flex align-items-start">
+                                        <textarea
+                                            name="important_process"
+                                            class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
+                                            rows="2"
+                                            placeholder="내용 입력"
+                                            form="areaEditForm"
+                                        >{{ memo_values.important_process }}
+                                        </textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- [오전 업무] -->
+                            <div class="memo-section mb-4">
+                                <label class="fw-bold text-secondary mb-2 small"
+                                    >[오전 업무]</label
+                                >
+                                <div class="">
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >Tool 준비 :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="morning_tool"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.morning_tool }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >자재 준비 :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="morning_material"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.morning_material }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >작업대 준비 :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="morning_bench"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.morning_bench }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >Towing :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="morning_towing"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.morning_towing }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- [오후 업무] -->
+                            <div class="memo-section mb-4">
+                                <label class="fw-bold text-secondary mb-2 small"
+                                    >[오후 업무]</label
+                                >
+                                <div class="">
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >정리 정돈 :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="afternoon_cleanup"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.afternoon_cleanup }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >Card 100% :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="afternoon_card"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.afternoon_card }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                    <div
+                                        class="input-group input-group-sm mb-2"
+                                    >
+                                        <span
+                                            class="input-group-text border-0 bg-transparent"
+                                            >Towing :</span
+                                        >
+                                        <input
+                                            type="text"
+                                            name="afternoon_towing"
+                                            class="form-control border-0 border-bottom bg-transparent text-primary"
+                                            form="areaEditForm"
+                                            value="{{ memo_values.afternoon_towing }}"
+                                            placeholder="내용 입력"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 특이 사항 -->
+                            <div class="memo-section mb-3">
+                                <label class="fw-bold text-danger mb-2 small"
+                                    >[특이 사항]</label
+                                >
+                                <div class="ms-2">
+                                    <textarea
+                                        name="special_note"
+                                        class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
+                                        rows="2"
+                                        placeholder="내용 입력"
+                                        form="areaEditForm"
+                                    >{{ memo_values.special_note }}</textarea
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- 저장 버튼 (선택 사항) -->
+                            <div class="d-grid mt-3">
+                                <button
+                                    type="submit"
+                                    class="btn btn-warning btn-sm fw-bold"
+                                    form="areaEditForm"
+                                    formaction="{% url 'manning:area_bulk_edit' session.id %}"
+                                >
+                                    메모 저장하기
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </aside>
             </div>

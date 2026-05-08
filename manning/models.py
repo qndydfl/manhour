@@ -55,6 +55,15 @@ class WorkSession(models.Model):
         related_name="manning_sessions",
     )
     memo = models.TextField(blank=True, default="")
+    important_process = models.TextField(blank=True, default="")
+    morning_tool = models.TextField(blank=True, default="")
+    morning_material = models.TextField(blank=True, default="")
+    morning_bench = models.TextField(blank=True, default="")
+    morning_towing = models.TextField(blank=True, default="")
+    afternoon_cleanup = models.TextField(blank=True, default="")
+    afternoon_card = models.TextField(blank=True, default="")
+    afternoon_towing = models.TextField(blank=True, default="")
+    special_note = models.TextField(blank=True, default="")
 
     def __str__(self):
         label = self.work_package_name or self.name

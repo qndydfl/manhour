@@ -217,7 +217,10 @@
 
     <main class="dashboard-main">
         <div class="dashboard-content">
-            <div class="index-page my-lg-4" data-workplace="{{ request.session.workplace|lower }}">
+            <div
+                class="index-page my-lg-4"
+                data-workplace="{{ request.session.workplace|lower }}"
+            >
                 <div
                     class="row g-4 align-items-stretch"
                     data-aos="fade-up"
@@ -372,11 +375,16 @@
                                 <div
                                     class="d-flex justify-content-between align-items-center mb-3"
                                 >
-                                    <h6
-                                        class="text-uppercase tracking-wider opacity-75"
-                                    >
-                                        Airport Weather
-                                    </h6>
+                                    <div>
+                                        <h6
+                                            class="text-uppercase tracking-wider opacity-75 mb-1"
+                                        >
+                                            Airport Weather
+                                        </h6>
+                                        <small class="text-muted"
+                                            >METAR 관측값</small
+                                        >
+                                    </div>
                                 </div>
 
                                 <div
@@ -536,16 +544,17 @@
                                 <div
                                     class="d-flex justify-content-between align-items-center mb-3"
                                 >
-                                    <h6
-                                        class="text-uppercase fw-bold text-muted small mb-0"
-                                    >
-                                        MRO Forecast
-                                    </h6>
+                                    <div>
+                                        <h6
+                                            class="text-uppercase fw-bold text-muted small mb-1"
+                                        >
+                                            MRO Forecast
+                                        </h6>
+                                    </div>
                                     <span
                                         class="badge bg-primary-soft text-primary"
                                         id="forecastCity"
-                                        ></span
-                                    >
+                                    ></span>
                                 </div>
 
                                 <h5 class="fw-bold text-dark mb-4">
@@ -660,8 +669,8 @@
         <span class="mx-2 text-muted">|</span>
         <small class="text-muted">All rights reserved</small>
         {% if request.session.user_role == "admin" %}
-        <span class="mx-2 text-muted">|</span>
-        <small class="text-muted">version 2.1.0</small>
+        <span class="mx-2 text-muted d-none d-sm-inline">|</span>
+        <small class="text-muted d-none d-sm-inline">version 2.1.0</small>
         {% endif %}
     </div>
 </footer>

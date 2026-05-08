@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from django.http import Http404
+from django.utils.html import escape
 
 from .forms import SessionAreaForm, WorkSessionCreateForm
 from django.db.models import Case, IntegerField, Sum, When
@@ -26,7 +27,6 @@ from .models import (
     AreaTemplate,
     AreaTemplateItem,
 )
-
 
 WORKPLACE_SESSION_KEY = "workplace"
 
@@ -906,6 +906,26 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
         worker_names = _get_worker_directory(session)
         default_worker_names = _get_default_worker_directory(workplace)
 
+        def memo_to_text(value):
+            return (
+                (value or "")
+                .replace("<br />", "\n")
+                .replace("<br/>", "\n")
+                .replace("<br>", "\n")
+            )
+
+        memo_values = {
+            "important_process": memo_to_text(session.important_process),
+            "morning_tool": memo_to_text(session.morning_tool),
+            "morning_material": memo_to_text(session.morning_material),
+            "morning_bench": memo_to_text(session.morning_bench),
+            "morning_towing": memo_to_text(session.morning_towing),
+            "afternoon_cleanup": memo_to_text(session.afternoon_cleanup),
+            "afternoon_card": memo_to_text(session.afternoon_card),
+            "afternoon_towing": memo_to_text(session.afternoon_towing),
+            "special_note": memo_to_text(session.special_note),
+        }
+
         return render(
             request,
             "manning/manning_dashboard_edit.html",
@@ -914,6 +934,7 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
                 "session_areas": session_areas,
                 "worker_names": list(worker_names),
                 "default_worker_names": list(default_worker_names),
+                "memo_values": memo_values,
                 "errors": [],
             },
         )
@@ -934,9 +955,106 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
         new_orders = request.POST.getlist("new_area_order")
         session_memo = (request.POST.get("session_memo") or "").strip()
 
+        def normalize_text(value):
+            text = escape((value or "").strip())
+            return text.replace("\r\n", "\n").replace("\r", "\n")
+
+        def to_html(text):
+            return (text or "").replace("\n", "<br>")
+
+        important_process = normalize_text(request.POST.get("important_process"))
+        morning_tool = normalize_text(request.POST.get("morning_tool"))
+        morning_material = normalize_text(request.POST.get("morning_material"))
+        morning_bench = normalize_text(request.POST.get("morning_bench"))
+        morning_towing = normalize_text(request.POST.get("morning_towing"))
+        afternoon_cleanup = normalize_text(request.POST.get("afternoon_cleanup"))
+        afternoon_card = normalize_text(request.POST.get("afternoon_card"))
+        afternoon_towing = normalize_text(request.POST.get("afternoon_towing"))
+        special_note = normalize_text(request.POST.get("special_note"))
+
+        memo_sections = []
+        if important_process:
+            memo_sections.append(
+                "<div><strong>[업무 전달]</strong><br>"
+                f'<span class="text-primary">{to_html(important_process)}</span></div>'
+            )
+
+        morning_items = []
+        if morning_tool:
+            morning_items.append(
+                f'Tool 준비: <span class="text-primary">{to_html(morning_tool)}</span>'
+            )
+        if morning_material:
+            morning_items.append(
+                f'자재 준비: <span class="text-primary">{to_html(morning_material)}</span>'
+            )
+        if morning_bench:
+            morning_items.append(
+                f'작업대 준비: <span class="text-primary">{to_html(morning_bench)}</span>'
+            )
+        if morning_towing:
+            morning_items.append(
+                f'Towing: <span class="text-primary">{to_html(morning_towing)}</span>'
+            )
+        if morning_items:
+            memo_sections.append(
+                "<div><strong>[오전 업무]</strong><br>"
+                f"{'<br>'.join(morning_items)}</div>"
+            )
+
+        afternoon_items = []
+        if afternoon_cleanup:
+            afternoon_items.append(
+                f'정리 정돈: <span class="text-primary">{to_html(afternoon_cleanup)}</span>'
+            )
+        if afternoon_card:
+            afternoon_items.append(
+                f'Card 100%: <span class="text-primary">{to_html(afternoon_card)}</span>'
+            )
+        if afternoon_towing:
+            afternoon_items.append(
+                f'Towing: <span class="text-primary">{to_html(afternoon_towing)}</span>'
+            )
+        if afternoon_items:
+            memo_sections.append(
+                "<div><strong>[오후 업무]</strong><br>"
+                f"{'<br>'.join(afternoon_items)}</div>"
+            )
+
+        if special_note:
+            memo_sections.append(
+                "<div><span class=\"fw-bold text-danger\">[특이 사항]</span><br>"
+                f'<span class="text-primary">{to_html(special_note)}</span></div>'
+            )
+
+        if memo_sections:
+            session_memo = "<br>".join(memo_sections)
+
         with transaction.atomic():
             session.memo = session_memo
-            session.save(update_fields=["memo"])
+            session.important_process = important_process
+            session.morning_tool = morning_tool
+            session.morning_material = morning_material
+            session.morning_bench = morning_bench
+            session.morning_towing = morning_towing
+            session.afternoon_cleanup = afternoon_cleanup
+            session.afternoon_card = afternoon_card
+            session.afternoon_towing = afternoon_towing
+            session.special_note = special_note
+            session.save(
+                update_fields=[
+                    "memo",
+                    "important_process",
+                    "morning_tool",
+                    "morning_material",
+                    "morning_bench",
+                    "morning_towing",
+                    "afternoon_cleanup",
+                    "afternoon_card",
+                    "afternoon_towing",
+                    "special_note",
+                ]
+            )
             for idx, area_id in enumerate(area_ids):
                 area = get_object_or_404(SessionArea, id=area_id, session=session)
                 if str(area_id) in delete_ids:
