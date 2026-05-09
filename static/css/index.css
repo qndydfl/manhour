@@ -613,3 +613,48 @@
         font-size: 1.8rem !important;
     }
 }
+
+/* 작업 현황 */
+.work__status-pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-width: 76px;
+    height: 30px;
+    padding: 0 12px;
+
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.work__status-pill--active {
+    color: #b77900;
+    background: rgba(255, 193, 7, 0.16);
+    border: 1px solid rgba(255, 193, 7, 0.45);
+    box-shadow: 0 0 14px rgba(255, 193, 7, 0.28);
+}
+
+.work__status-pill--active .spinner-grow {
+    width: 0.55rem;
+    height: 0.55rem;
+    color: #ffc107;
+}
+
+.work__status-pill--idle {
+    color: #6c757d;
+    background: rgba(108, 117, 125, 0.1);
+    border: 1px solid rgba(108, 117, 125, 0.22);
+}
+
+@media (max-width: 420px) {
+    .work__status-pill {
+        min-width: auto;
+        padding: 0 10px;
+        font-size: 0.72rem;
+    }
+}

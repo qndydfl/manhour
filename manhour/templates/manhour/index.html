@@ -463,11 +463,9 @@
                             class="card border-0 shadow-lg rounded-4 h-100 dashboard-chart-card hover-lift"
                         >
                             <div class="card-body p-4">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-2"
-                                >
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                                     <div>
-                                        <h5 class="fw-bold text-dark mb-3">
+                                        <h5 class="fw-bold text-dark mb-2">
                                             <i
                                                 class="bi bi-pie-chart-fill text-primary me-1"
                                             ></i>
@@ -478,14 +476,23 @@
                                             확인합니다.
                                         </p>
                                     </div>
-
-                                    <span
-                                        class="badge bg-primary rounded-pill px-3"
-                                        >LIVE</span
-                                    >
+                                    
+                                    {% if active_count > 0 %}
+                                    <span class="work__status-pill work__status-pill--active">
+                                        <span
+                                            class="spinner-grow spinner-grow-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        가동 중
+                                    </span>
+                                    {% else %}
+                                    <span class="work__status-pill work__status-pill--idle">
+                                        대기 중
+                                    </span>
+                                    {% endif %}
                                 </div>
 
-                                <div class="row g-3">
+                                <div class="row g-3 mb-0">
                                     <div class="col-6">
                                         <div
                                             class="dashboard-status-box active d-flex justify-content-center"
@@ -528,10 +535,9 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="work-chart-wrapper">
-                                    <canvas id="workStatusChart"></canvas>
-                                </div>
+                            </div>
+                            <div class="work-chart-wrapper pb-3">
+                                <canvas id="workStatusChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -658,7 +664,9 @@
         </div>
     </div>
 </div>
-{% endblock content %} {% block footer %}
+{% endblock content %} 
+
+{% block footer %}
 <footer class="index-footer-glass text-center py-3">
     <div
         class="container d-flex flex-wrap justify-content-center align-items-center gap-1"

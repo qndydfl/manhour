@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: "80%", // ← 도넛 더 키워서 여백 줄임
+                    cutout: "65%", // ← 도넛 더 키워서 여백 줄임
                     layout: {
                         padding: {
                             top: 5,
