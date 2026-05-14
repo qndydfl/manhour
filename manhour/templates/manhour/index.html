@@ -69,7 +69,7 @@
                 <div class="collapse" id="dashboardSubmenu">
                     <div class="sidebar-submenu-list">
                         <a
-                            href="{% url 'manhour:paste_data' %}"
+                            href="{% if master_data_count|default:0|add:0 > 0 %}{% url 'manhour:master_data_list' %}{% else %}{% url 'manhour:paste_data' %}{% endif %}"
                             class="submenu-item d-flex align-items-center justify-content-between"
                         >
                             <div class="d-flex align-items-center">
@@ -463,7 +463,9 @@
                             class="card border-0 shadow-lg rounded-4 h-100 dashboard-chart-card hover-lift"
                         >
                             <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                <div
+                                    class="d-flex justify-content-between align-items-start gap-3 mb-3"
+                                >
                                     <div>
                                         <h5 class="fw-bold text-dark mb-2">
                                             <i
@@ -476,9 +478,11 @@
                                             확인합니다.
                                         </p>
                                     </div>
-                                    
+
                                     {% if active_count > 0 %}
-                                    <span class="work__status-pill work__status-pill--active">
+                                    <span
+                                        class="work__status-pill work__status-pill--active"
+                                    >
                                         <span
                                             class="spinner-grow spinner-grow-sm"
                                             aria-hidden="true"
@@ -486,7 +490,9 @@
                                         가동 중
                                     </span>
                                     {% else %}
-                                    <span class="work__status-pill work__status-pill--idle">
+                                    <span
+                                        class="work__status-pill work__status-pill--idle"
+                                    >
                                         대기 중
                                     </span>
                                     {% endif %}
@@ -664,9 +670,7 @@
         </div>
     </div>
 </div>
-{% endblock content %} 
-
-{% block footer %}
+{% endblock content %} {% block footer %}
 <footer class="index-footer-glass text-center py-3">
     <div
         class="container d-flex flex-wrap justify-content-center align-items-center gap-1"
@@ -678,7 +682,7 @@
         <small class="text-muted">All rights reserved</small>
         {% if request.session.user_role == "admin" %}
         <span class="mx-2 text-muted d-none d-sm-inline">|</span>
-        <small class="text-muted d-none d-sm-inline">version 2.1.0</small>
+        <small class="text-muted d-none d-sm-inline">version 2.1.1</small>
         {% endif %}
     </div>
 </footer>

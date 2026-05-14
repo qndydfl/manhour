@@ -3066,7 +3066,7 @@ class MasterDataCountApiView(MasterDataBaseMixin, View):
         return JsonResponse({"count": count})
 
 
-class DashboardCountsApiView(View):
+class DashboardCountsApiView(MasterDataBaseMixin, View):
     def get(self, request, *args, **kwargs):
         workplace = get_current_workplace(request)
         active_count = WorkSession.objects.filter(
@@ -3086,10 +3086,13 @@ class DashboardCountsApiView(View):
             .count()
         )
 
+        master_data_count = self.get_master_data_count()
+
         return JsonResponse(
             {
                 "active_count": active_count,
                 "history_count": history_count,
+                "master_data_count": master_data_count,
             }
         )
 

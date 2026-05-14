@@ -100,3 +100,35 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+// Navbar길이에 따라 사이드바 높이 조정
+function updateNavbarHeight() {
+    const navbar = document.getElementById("appNavbar");
+
+    if (!navbar) return;
+
+    document.documentElement.style.setProperty(
+        "--navbar-height",
+        `${navbar.offsetHeight}px`
+    );
+}
+
+window.addEventListener("load", updateNavbarHeight);
+window.addEventListener("resize", updateNavbarHeight);
+
+const mainNavbar = document.getElementById("mainNavbar");
+
+if (mainNavbar) {
+    mainNavbar.addEventListener("show.bs.collapse", () => {
+        document.body.classList.add("navbar-open");
+    });
+
+    mainNavbar.addEventListener("hidden.bs.collapse", () => {
+        document.body.classList.remove("navbar-open");
+        requestAnimationFrame(updateNavbarHeight);
+    });
+
+    mainNavbar.addEventListener("shown.bs.collapse", () => {
+        requestAnimationFrame(updateNavbarHeight);
+    });
+}
