@@ -125,10 +125,6 @@ if (mainNavbar) {
 
     mainNavbar.addEventListener("hidden.bs.collapse", () => {
         document.body.classList.remove("navbar-open");
-        requestAnimationFrame(updateNavbarHeight);
-    });
-
-    mainNavbar.addEventListener("shown.bs.collapse", () => {
-        requestAnimationFrame(updateNavbarHeight);
+        updateNavbarHeight();
     });
 }
