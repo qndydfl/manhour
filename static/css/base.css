@@ -2,6 +2,9 @@
     /* Layout */
     --navbar-height: 4rem;
     --content-max-width: 1200px;
+    --page-content-top-gap: 24px;
+    --page-content-bottom-gap: 24px;
+    --page-content-inline-gap: 18px;
 
     /* Navbar */
     --navbar-bg: #111827;
@@ -106,7 +109,7 @@ body {
 .page-content {
     position: relative;
     z-index: 1;
-    /* min-height: 100vh; */
+    min-height: 100dvh;
     overflow: visible;
 }
 
@@ -127,7 +130,15 @@ body {
 .ios-wrap {
     max-width: var(--content-max-width);
     margin: 0 auto;
-    padding: calc(var(--navbar-height) + 30px) 18px 20px;
+    padding:
+        calc(var(--navbar-height) + var(--page-content-top-gap))
+        var(--page-content-inline-gap)
+        var(--page-content-bottom-gap);
+}
+
+body.login-page > .page-content > .ios-wrap {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 /* Legacy ios-topbar compatibility */

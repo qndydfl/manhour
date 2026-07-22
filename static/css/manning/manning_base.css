@@ -137,7 +137,8 @@ body.modal-open .bottom-action-bar {
 }
 
 body.manning-page-body .ios-wrap {
-    padding-top: 20px !important;
+    padding-top: var(--page-content-top-gap) !important;
+    padding-bottom: var(--page-content-bottom-gap) !important;
     max-width: 1200px;
     margin: 0 auto;
 }

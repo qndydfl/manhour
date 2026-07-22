@@ -144,7 +144,9 @@
     max-width: none;
 
     /* margin: 0; */
-    padding-top: calc(var(--navbar-height) + 0.5rem);
+    padding-top: calc(
+        var(--navbar-height) + var(--page-content-top-gap)
+    );
 
     padding-left: 0;
     padding-right: 0;

@@ -9,6 +9,43 @@
     font-size: 0.85rem;
 }
 
+@media (min-width: 992px) {
+    .app-navbar {
+        height: var(--navbar-height);
+        min-height: var(--navbar-height);
+        padding-top: 0;
+        padding-bottom: 0;
+        box-sizing: border-box;
+    }
+
+    .app-navbar > .container-fluid,
+    .app-navbar .navbar-collapse,
+    .app-navbar .app-navbar__actions {
+        height: 100%;
+    }
+
+    .app-navbar > .container-fluid {
+        flex-wrap: nowrap;
+    }
+
+    .app-navbar .app-navbar__actions {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .app-navbar .app-navbar__workplace-pill {
+        height: 2.5rem;
+        min-height: 2.5rem;
+        padding-top: 0.15rem;
+        padding-bottom: 0.15rem;
+    }
+
+    .app-navbar .app-navbar__workplace-select {
+        height: 2rem;
+        min-height: 2rem;
+    }
+}
+
 .app-navbar .navbar-brand,
 .app-navbar .navbar-brand:hover,
 .app-navbar .navbar-brand:focus {
