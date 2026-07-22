@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
                 ('work_item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assignments', to='manning.workitem')),
             ],
             options={
-                'constraints': [models.UniqueConstraint(condition=models.Q(('end_min__isnull', True), ('start_min__isnull', True)), fields=('work_item', 'worker'), name='uniq_assignment_only_when_no_time')],
+                'constraints': [models.UniqueConstraint(condition=models.Q(('end_min__isnull', True), ('start_min__isnull', True)), fields=('work_item', 'worker'), name='manning_legacy_uniq_assignment_no_time')],
             },
         ),
         migrations.CreateModel(

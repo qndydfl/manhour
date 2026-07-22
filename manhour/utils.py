@@ -1,5 +1,3 @@
-import math
-
 MINUTES_PER_DAY = 1440
 
 SHIFT_START_DAY = 8 * 60      # 08:00 = 480

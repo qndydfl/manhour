@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("[manage_items] script loaded");
 
     initPlanMhAdjust();
     initMasterItemsTab();

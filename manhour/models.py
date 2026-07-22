@@ -1,5 +1,3 @@
-from django.utils import timezone
-from urllib.parse import parse_qs, urlparse
 from django.db import models
 from django.db.models import Q
 from .workplace_config import get_default_workplace_choices

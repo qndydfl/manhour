@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveConstraint(
             model_name='assignment',
-            name='uniq_assignment_only_when_no_time',
+            name='manning_legacy_uniq_assignment_no_time',
         ),
         migrations.AddField(
             model_name='worksession',

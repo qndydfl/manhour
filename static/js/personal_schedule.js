@@ -802,11 +802,4 @@ document.addEventListener("DOMContentLoaded", () => {
         resetDbBtn.addEventListener("click", () => resetDB());
     }
 
-    console.log("[manual_modal] bind ok", {
-        resetUiBtn: !!resetUiBtn,
-        resetDbBtn: !!resetDbBtn,
-        SAVE_URL,
-        MANUAL_RESET_URL,
-        SESSION_ID,
-    });
 });

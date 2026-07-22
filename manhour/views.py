@@ -1,13 +1,17 @@
-import math, json, re
+import json
+import logging
+import math
+import re
 from datetime import timedelta, datetime
 import requests
+
+logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.db import transaction
-from django.db import models as django_models
-from django.db.models import Q, Count, Max, Case, When, Sum, FloatField, Min
+from django.db.models import Q, Count, Max, Case, When, Sum, FloatField
 from django.db.models.functions import Coalesce
 from django.forms import modelformset_factory
 from django.http import JsonResponse
@@ -18,15 +22,10 @@ from django.views import View
 from django.views.generic import (
     TemplateView,
     ListView,
-    CreateView,
     DeleteView,
     DetailView,
 )
 from django.views.decorators.http import require_POST
-from django.utils.decorators import method_decorator
-from django.views.decorators.clickjacking import xframe_options_sameorigin
-
-from manhour.planner import Planner
 from manhour.utils import ScheduleCalculator, format_min_to_time, get_adjusted_min
 from .models import (
     AppSetting,
@@ -34,7 +33,6 @@ from .models import (
     DefaultWorkerDirectory,
     FeaturedVideo,
     GibunPriority,
-    GibunTeam,
     TaskMaster,
     WorkItem,
     WorkSession,
@@ -50,17 +48,10 @@ from .workplaces import (
 )
 from .forms import (
     KanbiAssignmentForm,
-    ManageItemForm,
     WorkItemForm,
-    WorkerIndirectForm,
     TaskMasterForm,
 )
 from .services import run_auto_assign, refresh_worker_totals, run_sync_schedule
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.decorators.csrf import csrf_exempt
-
-from django.utils.timezone import now
-from .models import WorkSession
 
 # -----------------------------------------------------------
 # 공용 헬퍼 함수
@@ -238,6 +229,18 @@ class SimpleLoginRequiredMixin:
             messages.error(request, "근무지를 선택해주세요.")
             return redirect("manhour:login")
         auto_archive_expired_sessions(workplace)
+        return super().dispatch(request, *args, **kwargs)
+
+
+def is_admin_request(request) -> bool:
+    return request.session.get("user_role") == "admin" or request.user.is_superuser
+
+
+class SimpleAdminRequiredMixin(SimpleLoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not is_admin_request(request):
+            messages.error(request, "관리자 권한이 필요합니다.")
+            return redirect("manhour:index")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -1102,22 +1105,8 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             s for s in (custom_ids_raw.split(",") if custom_ids_raw else []) if s
         ]
 
-        # 조정값은 work_mh에 저장하지 않고 화면에만 반영
-        # (조정값을 실제 저장하려면 아래 코드 사용)
-        # if mh_adjusted_list and len(mh_adjusted_list) == len(formset.forms):
-        #     for idx, form in enumerate(formset.forms):
-        #         try:
-        #             adj_val = mh_adjusted_list[idx]
-        #             if adj_val.strip() != "":
-        #                 form.data = form.data.copy()
-        #                 form.data[form.add_prefix("work_mh")] = adj_val
-        #         except Exception:
-        #             continue
-
         if not formset.is_valid():
-            print("\n❌ [Formset 유효성 검사 실패] ❌")
-            print(formset.errors)
-            print("----------------------------------\n")
+            logger.warning("Manage item formset validation failed: %s", formset.errors)
             return redirect("manhour:manage_items", session_id=session.id)
 
         # ---------------------------------------------------------
@@ -1193,7 +1182,11 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 if form in formset.deleted_forms:
                     continue
                 if not form.is_valid():
-                    print(f"❌ 폼 에러 (ID: {form.instance.id}): {form.errors}")
+                    logger.warning(
+                        "Manage item form validation failed (id=%s): %s",
+                        form.instance.id,
+                        form.errors,
+                    )
                     continue
 
                 instance = form.save(commit=False)
@@ -1556,7 +1549,7 @@ class UpdateLimitsView(SimpleLoginRequiredMixin, View):
                 worker_id = key.split("_")[1]
                 new_limit = float(value)
 
-                worker = Worker.objects.get(id=worker_id)
+                worker = get_object_or_404(Worker, id=worker_id, session=session)
                 worker.limit_mh = new_limit
                 worker.save()
 
@@ -1621,6 +1614,11 @@ class HistoryView(SimpleLoginRequiredMixin, ListView):
 
 @require_POST
 def clear_history(request):
+    if not request.session.get("is_authenticated"):
+        return redirect("manhour:login")
+    if not is_admin_request(request):
+        messages.error(request, "관리자 권한이 필요합니다.")
+        return redirect("manhour:history")
     workplace = get_current_workplace(request)
     WorkSession.objects.filter(is_active=False, site=workplace).delete()
     return redirect("manhour:history")
@@ -1628,7 +1626,7 @@ def clear_history(request):
 
 @require_POST
 def delete_history_session(request, session_id):
-    if request.session.get("user_role") != "admin" and not request.user.is_superuser:
+    if not is_admin_request(request):
         messages.error(request, "관리자 권한이 필요합니다.")
         return redirect("manhour:history")
 
@@ -1965,8 +1963,8 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
                             work_mh=mh_val,
                         )
                     )
-            except Exception as e:
-                print(f"Error processing line: {line}, Error: {e}")
+            except Exception:
+                logger.exception("Failed to process pasted line: %s", line)
                 continue
 
         if new_items:
@@ -2466,8 +2464,8 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
                     shift_type=session.shift_type,
                 )
                 calculated_schedule = calc.calculate()
-            except Exception as e:
-                print(f"Calc Error: {e}")
+            except Exception:
+                logger.exception("Failed to calculate assigned summary schedule")
                 for item in floating_list:
                     item["start_str"] = "-"
                     item["end_str"] = "-"
@@ -2645,8 +2643,8 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                     shift_type=session.shift_type,
                 )
                 calculated_schedule = calc.calculate()
-            except Exception as e:
-                print(f"Schedule Calc Error: {e}")
+            except Exception:
+                logger.exception("Failed to calculate personal schedule")
                 calculated_schedule = floating_tasks
 
         raw_combined = fixed_schedule + calculated_schedule
@@ -2935,7 +2933,7 @@ class ResetSessionView(SimpleLoginRequiredMixin, View):
         return redirect("manhour:index")
 
 
-class ResetAllSessionsView(SimpleLoginRequiredMixin, View):
+class ResetAllSessionsView(SimpleAdminRequiredMixin, View):
     def post(self, request):
         workplace = get_current_workplace(request)
         qs = WorkSession.objects.filter(is_active=True, site=workplace)
@@ -3465,7 +3463,7 @@ class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
         return redirect(self.success_url)
 
 
-class TaskMasterDeleteAllView(SimpleLoginRequiredMixin, View):
+class TaskMasterDeleteAllView(SimpleAdminRequiredMixin, View):
     def post(self, request):
         workplace = get_current_workplace(request)
         count = TaskMaster.objects.filter(site=workplace).count()

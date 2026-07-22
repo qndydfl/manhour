@@ -36,6 +36,34 @@ def _get_current_workplace(request):
     return normalize_workplace(current)
 
 
+def _get_session_or_404(request, session_id):
+    """Return a Manning session only when it belongs to the selected workplace."""
+    return get_object_or_404(
+        WorkSession,
+        id=session_id,
+        site=_get_current_workplace(request),
+    )
+
+
+def _get_area_or_404(request, area_id, **kwargs):
+    """Return an area scoped through its session's workplace."""
+    return get_object_or_404(
+        SessionArea,
+        id=area_id,
+        session__site=_get_current_workplace(request),
+        **kwargs,
+    )
+
+
+def _get_manning_or_404(request, manning_id):
+    """Return a manning row scoped through its area's session workplace."""
+    return get_object_or_404(
+        Manning,
+        id=manning_id,
+        area__session__site=_get_current_workplace(request),
+    )
+
+
 def ensure_default_areas(session):
     if session.areas.exists():
         return False
@@ -185,7 +213,7 @@ class ManningListView(ManningSessionRequiredMixin, View):
     def get(self, request):
         workplace = _get_current_workplace(request)
         active_sessions = list(
-            WorkSession.objects.filter(is_active=True).order_by(
+            WorkSession.objects.filter(is_active=True, site=workplace).order_by(
                 "shift_type",
                 "-created_at",
             )
@@ -210,7 +238,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
 
     def get(self, request):
         active_shift_combos = list(
-            WorkSession.objects.filter(is_active=True)
+            WorkSession.objects.filter(is_active=True, site=_get_current_workplace(request))
             .values("aircraft_reg", "block_check", "shift_type")
             .order_by("id")
         )
@@ -248,6 +276,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                 and shift_type
                 and WorkSession.objects.filter(
                     is_active=True,
+                    site=workplace,
                     aircraft_reg=aircraft_reg,
                     block_check=block_check,
                     shift_type=shift_type,
@@ -258,7 +287,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     "같은 기번/A-Check/Shift로 이미 활성 세션이 있습니다.",
                 )
                 active_shift_combos = list(
-                    WorkSession.objects.filter(is_active=True)
+                    WorkSession.objects.filter(is_active=True, site=workplace)
                     .values("aircraft_reg", "block_check", "shift_type")
                     .order_by("id")
                 )
@@ -282,7 +311,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
             if not selected_areas:
                 messages.error(request, "선택한 템플릿에 구역이 없습니다.")
                 active_shift_combos = list(
-                    WorkSession.objects.filter(is_active=True)
+                    WorkSession.objects.filter(is_active=True, site=workplace)
                     .values("aircraft_reg", "block_check", "shift_type")
                     .order_by("id")
                 )
@@ -317,17 +346,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         session.manhour_session = manhour_session
                         session.save(update_fields=["manhour_session"])
 
-                    template_label = next(
-                        (
-                            choice["label"]
-                            for choice in _get_area_template_choices()
-                            if choice["key"].lower() == area_template.lower()
-                        ),
-                        area_template or "standard",
-                    )
-
-                    from .models import SessionArea
-
                     SessionArea.objects.bulk_create(
                         [
                             SessionArea(session=session, name=name, position=position)
@@ -346,7 +364,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
 
         messages.error(request, "입력값을 확인해주세요.")
         active_shift_combos = list(
-            WorkSession.objects.filter(is_active=True)
+            WorkSession.objects.filter(is_active=True, site=workplace)
             .values("aircraft_reg", "block_check", "shift_type")
             .order_by("id")
         )
@@ -365,11 +383,7 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
     http_method_names = ["get", "post"]
 
     def get(self, request, session_id):
-        workplace = _get_current_workplace(request)
-        session = get_object_or_404(WorkSession, id=session_id)
-        if session.site != workplace:
-            messages.error(request, "해당 근무지의 세션만 수정할 수 있습니다.")
-            return redirect("manning:manning_list")
+        session = _get_session_or_404(request, session_id)
         form = WorkSessionCreateForm(instance=session)
         selected_template = _resolve_session_template_key(session)
         return render(
@@ -385,10 +399,7 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
 
     def post(self, request, session_id):
         workplace = _get_current_workplace(request)
-        session = get_object_or_404(WorkSession, id=session_id)
-        if session.site != workplace:
-            messages.error(request, "해당 근무지의 세션만 수정할 수 있습니다.")
-            return redirect("manning:manning_list")
+        session = _get_session_or_404(request, session_id)
 
         form = WorkSessionCreateForm(request.POST, instance=session)
         if not form.is_valid():
@@ -649,9 +660,7 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-        if session.manhour_session_id:
-            session.manhour_session.delete()
+        session = _get_session_or_404(request, session_id)
         session.delete()
         # messages.success(request, "세션이 삭제되었습니다.")
         return redirect("manning:manning_list")
@@ -660,10 +669,8 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
 class ManningDashboardView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
         workplace = _get_current_workplace(request)
-        session = get_object_or_404(WorkSession, id=session_id)
-        created_defaults = ensure_default_areas(session)
-        # if created_defaults:
-        #     messages.success(request, "표준 구역이 자동 생성되었습니다.")
+        session = _get_session_or_404(request, session_id)
+        ensure_default_areas(session)
         show_empty_assignments = request.GET.get("no_assignments") == "1"
         session_areas = (
             session.areas.all()
@@ -738,7 +745,7 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
 class AssignmentRedirectView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
         workplace = _get_current_workplace(request)
-        manning_session = get_object_or_404(WorkSession, id=session_id)
+        manning_session = _get_session_or_404(request, session_id)
         target_workplace = manning_session.site or workplace
         target = manning_session.manhour_session
         if not target:
@@ -766,10 +773,8 @@ class PopulateAreasView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
-        created_defaults = ensure_default_areas(session)
-        # if created_defaults:
-        #     messages.success(request, "표준 구역이 생성되었습니다.")
+        session = _get_session_or_404(request, session_id)
+        ensure_default_areas(session)
         return redirect("manning:manning_dashboard", session_id=session.id)
 
 
@@ -777,7 +782,7 @@ class AddAreaView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = _get_session_or_404(request, session_id)
         form = SessionAreaForm(request.POST)
         if form.is_valid():
             area = form.save(commit=False)
@@ -793,10 +798,7 @@ class UpdateAreaView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, area_id):
-        area = get_object_or_404(
-            SessionArea,
-            id=area_id,
-        )
+        area = _get_area_or_404(request, area_id)
         form = SessionAreaForm(request.POST, instance=area)
         if form.is_valid():
             form.save()
@@ -816,10 +818,7 @@ class DeleteAreaView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, area_id):
-        area = get_object_or_404(
-            SessionArea,
-            id=area_id,
-        )
+        area = _get_area_or_404(request, area_id)
         session_id = area.session_id
         area.delete()
         # messages.success(request, "구역이 삭제되었습니다.")
@@ -844,10 +843,7 @@ class BatchManningView(ManningSessionRequiredMixin, View):
                 {"status": "error", "message": "Invalid data"}, status=400
             )
 
-        area = get_object_or_404(
-            SessionArea,
-            id=area_id,
-        )
+        area = _get_area_or_404(request, area_id)
         cleaned = [name.strip() for name in worker_names if name and name.strip()]
 
         if not cleaned:
@@ -868,10 +864,7 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, manning_id):
-        manning = get_object_or_404(
-            Manning,
-            id=manning_id,
-        )
+        manning = _get_manning_or_404(request, manning_id)
         raw_hours = (request.POST.get("hours") or "").strip()
         try:
             hours_value = float(raw_hours)
@@ -886,7 +879,7 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
 
 class AreaBulkEditView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = _get_session_or_404(request, session_id)
         resolved_site = _resolve_workplace_key(session.site)
         workplace = resolved_site or _get_current_workplace(request)
         session_areas = (
@@ -940,7 +933,7 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
         )
 
     def post(self, request, session_id):
-        session = get_object_or_404(WorkSession, id=session_id)
+        session = _get_session_or_404(request, session_id)
         errors = []
         area_ids = request.POST.getlist("area_id")
         area_names = request.POST.getlist("area_name")
@@ -1056,7 +1049,7 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
                 ]
             )
             for idx, area_id in enumerate(area_ids):
-                area = get_object_or_404(SessionArea, id=area_id, session=session)
+                area = _get_area_or_404(request, area_id, session=session)
                 if str(area_id) in delete_ids:
                     area.delete()
                     continue
@@ -1137,13 +1130,7 @@ class WorkerDirectoryUpdateView(ManningSessionRequiredMixin, View):
 
     def post(self, request, session_id, *args, **kwargs):
         workplace = _get_current_workplace(request)
-        session = get_object_or_404(WorkSession, id=session_id)
-
-        if session.site != workplace:
-            return JsonResponse(
-                {"status": "error", "message": "Invalid session"},
-                status=403,
-            )
+        session = _get_session_or_404(request, session_id)
 
         try:
             payload = json.loads(request.body.decode("utf-8"))
@@ -1199,9 +1186,5 @@ class WorkerDirectoryUpdateView(ManningSessionRequiredMixin, View):
         return JsonResponse({"status": "success", "worker_names": cleaned})
 
 
-class Custom404View(View):
-    def get(self, request, exception=None):
-        return render(request, "manhour/404_page/404.html", status=404)
-
-
-custom_404 = Custom404View.as_view()
+def custom_404(request, exception=None):
+    return render(request, "manhour/404_page/404.html", status=404)

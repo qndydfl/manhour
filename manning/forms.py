@@ -33,7 +33,7 @@ class WorkSessionCreateForm(forms.ModelForm):
                     "class": "form-control rounded-3",
                     "placeholder": "예: 1234",
                     "inputmode": "numeric",
-                    "pattern": "HL\d{4}",
+                    "pattern": r"HL\d{4}",
                     "required": "true",
                 }
             ),

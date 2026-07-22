@@ -43,7 +43,7 @@ urlpatterns = [
     path(
         "session/<int:session_id>/paste/",
         views.PasteInputView.as_view(),
-        name="paste_data",
+        name="paste_input",
     ),
     path(
         "session/<int:session_id>/paste-items/",

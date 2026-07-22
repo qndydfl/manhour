@@ -1,11 +1,7 @@
-import random
-import re
-from collections import defaultdict
-
 from django.db import transaction
 from django.db.models import Sum, Count
 
-from .models import GibunPriority, WorkSession, Assignment, Worker, WorkItem
+from .models import GibunPriority, WorkSession, Assignment, WorkItem
 
 # -----------------------------------------------------------
 # 상수

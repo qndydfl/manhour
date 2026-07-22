@@ -36,13 +36,6 @@ ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
-# -----개발 환경 시작-----
-
-# DEBUG = True
-
-# ALLOWED_HOSTS = ["*"]
-
-# -----개발 환경 끝-----
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -143,6 +137,18 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Allow development and test rendering before collectstatic creates a manifest.
+WHITENOISE_MANIFEST_STRICT = False
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
@@ -164,7 +170,6 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True  # 마지막 활동 후 만료 시간 
 # -------------------------------
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 브라우저 닫으면 세션 종료
-SESSION_COOKIE_HTTPS_ONLY = True  # HTTPS 사용 시에만 쿠키 전송
 SESSION_COOKIE_SECURE = True  # HTTPS 사용 시에만 쿠키 전송
 SESSION_COOKIE_SAMESITE = "Strict"  # CSRF 공격 방지
 CSRF_COOKIE_SECURE = True  # HTTPS 사용 시에만 CSRF 쿠키 전송

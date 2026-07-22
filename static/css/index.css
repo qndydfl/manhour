@@ -1,5 +1,6 @@
 :root {
     --index-footer-height: 56px;
+    --index-footer-gap: 16px;
     --index-glass-bg: rgba(255, 255, 255, 0.75);
     --index-glass-border: rgba(255, 255, 255, 0.4);
     --index-glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
@@ -326,6 +327,153 @@
     background: rgba(255, 255, 255, 0.88);
 }
 
+.dashboard-section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    padding: 0.25rem 0.25rem 0;
+}
+
+.dashboard-section-heading p {
+    font-size: 0.9rem;
+}
+
+.dashboard-section-kicker {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    color: #3157d5;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+#workStatusPanel {
+    min-height: 235px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    overflow: hidden;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.94),
+        rgba(242, 246, 255, 0.9)
+    );
+}
+
+#workStatusPanel .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#workStatusPanel .work-chart-wrapper {
+    height: 100%;
+    min-height: 215px;
+    padding: 0.75rem;
+    border-left: 1px solid rgba(30, 64, 175, 0.08);
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.dashboard-fold-card {
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 14px 36px rgba(31, 38, 135, 0.12);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+}
+
+.dashboard-fold-toggle {
+    width: 100%;
+    min-height: 88px;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 1.15rem;
+    border: 0;
+    background: transparent;
+    color: #172033;
+    text-align: left;
+}
+
+.dashboard-fold-toggle:hover {
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.dashboard-fold-toggle:focus-visible {
+    outline: 3px solid rgba(49, 87, 213, 0.3);
+    outline-offset: -3px;
+}
+
+.dashboard-fold-icon {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    font-size: 1.3rem;
+}
+
+.dashboard-fold-icon--weather {
+    color: #f59f00;
+    background: rgba(255, 193, 7, 0.16);
+}
+
+.dashboard-fold-icon--forecast {
+    color: #3157d5;
+    background: rgba(49, 87, 213, 0.12);
+}
+
+.dashboard-fold-copy {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.dashboard-fold-copy strong {
+    font-size: 0.95rem;
+}
+
+.dashboard-fold-copy small {
+    margin-top: 0.15rem;
+    color: #6c757d;
+    font-size: 0.78rem;
+}
+
+.dashboard-fold-city {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-fold-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dashboard-fold-action i {
+    transition: transform 0.22s ease;
+}
+
+.dashboard-fold-toggle[aria-expanded="true"] .dashboard-fold-action i {
+    transform: rotate(180deg);
+}
+
+.dashboard-insight-card {
+    min-height: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
 #metarPanel .card-body,
 .dashboard-chart-card .card-body {
     padding: 1.35rem !important;
@@ -396,20 +544,24 @@
 
 /* Work Status */
 .dashboard-status-box {
-    min-height: 76px;
-    padding: 0.85rem;
+    min-height: 82px;
+    padding: 0.8rem 0.65rem;
     border-radius: 1rem;
-    background: rgba(248, 249, 250, 0.92);
-    border: 1px solid rgba(0, 0, 0, 0.05);
     flex-direction: column;
     align-items: center;
     text-align: center;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.dashboard-status-box:hover {
+    transform: translateY(-2px);
 }
 
 .dashboard-status-box span {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #6c757d;
 }
 
 .dashboard-status-box .badge {
@@ -419,17 +571,48 @@
 }
 
 .dashboard-status-box .active-count-num,
-.dashboard-status-box .history-count-num {
+.dashboard-status-box .history-count-num,
+.dashboard-status-box .master-data-count-num {
     font-size: 1.35rem;
-    color: #212529;
 }
 
-.dashboard-status-box.active i {
-    color: #0d6efd;
+.dashboard-status-box.active {
+    color: #0759c7;
+    background: rgba(13, 110, 253, 0.11);
+    border: 1px solid rgba(13, 110, 253, 0.26);
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.08);
 }
 
-.dashboard-status-box.history i {
-    color: #dc3545;
+.dashboard-status-box.history {
+    color: #14733f;
+    background: rgba(25, 135, 84, 0.11);
+    border: 1px solid rgba(25, 135, 84, 0.25);
+    box-shadow: 0 8px 18px rgba(25, 135, 84, 0.08);
+}
+
+.dashboard-status-box.master-data {
+    color: #946200;
+    background: rgba(255, 193, 7, 0.14);
+    border: 1px solid rgba(255, 193, 7, 0.34);
+    box-shadow: 0 8px 18px rgba(255, 193, 7, 0.09);
+}
+
+.dashboard-status-box.active span,
+.dashboard-status-box.active .badge,
+.dashboard-status-box.active .active-count-num {
+    color: #0759c7;
+}
+
+.dashboard-status-box.history span,
+.dashboard-status-box.history .badge,
+.dashboard-status-box.history .history-count-num {
+    color: #14733f;
+}
+
+.dashboard-status-box.master-data span,
+.dashboard-status-box.master-data .badge,
+.dashboard-status-box.master-data .master-data-count-num {
+    color: #946200;
 }
 
 .work-chart-wrapper,
@@ -445,8 +628,8 @@
 }
 
 #workStatusChart {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 210px;
+    max-height: 205px;
 }
 
 
@@ -465,7 +648,7 @@
 
 /* Footer */
 .index-footer-spacer {
-    height: var(--index-footer-height);
+    height: calc(var(--index-footer-height) + var(--index-footer-gap));
 }
 
 .index-footer-glass {
@@ -653,6 +836,30 @@
         min-height: auto;
     }
 
+    #workStatusPanel {
+        display: block;
+        min-height: auto;
+    }
+
+    #workStatusPanel .work-chart-wrapper {
+        min-height: 215px;
+        border-top: 1px solid rgba(30, 64, 175, 0.08);
+        border-left: 0;
+    }
+
+    .dashboard-fold-toggle {
+        min-height: 78px;
+        padding: 0.85rem 1rem;
+    }
+
+    .dashboard-fold-action {
+        font-size: 0;
+    }
+
+    .dashboard-fold-action i {
+        font-size: 0.9rem;
+    }
+
     .work-chart-wrapper,
     .forecast-chart-wrapper {
         height: 250px;
@@ -671,12 +878,17 @@
 
 /* Small Mobile */
 @media (max-width: 576px) {
+    :root {
+        --index-footer-height: 82px;
+        --index-footer-gap: 0px;
+    }
+
     .index-glass-panel {
         background: rgba(255, 255, 255, 0.9) !important;
     }
 
     .index-footer-spacer {
-        height: 4.3rem;
+        height: calc(var(--index-footer-height) + var(--index-footer-gap));
     }
 
     .work__status-pill {
@@ -689,6 +901,31 @@
 
     .font-digital {
         font-size: 1.8rem !important;
+    }
+
+    .dashboard-section-heading p {
+        font-size: 0.82rem;
+    }
+
+    .dashboard-fold-city {
+        display: none;
+    }
+
+    .work-status-metrics {
+        --bs-gutter-x: 0.55rem;
+    }
+
+    .dashboard-status-box {
+        min-height: 88px;
+        padding: 0.7rem 0.35rem;
+    }
+
+    .dashboard-status-box span {
+        font-size: 0.7rem;
+    }
+
+    .dashboard-status-box .d-flex:first-child {
+        gap: 0.3rem !important;
     }
 }
 

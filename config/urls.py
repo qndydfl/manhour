@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import RedirectView
-from manning import views as manning_views
+from django.views.static import serve
 
 handler404 = "manning.views.custom_404"
 
@@ -36,3 +36,13 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # The app stores selectable dashboard backgrounds under MEDIA_ROOT.
+    # Keep them available when Django runs locally with DEBUG disabled.
+    urlpatterns += [
+        path(
+            "media/<path:path>",
+            serve,
+            {"document_root": settings.MEDIA_ROOT},
+        )
+    ]

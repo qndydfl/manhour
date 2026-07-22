@@ -1014,9 +1014,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (loadDefaultWorkerEditorBtn && workerEditorInput) {
+    if (loadDefaultWorkerEditorBtn && workerEditor && workerEditorInput) {
         loadDefaultWorkerEditorBtn.addEventListener("click", () => {
             workerEditorInput.value = defaultWorkerNames.join("\n");
+            workerEditor.classList.remove("d-none");
+            workerEditorInput.focus();
         });
     }
 

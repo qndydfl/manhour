@@ -297,18 +297,59 @@ document.addEventListener("DOMContentLoaded", function () {
                                 data.masterDataCount,
                             ],
                             backgroundColor: ["#0d6efd", "#198754", "#ffc107"],
-                            borderWidth: 0,
+                            hoverBackgroundColor: ["#0b5ed7", "#157347", "#e0a800"],
+                            borderColor: "#ffffff",
+                            borderWidth: 2,
+                            spacing: 2,
                         },
                     ],
                 },
+                plugins: [
+                    {
+                        id: "emptyWorkStatusDoughnut",
+                        afterDraw(chart) {
+                            const values = chart.data.datasets[0].data || [];
+                            const total = values.reduce(
+                                (sum, value) => sum + Number(value || 0),
+                                0,
+                            );
+                            if (total > 0) return;
+
+                            const { ctx, chartArea } = chart;
+                            if (!chartArea) return;
+
+                            const centerX =
+                                (chartArea.left + chartArea.right) / 2;
+                            const centerY =
+                                (chartArea.top + chartArea.bottom) / 2;
+                            const radius =
+                                Math.min(chartArea.width, chartArea.height) * 0.28;
+
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                            ctx.strokeStyle = "#dfe6f1";
+                            ctx.lineWidth = Math.max(12, radius * 0.3);
+                            ctx.stroke();
+                            ctx.fillStyle = "#7b8799";
+                            ctx.font = "700 18px sans-serif";
+                            ctx.textAlign = "center";
+                            ctx.textBaseline = "middle";
+                            ctx.fillText("0", centerX, centerY);
+                            ctx.restore();
+                        },
+                    },
+                ],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: "65%", // ← 도넛 더 키워서 여백 줄임
+                    cutout: "68%",
                     layout: {
                         padding: {
-                            top: 5,
-                            bottom: 5,
+                            top: 10,
+                            right: 10,
+                            bottom: 6,
+                            left: 10,
                         },
                     },
                     plugins: {
@@ -372,10 +413,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateDashboardNumbers(data) {
         const activeEl = document.querySelector(".active-count-num");
         const historyEl = document.querySelector(".history-count-num");
+        const masterDataEl = document.querySelector(".master-data-count-num");
         const masterBadgeEls = document.querySelectorAll("#masterDataBadge");
 
         if (activeEl) activeEl.textContent = data.activeCount;
         if (historyEl) historyEl.textContent = data.historyCount;
+        if (masterDataEl) masterDataEl.textContent = data.masterDataCount;
 
         masterBadgeEls.forEach((badge) => {
             badge.textContent = data.masterDataCount;
@@ -934,6 +977,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initForecastChart();
     loadForecastData();
+
+    const forecastCollapse = document.getElementById("mroForecastDetails");
+    if (forecastCollapse) {
+        forecastCollapse.addEventListener("shown.bs.collapse", function () {
+            forecastChart?.resize();
+        });
+    }
 
     window.addEventListener("airportChanged", function () {
         loadForecastData();

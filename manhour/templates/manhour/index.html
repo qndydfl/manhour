@@ -24,7 +24,7 @@
 
 {% block background_image %}
 <div class="index-bg">
-    {% static "img/default.jpg" as index_bg %} 
+    {% static "images/index_background.jpg" as index_bg %}
     {% include "manhour/image/background_url.html" with bg_key="index" bg_default=index_bg %}
 </div>
 {% endblock background_image %} 
@@ -366,27 +366,47 @@
                     data-aos="fade-up"
                     data-aos-duration="1000"
                 >
-                    <div class="col-xl-5 col-md-6">
+                    <div class="col-12 order-0">
+                        <div class="dashboard-section-heading">
+                            <div>
+                                <span class="dashboard-section-kicker">OPERATIONS OVERVIEW</span>
+                                <h4 class="fw-bold text-dark mb-1">오늘의 운영 정보</h4>
+                                <p class="text-muted mb-0">
+                                    작업 현황은 바로 확인하고, 상세 정보는 필요할 때 펼쳐보세요.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 order-2">
+                        <section class="dashboard-fold-card">
+                            <button
+                                class="dashboard-fold-toggle"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#airportWeatherDetails"
+                                aria-expanded="false"
+                                aria-controls="airportWeatherDetails"
+                            >
+                                <span class="dashboard-fold-icon dashboard-fold-icon--weather">
+                                    <i class="bi bi-cloud-sun-fill"></i>
+                                </span>
+                                <span class="dashboard-fold-copy">
+                                    <strong>Airport Weather</strong>
+                                    <small>공항별 METAR 관측값</small>
+                                </span>
+                                <span class="dashboard-fold-action">
+                                    상세 보기
+                                    <i class="bi bi-chevron-down"></i>
+                                </span>
+                            </button>
+
+                            <div class="collapse" id="airportWeatherDetails">
                         <div
-                            class="card border-0 shadow-lg rounded-4 bg-dark text-light h-100 hover-lift"
+                            class="card border-0 rounded-4 bg-dark text-light dashboard-insight-card"
                             id="metarPanel"
                         >
                             <div class="card-body p-4">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-3"
-                                >
-                                    <div>
-                                        <h6
-                                            class="text-uppercase tracking-wider opacity-75 mb-1"
-                                        >
-                                            Airport Weather
-                                        </h6>
-                                        <small class="text-muted"
-                                            >METAR 관측값</small
-                                        >
-                                    </div>
-                                </div>
-
                                 <div
                                     class="d-flex gap-2 mb-3"
                                     id="metarTabs"
@@ -456,11 +476,14 @@
                                 </div>
                             </div>
                         </div>
+                            </div>
+                        </section>
                     </div>
 
-                    <div class="col-xl-3 col-md-6">
+                    <div class="col-12 order-1">
                         <div
-                            class="card border-0 shadow-lg rounded-4 h-100 dashboard-chart-card hover-lift"
+                            class="card border-0 shadow-lg rounded-4 dashboard-chart-card"
+                            id="workStatusPanel"
                         >
                             <div class="card-body p-4">
                                 <div
@@ -498,8 +521,29 @@
                                     {% endif %}
                                 </div>
 
-                                <div class="row g-3 mb-0">
-                                    <div class="col-6">
+                                <div class="row g-3 mb-0 work-status-metrics">
+                                    <div class="col-4">
+                                        <div
+                                            class="dashboard-status-box master-data d-flex justify-content-center"
+                                        >
+                                            <div
+                                                class="d-flex align-items-center gap-2 mb-1"
+                                            >
+                                                <i class="bi bi-database-fill"></i>
+                                                <span>Master Data</span>
+                                            </div>
+                                            <div
+                                                class="badge fw-bold mb-0 d-flex align-items-center gap-1"
+                                            >
+                                                <span class="master-data-count-num"
+                                                    >{{ master_data_count }}</span
+                                                >
+                                                <small>건</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
                                         <div
                                             class="dashboard-status-box active d-flex justify-content-center"
                                         >
@@ -520,7 +564,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div
                                             class="dashboard-status-box history d-flex justify-content-center"
                                         >
@@ -548,31 +592,38 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-4 col-md-6">
+                    <div class="col-lg-6 order-3">
+                        <section class="dashboard-fold-card">
+                            <button
+                                class="dashboard-fold-toggle"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#mroForecastDetails"
+                                aria-expanded="false"
+                                aria-controls="mroForecastDetails"
+                            >
+                                <span class="dashboard-fold-icon dashboard-fold-icon--forecast">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </span>
+                                <span class="dashboard-fold-copy">
+                                    <strong>MRO Forecast</strong>
+                                    <small>24시간 작업 가용성 예보</small>
+                                </span>
+                                <span
+                                    class="badge bg-primary-soft text-primary dashboard-fold-city"
+                                    id="forecastCity"
+                                ></span>
+                                <span class="dashboard-fold-action">
+                                    상세 보기
+                                    <i class="bi bi-chevron-down"></i>
+                                </span>
+                            </button>
+
+                            <div class="collapse" id="mroForecastDetails">
                         <div
-                            class="card border-0 shadow-lg rounded-4 bg-white h-100 hover-lift"
+                            class="card border-0 rounded-4 bg-white dashboard-insight-card"
                         >
                             <div class="card-body p-4">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-3"
-                                >
-                                    <div>
-                                        <h6
-                                            class="text-uppercase fw-bold text-muted small mb-1"
-                                        >
-                                            MRO Forecast
-                                        </h6>
-                                    </div>
-                                    <span
-                                        class="badge bg-primary-soft text-primary"
-                                        id="forecastCity"
-                                    ></span>
-                                </div>
-
-                                <h5 class="fw-bold text-dark mb-4">
-                                    24H 작업 가용성 예보
-                                </h5>
-
                                 <div class="forecast-chart-wrapper">
                                     <canvas id="forecastChart"></canvas>
                                 </div>
@@ -604,6 +655,8 @@
                                 </div>
                             </div>
                         </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
 
