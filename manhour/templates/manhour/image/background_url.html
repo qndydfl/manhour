@@ -1,14 +1,25 @@
-{% load static %} 
+{% load static %}
 {% load background_tags %}
 
 <link rel="stylesheet" href="{% static 'css/background_image.css' %}" />
 
-{% background_config bg_key bg_default as bg %}
+{% if bg_static %}
 <div
     class="bg-image-layer"
     style="
-        background-image: url({{ bg.image_url }});
+        background-image: url('{% static bg_static %}');
         border-radius: 1rem;
         padding: 1.5rem;
     "
 ></div>
+{% else %}
+{% background_config bg_key bg_default as bg %}
+<div
+    class="bg-image-layer"
+    style="
+        background-image: url('{{ bg.image_url }}');
+        border-radius: 1rem;
+        padding: 1.5rem;
+    "
+></div>
+{% endif %}

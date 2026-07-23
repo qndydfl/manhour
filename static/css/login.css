@@ -22,20 +22,36 @@
 
 .login-page {
     position: relative;
-    min-height: 100vh;
-    overflow: hidden;
+    min-height: 100dvh;
+    overflow-x: clip;
     background:
         linear-gradient(180deg, #f8fbff 0%, var(--login-bg) 100%);
+}
+
+body.login-page > .page-content > .ios-wrap,
+body.login-page > .page-content > .ios-wrap > .login-page {
+    min-height: 100dvh;
+    width: 100%;
+}
+
+body.login-page > .page-content > .ios-wrap > .login-page {
+    overflow: clip;
 }
 
 .login-container {
     position: relative;
     z-index: 2;
-    min-height: calc(100vh - 20rem);
+    max-width: 100%;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     padding-top: 2.5rem;
     padding-bottom: 2.5rem;
+}
+
+.login-container > .row {
+    margin-right: 0;
+    margin-left: 0;
 }
 
 /* Background effects */
@@ -334,7 +350,7 @@
 /* Responsive */
 @media (max-width: 991.98px) {
     .login-container {
-        align-items: flex-start;
+        align-items: center;
     }
 
     .login-brand-panel {
@@ -395,5 +411,16 @@
 
     .login-alert {
         border-radius: 16px;
+    }
+}
+
+@media (max-height: 680px) {
+    body.login-page > .page-content > .ios-wrap > .login-page {
+        overflow-x: clip;
+        overflow-y: visible;
+    }
+
+    .login-container {
+        align-items: flex-start;
     }
 }

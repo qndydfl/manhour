@@ -24,8 +24,7 @@
 
 {% block background_image %}
 <div class="index-bg">
-    {% static "images/index_background.jpg" as index_bg %}
-    {% include "manhour/image/background_url.html" with bg_key="index" bg_default=index_bg %}
+    {% include "manhour/image/background_url.html" with bg_static="images/home_background.jpg" %}
 </div>
 {% endblock background_image %} 
 
