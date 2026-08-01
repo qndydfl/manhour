@@ -4,7 +4,13 @@ from django.urls import reverse
 from manhour.models import WorkSession as ManhourWorkSession
 from manhour.models import Workplace
 
-from .models import Manning, SessionArea, WorkSession
+from .models import (
+    AreaTemplate,
+    AreaTemplateItem,
+    Manning,
+    SessionArea,
+    WorkSession,
+)
 
 
 class WorkplaceIsolationTests(TestCase):
@@ -81,3 +87,69 @@ class WorkplaceIsolationTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(ManhourWorkSession.objects.filter(id=manhour_session.id).exists())
+
+
+class AreaTemplateSelectionTests(TestCase):
+    def setUp(self):
+        Workplace.objects.create(code="SITE-A", label="Site A")
+        browser_session = self.client.session
+        browser_session["is_authenticated"] = True
+        browser_session["user_role"] = "admin"
+        browser_session["workplace"] = "SITE-A"
+        browser_session.save()
+
+        self.area_template = AreaTemplate.objects.create(
+            key="기본-구성",
+            label="기본 구성",
+        )
+        AreaTemplateItem.objects.create(
+            template=self.area_template,
+            name="LEFT WING",
+            position=SessionArea.POSITION_LEFT,
+        )
+
+    def test_create_page_uses_database_id_for_template_control(self):
+        response = self.client.get(reverse("manning:create_session"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'id="tpl_{self.area_template.id}"')
+        self.assertContains(response, f'for="tpl_{self.area_template.id}"')
+
+    def test_missing_selection_keeps_template_options_visible(self):
+        response = self.client.post(
+            reverse("manning:create_session"),
+            {
+                "work_package_name": "A-Check",
+                "aircraft_reg": "HL1234",
+                "block_check": WorkSession.BLOCK_CHECK_1A,
+                "shift_type": WorkSession.SHIFT_1,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "구역 템플릿 선택은 필수입니다.")
+        self.assertContains(response, f'id="tpl_{self.area_template.id}"')
+
+    def test_selected_template_creates_its_areas(self):
+        response = self.client.post(
+            reverse("manning:create_session"),
+            {
+                "work_package_name": "A-Check",
+                "aircraft_reg": "HL1234",
+                "block_check": WorkSession.BLOCK_CHECK_1A,
+                "shift_type": WorkSession.SHIFT_1,
+                "area_template": self.area_template.key,
+            },
+        )
+
+        created_session = WorkSession.objects.get(aircraft_reg="HL1234")
+        self.assertRedirects(
+            response,
+            reverse("manning:manning_dashboard", args=[created_session.id]),
+        )
+        self.assertTrue(
+            created_session.areas.filter(
+                name="LEFT WING",
+                position=SessionArea.POSITION_LEFT,
+            ).exists()
+        )

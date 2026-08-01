@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const blockCheckSelect = document.querySelector('select[name="block_check"]');
     const shiftSelect = document.querySelector('select[name="shift_type"]');
     const templateRadios = document.querySelectorAll('input[name="area_template"]');
+    const templateLabels = document.querySelectorAll(".template-card");
     const templateArea = document.getElementById("template-selection-area");
     const templateErrorMessage = document.getElementById("templateErrorMessage");
     const shiftHelpMessage = document.getElementById("shiftHelpMessage");
@@ -160,6 +161,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         aircraftInput.value = formatAircraftInput(aircraftInput.value || "");
     }
+
+    templateLabels.forEach((label) => {
+        label.addEventListener("click", () => {
+            const targetId = label.getAttribute("for");
+            const radio = targetId ? document.getElementById(targetId) : null;
+            if (!radio) return;
+
+            radio.checked = true;
+            radio.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+    });
 
     templateRadios.forEach((radio) => {
         radio.addEventListener("change", clearTemplateError);

@@ -120,13 +120,13 @@
                                             class="form-check-input d-none template-radio"
                                             type="radio"
                                             name="area_template"
-                                            id="tpl_{{ tpl.key|slugify }}"
+                                            id="tpl_{{ tpl.id }}"
                                             value="{{ tpl.key }}"
                                             {% if selected_template and tpl.key|lower == selected_template|lower %}checked{% endif %}
                                         />
                                         <label
                                             class="template-card w-100 text-center"
-                                            for="tpl_{{ tpl.key|slugify }}"
+                                            for="tpl_{{ tpl.id }}"
                                         >
                                             {% if tpl.key|lower == "standard" %}
                                             <i

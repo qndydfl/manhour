@@ -151,7 +151,8 @@ def _get_area_template_choices():
     db_templates = _get_area_templates()
     if db_templates:
         return [
-            {"key": template.key, "label": template.label} for template in db_templates
+            {"id": template.id, "key": template.key, "label": template.label}
+            for template in db_templates
         ]
     return []
 
@@ -252,6 +253,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
             {
                 "form": form,
                 "templates": templates,
+                "selected_template": "",
                 "active_shift_combos": active_shift_combos,
             },
         )
@@ -297,14 +299,27 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     {
                         "form": form,
                         "templates": _get_area_template_choices(),
+                        "selected_template": area_template,
                         "active_shift_combos": active_shift_combos,
                     },
                 )
 
             if not area_template:
                 messages.error(request, "구역 템플릿 선택은 필수입니다.")
+                active_shift_combos = list(
+                    WorkSession.objects.filter(is_active=True, site=workplace)
+                    .values("aircraft_reg", "block_check", "shift_type")
+                    .order_by("id")
+                )
                 return render(
-                    request, "manning/manning_create_session.html", {"form": form}
+                    request,
+                    "manning/manning_create_session.html",
+                    {
+                        "form": form,
+                        "templates": _get_area_template_choices(),
+                        "selected_template": "",
+                        "active_shift_combos": active_shift_combos,
+                    },
                 )
 
             selected_areas = _get_area_template_items(area_template)
@@ -321,6 +336,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     {
                         "form": form,
                         "templates": _get_area_template_choices(),
+                        "selected_template": area_template,
                         "active_shift_combos": active_shift_combos,
                     },
                 )
@@ -374,6 +390,9 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
             {
                 "form": form,
                 "templates": _get_area_template_choices(),
+                "selected_template": (
+                    request.POST.get("area_template") or ""
+                ).strip(),
                 "active_shift_combos": active_shift_combos,
             },
         )
