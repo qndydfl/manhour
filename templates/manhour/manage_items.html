@@ -6,11 +6,13 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/manage_items.css' %}" />
+<link rel="stylesheet" href="{% static 'css/data_confirm_dialog.css' %}" />
 {% endblock css %} 
 
 {% block js %}
 <script>
     const PASTE_DATA_POST_URL = "{% url 'manhour:paste_items' session.id %}";
+    window.PASTE_DATA_ALLOW_DUPLICATES = true;
     const MASTER_DATA_LIST_URL = "{% url 'manhour:manage_items' session.id %}";
     const REORDER_ITEMS_URL = "{% url 'manhour:reorder_items' session.id %}";
     const MASTER_ITEMS_URL = "{% url 'manhour:master_items' session.id %}";
@@ -732,12 +734,15 @@ background_image %} {% endcomment %}
     </div>
 </div>
 
+{% include "manhour/partials/data_confirm_dialog.html" %}
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const pasteModal = document.getElementById("pasteDataModal");
         if (pasteModal) {
             document.body.appendChild(pasteModal);
         }
+
     });
 </script>
 

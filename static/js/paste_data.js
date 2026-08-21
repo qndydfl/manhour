@@ -1,6 +1,7 @@
 const tableBody = document.querySelector("#gridTable tbody");
 const ROW_COUNT = 5;
 const COL_COUNT = 5;
+let suspendedPasteModalInstance = null;
 
 const COLUMN_PLACEHOLDERS = [
     "HLxxxx",
@@ -236,7 +237,11 @@ function collectRowData() {
 
         // 기번 일부만 입력한 경우 경고
         if (gibunRaw && gibunRaw.length !== 4) {
-            alert(`${rowIndex + 1}행 기번은 숫자 4자리를 입력해야 합니다.`);
+            void showCustomMessageDialog({
+                title: "입력값 확인",
+                message: `${rowIndex + 1}행 기번은 숫자 4자리를 입력해야 합니다.`,
+                variant: "danger",
+            });
             return null;
         }
 
@@ -283,11 +288,179 @@ function findDuplicates(data) {
     return duplicates;
 }
 
-window.saveData = function () {
+function showCustomConfirmDialog({
+    title,
+    message,
+    items = [],
+    confirmText,
+    variant = "danger",
+    showCancel = true,
+}) {
+    const dialog = document.getElementById("duplicateDataConfirmDialog");
+    const cardEl = dialog?.querySelector(".duplicate-confirm-card");
+    const titleEl = document.getElementById("duplicateConfirmTitle");
+    const messageEl = document.getElementById("duplicateConfirmMessage");
+    const iconEl = document.getElementById("customConfirmIcon");
+    const listWrapEl = document.getElementById("duplicateConfirmListWrap");
+    const listEl = document.getElementById("duplicateConfirmList");
+    const cancelBtn = document.getElementById("duplicateConfirmCancelBtn");
+    const proceedBtn = document.getElementById("duplicateConfirmProceedBtn");
+
+    if (
+        !dialog ||
+        !cardEl ||
+        !titleEl ||
+        !messageEl ||
+        !iconEl ||
+        !listWrapEl ||
+        !listEl ||
+        !cancelBtn ||
+        !proceedBtn
+    ) {
+        if (showCancel) return Promise.resolve(window.confirm(message));
+        window.alert(message);
+        return Promise.resolve(true);
+    }
+
+    const pasteModalEl = document.getElementById("pasteDataModal");
+    const pasteModalIsOpen = Boolean(
+        pasteModalEl?.classList.contains("show") && window.bootstrap?.Modal,
+    );
+    let pasteModalHidden = Promise.resolve();
+
+    if (pasteModalIsOpen) {
+        suspendedPasteModalInstance =
+            window.bootstrap.Modal.getOrCreateInstance(pasteModalEl);
+        pasteModalHidden = new Promise((resolve) => {
+            pasteModalEl.addEventListener("hidden.bs.modal", resolve, {
+                once: true,
+            });
+        });
+        suspendedPasteModalInstance.hide();
+    }
+
+    const isDanger = variant === "danger";
+    const isSuccess = variant === "success";
+    cardEl.classList.toggle("duplicate-confirm-card-danger", isDanger);
+    cardEl.classList.toggle(
+        "duplicate-confirm-card-primary",
+        !isDanger && !isSuccess,
+    );
+    cardEl.classList.toggle("duplicate-confirm-card-success", isSuccess);
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    iconEl.classList.toggle("duplicate-confirm-icon-danger", isDanger);
+    iconEl.classList.toggle(
+        "duplicate-confirm-icon-primary",
+        !isDanger && !isSuccess,
+    );
+    iconEl.classList.toggle("duplicate-confirm-icon-success", isSuccess);
+    iconEl.innerHTML = isDanger
+        ? '<i class="bi bi-exclamation-triangle-fill"></i>'
+        : isSuccess
+          ? '<i class="bi bi-check-circle-fill"></i>'
+          : '<i class="bi bi-database-check"></i>';
+    proceedBtn.classList.toggle("btn-danger", isDanger);
+    proceedBtn.classList.toggle("btn-primary", !isDanger && !isSuccess);
+    proceedBtn.classList.toggle("btn-success", isSuccess);
+    proceedBtn.innerHTML = isDanger
+        ? `<i class="bi bi-check-lg me-1"></i>${confirmText}`
+        : isSuccess
+          ? `<i class="bi bi-check-lg me-1"></i>${confirmText}`
+          : `<i class="bi bi-save me-1"></i>${confirmText}`;
+    cancelBtn.classList.toggle("d-none", !showCancel);
+    listWrapEl.classList.toggle("d-none", items.length === 0);
+    listEl.replaceChildren();
+
+    items.slice(0, 10).forEach((item) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = item;
+        listEl.appendChild(listItem);
+    });
+
+    return new Promise((resolve) => {
+        const finish = async (confirmed) => {
+            dialog.classList.add("d-none");
+            document.removeEventListener("keydown", handleKeydown);
+            dialog.onclick = null;
+            cancelBtn.onclick = null;
+            proceedBtn.onclick = null;
+
+            await pasteModalHidden;
+            if (
+                suspendedPasteModalInstance &&
+                (!confirmed || !showCancel)
+            ) {
+                suspendedPasteModalInstance.show();
+                suspendedPasteModalInstance = null;
+            }
+            resolve(confirmed);
+        };
+
+        const handleKeydown = (event) => {
+            if (event.key === "Escape") finish(false);
+        };
+
+        cancelBtn.onclick = () => finish(false);
+        proceedBtn.onclick = () => finish(true);
+        dialog.onclick = (event) => {
+            if (event.target === dialog) finish(false);
+        };
+        document.addEventListener("keydown", handleKeydown);
+
+        dialog.classList.remove("d-none");
+        proceedBtn.focus();
+    });
+}
+
+function showDuplicateConfirmDialog(message, duplicateItems) {
+    return showCustomConfirmDialog({
+        title: "중복 데이터 확인",
+        message,
+        items: duplicateItems,
+        confirmText: "그래도 등록",
+        variant: "danger",
+    });
+}
+
+function showDuplicateBlockedDialog(message, duplicateItems) {
+    return showCustomConfirmDialog({
+        title: "중복 데이터 확인",
+        message,
+        items: duplicateItems,
+        confirmText: "확인",
+        variant: "danger",
+        showCancel: false,
+    });
+}
+
+function showSaveConfirmDialog(itemCount) {
+    return showCustomConfirmDialog({
+        title: "데이터 저장 확인",
+        message: `총 ${itemCount}건의 데이터를 저장하시겠습니까?`,
+        confirmText: "저장",
+        variant: "primary",
+    });
+}
+
+function showCustomMessageDialog({ title, message, variant = "danger" }) {
+    return showCustomConfirmDialog({
+        title,
+        message,
+        confirmText: "확인",
+        variant,
+        showCancel: false,
+    });
+}
+
+window.saveData = async function () {
     if (typeof PASTE_DATA_POST_URL === "undefined") {
-        alert(
-            "PASTE_DATA_POST_URL이 정의되지 않았습니다. template의 script 블록을 확인하세요.",
-        );
+        await showCustomMessageDialog({
+            title: "설정 오류",
+            message:
+                "저장 주소가 설정되지 않았습니다. 화면을 새로고침한 후 다시 시도하세요.",
+            variant: "danger",
+        });
         return;
     }
 
@@ -295,93 +468,140 @@ window.saveData = function () {
     if (data === null) return;
 
     if (data.length === 0) {
-        alert(
-            "저장할 데이터가 없습니다.\n(각 행에 최소 3개 열 입력 + 기번 4자리 필요)",
-        );
+        await showCustomMessageDialog({
+            title: "저장할 데이터 없음",
+            message:
+                "저장할 데이터가 없습니다.\n각 행에 최소 3개 열과 기번 4자리를 입력해 주세요.",
+            variant: "danger",
+        });
         return;
     }
 
     const duplicates = findDuplicates(data);
+    let duplicateConfirmed = false;
     if (duplicates.length > 0) {
-        const preview = duplicates
-            .slice(0, 5)
-            .map(
-                (d) => `기번+WO+OP(${d.key}) : ${d.firstRow}행 ↔ ${d.dupRow}행`,
-            )
-            .join("\n");
+        if (!window.PASTE_DATA_ALLOW_DUPLICATES) {
+            await showDuplicateBlockedDialog(
+                "중복된 기번, WO, OP 조합이 있습니다. 중복을 제거한 후 다시 시도하세요.",
+                duplicates.slice(0, 10).map((duplicate) =>
+                    duplicate.key.replaceAll("::", " / "),
+                ),
+            );
+            return;
+        }
 
-        alert(
-            `중복된 기번/Work Order/OP 조합이 있습니다.\n중복 제거 후 다시 시도하세요.\n\n${preview}`,
+        duplicateConfirmed = await showDuplicateConfirmDialog(
+            "입력한 데이터 안에 같은 기번, WO, OP가 있습니다. 그래도 등록하시겠습니까?",
+            duplicates.slice(0, 10).map((duplicate) =>
+                duplicate.key.replaceAll("::", " / "),
+            ),
         );
-        return;
+        if (!duplicateConfirmed) return;
     }
 
     const csrf = getCsrfToken();
     if (!csrf) {
-        alert("CSRF 토큰을 찾을 수 없습니다. 새로고침 후 다시 시도하세요.");
+        await showCustomMessageDialog({
+            title: "보안 정보 오류",
+            message: "보안 정보를 찾을 수 없습니다. 새로고침 후 다시 시도하세요.",
+            variant: "danger",
+        });
         return;
     }
 
     const payload = data.map(({ row_number, ...rest }) => rest);
 
-    if (!confirm(`총 ${payload.length}건의 데이터를 저장하시겠습니까?`)) return;
+    if (!duplicateConfirmed) {
+        const saveConfirmed = await showSaveConfirmDialog(payload.length);
+        if (!saveConfirmed) return;
+    }
 
-    fetch(PASTE_DATA_POST_URL, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrf,
-        },
-        body: JSON.stringify(payload),
-    })
-        .then(async (response) => {
-            if (response.redirected) {
-                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-                window.location.href = response.url;
+    async function submitData(allowDuplicates) {
+        const response = await fetch(PASTE_DATA_POST_URL, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrf,
+                ...(allowDuplicates
+                    ? { "X-Allow-Duplicates": "true" }
+                    : {}),
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (response.redirected) {
+            await showCustomMessageDialog({
+                title: "로그인 필요",
+                message: "로그인이 필요합니다. 로그인 페이지로 이동합니다.",
+                variant: "danger",
+            });
+            window.location.href = response.url;
+            return null;
+        }
+
+        if (!response.ok) {
+            let result = null;
+
+            try {
+                result = await response.json();
+            } catch (err) {
+                throw new Error(await response.text());
+            }
+
+            if (response.status === 409 && result?.duplicates?.length) {
+                if (
+                    window.PASTE_DATA_ALLOW_DUPLICATES &&
+                    !allowDuplicates
+                ) {
+                    const confirmed = await showDuplicateConfirmDialog(
+                        result.message,
+                        result.duplicates,
+                    );
+                    if (!confirmed) return null;
+                    return submitData(true);
+                }
+
+                await showDuplicateBlockedDialog(
+                    result.message,
+                    result.duplicates,
+                );
                 return null;
             }
 
-            if (!response.ok) {
-                let message = "";
+            throw new Error(
+                result?.message ||
+                    JSON.stringify(result) ||
+                    "요청 처리 중 오류가 발생했습니다.",
+            );
+        }
 
-                try {
-                    const result = await response.json();
+        return response.json();
+    }
 
-                    if (response.status === 409 && result?.duplicates?.length) {
-                        const preview = result.duplicates
-                            .slice(0, 10)
-                            .map((key) => `- ${key}`)
-                            .join("\n");
-                        message = `${result.message}\n\n${preview}`;
-                    } else {
-                        message = result?.message || JSON.stringify(result);
-                    }
-                } catch (err) {
-                    message = await response.text();
-                }
+    try {
+        const result = await submitData(duplicateConfirmed);
+        if (!result) return;
 
-                throw new Error(message || "요청 처리 중 오류가 발생했습니다.");
+        if (result.status === "success") {
+            if (typeof MASTER_DATA_LIST_URL !== "undefined") {
+                window.location.href = MASTER_DATA_LIST_URL;
             }
-
-            return response.json();
-        })
-        .then((result) => {
-            if (!result) return;
-
-            if (result.status === "success") {
-                alert(`성공! ${result.count}건의 데이터가 저장되었습니다.`);
-                if (typeof MASTER_DATA_LIST_URL !== "undefined") {
-                    window.location.href = MASTER_DATA_LIST_URL;
-                }
-            } else {
-                alert("저장 실패: " + (result.message || ""));
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-            alert("서버 오류:\n" + String(error.message).slice(0, 500));
+        } else {
+            await showCustomMessageDialog({
+                title: "저장 실패",
+                message: result.message || "데이터를 저장하지 못했습니다.",
+                variant: "danger",
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        await showCustomMessageDialog({
+            title: "서버 오류",
+            message: String(error.message).slice(0, 500),
+            variant: "danger",
         });
+    }
 };
 
 initTable();
@@ -392,3 +612,10 @@ if (pasteModal) {
         ensureMinimumRows();
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const confirmDialog = document.getElementById(
+        "duplicateDataConfirmDialog",
+    );
+    if (confirmDialog) document.body.appendChild(confirmDialog);
+});

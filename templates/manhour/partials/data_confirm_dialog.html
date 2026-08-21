@@ -1,0 +1,44 @@
+<div
+    id="duplicateDataConfirmDialog"
+    class="duplicate-confirm-overlay d-none"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="duplicateConfirmTitle"
+    aria-describedby="duplicateConfirmMessage"
+>
+    <div class="duplicate-confirm-card" role="document">
+        <div
+            class="duplicate-confirm-icon"
+            id="customConfirmIcon"
+            aria-hidden="true"
+        >
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h4 id="duplicateConfirmTitle" class="fw-bold mb-2">
+            중복 데이터 확인
+        </h4>
+        <p id="duplicateConfirmMessage" class="mb-3 text-secondary"></p>
+        <div class="duplicate-confirm-list-wrap" id="duplicateConfirmListWrap">
+            <div class="small fw-bold text-danger-emphasis mb-2">
+                중복 항목 (기번 / WO / OP)
+            </div>
+            <ul id="duplicateConfirmList" class="duplicate-confirm-list mb-0"></ul>
+        </div>
+        <div class="duplicate-confirm-actions">
+            <button
+                type="button"
+                class="btn btn-light border fw-bold px-4"
+                id="duplicateConfirmCancelBtn"
+            >
+                <i class="bi bi-x-lg me-1"></i>취소
+            </button>
+            <button
+                type="button"
+                class="btn btn-danger fw-bold px-4 shadow-sm"
+                id="duplicateConfirmProceedBtn"
+            >
+                <i class="bi bi-check-lg me-1"></i>확인
+            </button>
+        </div>
+    </div>
+</div>

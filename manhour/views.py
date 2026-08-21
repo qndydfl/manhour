@@ -1981,6 +1981,9 @@ class PasteItemsView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
         session = get_session_or_404(request, session_id)
         workplace = get_current_workplace(request)
+        allow_duplicates = (
+            request.headers.get("X-Allow-Duplicates", "").strip().lower() == "true"
+        )
 
         try:
             data = json.loads(request.body or "[]")
@@ -2027,31 +2030,51 @@ class PasteItemsView(SimpleLoginRequiredMixin, View):
                     status=400,
                 )
 
-            # ✅ 기존 데이터(현재 세션)와 WO+OP 중복 체크
-            incoming_pairs = set(
-                (item["wo"].strip(), item["op"].strip())
-                for item in normalized
-                if item.get("wo") and item.get("op")
-            )
-            if incoming_pairs:
-                existing_pairs = set(
-                    WorkItem.objects.filter(session=session)
-                    .exclude(work_order="")
-                    .exclude(op="")
-                    .values_list("work_order", "op")
+            # 현재 세션의 기번 + WO + OP가 같은 항목은 사용자 확인 후 등록 허용
+            incoming_key_list = [
+                (
+                    item["gibun"].strip().upper(),
+                    item["wo"].strip().upper(),
+                    item["op"].strip().upper(),
                 )
-                duplicates = incoming_pairs & existing_pairs
-                if duplicates:
-                    preview = ", ".join(
-                        [f"{wo}/{op}" for wo, op in list(duplicates)[:5]]
-                    )
-                    return JsonResponse(
-                        {
-                            "status": "error",
-                            "message": f"이미 등록된 WO/OP가 있습니다: {preview}",
-                        },
-                        status=400,
-                    )
+                for item in normalized
+                if item.get("gibun") and item.get("wo") and item.get("op")
+            ]
+            incoming_keys = set(incoming_key_list)
+            existing_keys = {
+                (
+                    (gibun or "").strip().upper(),
+                    (wo or "").strip().upper(),
+                    (op or "").strip().upper(),
+                )
+                for gibun, wo, op in WorkItem.objects.filter(session=session)
+                .exclude(gibun_input__isnull=True)
+                .exclude(gibun_input="")
+                .exclude(work_order="")
+                .exclude(op="")
+                .values_list("gibun_input", "work_order", "op")
+            }
+            repeated_input_keys = {
+                key for key in incoming_keys if incoming_key_list.count(key) > 1
+            }
+            duplicate_keys = sorted(
+                (incoming_keys & existing_keys) | repeated_input_keys
+            )
+            if duplicate_keys and not allow_duplicates:
+                preview = [
+                    f"{gibun}/{wo}/{op}"
+                    for gibun, wo, op in duplicate_keys[:10]
+                ]
+                return JsonResponse(
+                    {
+                        "status": "duplicate_warning",
+                        "message": (
+                            "같은 기번, WO, OP가 있습니다. 그래도 등록하시겠습니까?"
+                        ),
+                        "duplicates": preview,
+                    },
+                    status=409,
+                )
 
             existing_gibuns = set(
                 GibunPriority.objects.filter(session=session).values_list(
@@ -2091,10 +2114,10 @@ class PasteItemsView(SimpleLoginRequiredMixin, View):
 
                     task_master, _ = TaskMaster.objects.update_or_create(
                         site=workplace,
+                        gibun_code=gibun,
                         work_order=item["wo"],
                         op=item["op"],
                         defaults={
-                            "gibun_code": gibun,
                             "description": item["desc"],
                             "default_mh": item["mh"],
                         },

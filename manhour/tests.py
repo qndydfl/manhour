@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -6,6 +8,7 @@ from manning.models import WorkSession as ManningWorkSession
 from .models import (
     DefaultWorkerDirectory,
     TaskMaster,
+    WorkItem,
     WorkSession,
     Worker,
     Workplace,
@@ -110,4 +113,76 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(
             WorkSession.objects.filter(id=self.site_a_session.id).exists()
+        )
+
+
+class PasteItemsDuplicateConfirmationTests(TestCase):
+    def setUp(self):
+        Workplace.objects.create(code="SITE-A", label="Site A")
+        self.work_session = WorkSession.objects.create(name="A", site="SITE-A")
+        browser_session = self.client.session
+        browser_session["is_authenticated"] = True
+        browser_session["user_role"] = "user"
+        browser_session["workplace"] = "SITE-A"
+        browser_session.save()
+
+        WorkItem.objects.create(
+            session=self.work_session,
+            gibun_input="HL1234",
+            work_order="WO-100",
+            op="10",
+            description="기존 작업",
+        )
+        self.url = reverse("manhour:paste_items", args=[self.work_session.id])
+
+    def _payload(self, gibun="HL1234"):
+        return [
+            {
+                "gibun_code": gibun,
+                "work_order": "WO-100",
+                "op": "10",
+                "description": "추가 작업",
+                "default_mh": 1.5,
+            }
+        ]
+
+    def test_same_gibun_wo_op_returns_confirmation_warning(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps(self._payload()),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["status"], "duplicate_warning")
+        self.assertEqual(response.json()["duplicates"], ["HL1234/WO-100/10"])
+        self.assertEqual(WorkItem.objects.filter(session=self.work_session).count(), 1)
+
+    def test_confirmed_duplicate_is_saved(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps(self._payload()),
+            content_type="application/json",
+            HTTP_X_ALLOW_DUPLICATES="true",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.assertEqual(WorkItem.objects.filter(session=self.work_session).count(), 2)
+
+    def test_same_wo_op_with_different_gibun_is_not_duplicate(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps(self._payload(gibun="HL5678")),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            WorkItem.objects.filter(
+                session=self.work_session,
+                gibun_input="HL5678",
+                work_order="WO-100",
+                op="10",
+            ).exists()
         )

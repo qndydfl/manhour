@@ -5,6 +5,7 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/paste_data.css' %}" />
+<link rel="stylesheet" href="{% static 'css/data_confirm_dialog.css' %}" />
 {% endblock css %}
 
 {% block js %}
@@ -145,4 +146,5 @@
         </div>
     </div>
 </div>
+{% include "manhour/partials/data_confirm_dialog.html" %}
 {% endblock content %}
