@@ -1,15 +1,11 @@
 import re
 from django import forms
-from .models import WorkSession, SessionArea
+from .models import SessionArea, WorkPackage, WorkSession
 
 
 class WorkSessionCreateForm(forms.ModelForm):
     work_package_name = forms.ChoiceField(
-        choices=[
-            ("", "선택해 주세요"),
-            ("A-Check", "A-Check"),
-            ("Engine-Change", "Engine-Change"),
-        ],
+        choices=(),
         required=True,
         widget=forms.Select(
             attrs={
@@ -44,10 +40,24 @@ class WorkSessionCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 1. 안내 문구 정의
         default_choice = [("", "--- 선택해 주세요 ---")]
 
-        # 2. block_check 처리
+        work_package_choices = list(
+            WorkPackage.objects.filter(is_active=True)
+            .order_by("sort_order", "id")
+            .values_list("name", "name")
+        )
+        current_package = ""
+        if self.instance and self.instance.pk:
+            current_package = (self.instance.work_package_name or "").strip()
+        if current_package and current_package not in {
+            value for value, _label in work_package_choices
+        }:
+            work_package_choices.append((current_package, current_package))
+        self.fields["work_package_name"].choices = (
+            default_choice + work_package_choices
+        )
+
         if "block_check" in self.fields:
             # 기존 선택지에서 빈 값('')이 있는 항목은 모두 제거하고 실제 데이터만 추출
             real_choices = [
@@ -55,12 +65,12 @@ class WorkSessionCreateForm(forms.ModelForm):
             ]
             # 안내 문구를 맨 앞에 붙임
             self.fields["block_check"].choices = default_choice + real_choices
-            self.fields["block_check"].required = True
+            self.fields["block_check"].required = False
+            self.fields["block_check"].widget.attrs.pop("required", None)
             # 생성 화면에서만 안내 문구가 먼저 보이게 함
             if not (self.instance and self.instance.pk):
                 self.initial["block_check"] = ""
 
-        # 3. shift_type 처리
         if "shift_type" in self.fields:
             real_choices = [
                 c for c in self.fields["shift_type"].choices if c[0] and c[0] != ""
@@ -76,6 +86,19 @@ class WorkSessionCreateForm(forms.ModelForm):
         if len(digits) != 4:
             raise forms.ValidationError("항공기 기번은 숫자 4자리를 입력하세요.")
         return f"HL{digits}"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        package_name = re.sub(
+            r"[^a-z0-9]",
+            "",
+            (cleaned_data.get("work_package_name") or "").lower(),
+        )
+        if package_name == "enginechange":
+            cleaned_data["block_check"] = WorkSession.BLOCK_CHECK_1A
+        elif not cleaned_data.get("block_check"):
+            self.add_error("block_check", "A-Check (KJ)를 선택해 주세요.")
+        return cleaned_data
 
 
 class SessionAreaForm(forms.ModelForm):

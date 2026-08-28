@@ -1,0 +1,54 @@
+<article
+    class="manning-v2-area-card"
+    data-mobile-fold
+    data-mobile-fold-title="{{ area.name }} · {{ area.manning_set.count }}명"
+    data-mobile-fold-open="false"
+>
+    <div class="manning-v2-area-card-header">
+        <div>
+            <div class="manning-v2-area-label">AREA</div>
+
+            <h4 class="manning-v2-area-name">{{ area.name }}</h4>
+        </div>
+
+        <div class="manning-v2-area-count">
+            <i class="bi bi-people"></i>
+
+            {{ area.manning_set.count }}
+        </div>
+    </div>
+
+    <div class="manning-v2-worker-grid">
+        {% for manning in area.manning_set.all %}
+
+        <div class="manning-v2-worker">
+            <div class="manning-v2-worker-avatar">
+                {{ manning.worker_name|slice:":1"|upper }}
+            </div>
+
+            <div class="manning-v2-worker-info">
+                <strong> {{ manning.worker_name }} </strong>
+
+                <span> Assigned Technician </span>
+            </div>
+
+            <div class="manning-v2-hour-box">
+                <strong>
+                    {{ manning.display_hours|default_if_none:manning.hours|floatformat:"1" }}
+                </strong>
+
+                <span> H </span>
+            </div>
+        </div>
+
+        {% empty %}
+
+        <div class="manning-v2-area-empty">
+            <i class="bi bi-person-dash"></i>
+
+            <span> No personnel assigned </span>
+        </div>
+
+        {% endfor %}
+    </div>
+</article>

@@ -6,11 +6,6 @@ body {
     max-width: 1400px !important;
 }
 
-.ios-wrap {
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
 .table-input {
     border: 1px solid transparent;
     background-color: transparent;
@@ -58,12 +53,6 @@ tr.deleted-row .table-input {
     pointer-events: none;
 }
 
-.sticky-sidebar {
-    position: sticky;
-    top: 20px;
-    z-index: 10;
-}
-
 .bottom-action-bar {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
@@ -92,22 +81,6 @@ tr.deleted-row .table-input {
     position: relative;
 }
 
-.original-gibun-badge {
-    position: absolute;
-    top: 18px;
-    right: 10px;
-    z-index: 5;
-    font-size: 0.9rem;
-    padding: 2px 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 기번 행 이동 */
-.gibun-locked {
-    background-color: #f8f9fa;
-    pointer-events: none;
-}
-
 tr.gibun-changed .col-gibun input {
     color: inherit;
     text-shadow: none;
@@ -125,45 +98,6 @@ tr.gibun-changed .col-gibun input {
     white-space: nowrap;
 }
 
-
-.message-overlay {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    min-width: 320px;
-    max-width: 90%;
-    text-align: center;
-    animation: popIn 0.3s ease-out forwards;
-}
-
-.custom-alert {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 1.5rem 2rem;
-    border-radius: 1rem;
-    font-size: 1.1rem;
-}
-
-@keyframes popIn {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -40%) scale(0.9);
-    }
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-.fade-out {
-    opacity: 0;
-    transform: translate(-50%, -60%) scale(0.9);
-    transition: all 0.3s ease-in;
-}
 
 .desc-one-line {
     display: block;
@@ -201,11 +135,6 @@ tr.gibun-changed .col-gibun input {
     z-index: 2050 !important;
 }
 
-body.modal-open .fixed-bottom {
-    pointer-events: none;
-    z-index: 1000;
-}
-
 .modal-content {
     pointer-events: auto !important;
 }
@@ -218,11 +147,6 @@ body.modal-open .fixed-bottom {
 
 .drag-handle:active {
     cursor: grabbing !important;
-}
-
-.sortable-selected {
-    background-color: #e7f1ff !important;
-    outline: 2px solid #0d6efd;
 }
 
 .sortable-ghost,
@@ -251,11 +175,6 @@ body.modal-open .fixed-bottom {
 .mh-adjust-select {
     border: 2px dashed #a767b8 !important;
     font-size: 0.8rem;
-}
-
-.page-content.has-sidebar .ios-wrap {
-    max-width: none !important;
-    width: 100% !important;
 }
 
 @media (max-width: 576px) {
@@ -392,124 +311,4 @@ body.modal-open .fixed-bottom {
 .form-switch .form-check-input:checked {
     background-color: #7cc5ff;
     border-color: #7cc5ff;
-}
-/* 중복 데이터 저장 확인 */
-.duplicate-confirm-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background: rgba(15, 23, 42, 0.72);
-    backdrop-filter: blur(7px);
-}
-
-.duplicate-confirm-card {
-    width: min(31rem, 100%);
-    padding: 2rem;
-    border: 2px solid transparent;
-    border-radius: 1.4rem;
-    background: #fff;
-    text-align: center;
-    box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, 0.36);
-    animation: duplicate-confirm-enter 180ms ease-out;
-}
-
-.duplicate-confirm-card-danger {
-    border-color: rgba(220, 53, 69, 0.38);
-}
-
-.duplicate-confirm-card-primary {
-    border-color: rgba(13, 110, 253, 0.35);
-}
-
-.duplicate-confirm-card-success {
-    border-color: rgba(25, 135, 84, 0.38);
-}
-
-.duplicate-confirm-icon {
-    display: grid;
-    place-items: center;
-    width: 4.5rem;
-    height: 4.5rem;
-    margin: 0 auto 1rem;
-    border-radius: 50%;
-    font-size: 2.25rem;
-}
-
-.duplicate-confirm-icon-danger {
-    color: #dc3545;
-    background: #fff0f1;
-    box-shadow: 0 0 0 0.55rem rgba(220, 53, 69, 0.08);
-}
-
-.duplicate-confirm-icon-primary {
-    color: #0d6efd;
-    background: #eef5ff;
-    box-shadow: 0 0 0 0.55rem rgba(13, 110, 253, 0.08);
-}
-
-.duplicate-confirm-icon-success {
-    color: #198754;
-    background: #ecfdf3;
-    box-shadow: 0 0 0 0.55rem rgba(25, 135, 84, 0.09);
-}
-
-#duplicateConfirmMessage {
-    white-space: pre-line;
-}
-
-.duplicate-confirm-list-wrap {
-    max-height: 13rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    overflow-y: auto;
-    border: 1px solid #fecdd3;
-    border-radius: 0.9rem;
-    background: #fff7f8;
-    text-align: left;
-}
-
-.duplicate-confirm-list {
-    padding-left: 1.2rem;
-    color: #881337;
-    font-family: "D2Coding", "Consolas", monospace;
-    font-size: 0.9rem;
-}
-
-.duplicate-confirm-list li + li {
-    margin-top: 0.35rem;
-}
-
-.duplicate-confirm-actions {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-}
-
-@keyframes duplicate-confirm-enter {
-    from {
-        opacity: 0;
-        transform: translateY(0.8rem) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@media (max-width: 575.98px) {
-    .duplicate-confirm-card {
-        padding: 1.5rem 1.1rem;
-    }
-
-    .duplicate-confirm-actions {
-        flex-direction: column-reverse;
-    }
-
-    .duplicate-confirm-actions .btn {
-        width: 100%;
-    }
 }

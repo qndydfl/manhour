@@ -1,0 +1,420 @@
+/* =========================================================
+   MANHOUR CREATE SESSION V2
+========================================================= */
+
+.mh-create-page {
+    width: min(1150px, calc(100% - 56px));
+    margin: 0 auto;
+    padding: 42px 0 70px;
+}
+
+.mh-create-header {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.mh-create-eyebrow {
+    margin-bottom: 7px;
+    color: #2563eb;
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+    letter-spacing: 0.17em;
+}
+
+.mh-create-title {
+    margin: 0;
+    font-size: var(--font-size-page-title);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+}
+
+.mh-create-desc {
+    max-width: 650px;
+    margin: 9px 0 0;
+    color: #64748b;
+    font-size: var(--font-size-sm);
+    line-height: 1.7;
+}
+
+.mh-create-back {
+    min-height: 40px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #bfcbd8;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #0f172a;
+    text-decoration: none;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.mh-create-back:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
+    color: #0f172a;
+}
+
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.mh-create-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 22px;
+    align-items: start;
+}
+
+.mh-create-panel {
+    overflow: hidden;
+    border: 1px solid #bfcbd8;
+    border-radius: 17px;
+    background: #e3eaf2;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.mh-create-panel-body {
+    padding: 25px;
+}
+
+
+/* =========================================================
+   FIELD
+========================================================= */
+
+.mh-create-field {
+    padding: 18px;
+    border: 1px solid #d3dde8;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.mh-create-field + .mh-create-field {
+    margin-top: 14px;
+}
+
+.mh-create-label {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1e293b;
+    font-size: var(--font-size-base);
+    font-weight: 700;
+}
+
+.mh-create-step {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    border: 1px solid #bfdbfe;
+    background: #eaf3ff;
+    color: #2563eb;
+    font-size: var(--font-size-micro);
+}
+
+.mh-create-panel input[type="text"],
+.mh-create-panel textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 12px;
+    border: 1px solid #b9c6d5;
+    border-radius: 9px;
+    outline: none;
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+}
+
+.mh-create-panel textarea {
+    min-height: 115px;
+    resize: vertical;
+}
+
+.mh-create-panel input:focus,
+.mh-create-panel textarea:focus {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.mh-create-help {
+    margin-top: 7px;
+    color: #64748b;
+    font-size: var(--font-size-sm);
+}
+
+
+/* =========================================================
+   SHIFT
+========================================================= */
+
+.mh-shift-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.mh-shift-option {
+    position: relative;
+}
+
+.mh-shift-option input {
+    position: absolute;
+    opacity: 0;
+}
+
+.mh-shift-card {
+    min-height: 105px;
+    cursor: pointer;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid #c2cedb;
+    border-radius: 12px;
+    background: #f1f5f9;
+    transition: 0.17s ease;
+}
+
+.mh-shift-card:hover {
+    transform: translateY(-2px);
+    border-color: #60a5fa;
+    background: #ffffff;
+}
+
+.mh-shift-card i {
+    margin-bottom: 8px;
+    font-size: 20px;
+}
+
+.mh-shift-card strong {
+    font-size: var(--font-size-sm);
+}
+
+.mh-shift-card span {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: var(--font-size-xs);
+}
+
+#shiftDay:checked + .mh-shift-card {
+    border-color: #f59e0b;
+    background: #fff7ed;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, .08);
+}
+
+#shiftNight:checked + .mh-shift-card {
+    border-color: #0f172a;
+    background: #0f172a;
+    color: #ffffff;
+}
+
+#shiftNight:checked + .mh-shift-card span {
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   GIBUN TAG INPUT
+========================================================= */
+
+.tag-input-container {
+    min-height: 48px;
+    padding: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #b9c6d5;
+    border-radius: 9px;
+    background: #f8fafc;
+}
+
+.tag-input-container:focus-within {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.tag-input-field {
+    flex: 1;
+    min-width: 150px;
+    min-height: 34px !important;
+    padding: 5px 7px !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.gibun-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.input-error-msg {
+    width: 100%;
+    color: #dc2626;
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   SUBMIT
+========================================================= */
+
+.mh-create-submit {
+    margin-top: 14px;
+    padding: 18px;
+    border: 1px solid #d3dde8;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+#form_requirements {
+    margin-bottom: 10px;
+    color: #dc2626;
+    font-size: var(--font-size-sm);
+}
+
+#submitBtn {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+#submitBtn:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+#submitBtn:disabled {
+    border: 1px solid #b8c4d1;
+    background: #d7e0e9;
+    color: #475569;
+}
+
+
+/* =========================================================
+   SIDE
+========================================================= */
+
+.mh-create-side {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.mh-create-guide {
+    padding: 21px;
+    border: 1px solid #c4cfdb;
+    border-radius: 15px;
+    background: #f8fafc;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.055);
+}
+
+.mh-create-guide-dark {
+    border-color: #07111f;
+    background: linear-gradient(145deg, #07111f, #0b1729);
+    color: #ffffff;
+}
+
+.mh-create-guide-icon {
+    width: 39px;
+    height: 39px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.mh-create-guide-dark .mh-create-guide-icon {
+    background: rgba(255,255,255,.08);
+    color: #60a5fa;
+}
+
+.mh-create-guide h3 {
+    margin: 0;
+    font-size: var(--font-size-base);
+}
+
+.mh-create-guide p {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: var(--font-size-sm);
+    line-height: 1.7;
+}
+
+.mh-create-guide-dark p {
+    color: #94a3b8;
+}
+
+.mh-create-guide ul {
+    margin: 15px 0 0;
+    padding-left: 17px;
+    color: #64748b;
+    font-size: var(--font-size-sm);
+    line-height: 1.7;
+}
+
+.mh-create-guide li + li {
+    margin-top: 7px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+    .mh-create-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .mh-create-side {
+        position: static;
+    }
+}
+
+@media (max-width: 650px) {
+    .mh-create-page {
+        width: calc(100% - 28px);
+    }
+
+    .mh-create-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .mh-shift-grid {
+        grid-template-columns: 1fr;
+    }
+}

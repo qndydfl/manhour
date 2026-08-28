@@ -1,194 +1,229 @@
-{% extends "manhour/base/base.html" %} 
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
-{% block title %}마스터 데이터 전체 수정 | manhour System{% endblock title %} 
+{% block title %} Edit Master Data | Manhour {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/master_data_edit.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3" />
 {% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/master_data_edit.js' %}"></script>
 {% endblock js %}
 
-{% comment %} {% block background_image %} 
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
-{% endblock background_image %} {% endcomment %}
-
 
 {% block content %}
-<div
-    class="container rounded-3 master-data-edit mb-4"
->
-    <div
-        class="d-flex flex-wrap text-white justify-content-between align-items-center pb-4 gap-2"
-        data-aos="fade-down"
-    >
-        <div
-            class="bg-soft-primary p-3 rounded-circle"
-        >
-            <i class="bi bi-list-check fs-5 text-warning"></i>
-            <span class="ms-2 text-white fw-bold fs-5">데이터 수정</span>
-        </div>
 
-        <div class="d-flex gap-2 align-items-center py-2 ms-auto">
-            <button
-                type="submit"
-                form="masterDataEditForm"
-                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold py-2"
-            >
-                <i class="bi bi-save me-1"></i> 저장
-            </button>
-            <button
-                type="submit"
-                form="masterDataEditForm"
-                name="action"
-                value="delete_selected"
-                formnovalidate
-                class="btn btn-danger btn-sm rounded-pill px-3 fw-bold py-2"
-                onclick="
-                    return confirm(
-                        '선택한 항목을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
-                    );
-                "
-            >
-                <i class="bi bi-trash3-fill me-1"></i>
-                <span class="d-none d-md-inline">선택 항목 삭제</span>
-            </button>
-            
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'manhour:master_data_list' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+
+            <div>
+                <strong> MASTER EDITOR </strong>
+
+                <span> Maintenance Data Configuration </span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
                 href="{% url 'manhour:master_data_list' %}"
-                class="btn btn-dark btn-sm rounded-pill px-3 fw-bold py-2"
+                class="assignment-topbar-btn"
             >
-                <i class="bi bi-arrow-left me-1"></i>
-                <span class="d-none d-md-inline">목록으로</span>
+                <i class="bi bi-arrow-left"></i>
+
+                <span> Master Data </span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+
+                <span> Home </span>
             </a>
         </div>
     </div>
+</header>
 
-    <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel"
-        data-aos="fade-up"
-    >
-        <div class="card-header bg-white border-bottom pt-4 px-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-soft-primary p-3 rounded-circle">
-                        <i class="bi bi-pencil-square fs-4 text-primary"></i>
-                    </div>
-                    <div>
-                        <span class="fw-bold mb-1">전체 데이터 수정</span>
-                        <p class="text-muted small mb-0">
-                            총<strong class="text-primary"
-                                >{{ total_count }}</strong
-                            >
-                            개의 데이터를 수정할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
+<main class="master-v2-page">
+    <section class="master-v2-header">
+        <div>
+            <div class="master-v2-eyebrow">DATA CONFIGURATION</div>
+
+            <h1 class="master-v2-title">Edit Master Data</h1>
+
+            <p class="master-v2-description">
+                Aircraft, Work Order, OP, Description 및 기준 M/H를 직접
+                수정하거나 선택한 항목을 삭제합니다.
+            </p>
+        </div>
+
+        <div class="master-v2-header-tools">
+            <div class="master-total-records">
+                <i class="bi bi-database"></i>
+                <span>
+                    TOTAL RECORDS
+                    <strong>{{ total_count }}</strong>
+                </span>
             </div>
-            <div class="d-none d-md-block px-4 pt-3">
-                <i class="bi bi-apple text-warning"></i>
-                <span class="text-primary small"
-                    >기번, Work Order, OP 수정시 오름 차순으로 정렬됩니다.</span
+
+            <div class="master-v2-actions">
+                <a
+                    href="{% url 'manhour:master_data_list' %}"
+                    class="master-btn"
                 >
+                    <i class="bi bi-arrow-left"></i>
+
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    form="masterDataEditForm"
+                    class="master-btn master-btn-primary"
+                >
+                    <i class="bi bi-check2"></i>
+
+                    Save Changes
+                </button>
             </div>
         </div>
+    </section>
 
-        <div class="card-body p-0">
-            <form id="masterDataEditForm" method="POST">
-                {% csrf_token %} 
-                {{ formset.management_form }} 
-                {% if formset.non_form_errors %}
-                <div class="alert alert-danger m-4" role="alert">
-                    {{ formset.non_form_errors }}
+    <form id="masterDataEditForm" method="POST">
+        {% csrf_token %} {{ formset.management_form }} {% if formset.non_form_errors %}
+
+        <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+
+        {% endif %}
+
+        <section class="master-v2-panel">
+            <header class="master-v2-panel-head">
+                <div>
+                    <strong> Bulk Data Editor </strong>
+
+                    <span>
+                        Select rows to delete or edit fields directly.
+                    </span>
                 </div>
-                {% endif %}
 
-                <div class="table-responsive">
-                    <table
-                        class="table table-hover align-middle mb-0 master-data-table"
-                    >   
-                        <colgroup>
-                            <col style="width: 50px;">
-                            <col style="width: 120px;">
-                            <col style="width: 120px;">
-                            <col style="width: 80px;">
-                            <col />
-                            <col style="width: 100px;">
-                            <col style="width: 150px;">
-                        </colgroup>
+                <i class="bi bi-table text-muted"></i>
+            </header>
 
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="col-delete py-3 ps-4">
-                                    <div class="form-check m-0 text-danger">
-                                        <input
-                                            class="form-check-input js-select-all"
-                                            type="checkbox"
-                                            id="selectAllRows"
-                                            aria-label="전체 선택"
-                                        />
-                                    </div>
-                                </th>
-                                <th class="col-gibun py-3 ps-4">기번</th>
-                                <th class="col-wo py-3">Work Order</th>
-                                <th class="col-op py-3">OP</th>
-                                <th class="col-desc py-3">설명 (Description)</th>
-                                <th class="col-mh py-3 text-center">M/H</th>
-                                <th class="col-created-at py-3">생성 시간</th>
-                            </tr>
-                        </thead>
-                        <tbody class="border-top-0">
-                            {% for form in formset %}
-                            <tr class="js-master-data-row">
-                                <td class="ps-4">
-                                    <div class="form-check m-0">
-                                        <input
-                                            class="form-check-input js-row-select"
-                                            type="checkbox"
-                                            name="selected_ids"
-                                            value="{{ form.instance.id }}"
-                                            aria-label="선택"
-                                        />
-                                    </div>
-                                </td>
-                                <td class="ps-4">{{ form.gibun_code }}</td>
-                                <td>{{ form.work_order }}</td>
-                                <td>{{ form.op }}</td>
-                                <td>{{ form.description }}</td>
-                                <td class="text-center">
-                                    {{ form.default_mh }}
-                                </td>
-                                <td>
-                                    <span class="text-muted small">
-                                        {{ form.instance.created_at|date:"Y-m-d H:i" }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% if form.errors %}
-                            <tr>
-                                <td class="ps-4" colspan="7">
-                                    <div class="alert alert-danger py-2 mb-0">
-                                        {{ form.errors }}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endif %} 
-                            {{ form.id }} 
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </form>
+            <div class="master-v2-table-wrap">
+                <table class="master-v2-table">
+                    <colgroup>
+                        <col style="width: 55px" />
+                        <col style="width: 120px" />
+                        <col style="width: 140px" />
+                        <col style="width: 90px" />
+                        <col />
+                        <col style="width: 110px" />
+                    </colgroup>
+
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                <input
+                                    class="form-check-input js-select-all"
+                                    type="checkbox"
+                                    id="selectAllRows"
+                                    aria-label="전체 선택"
+                                />
+                            </th>
+
+                            <th>Aircraft</th>
+
+                            <th>Work Order</th>
+
+                            <th>OP</th>
+
+                            <th>Description</th>
+
+                            <th class="text-center">M/H</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for form in formset %}
+
+                        <tr class="js-master-data-row">
+                            <td class="text-center">
+                                <input
+                                    class="form-check-input js-row-select"
+                                    type="checkbox"
+                                    name="selected_ids"
+                                    value="{{ form.instance.id }}"
+                                    aria-label="선택"
+                                />
+                            </td>
+
+                            <td>{{ form.gibun_code }}</td>
+
+                            <td>{{ form.work_order }}</td>
+
+                            <td>{{ form.op }}</td>
+
+                            <td>{{ form.description }}</td>
+
+                            <td class="text-center">{{ form.default_mh }}</td>
+                        </tr>
+
+                        {% if form.errors %}
+
+                        <tr>
+                            <td colspan="6">
+                                <div class="alert alert-danger py-2 mb-0">
+                                    {{ form.errors }}
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% endif %} {{ form.id }} {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="master-v2-panel-footer">
+                체크한 항목은 선택 삭제할 수 있으며, 선택하지 않은 경우 모든
+                수정 내용이 저장됩니다.
+            </footer>
+        </section>
+
+        <div class="master-edit-savebar">
+            <span>
+                <i class="bi bi-info-circle me-1"></i>
+
+                저장 시 Aircraft → Work Order → OP 순서로 다시 정렬됩니다.
+            </span>
+
+            <div class="master-edit-savebar-actions">
+                <button
+                    type="submit"
+                    name="action"
+                    value="delete_selected"
+                    formnovalidate
+                    class="master-btn master-btn-danger"
+                    data-app-confirm="선택한 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                    data-app-confirm-title="선택 데이터 삭제"
+                    data-app-confirm-variant="danger"
+                    data-app-confirm-button="선택 삭제"
+                >
+                    <i class="bi bi-trash3"></i>
+
+                    Delete Selected
+                </button>
+
+                <button type="submit" class="master-btn master-btn-primary">
+                    <i class="bi bi-check2"></i>
+
+                    Save Changes
+                </button>
+            </div>
         </div>
+    </form>
+</main>
 
-        <div
-            class="card-footer bg-light border-0 py-3 text-center text-muted small"
-        >
-            체크한 항목은 삭제 또는 수정할 수 있습니다. 선택이 없으면 전체
-            저장됩니다.
-        </div>
-    </div>
-</div>
 {% endblock content %}

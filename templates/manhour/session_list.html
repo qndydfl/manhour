@@ -1,252 +1,274 @@
-{% extends 'manhour/base/base.html' %}
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
-{% block title %}작업슬롯 현황 | manhour System{% endblock title %} 
+{% block title %} Manhour Sessions {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/session_list.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1" />
 {% endblock css %} 
 
-{% comment %} {% block background_image %} {% include
-"manhour/image/background_url.html" with bg_key="session_list"
-bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
-background_image %} {% endcomment %} 
 
 {% block content %}
-<div class="container rounded-3 glass-panel p-4 rounded-4 session-list-shell">
-    <div class="d-flex justify-content-between align-items-md-center gap-3">
-        <div class="d-flex align-items-center gap-2">
-            <h3 class="mb-0 text-white fw-bold fs-4">
-                <i class="bi bi-grid-fill me-2 text-warning"></i>작업 슬롯 현황
-            </h3>
+
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'manhour:session_list' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-stopwatch"></i>
+            </div>
+
+            <div>
+                <strong>MANHOUR SESSIONS</strong>
+                <span>Maintenance Workload Control</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
+
+            <a href="{% url 'manhour:history' %}" class="assignment-topbar-btn">
+                <i class="bi bi-clock-history"></i>
+                <span>History</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="mh-page mh-session-list-page">
+    <section class="mh-page-header">
+        <div>
+            <div class="mh-eyebrow">ACTIVE OPERATIONS</div>
+
+            <h1 class="mh-page-title">Manhour Sessions</h1>
+
+            <p class="mh-page-desc">
+                현재 진행 중인 Maintenance Workload Session을 확인하고
+                Assignment 작업으로 이동합니다.
+            </p>
         </div>
 
-        <div class="d-flex gap-2 align-items-center justify-content-end">
+        <div class="mh-header-actions">
+            <div class="mh-active-summary" aria-label="Active sessions">
+                <i class="bi bi-activity"></i>
+                <span>Active Sessions</span>
+                <strong>{{ active_count }}</strong>
+            </div>
+
             <a
                 href="{% url 'manhour:create_session' %}"
-                class="btn btn-primary btn-sm fw-bold rounded-pill px-3 py-2"
+                class="mh-btn mh-btn-primary"
             >
-                <i class="bi bi-plus-lg me-1"></i> 세션 추가
+                <i class="bi bi-plus-lg"></i>
+                New Session
             </a>
 
-            <a
-                href="{% url 'manhour:index' %}"
-                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
-            >
-                <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
-            </a>
-        </div>
-    </div>
+            {% if request.session.user_role == 'admin' and active_count > 0 %}
 
-    <hr class="mt-3 d-md-none border-3" />
-
-    <div
-        class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mt-5 justify-content-between"
-    >
-        <div
-            class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-3"
-        >
-            <span class="text-white small">
-                총 <strong class="text-danger">{{ active_count }}</strong>개의
-                활성 세션이 있습니다.
-            </span>
-            <span class="fst-italic small text-warning fw-bold">
-                {{ auto_archive_hours }}시간이 지나면 세션이 자동으로 history로
-                이동됩니다.
-            </span>
-        </div>
-
-        {% if request.session.user_role == 'admin' and active_count > 0 %}
-        <div>
-            {% if active_sessions %}
             <button
-                class="btn btn-danger btn-sm fw-bold d-none d-md-inline rounded-pill px-3 py-2"
+                type="button"
+                class="mh-btn mh-btn-danger"
                 data-bs-toggle="modal"
                 data-bs-target="#resetAllModal"
-                title="전체 삭제"
             >
-                <i class="bi bi-trash3-fill"></i>
-                전체 삭제
+                <i class="bi bi-trash3"></i>
+                Reset All
             </button>
+
             {% endif %}
         </div>
-        {% endif %}
-    </div>
+    </section>
 
-    <div
-        class="row g-4 justify-content-center my-3"
-        id="sessionsGrid"
-        data-aos="fade-up"
-    >
-        {% for session in active_sessions %}
-        <div class="col-12 col-md-6 col-lg-3 session-col">
-            <div
-                class="card h-100 border-0 shadow-sm card-hover position-relative"
-            >
-                <a
-                    href="{% url 'manhour:result_view' session.id %}"
-                    class="stretched-link"
-                    aria-label="{{ session.name }} 입장"
-                ></a>
-                <div
-                    class="w-100 {% if session.shift_type == 'NIGHT' %}bg-dark{% else %}bg-warning{% endif %}"
-                    style="height: 6px"
-                ></div>
+    <section class="mh-session-panel" aria-labelledby="activeSessionListTitle">
+        <div class="mh-session-panel-head">
+            <div class="mh-session-panel-heading">
+                <span class="mh-session-panel-icon" aria-hidden="true">
+                    <i class="bi bi-grid-1x2"></i>
+                </span>
 
-                <div class="card-body p-4 d-flex flex-column">
-                    <div
-                        class="d-flex justify-content-between align-items-start mb-3"
-                    >
-                        {% if session.shift_type == 'NIGHT' %}
-                        <span
-                            class="badge bg-soft-indigo text-indigo rounded-pill"
-                        >
-                            <i class="bi bi-moon-stars-fill me-1"></i> 야간
-                        </span>
-                        {% else %}
-                        <span
-                            class="badge bg-soft-warning text-warning rounded-pill"
-                        >
-                            <i class="bi bi-sun-fill me-1"></i> 주간
-                        </span>
-                        {% endif %} {% comment %} {% if
-                        request.session.user_role == 'admin' %} {% endcomment %}
-                        <form
-                            method="POST"
-                            action="{% url 'manhour:delete_session' session.id %}"
-                            class="position-relative z-2"
-                            onsubmit="
-                                return confirm(
-                                    '해당 세션을 삭제할까요? 이 작업은 되돌릴 수 없습니다.',
-                                );
-                            "
-                        >
-                            {% csrf_token %}
-                            <button
-                                type="submit"
-                                class="btn btn-outline-danger btn-sm rounded-pill"
-                                title="세션 삭제"
-                            >
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                        {% comment %} {% endif %} {% endcomment %}
-                    </div>
-
-                    <h5 class="card-title fw-bold mb-1 text-truncate">
-                        {{ session.name }}
-                    </h5>
-
-                    <p class="text-primary small mb-2">
-                        생성일 {{ session.created_at|date:"Y-m-d" }}
-                    </p>
-
-                    <p class="text-muted small">
-                        작업자 {{ session.worker_count }}명 • 아이템 {{ session.item_count }}개
-                    </p>
-
-                    <div
-                        class="d-flex justify-content-between bg-light rounded-3 mb-2"
-                    >
-                        <div class="text-center w-50 border-end">
-                            <small class="text-muted" style="font-size: 0.7rem"
-                                >총 시간</small
-                            >
-                            <div class="fw-bold text-primary">
-                                {{ session.total_mh|floatformat:1 }}
-                                <span class="small">H</span>
-                            </div>
-                        </div>
-                        <div class="text-center w-50">
-                            <small class="text-muted" style="font-size: 0.7rem"
-                                >상태</small
-                            >
-                            <div class="fw-bold text-success">진행중</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-auto d-grid gap-2 position-relative">
-                        <a
-                            href="{% url 'manhour:result_view' session.id %}"
-                            class="btn btn-primary fw-bold shadow-sm position-relative z-2"
-                        >
-                            입장하기
-                        </a>
-                    </div>
-                    <div class="mt-1 d-grid gap-2 position-relative">
-                        <a
-                            href="{% url 'manhour:assigned_summary' session.id %}?from=session_list"
-                            class="btn btn-secondary rounded-3 fw-bold shadow-sm position-relative z-2"
-                        >
-                            배정 현황 바로 가기
-                        </a>
-                    </div>
+                <div>
+                    <h2 id="activeSessionListTitle">Active Session List</h2>
+                    <p>진행 중인 세션을 선택하여 작업 현황을 확인하세요.</p>
                 </div>
             </div>
+
+            <span class="mh-session-panel-count">
+                <strong>{{ active_count }}</strong>
+                Sessions
+            </span>
         </div>
-        {% empty %}
-        <div class="col-12 text-center">
-            <div class="card border-dashed bg-dark">
-                <div class="card-body">
-                    <i
-                        class="bi bi-inbox fs-1 text-white opacity-50 mb-3 d-block"
-                    ></i>
-                    <h5 class="fw-bold text-white">활성 세션이 없습니다</h5>
-                    <a
-                        href="{% url 'manhour:create_session' %}"
-                        class="btn btn-primary my-3 rounded-pill px-4"
+
+        <div class="mh-session-grid">
+            {% for session in active_sessions %}
+
+            <article
+                class="mh-session-card {% if session.shift_type == 'NIGHT' %}mh-session-card-night{% else %}mh-session-card-day{% endif %}"
+            >
+                <div class="mh-session-top">
+                    {% if session.shift_type == 'NIGHT' %}
+
+                    <span class="mh-shift mh-shift-night">
+                        <i class="bi bi-moon-stars me-1"></i>
+                        NIGHT
+                    </span>
+
+                    {% else %}
+
+                    <span class="mh-shift mh-shift-day">
+                        <i class="bi bi-sun me-1"></i>
+                        DAY
+                    </span>
+
+                    {% endif %}
+
+                    <form
+                        method="POST"
+                        action="{% url 'manhour:delete_session' session.id %}"
+                        data-app-confirm="해당 세션을 삭제할까요? 이 작업은 되돌릴 수 없습니다."
+                        data-app-confirm-title="세션 삭제"
+                        data-app-confirm-variant="danger"
+                        data-app-confirm-button="삭제"
                     >
-                        새 세션 만들기
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="mh-session-delete"
+                            title="Delete Session"
+                            aria-label="{{ session.name }} 세션 삭제"
+                        >
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="mh-session-identity">
+                    <h3>{{ session.name }}</h3>
+
+                    <div class="mh-session-date">
+                        <i class="bi bi-calendar3"></i>
+                        Created {{ session.created_at|date:"Y-m-d" }}
+                    </div>
+                </div>
+
+                <div class="mh-session-meta">
+                    <div>
+                        <span class="mh-session-meta-icon">
+                            <i class="bi bi-people"></i>
+                        </span>
+                        <span>
+                            <small>WORKERS</small>
+                            <strong>{{ session.worker_count }}</strong>
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="mh-session-meta-icon">
+                            <i class="bi bi-list-task"></i>
+                        </span>
+                        <span>
+                            <small>WORK ITEMS</small>
+                            <strong>{{ session.item_count }}</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mh-session-stats">
+                    <div class="mh-session-stat">
+                        <span>TOTAL M/H</span>
+                        <strong>{{ session.total_mh|floatformat:1 }} H</strong>
+                    </div>
+
+                    <div class="mh-session-stat mh-session-stat-status">
+                        <span>STATUS</span>
+                        <strong><i></i> ACTIVE</strong>
+                    </div>
+                </div>
+
+                <div class="mh-session-actions">
+                    <a
+                        href="{% url 'manhour:result_view' session.id %}"
+                        class="mh-btn mh-btn-primary"
+                    >
+                        <i class="bi bi-kanban"></i>
+                        배정 하기
+                    </a>
+
+                    <a
+                        href="{% url 'manhour:assigned_summary' session.id %}?from=session_list"
+                        class="mh-btn"
+                    >
+                        <i class="bi bi-clock-history"></i>
+                        배정 현황
                     </a>
                 </div>
+            </article>
+
+            {% empty %}
+
+            <div class="mh-empty">
+                <i class="bi bi-inbox"></i>
+
+                <h3>활성 세션이 없습니다.</h3>
+
+                <p>새로운 Manhour Session을 생성하여 작업을 시작하세요.</p>
+
+                <a
+                    href="{% url 'manhour:create_session' %}"
+                    class="mh-btn mh-btn-primary"
+                >
+                    <i class="bi bi-plus-lg"></i>
+                    New Session
+                </a>
             </div>
+
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-</div>
+    </section>
+</main>
 
 <div class="modal fade" id="resetAllModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-danger text-white border-0">
-                <h5 class="modal-title fw-bold">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i> 전체
-                    초기화
-                </h5>
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">전체 세션 초기화</h5>
+
                 <button
                     type="button"
                     class="btn-close btn-close-white"
                     data-bs-dismiss="modal"
                 ></button>
             </div>
+
             <div class="modal-body text-center py-5">
-                <h4 class="fw-bold text-dark mb-2">
-                    모든 세션을 삭제하시겠습니까?
-                </h4>
+                <h4>모든 활성 세션을 삭제하시겠습니까?</h4>
+
                 <p class="text-muted mb-0">
-                    현재 진행 중인 모든 작업 데이터가 즉시 삭제됩니다.
+                    현재 진행 중인 모든 작업 데이터가 삭제됩니다.
                 </p>
             </div>
-            <div class="modal-footer justify-content-center border-0 pb-4">
+
+            <div class="modal-footer">
                 <form
                     action="{% url 'manhour:reset_all_sessions' %}"
                     method="POST"
-                    class="d-flex gap-2 w-100 px-3"
+                    class="d-flex gap-2 w-100"
                 >
                     {% csrf_token %}
+
                     <button
                         type="button"
-                        class="btn btn-light flex-fill py-2 fw-bold"
+                        class="btn btn-light flex-fill"
                         data-bs-dismiss="modal"
                     >
-                        취소
+                        Cancel
                     </button>
-                    <button
-                        type="submit"
-                        class="btn btn-danger flex-fill py-2 fw-bold"
-                    >
-                        모두 삭제
+
+                    <button type="submit" class="btn btn-danger flex-fill">
+                        Delete All
                     </button>
                 </form>
             </div>
@@ -254,27 +276,4 @@ background_image %} {% endcomment %}
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // modal clipping 방지
-        const modalEl = document.getElementById("resetAllModal");
-        if (modalEl && modalEl.parentElement !== document.body) {
-            document.body.appendChild(modalEl);
-        }
-
-        // 세션 검색
-        const searchEl = document.getElementById("sessionSearch");
-        if (searchEl) {
-            searchEl.addEventListener("keyup", function () {
-                const val = this.value.toLowerCase().trim();
-                const items = document.querySelectorAll(".session-col");
-
-                items.forEach((item) => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(val) ? "" : "none";
-                });
-            });
-        }
-    });
-</script>
 {% endblock content %}

@@ -1,0 +1,35 @@
+<div
+    id="appDialog"
+    class="app-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="appDialogTitle"
+    aria-describedby="appDialogMessage"
+    hidden
+>
+    <div class="app-dialog-card" role="document">
+        <div class="app-dialog-icon" id="appDialogIcon" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+
+        <h3 class="app-dialog-title" id="appDialogTitle">확인</h3>
+        <p class="app-dialog-message" id="appDialogMessage"></p>
+
+        <div class="app-dialog-actions">
+            <button
+                type="button"
+                class="app-dialog-btn app-dialog-btn-cancel"
+                id="appDialogCancel"
+            >
+                취소
+            </button>
+            <button
+                type="button"
+                class="app-dialog-btn app-dialog-btn-confirm"
+                id="appDialogConfirm"
+            >
+                확인
+            </button>
+        </div>
+    </div>
+</div>

@@ -2,7 +2,7 @@ import json
 import logging
 import math
 import re
-from datetime import timedelta, datetime
+from datetime import timedelta
 import requests
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,6 @@ from .workplaces import (
     ensure_default_workplaces,
 )
 from .forms import (
-    KanbiAssignmentForm,
     WorkItemForm,
     TaskMasterForm,
 )
@@ -67,10 +66,7 @@ DEFAULT_HISTORY_VISIBILITY_HOURS = 24
 DEFAULT_AUTO_ARCHIVE_HOURS = 12
 DEFAULT_WORKER_LIMIT_MH = 9.0
 
-FINANCIAL_CACHE_KEY = "financial_indicators:v1"
-FINANCIAL_HISTORY_KEY = "financial_indicators:history:v1"
 CHECKWX_CACHE_KEY = "checkwx:metar:v1"
-WEATHER_FORECAST_CACHE_KEY = "weather_forecast:v1"
 
 
 def set_workplace_in_session(request, workplace: str | None) -> str:
@@ -112,16 +108,6 @@ def get_session_any_status_or_404(request, session_id: int):
         WorkSession,
         id=session_id,
         site=workplace,
-    )
-
-
-def get_item_or_404(request, item_id: int, **kwargs):
-    workplace = get_current_workplace(request)
-    return get_object_or_404(
-        WorkItem,
-        id=item_id,
-        session__site=workplace,
-        **kwargs,
     )
 
 
@@ -440,7 +426,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                     sort_order=sort_order,
                     is_active=is_active,
                 )
-                messages.success(request, "근무지가 추가되었습니다.")
                 return redirect("manhour:settings")
 
             workplace_id = request.POST.get("workplace_id")
@@ -459,7 +444,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 if request.session.get(WORKPLACE_SESSION_KEY) == deleted_code:
                     request.session.pop(WORKPLACE_SESSION_KEY, None)
                     request.session.pop(WORKPLACE_LABEL_SESSION_KEY, None)
-                messages.success(request, "근무지가 삭제되었습니다.")
                 return redirect("manhour:settings")
 
             if action == "workplace_update":
@@ -487,7 +471,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                     new_key = code.casefold()
                     if current_key in {old_key, new_key}:
                         set_workplace_in_session(request, code)
-                messages.success(request, "근무지가 수정되었습니다.")
                 return redirect("manhour:settings")
 
         raw_hours = request.POST.get("auto_archive_hours", "").strip()
@@ -579,7 +562,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 ignore_conflicts=True,
             )
         Worker.objects.filter(session__site=workplace).update(limit_mh=default_limit)
-        messages.success(request, "설정이 저장되었습니다.")
         return redirect("manhour:index")
 
 
@@ -712,8 +694,6 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
                             work_mh=0.0,
                         )
 
-        messages.success(request, f"세션 '{final_name}'이(가) 시작되었습니다!")
-
         run_sync_schedule(session.id)
 
         return redirect("manhour:session_list")
@@ -781,10 +761,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         run_sync_schedule(session.id)
         refresh_worker_totals(session)
 
-        messages.success(request, "세션 정보가 수정되었습니다!")
-        return redirect(
-            f"{reverse('manhour:result_view', args=[session.id])}?reassigned=1"
-        )
+        return redirect("manhour:result_view", session_id=session.id)
 
 
 class ResultView(SimpleLoginRequiredMixin, DetailView):
@@ -886,45 +863,15 @@ class ResultView(SimpleLoginRequiredMixin, DetailView):
                 "wo_total": wo_total,
                 "strict_limit": strict_limit,
                 "unassigned_count": unassigned_count,
-                "manning_list_available": self._has_active_manning_sessions(),
-                "manning_session_id": self._find_matching_manning_session_id(session),
             }
         )
         return context
-
-    @staticmethod
-    def _has_active_manning_sessions() -> bool:
-        try:
-            from manning.models import WorkSession as ManningWorkSession
-
-            return ManningWorkSession.objects.filter(is_active=True).exists()
-        except Exception:
-            return False
-
-    @staticmethod
-    def _find_matching_manning_session_id(session) -> int | None:
-        try:
-            from manning.models import WorkSession as ManningWorkSession
-
-            candidates = ManningWorkSession.objects.filter(is_active=True)
-            if session.name:
-                candidates = candidates.filter(
-                    Q(name__icontains=session.name)
-                    | Q(work_package_name__icontains=session.name)
-                    | Q(aircraft_reg__icontains=session.name)
-                )
-            return (
-                candidates.order_by("-created_at").values_list("id", flat=True).first()
-            )
-        except Exception:
-            return None
 
     def post(self, request, session_id):
         # 결과 화면에서 '자동 배정' 버튼 눌렀을 때
         adjusted_mh_map = request.session.get(f"adjusted_mh_map_{session_id}", {})
         run_auto_assign(session_id, adjusted_mh_map)
         run_sync_schedule(session_id)
-        messages.success(request, "자동 배정 및 동기화가 완료되었습니다! 🤖")
         return redirect("manhour:result_view", session_id=session_id)
 
 
@@ -997,13 +944,21 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         total_worker_count = workers.count()
         default_limit_mh = get_default_worker_limit_mh(session.site)
         worker_names_list = []
-        custom_limit_workers = []
+        worker_limit_rows = []
         for w in workers:
             limit_str = (
                 f"{int(w.limit_mh)}" if w.limit_mh.is_integer() else f"{w.limit_mh}"
             )
-            if abs(float(w.limit_mh or 0.0) - float(default_limit_mh)) > 0.01:
-                custom_limit_workers.append({"name": w.name, "limit": limit_str})
+            is_custom_limit = (
+                abs(float(w.limit_mh or 0.0) - float(default_limit_mh)) > 0.01
+            )
+            worker_limit_rows.append(
+                {
+                    "name": w.name,
+                    "limit": limit_str,
+                    "is_custom": is_custom_limit,
+                }
+            )
             worker_names_list.append(f"{w.name}: {limit_str}")
         worker_names_str = "\n".join(worker_names_list)
 
@@ -1049,7 +1004,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 "formset": formset,
                 "gibun_priorities": gibun_priorities,
                 "worker_names_str": worker_names_str,
-                "custom_limit_workers": custom_limit_workers,
+                "worker_limit_rows": worker_limit_rows,
                 "non_common_count": WorkItem.objects.filter(session=session)
                 .exclude(gibun_input="COMMON")
                 .count(),
@@ -1400,9 +1355,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         )
         run_sync_schedule(session.id)
 
-        return redirect(
-            f"{reverse('manhour:result_view', args=[session.id])}?reassigned=1"
-        )
+        return redirect("manhour:result_view", session_id=session.id)
 
 
 # @method_decorator(csrf_exempt, name="dispatch")
@@ -1553,31 +1506,13 @@ class UpdateLimitsView(SimpleLoginRequiredMixin, View):
                 worker.limit_mh = new_limit
                 worker.save()
 
-        messages.success(request, "작업자별 근무 한도가 수정되었습니다! 🕒")
         return redirect("manhour:result_view", session_id=session.id)
-
-
-class FinishSessionView(SimpleLoginRequiredMixin, View):
-    def post(self, request, session_id):
-        session = get_session_or_404(request, session_id)
-        session.is_active = False
-        if session.finished_at is None:
-            session.finished_at = timezone.now()
-        session.save()
-
-        messages.success(
-            request,
-            f"✅ {session.name} 작업이 완료되었습니다. 기록 보관소로 이동합니다.",
-        )
-        return redirect("manhour:index")
 
 
 class DeleteSessionView(SimpleLoginRequiredMixin, View):
     def post(self, request, session_id):
         session = get_session_or_404(request, session_id, is_active=True)
-        session_name = session.name
         session.delete()
-        messages.success(request, f"세션 '{session_name}'이(가) 삭제되었습니다.")
         return redirect("manhour:session_list")
 
 
@@ -1632,7 +1567,6 @@ def delete_history_session(request, session_id):
 
     session = get_session_or_404(request, session_id, is_active=False)
     session.delete()
-    messages.success(request, "기록이 삭제되었습니다.")
     return redirect("manhour:history")
 
 
@@ -1641,23 +1575,6 @@ def _norm_int(v, default=None):
         return int(v)
     except Exception:
         return default
-
-
-def hhmm_to_min(hhmm: str):
-    if not hhmm:
-        return None
-    s = str(hhmm).strip()
-    if len(s) != 4 or not s.isdigit():
-        return None
-    hh = int(s[:2])
-    mm = int(s[2:])
-    if hh < 0 or hh > 24:
-        return None
-    if mm < 0 or mm >= 60:
-        return None
-    if hh == 24 and mm != 0:
-        return None
-    return hh * 60 + mm
 
 
 def _clip_if_invalid_time(s, e):
@@ -1970,7 +1887,6 @@ class PasteInputView(SimpleLoginRequiredMixin, View):
         if new_items:
             with transaction.atomic():
                 WorkItem.objects.bulk_create(new_items)
-            messages.success(request, f"✅ {len(new_items)}건 저장 완료!")
         else:
             messages.warning(request, "저장할 유효한 데이터가 없습니다.")
 
@@ -2622,11 +2538,17 @@ class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
                 if wo_raw in (KANBI_WO, DIRECT_WO):
                     is_fixed_anchor = True
 
-                    s_hhmm = format_min_to_time(a.start_min).replace(":", "")
-                    e_hhmm = format_min_to_time(a.end_min).replace(":", "")
-                    manual_edit_list.append(
-                        {"id": wi.id, "code": desc_disp, "start": s_hhmm, "end": e_hhmm}
-                    )
+                    if wo_raw == KANBI_WO:
+                        s_hhmm = format_min_to_time(a.start_min).replace(":", "")
+                        e_hhmm = format_min_to_time(a.end_min).replace(":", "")
+                        manual_edit_list.append(
+                            {
+                                "id": wi.id,
+                                "code": desc_disp,
+                                "start": s_hhmm,
+                                "end": e_hhmm,
+                            }
+                        )
 
             if is_fixed_anchor:
                 item_data.update(
@@ -2761,7 +2683,6 @@ class DeleteTaskMasterView(SimpleLoginRequiredMixin, View):
             workplace = get_current_workplace(request)
             task = get_object_or_404(TaskMaster, pk=target_pk, site=workplace)
             task.delete()
-            messages.success(request, f"데이터 '{task.work_order}'가 삭제되었습니다.")
         except Exception as e:
             messages.error(request, f"삭제 중 오류가 발생했습니다: {e}")
 
@@ -2775,97 +2696,6 @@ class LegacyUploadRedirectView(SimpleLoginRequiredMixin, View):
 
     def post(self, request, session_id, *args, **kwargs):
         return redirect("manhour:manage_items", session_id=session_id)
-
-
-class WorkerIndirectView(SimpleLoginRequiredMixin, View):
-    def _get_kanbi_item(self, session):
-        return get_or_create_common_item(session, KANBI_WO)
-
-    def get(self, request, session_id, worker_id):
-        session = get_session_or_404(request, session_id)
-        worker = get_object_or_404(Worker, id=worker_id, session=session)
-        kanbi_item = self._get_kanbi_item(session)
-
-        qs = Assignment.objects.filter(work_item=kanbi_item, worker=worker).order_by(
-            "start_min", "id"
-        )
-
-        KanbiFormSet = modelformset_factory(
-            Assignment, form=KanbiAssignmentForm, extra=1, can_delete=True
-        )
-        formset = KanbiFormSet(queryset=qs)
-
-        return render(
-            request,
-            "manhour/worker_indirect_form.html",
-            {"session": session, "worker": worker, "formset": formset},
-        )
-
-    def post(self, request, session_id, worker_id):
-        session = get_session_or_404(request, session_id)
-        worker = get_object_or_404(Worker, id=worker_id, session=session)
-        kanbi_item = self._get_kanbi_item(session)
-
-        qs = Assignment.objects.filter(work_item=kanbi_item, worker=worker).order_by(
-            "start_min", "id"
-        )
-
-        KanbiFormSet = modelformset_factory(
-            Assignment, form=KanbiAssignmentForm, extra=1, can_delete=True
-        )
-        formset = KanbiFormSet(request.POST, queryset=qs)
-
-        # 폼 검증 실패 시
-        if not formset.is_valid():
-            return render(
-                request,
-                "manhour/worker_indirect_form.html",
-                {"session": session, "worker": worker, "formset": formset},
-            )
-
-        with transaction.atomic():
-            # 1. 삭제 먼저 수행
-            for obj in formset.deleted_objects:
-                obj.delete()
-
-            # 2. 저장/수정 수행
-            # form.save()를 바로 쓰지 않고, 데이터를 꺼내서 안전하게 처리합니다.
-            for form in formset.forms:
-                # 삭제된 폼이나 빈 폼은 건너뜀
-                if form in formset.deleted_forms:
-                    continue
-
-                # 입력값 추출
-                s_str = (form.cleaned_data.get("start_time") or "").strip()
-                e_str = (form.cleaned_data.get("end_time") or "").strip()
-                code = (form.cleaned_data.get("code") or "").strip()
-
-                # 시간 변환
-                s_min = hhmm_to_min(s_str)
-                e_min = hhmm_to_min(e_str)
-
-                if s_min is None or e_min is None:
-                    continue
-
-                if session.shift_type == "NIGHT" and e_min <= s_min:
-                    e_min += 1440
-
-                # 인스턴스 준비 (기존 객체 수정 or 새 객체 생성)
-                assign = form.save(commit=False)
-                assign.work_item = kanbi_item
-                assign.worker = worker
-                assign.allocated_mh = 0.0
-                assign.is_fixed = True
-                assign.start_min = s_min
-                assign.end_min = e_min
-                assign.code = code
-
-                # 안전 저장: 여기서 create가 호출되더라도 start_min/end_min이 값이 있으므로 중복 에러 안 남
-                assign.save()
-
-        # 집계 갱신
-        refresh_worker_totals(session)
-        return render(request, "manhour/worker_indirect_close.html")
 
 
 class AddSingleItemView(SimpleLoginRequiredMixin, View):
@@ -2935,8 +2765,6 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
             # 4. 자동 배정 및 갱신
             adjusted_mh_map = request.session.get(f"adjusted_mh_map_{session.id}", {})
             run_auto_assign(session.id, adjusted_mh_map)
-            messages.success(request, f"추가 완료: {gibun} - {wo}")
-
         else:
             messages.error(request, "기번과 Work Order는 필수 입력값입니다.")
 
@@ -2952,7 +2780,6 @@ class ResetSessionView(SimpleLoginRequiredMixin, View):
         session = get_session_or_404(request, session_id)
         session.is_active = False
         session.save()
-        messages.success(request, f"'{session.name}' 세션이 종료되었습니다.")
         return redirect("manhour:index")
 
 
@@ -2963,7 +2790,6 @@ class ResetAllSessionsView(SimpleAdminRequiredMixin, View):
         session_count = qs.count()
         if session_count > 0:
             qs.delete()
-            messages.success(request, f"총 {session_count}개의 세션이 삭제되었습니다.")
         return redirect("manhour:index")
 
 
@@ -3047,11 +2873,7 @@ class MasterDataBulkEditView(SimpleLoginRequiredMixin, View):
             deleted_count, _ = TaskMaster.objects.filter(
                 site=workplace, id__in=selected_ids
             ).delete()
-            if deleted_count > 0:
-                messages.warning(
-                    request, f"선택한 {deleted_count}개의 데이터를 삭제했습니다."
-                )
-            else:
+            if deleted_count == 0:
                 messages.info(request, "삭제할 데이터가 없습니다.")
             return redirect("manhour:master_data_edit")
 
@@ -3064,14 +2886,12 @@ class MasterDataBulkEditView(SimpleLoginRequiredMixin, View):
 
         if not selected_ids:
             formset.save()
-            messages.success(request, "마스터 데이터가 업데이트되었습니다.")
             return redirect("manhour:master_data_list")
 
         for form in formset.forms:
             if form.instance and form.instance.pk in selected_ids:
                 form.save()
 
-        messages.success(request, "선택한 마스터 데이터가 업데이트되었습니다.")
         return redirect("manhour:master_data_list")
 
         context = {
@@ -3116,145 +2936,6 @@ class DashboardCountsApiView(MasterDataBaseMixin, View):
                 "master_data_count": master_data_count,
             }
         )
-
-
-def _parse_float(value):
-    if value is None:
-        return None
-    if isinstance(value, (int, float)):
-        return float(value)
-    try:
-        return float(str(value).replace(",", ""))
-    except (TypeError, ValueError):
-        return None
-
-
-def _fetch_exchange_rate_usd_krw():
-    api_key = getattr(settings, "EXCHANGE_RATE_API_KEY", "")
-    if not api_key:
-        return None
-
-    url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/USD"
-
-    try:
-        response = requests.get(url, timeout=6)
-        if not response.ok:
-            return None
-        payload = response.json()
-    except (requests.RequestException, ValueError):
-        return None
-
-    rates = payload.get("conversion_rates", {}) if payload else {}
-    rate = _parse_float(rates.get("KRW"))
-    return {
-        "value": rate,
-        "as_of": payload.get("time_last_update_utc"),
-    }
-
-
-def _fetch_eia_wti():
-    api_key = getattr(settings, "EIA_API_KEY", "")
-    if not api_key:
-        return None
-
-    url = "https://api.eia.gov/v2/petroleum/pri/spt/data/"
-    end = timezone.localdate()
-    start = end - timedelta(days=10)
-
-    try:
-        response = requests.get(
-            url,
-            params={
-                "api_key": api_key,
-                "frequency": "daily",
-                "data[0]": "value",
-                "facets[product][]": "EPCWTI",
-                "start": start.strftime("%Y-%m-%d"),
-                "end": end.strftime("%Y-%m-%d"),
-                "sort[0][column]": "period",
-                "sort[0][direction]": "desc",
-                "offset": 0,
-                "length": 1,
-            },
-            timeout=6,
-        )
-        if not response.ok:
-            return None
-        payload = response.json()
-    except (requests.RequestException, ValueError):
-        return None
-
-    data = payload.get("response", {}).get("data", []) if payload else []
-    if not data:
-        return None
-
-    item = data[0]
-    value = _parse_float(item.get("value"))
-    return {
-        "value": value,
-        "as_of": item.get("period"),
-    }
-
-
-def _fetch_eia_jet_fuel():
-    api_key = getattr(settings, "EIA_API_KEY", "")
-    if not api_key:
-        return None
-
-    url = "https://api.eia.gov/v2/petroleum/pri/spt/data/"
-    end = timezone.localdate()
-    start = end - timedelta(days=10)
-
-    try:
-        response = requests.get(
-            url,
-            params={
-                "api_key": api_key,
-                "frequency": "daily",
-                "data[0]": "value",
-                "facets[product][]": "EPJK",
-                "start": start.strftime("%Y-%m-%d"),
-                "end": end.strftime("%Y-%m-%d"),
-                "sort[0][column]": "period",
-                "sort[0][direction]": "desc",
-                "offset": 0,
-                "length": 1,
-            },
-            timeout=6,
-        )
-        if not response.ok:
-            return None
-        payload = response.json()
-    except (requests.RequestException, ValueError):
-        return None
-
-    data = payload.get("response", {}).get("data", []) if payload else []
-    if not data:
-        return None
-
-    item = data[0]
-    value = _parse_float(item.get("value"))
-    return {
-        "value": value,
-        "as_of": item.get("period"),
-    }
-
-
-def _update_exchange_history(value):
-    if value is None:
-        return cache.get(FINANCIAL_HISTORY_KEY, [])
-
-    history = cache.get(FINANCIAL_HISTORY_KEY, [])
-    label = timezone.localtime().strftime("%H:%M")
-
-    if history and history[-1].get("value") == value:
-        return history
-
-    history.append({"label": label, "value": value})
-    max_points = getattr(settings, "FINANCIAL_HISTORY_MAX_POINTS", 48)
-    history = history[-max_points:]
-    cache.set(FINANCIAL_HISTORY_KEY, history, 24 * 60 * 60)
-    return history
 
 
 def _fetch_checkwx_metar():
@@ -3322,148 +3003,6 @@ class CheckWxMetarApiView(View):
         return JsonResponse({"stations": stations})
 
 
-class WeatherForecastApiView(View):
-
-    AIRPORTS = {
-        "RKSI": {
-            "name": "Incheon Airport",
-            "lat": 37.4602,
-            "lon": 126.4407,
-        },
-        "RKSS": {
-            "name": "Gimpo Airport",
-            "lat": 37.5583,
-            "lon": 126.7906,
-        },
-    }
-
-    DEFAULT_AIRPORT = "RKSI"
-
-    def get(self, request, *args, **kwargs):
-        try:
-            forecast_data = self.fetch_weather_forecast(request)
-
-            return JsonResponse(forecast_data)
-
-        except Exception as e:
-            return JsonResponse(
-                {
-                    "error": str(e),
-                    "hours": [],
-                    "wind_speeds": [],
-                    "wind_gusts": [],
-                    "rain_probs": [],
-                    "visibility": [],
-                    "cloud_cover": [],
-                },
-                status=500,
-            )
-
-    def get_airport(self, request):
-        airport_code = request.GET.get("airport", self.DEFAULT_AIRPORT).upper()
-        return self.AIRPORTS.get(airport_code, self.AIRPORTS[self.DEFAULT_AIRPORT])
-
-    def fetch_weather_forecast(self, request):
-        """
-        Open-Meteo API 호출
-        """
-        airport = self.get_airport(request)
-
-        lat = airport["lat"]
-        lon = airport["lon"]
-
-        url = "https://api.open-meteo.com/v1/forecast"
-
-        params = {
-            "latitude": lat,
-            "longitude": lon,
-            "timezone": "Asia/Seoul",
-            "forecast_days": 1,
-            "wind_speed_unit": "kn",
-            "hourly": (
-                "wind_speed_10m,"
-                "wind_gusts_10m,"
-                "precipitation_probability,"
-                "visibility,"
-                "cloud_cover"
-            ),
-        }
-
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-
-        data = response.json()
-        return self.build_response_data(data, airport)
-
-    def build_response_data(self, data, airport):
-        """
-        프론트 전달용 데이터 변환
-        """
-
-        hourly = data.get("hourly", {})
-
-        times = hourly.get("time", [])
-
-        wind_speed = hourly.get("wind_speed_10m", [])
-        wind_gust = hourly.get("wind_gusts_10m", [])
-
-        rain_prob = hourly.get(
-            "precipitation_probability",
-            [],
-        )
-
-        visibility = hourly.get("visibility", [])
-
-        cloud_cover = hourly.get("cloud_cover", [])
-
-        labels = []
-        winds = []
-        gusts = []
-        rains = []
-        visibilities = []
-        clouds = []
-
-        now_local = timezone.localtime().replace(minute=0, second=0, microsecond=0)
-
-        start_index = 0
-
-        for i, time_text in enumerate(times):
-            try:
-                forecast_time = datetime.strptime(time_text, "%Y-%m-%dT%H:%M")
-                forecast_time = timezone.make_aware(
-                    forecast_time,
-                    timezone.get_current_timezone(),
-                )
-
-                if forecast_time >= now_local:
-                    start_index = i
-                    break
-            except ValueError:
-                continue
-
-        end_index = min(start_index + 8, len(times))
-
-        for i in range(start_index, end_index):
-            hour = times[i].split("T")[1][:2]
-
-            labels.append(f"{hour}시")
-            winds.append(round(float(wind_speed[i]), 1))
-            gusts.append(round(float(wind_gust[i]), 1))
-            rains.append(int(rain_prob[i]))
-            visibilities.append(int(visibility[i]))
-            clouds.append(int(cloud_cover[i]))
-
-        return {
-            "city": airport["name"],
-            "hours": labels,
-            "wind_speeds": winds,
-            "wind_gusts": gusts,
-            "rain_probs": rains,
-            "visibility": visibilities,
-            "cloud_cover": clouds,
-        }
-
-
 class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
     model = TaskMaster
     success_url = reverse_lazy("manhour:paste_data")  # 기본값
@@ -3475,8 +3014,6 @@ class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
     def form_valid(self, form):
         self.object = self.get_object()
         self.object.delete()
-        messages.success(self.request, "항목이 삭제되었습니다.")
-
         # 돌아갈 페이지 유동적 처리
         next_page = self.request.POST.get("next")
         if next_page == "manhour:master_data_list":
@@ -3492,7 +3029,6 @@ class TaskMasterDeleteAllView(SimpleAdminRequiredMixin, View):
         count = TaskMaster.objects.filter(site=workplace).count()
         if count > 0:
             TaskMaster.objects.filter(site=workplace).delete()
-            messages.warning(request, f"총 {count}개의 데이터가 모두 삭제되었습니다.")
         else:
             messages.info(request, "삭제할 데이터가 없습니다.")
 
@@ -3631,11 +3167,3 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
 
         # 6. 관리 페이지로 복귀
         return redirect("manhour:manage_items", session_id=session.id)
-
-
-def custom_404(request, exception):
-    return render(request, "manhour/404_page/404.html", status=404)
-
-
-def video_page(request):
-    return render(request, "manhour/video_page.html")

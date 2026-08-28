@@ -115,6 +115,14 @@ class AuthorizationAndScopeTests(TestCase):
             WorkSession.objects.filter(id=self.site_a_session.id).exists()
         )
 
+    def test_index_renders_mobile_workspace_accordions_and_hidden_sections(self):
+        response = self.client.get(reverse("manhour:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count(b"data-mobile-workspace"), 3)
+        self.assertEqual(response.content.count(b"portal-mobile-hidden-section"), 2)
+        self.assertContains(response, "portal-workspace-mobile-title")
+
 
 class PasteItemsDuplicateConfirmationTests(TestCase):
     def setUp(self):

@@ -26,6 +26,7 @@ from .models import (
     WorkerDirectory,
     AreaTemplate,
     AreaTemplateItem,
+    WorkPackage,
 )
 
 WORKPLACE_SESSION_KEY = "workplace"
@@ -139,7 +140,7 @@ def _resolve_workplace_key(workplace):
 def _get_area_templates():
     templates = list(
         AreaTemplate.objects.filter(is_active=True)
-        .prefetch_related("items")
+        .prefetch_related("items", "work_packages")
         .order_by("sort_order", "id")
     )
     if templates:
@@ -151,10 +152,30 @@ def _get_area_template_choices():
     db_templates = _get_area_templates()
     if db_templates:
         return [
-            {"id": template.id, "key": template.key, "label": template.label}
+            {
+                "id": template.id,
+                "key": template.key,
+                "label": template.label,
+                "work_package_names": [
+                    package.name
+                    for package in template.work_packages.all()
+                    if package.is_active
+                ],
+            }
             for template in db_templates
         ]
     return []
+
+
+def _work_package_allows_template(work_package_name, template_key):
+    if not work_package_name or not template_key:
+        return False
+    return WorkPackage.objects.filter(
+        is_active=True,
+        name__iexact=work_package_name,
+        area_templates__is_active=True,
+        area_templates__key__iexact=template_key,
+    ).exists()
 
 
 def _get_area_template_items(template_key):
@@ -322,6 +343,30 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     },
                 )
 
+            if not _work_package_allows_template(
+                form.cleaned_data.get("work_package_name"),
+                area_template,
+            ):
+                messages.error(
+                    request,
+                    "선택한 Work Package에서 사용할 수 없는 템플릿입니다.",
+                )
+                active_shift_combos = list(
+                    WorkSession.objects.filter(is_active=True, site=workplace)
+                    .values("aircraft_reg", "block_check", "shift_type")
+                    .order_by("id")
+                )
+                return render(
+                    request,
+                    "manning/manning_create_session.html",
+                    {
+                        "form": form,
+                        "templates": _get_area_template_choices(),
+                        "selected_template": "",
+                        "active_shift_combos": active_shift_combos,
+                    },
+                )
+
             selected_areas = _get_area_template_items(area_template)
             if not selected_areas:
                 messages.error(request, "선택한 템플릿에 구역이 없습니다.")
@@ -369,16 +414,16 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         ]
                     )
 
-                # messages.success(
-                #     request, f"새 세션과 '{template_label}' 구역이 생성되었습니다."
-                # )
                 return redirect("manning:manning_dashboard", session_id=session.id)
 
             except Exception as e:
                 messages.error(request, f"오류가 발생했습니다: {str(e)}")
                 return redirect("manning:manning_list")
 
-        messages.error(request, "입력값을 확인해주세요.")
+        messages.error(
+            request,
+            "입력값을 확인해 주세요. 빨간색으로 표시된 필수 항목을 확인하세요.",
+        )
         active_shift_combos = list(
             WorkSession.objects.filter(is_active=True, site=workplace)
             .values("aircraft_reg", "block_check", "shift_type")
@@ -453,6 +498,25 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
                 },
             )
 
+        if area_template and not _work_package_allows_template(
+            form.cleaned_data.get("work_package_name"),
+            area_template,
+        ):
+            messages.error(
+                request,
+                "선택한 Work Package에서 사용할 수 없는 템플릿입니다.",
+            )
+            return render(
+                request,
+                "manning/manning_edit_session.html",
+                {
+                    "form": form,
+                    "session": session,
+                    "templates": _get_area_template_choices(),
+                    "selected_template": "",
+                },
+            )
+
         updated = form.save(commit=False)
         if not updated.name:
             updated.name = updated.work_package_name or "Maintenance Session"
@@ -473,7 +537,6 @@ class UpdateSessionView(ManningSessionRequiredMixin, View):
         elif updated.manhour_session_id:
             updated.manhour_session = None
             updated.save(update_fields=["manhour_session"])
-        # messages.success(request, "세션 정보가 수정되었습니다.")
         return redirect("manning:manning_list")
 
 
@@ -668,7 +731,6 @@ class TemplateEditorView(ManningSessionRequiredMixin, View):
                             sort_order=order_idx,
                         )
 
-            # messages.success(request, "템플릿이 저장되었습니다.")
             return redirect("manning:template_editor")
         except Exception as exc:
             messages.error(request, f"템플릿 저장 중 오류가 발생했습니다: {exc}")
@@ -681,7 +743,6 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
     def post(self, request, session_id):
         session = _get_session_or_404(request, session_id)
         session.delete()
-        # messages.success(request, "세션이 삭제되었습니다.")
         return redirect("manning:manning_list")
 
 
@@ -807,7 +868,6 @@ class AddAreaView(ManningSessionRequiredMixin, View):
             area = form.save(commit=False)
             area.session = session
             area.save()
-            # messages.success(request, "새 구역이 추가되었습니다.")
         else:
             messages.error(request, "구역 추가에 실패했습니다. 입력값을 확인해주세요.")
         return redirect("manning:manning_dashboard", session_id=session.id)
@@ -823,7 +883,6 @@ class UpdateAreaView(ManningSessionRequiredMixin, View):
             form.save()
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
                 return JsonResponse({"status": "success"})
-            # messages.success(request, "구역 정보가 수정되었습니다.")
         else:
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
                 return JsonResponse(
@@ -840,7 +899,6 @@ class DeleteAreaView(ManningSessionRequiredMixin, View):
         area = _get_area_or_404(request, area_id)
         session_id = area.session_id
         area.delete()
-        # messages.success(request, "구역이 삭제되었습니다.")
         return redirect("manning:manning_dashboard", session_id=session_id)
 
 
@@ -1139,8 +1197,6 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
 
         if errors:
             messages.error(request, "수정 중 일부 문제가 발생했습니다.")
-        # else:
-        #     messages.success(request, "구역 정보가 저장되었습니다.")
         return redirect("manning:manning_dashboard", session_id=session.id)
 
 

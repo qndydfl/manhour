@@ -199,7 +199,6 @@ class AutoAssignService:
         return float(item.work_mh or 0.0)
 
 
-# (ScheduleSyncService 및 helper 함수들은 이전과 동일하여 생략, 위 코드에 포함됨)
 class ScheduleSyncService:
     def __init__(self, session_id):
         self.session = WorkSession.objects.get(id=session_id)

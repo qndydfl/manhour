@@ -1,0 +1,755 @@
+/* =========================================================
+   MANNING FORM WORKSPACE V2
+========================================================= */
+
+.manning-form-page {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.manning-form-floating-message {
+    position: fixed;
+    top: 106px;
+    right: 36px;
+    z-index: 2100;
+    width: min(470px, calc(100vw - 40px));
+    margin: 0;
+}
+
+.manning-form-floating-message .alert {
+    margin: 0;
+    padding: 17px 48px 17px 18px;
+    border: 2px solid #f87171;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #991b1b;
+    font-size: var(--font-size-sm);
+    font-weight: 750;
+    box-shadow: 0 18px 45px rgba(127, 29, 29, 0.24);
+}
+
+@media (max-width: 900px) {
+    .manning-form-floating-message {
+        top: 84px;
+        right: 20px;
+        left: 20px;
+        width: auto;
+    }
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.manning-form-header {
+    margin-bottom: 26px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+.manning-form-eyebrow {
+    margin-bottom: 7px;
+
+    color: var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.17em;
+}
+
+.manning-form-title {
+    margin: 0;
+
+    color: var(--manning-text);
+
+    font-size: var(--font-size-page-title);
+    font-weight: 700;
+
+    letter-spacing: -0.045em;
+}
+
+.manning-form-description {
+    max-width: 620px;
+
+    margin: 10px 0 0;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-base);
+    line-height: 1.7;
+}
+
+.manning-form-header-back {
+    min-height: 40px;
+
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    border: 1px solid var(--manning-border);
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: var(--manning-text);
+
+    text-decoration: none;
+
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+
+    transition: 0.18s ease;
+}
+
+.manning-form-header-back:hover {
+    color: var(--manning-text);
+
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   WORKSPACE GRID
+========================================================= */
+
+.manning-form-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        300px;
+
+    gap: 22px;
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   FORM PANEL
+========================================================= */
+
+.manning-form-panel {
+    overflow: hidden;
+
+    border: 1px solid var(--manning-border-soft);
+
+    border-radius: 17px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 7px 28px rgba(15, 23, 42, 0.045);
+}
+
+.manning-form-panel-head {
+    padding: 21px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border-bottom:
+        1px solid var(--manning-border-soft);
+}
+
+.manning-form-panel-head-left {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.manning-form-panel-number {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #eff6ff;
+
+    color: var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+}
+
+.manning-form-panel-head strong {
+    display: block;
+
+    font-size: var(--font-size-base);
+    font-weight: 700;
+}
+
+.manning-form-panel-head small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+.manning-form-panel-body {
+    padding: 25px;
+}
+
+
+/* =========================================================
+   FIELD GRID
+========================================================= */
+
+.manning-form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.manning-form-field {
+    min-width: 0;
+}
+
+.manning-form-label {
+    margin-bottom: 8px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    color: var(--manning-text);
+
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.manning-form-required {
+    color: #ef4444;
+}
+
+
+/* =========================================================
+   DJANGO FORM CONTROLS
+========================================================= */
+
+.manning-form-field input:not([type="radio"]),
+.manning-form-field select,
+.manning-form-field textarea {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding:
+        9px 12px;
+
+    border:
+        1px solid #dce3eb;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    font-family: inherit;
+
+    font-size: var(--font-size-sm);
+
+    transition:
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+.manning-form-field textarea {
+    min-height: 110px;
+
+    resize: vertical;
+}
+
+.manning-form-field input:focus,
+.manning-form-field select:focus,
+.manning-form-field textarea:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.09);
+}
+
+.manning-form-field select:disabled,
+.manning-form-field input:disabled {
+    background: #f8fafc;
+
+    color: #94a3b8;
+}
+
+.manning-form-error {
+    margin-top: 6px;
+
+    color: #dc2626;
+
+    font-size: var(--font-size-xs);
+}
+
+.manning-form-help {
+    margin-top: 6px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   TEMPLATE PANEL
+========================================================= */
+
+.manning-template-section {
+    margin-top: 22px;
+}
+
+.manning-template-heading {
+    margin-bottom: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.manning-template-heading strong {
+    display: block;
+
+    font-size: var(--font-size-sm);
+}
+
+.manning-template-heading span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+.manning-template-editor-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    color: var(--manning-blue);
+
+    text-decoration: none;
+
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.manning-template-editor-link:hover {
+    color: var(--manning-blue-hover);
+}
+
+
+/* =========================================================
+   TEMPLATE GRID
+========================================================= */
+
+.manning-template-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.template-option {
+    min-width: 0;
+}
+
+.template-radio {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.template-card {
+    min-height: 120px;
+
+    padding: 18px 12px;
+
+    cursor: pointer;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    border:
+        1px solid var(--manning-border);
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    color: var(--manning-text-2);
+
+    text-align: center;
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.template-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #93c5fd;
+
+    background: #f8fbff;
+}
+
+.template-card i {
+    color: #64748b;
+
+    font-size: 22px;
+}
+
+.template-card strong {
+    color: var(--manning-text);
+
+    font-size: var(--font-size-sm);
+}
+
+.template-radio:checked + .template-card {
+    border-color: var(--manning-blue);
+
+    background: #eff6ff;
+
+    box-shadow:
+        0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.template-radio:checked + .template-card i {
+    color: var(--manning-blue);
+}
+
+
+/* =========================================================
+   SIDE PANEL
+========================================================= */
+
+.manning-form-side {
+    position: sticky;
+
+    top: 112px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.manning-form-guide {
+    padding: 21px;
+
+    border-radius: 15px;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 20px rgba(15, 23, 42, 0.035);
+}
+
+.manning-form-guide-dark {
+    background:
+        linear-gradient(
+            145deg,
+            #08111f,
+            #0d1929
+        );
+
+    border-color: #08111f;
+
+    color: #ffffff;
+}
+
+.manning-form-guide-icon {
+    width: 39px;
+    height: 39px;
+
+    margin-bottom: 17px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+    font-size: 16px;
+}
+
+.manning-form-guide-dark
+.manning-form-guide-icon {
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    color: #60a5fa;
+}
+
+.manning-form-guide h3 {
+    margin: 0;
+
+    font-size: 14px;
+}
+
+.manning-form-guide p {
+    margin:
+        8px 0 0;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-xs);
+    line-height: 1.7;
+}
+
+.manning-form-guide-dark p {
+    color: #94a3b8;
+}
+
+.manning-form-guide-list {
+    margin:
+        17px 0 0;
+
+    padding: 0;
+
+    list-style: none;
+}
+
+.manning-form-guide-list li {
+    padding:
+        9px 0;
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    border-bottom:
+        1px solid var(--manning-border-soft);
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+}
+
+.manning-form-guide-list li:last-child {
+    border-bottom: 0;
+}
+
+.manning-form-guide-list i {
+    color: var(--manning-blue);
+}
+
+
+/* =========================================================
+   FORM FOOTER
+========================================================= */
+
+.manning-form-actions {
+    margin-top: 22px;
+
+    padding: 18px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    border-top:
+        1px solid var(--manning-border-soft);
+
+    background: #fafbfc;
+}
+
+.manning-form-action {
+    min-height: 42px;
+
+    padding:
+        0 16px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    text-decoration: none;
+
+    font-family: inherit;
+
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+
+    transition: 0.18s ease;
+}
+
+.manning-form-action-secondary {
+    border:
+        1px solid var(--manning-border);
+
+    background: #ffffff;
+
+    color: var(--manning-text);
+}
+
+.manning-form-action-secondary:hover {
+    background: #f8fafc;
+
+    color: var(--manning-text);
+}
+
+.manning-form-action-primary {
+    min-width: 145px;
+
+    background: var(--manning-blue);
+
+    color: #ffffff;
+}
+
+.manning-form-action-primary:hover {
+    background:
+        var(--manning-blue-hover);
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   NON FIELD ERRORS
+========================================================= */
+
+.manning-form-alert {
+    margin-top: 20px;
+
+    padding: 13px 15px;
+
+    border:
+        1px solid #fecaca;
+
+    border-radius: 10px;
+
+    background: #fef2f2;
+
+    color: #991b1b;
+
+    font-size: var(--font-size-sm);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1050px) {
+
+    .manning-form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .manning-form-side {
+        position: static;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .manning-form-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .manning-form-title {
+        font-size: 28px;
+    }
+
+    .manning-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manning-template-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manning-form-side {
+        grid-template-columns: 1fr;
+    }
+
+    .manning-form-panel-body {
+        padding: 19px;
+    }
+
+    .manning-form-actions {
+        align-items: stretch;
+
+        flex-direction: column-reverse;
+    }
+
+    .manning-form-action {
+        width: 100%;
+    }
+
+}

@@ -1,0 +1,812 @@
+/* =========================================================
+   MANNING V2 SHELL
+========================================================= */
+
+:root {
+    --manning-dark: #08111f;
+    --manning-dark-2: #0d1929;
+    --manning-dark-3: #14243a;
+
+    --manning-blue: #2563eb;
+    --manning-blue-hover: #1d4ed8;
+
+    --manning-bg: #e9eff5;
+    --manning-surface: #ffffff;
+
+    --manning-text: #0f172a;
+    --manning-text-2: #475569;
+    --manning-text-3: #64748b;
+
+    --manning-border: #c8d3df;
+    --manning-border-soft: #d8e1eb;
+
+    --manning-green: #22c55e;
+    --manning-red: #ef4444;
+    --manning-orange: #f59e0b;
+
+    --manning-sidebar-width: 252px;
+
+    --manning-radius-sm: 10px;
+    --manning-radius: 16px;
+
+    --manning-shadow:
+        0 10px 35px rgba(15, 23, 42, 0.06);
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    min-height: 100%;
+}
+
+
+body.manning-v2-body {
+    margin: 0;
+
+    background: var(--manning-bg);
+
+    color: var(--manning-text);
+
+    font-family:
+        Pretendard,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+.manning-account-button {
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    text-align: left;
+}
+
+.manning-account-button:hover,
+.manning-account-button[aria-expanded="true"] {
+    border-color: var(--manning-border);
+    background: #ffffff;
+}
+
+.manning-account-menu {
+    width: min(290px, calc(100vw - 24px));
+    margin-top: 10px !important;
+    padding: 10px;
+    border: 1px solid var(--manning-border);
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+}
+
+.manning-account-current {
+    padding: 8px 8px 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.manning-account-current small,
+.manning-account-switcher label {
+    margin-bottom: 4px;
+    color: var(--manning-text-3);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.manning-account-current strong {
+    color: var(--manning-text);
+    font-size: 15px;
+}
+
+.manning-account-switcher {
+    padding: 8px;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.manning-account-menu .dropdown-item {
+    padding: 9px 10px;
+    border-radius: 8px;
+    color: var(--manning-text-2);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.manning-account-menu .dropdown-item:hover {
+    background: #eff6ff;
+    color: var(--manning-blue-hover);
+}
+
+.manning-account-menu .manning-account-logout {
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.manning-shell {
+    min-height: 100vh;
+
+    display: flex;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.manning-sidebar {
+    position: fixed;
+
+    z-index: 100;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    width: var(--manning-sidebar-width);
+
+    display: flex;
+
+    flex-direction: column;
+
+    background:
+        linear-gradient(
+            180deg,
+            #08111f 0%,
+            #0b1728 100%
+        );
+
+    color: #ffffff;
+
+    border-right:
+        1px solid rgba(255, 255, 255, 0.06);
+}
+
+
+.manning-brand {
+    min-height: 88px;
+
+    padding:
+        0 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+
+.manning-brand-link {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    color: #ffffff;
+
+    text-decoration: none;
+}
+
+
+.manning-brand-link:hover {
+    color: #ffffff;
+}
+
+
+.manning-brand-symbol {
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    color: #60a5fa;
+
+    font-size: 19px;
+}
+
+
+.manning-brand-copy strong {
+    display: block;
+
+    font-size: var(--font-size-base);
+
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+
+.manning-brand-copy span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #64748b;
+
+    font-size: var(--font-size-xs);
+
+    letter-spacing: 0.04em;
+}
+
+
+/* =========================================================
+   NAV
+========================================================= */
+
+.manning-nav {
+    flex: 1;
+
+    padding: 28px 14px;
+}
+
+
+.manning-nav-label {
+    padding:
+        0 12px;
+
+    margin-bottom: 10px;
+
+    color: #475569;
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+
+    letter-spacing: 0.18em;
+}
+
+
+.manning-nav-label-secondary {
+    margin-top: 34px;
+}
+
+
+.manning-nav-link {
+    min-height: 45px;
+
+    margin-bottom: 5px;
+
+    padding:
+        0 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    border-radius: 9px;
+
+    color: #94a3b8;
+
+    text-decoration: none;
+
+    font-size: var(--font-size-base);
+
+    font-weight: 600;
+
+    transition: 0.18s ease;
+}
+
+
+.manning-nav-link i {
+    width: 19px;
+
+    font-size: 16px;
+
+    text-align: center;
+}
+
+
+.manning-nav-link:hover {
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    color: #ffffff;
+}
+
+
+.manning-nav-link.active {
+    background:
+        rgba(37, 99, 235, 0.15);
+
+    color: #ffffff;
+}
+
+
+.manning-nav-link.active i {
+    color: #60a5fa;
+}
+
+
+/* =========================================================
+   SIDEBAR BOTTOM
+========================================================= */
+
+.manning-sidebar-bottom {
+    padding: 18px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+
+.manning-sidebar-status {
+    padding: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    border-radius: 10px;
+
+    background:
+        rgba(255, 255, 255, 0.04);
+}
+
+
+.manning-status-dot {
+    width: 8px;
+    height: 8px;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    background: var(--manning-green);
+
+    box-shadow:
+        0 0 10px
+        rgba(34, 197, 94, 0.7);
+}
+
+
+.manning-sidebar-status strong {
+    display: block;
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 700;
+}
+
+
+.manning-sidebar-status small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #64748b;
+
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.manning-main {
+    width: calc(
+        100% - var(--manning-sidebar-width)
+    );
+
+    min-height: 100vh;
+
+    margin-left:
+        var(--manning-sidebar-width);
+}
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.manning-topbar {
+    min-height: 88px;
+
+    padding:
+        0 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    position: fixed;
+
+    top: 0;
+    right: 0;
+    left: var(--manning-sidebar-width);
+
+    z-index: 50;
+
+    width: calc(100% - var(--manning-sidebar-width));
+
+    background:
+        rgba(255, 255, 255, 0.93);
+
+    backdrop-filter:
+        blur(18px);
+
+    border-bottom:
+        1px solid var(--manning-border-soft);
+}
+
+
+.manning-topbar-left {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.manning-sidebar-toggle {
+    display: none;
+
+    width: 40px;
+    height: 40px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: #f1f5f9;
+
+    color: var(--manning-text);
+
+    font-size: 20px;
+}
+
+
+.manning-topbar-eyebrow {
+    margin-bottom: 4px;
+
+    color: var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+}
+
+
+.manning-topbar-title {
+    margin: 0;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.03em;
+}
+
+
+.manning-topbar-right {
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+}
+
+
+.manning-topbar-date {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-sm);
+}
+
+
+.manning-user {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.manning-user-avatar {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--manning-dark);
+
+    color: #ffffff;
+
+    font-size: var(--font-size-base);
+
+    font-weight: 800;
+}
+
+
+.manning-user-copy strong {
+    display: block;
+
+    max-width: 130px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: var(--font-size-sm);
+}
+
+
+.manning-user-copy span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.manning-content {
+    width: 100%;
+
+    max-width: 1560px;
+
+    margin: 0 auto;
+
+    padding:
+        calc(88px + var(--nav-content-gap)) 36px var(--nav-content-gap);
+}
+
+.manning-sidebar-overlay {
+    display: none;
+}
+
+.mobile-fold-toggle {
+    display: none;
+}
+
+.manning-content > :last-child {
+    margin-bottom: 0 !important;
+}
+
+
+.manning-message-area {
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .manning-topbar {
+        right: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    body.manning-sidebar-open {
+        overflow: hidden;
+    }
+
+    .manning-sidebar-overlay {
+        position: fixed;
+        z-index: 99;
+        inset: 0;
+        display: block;
+        border: 0;
+        background: rgba(7, 17, 31, 0.48);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    body.manning-sidebar-open .manning-sidebar-overlay {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .manning-sidebar {
+        transform:
+            translateX(-100%);
+
+        transition:
+            transform 0.22s ease;
+
+        box-shadow:
+            15px 0 45px
+            rgba(15, 23, 42, 0.18);
+    }
+
+
+    .manning-sidebar.is-open {
+        transform:
+            translateX(0);
+    }
+
+
+    .manning-main {
+        width: 100%;
+
+        margin-left: 0;
+    }
+
+
+    .manning-sidebar-toggle {
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+    }
+
+
+    .manning-topbar {
+        padding:
+            0 20px;
+    }
+
+
+    .manning-content {
+        padding:
+            calc(88px + var(--nav-content-gap-mobile)) 20px var(--nav-content-gap-mobile);
+    }
+
+
+    .manning-topbar-date {
+        display: none;
+    }
+
+}
+
+@media (max-width: 700px) {
+    .mobile-fold-toggle {
+        width: 100%;
+        min-height: 48px;
+        padding: 11px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        grid-column: 1 / -1;
+        border: 1px solid var(--manning-border);
+        border-radius: 11px;
+        background: #f8fafc;
+        color: var(--manning-text);
+        text-align: left;
+    }
+
+    .mobile-fold-toggle-copy {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .mobile-fold-toggle-copy i {
+        color: var(--manning-blue);
+        transition: transform 0.18s ease;
+    }
+
+    .mobile-fold-toggle-copy strong {
+        overflow: hidden;
+        font-size: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mobile-fold-toggle small {
+        flex: 0 0 auto;
+        color: var(--manning-text-3);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .is-mobile-fold:not(.is-mobile-collapsed) > .mobile-fold-toggle .mobile-fold-toggle-copy i {
+        transform: rotate(180deg);
+    }
+
+    .is-mobile-collapsed > :not(.mobile-fold-toggle) {
+        display: none !important;
+    }
+
+    .manning-session-card.is-mobile-fold,
+    .manning-v2-area-card.is-mobile-fold {
+        padding: 8px;
+    }
+
+    .manning-dashboard-section.is-mobile-fold > .manning-dashboard-section-head,
+    .manning-v2-area-card.is-mobile-fold > .manning-v2-area-card-header,
+    .manning-session-card.is-mobile-fold > .manning-session-top,
+    .manning-template-section.is-mobile-fold > .manning-form-panel-head {
+        display: none;
+    }
+
+    .manning-dashboard-section.is-mobile-fold > .mobile-fold-toggle {
+        margin-bottom: 10px;
+        background: #ffffff;
+    }
+
+    .manning-dashboard-section.is-mobile-collapsed > .mobile-fold-toggle {
+        margin-bottom: 0;
+    }
+
+    .manning-form-side.is-mobile-fold,
+    .edit-memo-panel.is-mobile-fold {
+        display: block;
+    }
+
+    .manning-form-side.is-mobile-fold > .mobile-fold-toggle,
+    .edit-memo-panel.is-mobile-fold > .mobile-fold-toggle {
+        margin-bottom: 10px;
+    }
+
+    .manning-form-side.is-mobile-collapsed > .mobile-fold-toggle,
+    .edit-memo-panel.is-mobile-collapsed > .mobile-fold-toggle {
+        margin-bottom: 0;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .manning-user-copy {
+        display: none;
+    }
+
+
+    .manning-topbar-title {
+        font-size: 18px;
+    }
+
+}

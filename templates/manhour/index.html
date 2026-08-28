@@ -1,10 +1,11 @@
-{% extends 'manhour/base/base.html' %} 
+{% extends 'manhour/base/portal_base.html' %}
 {% load static %} 
+{% load background_tags %}
 
-{% block title %}대시보드 | Manning System{% endblock title %} 
+{% block title %} Aviation Operations | Manning System {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/index.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/portal.css' %}?v=20260827-4" />
 {% endblock css %} 
 
 {% block js %}
@@ -12,658 +13,488 @@
     window.INDEX_PAGE = {
         dashboardCountsUrl: "{% url 'manhour:dashboard_counts_api' %}",
         checkwxMetarUrl: "{% url 'manhour:checkwx_metar_api' %}",
-        weatherForecastUrl: "{% url 'manhour:weather_forecast_api' %}",
-        activeCount: {{ active_count|default:0 }},
-        historyCount: {{ history_count|default:0 }},
-        masterDataCount: {{ master_data_count|default:0 }},
     };
 </script>
-<script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script defer src="{% static 'js/index.js' %}"></script>
-{% endblock js %} 
 
-{% block background_image %}
-<div class="index-bg">
-    {% include "manhour/image/background_url.html" with bg_static="images/home_background.jpg" %}
-</div>
-{% endblock background_image %} 
+<script defer src="{% static 'js/index.js' %}?v=20260827-2"></script>
+{% endblock js %}
 
 {% block content %}
-<button class="mobile-sidebar-toggle" type="button" id="mobileSidebarToggle">
-    <i class="bi bi-list"></i>
-</button>
 
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+{% background_config "index_operations_image" as index_operations_image %}
 
-<div class="dashboard-layout">
-    <aside class="dashboard-sidebar glass-panel" id="dashboardSidebar">
-        <div class="sidebar-top">
-            <div class="sidebar-brand">
-                <i class="bi bi-grid-1x2-fill"></i>
-                <span class="sidebar-title">Manning System</span>
+{% include "manhour/partials/portal_header.html" %}
+
+
+<!-- =========================================================
+     CONTENT
+========================================================= -->
+
+<main class="portal-content">
+    <!-- =====================================================
+         WORKSPACES
+    ====================================================== -->
+
+    <section class="portal-section">
+        <div class="portal-section-head">
+            <div>
+                <span class="portal-section-label"> WORKSPACES </span>
+
+                <h2 class="portal-section-title">Operations</h2>
             </div>
-
-            <button class="sidebar-toggle" type="button" id="sidebarToggle">
-                <i class="bi bi-chevron-left" id="sidebarToggleIcon"></i>
-            </button>
         </div>
 
-        <nav class="sidebar-menu">
-            <div class="sidebar-group">
-                <a
-                    href="#dashboardSubmenu"
-                    class="active d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="dashboardSubmenu"
-                >
-                    <span>
-                        <i class="bi bi-speedometer2"></i>
-                        <span class="sidebar-text">Dashboard</span>
-                    </span>
-                    <i class="bi bi-chevron-down submenu-arrow"></i>
-                </a>
+        <div class="portal-workspace-grid">
+            <!-- Manning -->
 
-                <div class="collapse" id="dashboardSubmenu">
-                    <div class="sidebar-submenu-list">
-                        <a
-                            href="{% if master_data_count|default:0|add:0 > 0 %}{% url 'manhour:master_data_list' %}{% else %}{% url 'manhour:paste_data' %}{% endif %}"
-                            class="submenu-item d-flex align-items-center justify-content-between"
-                        >
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-database-add"></i>
-                                <span class="sidebar-text ms-2"
-                                    >Master Data</span
-                                >
-                            </div>
-                            <span
-                                id="masterDataBadge"
-                                class="badge rounded-pill bg-danger sidebar-text"
-                            >
-                                {{ master_data_count }}
-                            </span>
-                        </a>
-
-                        <a
-                            href="{% url 'manhour:session_list' %}"
-                            class="submenu-item d-flex align-items-center justify-content-between"
-                        >
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-activity"></i>
-                                <span class="sidebar-text ms-2"
-                                    >Active Sessions</span
-                                >
-                            </div>
-                            <span
-                                class="badge rounded-pill bg-primary sidebar-text"
-                            >
-                                {{ active_count }}
-                            </span>
-                        </a>
-
-                        <a
-                            href="{% url 'manhour:history' %}"
-                            class="submenu-item d-flex align-items-center justify-content-between"
-                        >
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-archive"></i>
-                                <span class="sidebar-text ms-2">History</span>
-                            </div>
-                            <span
-                                class="badge rounded-pill bg-warning sidebar-text"
-                            >
-                                {{ history_count }}
-                            </span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-group">
-                <a
-                    href="#dashboardManningList"
-                    class="active d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="dashboardManningList"
-                >
-                    <span>
-                        <i class="bi bi-people-fill"></i>
-                        <span class="sidebar-text">Manning List</span>
-                    </span>
-                    <i class="bi bi-chevron-down submenu-arrow"></i>
-                </a>
-
-                <div class="collapse" id="dashboardManningList">
-                    <div class="sidebar-submenu-list">
-                        <a
-                            href="{% url 'manning:manning_list' %}"
-                            class="submenu-item"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i class="bi bi-airplane"></i>
-                            <span class="sidebar-text">Manning List</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-group">
-                <a
-                    href="#dashboardOthers"
-                    class="active d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="dashboardOthers"
-                >
-                    <span>
-                        <i class="bi bi-link-45deg"></i>
-                        <span class="sidebar-text">Others</span>
-                    </span>
-                    <i class="bi bi-chevron-down submenu-arrow"></i>
-                </a>
-
-                <div class="collapse" id="dashboardOthers">
-                    <div class="sidebar-submenu-list">
-                        <a
-                            href="https://login.koreanair.com/"
-                            class="submenu-item"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i class="bi bi-box-arrow-up-right"></i>
-                            <span class="sidebar-text">Korean Air Login</span>
-                        </a>
-
-                        <a
-                            href="https://www.flightradar24.com/"
-                            class="submenu-item"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i class="bi bi-radar"></i>
-                            <span class="sidebar-text">Flight Radar</span>
-                        </a>
-
-                        <a
-                            href="https://ammis.flyasiana.com/kor"
-                            class="submenu-item"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i class="bi bi-journal-text"></i>
-                            <span class="sidebar-text">AMMIS</span>
-                        </a>
-
-                        <a
-                            href="https://mae.flyasiana.com/nexa/"
-                            class="submenu-item"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i class="bi bi-tools"></i>
-                            <span class="sidebar-text">정비 홈페이지</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </aside>
-
-    <main class="dashboard-main">
-        <div class="dashboard-content">
-            <div
-                class="index-page my-lg-4"
-                data-workplace="{{ request.session.workplace|lower }}"
+            <a
+                href="{% url 'manning:manning_list' %}"
+                class="portal-workspace portal-workspace-primary"
+                target="_blank"
+                data-mobile-workspace
             >
-                <div
-                    class="row g-4 align-items-stretch"
-                    data-aos="fade-up"
-                    data-aos-duration="1000"
-                >
-                    <div class="col-lg-12">
-                        <h5 class="text-secondary mb-2">환영합니다,</h5>
-                        <h3 class="fw-bold text-dark mb-0 wave-text">
-                            {% for ch in request.session.workplace_label %}
-                            <span style="--i:{{ forloop.counter0 }}"
-                                >{{ ch }}</span
-                            >
-                            {% endfor %}
-                            <span
-                                style="--i:{{ request.session.workplace_label|length }}"
-                                >입니다.</span
-                            >
-                        </h3>
+                <div class="portal-workspace-top">
+                    <div class="portal-workspace-icon">
+                        <i class="bi bi-people"></i>
                     </div>
 
-                    <div
-                        class="col-lg-8 d-flex flex-column justify-content-center"
-                    >
-                        <div
-                            class="p-3 index-glass-panel index-equal-panel rounded-4"
-                        >
-                            <div class="row align-items-center g-2">
-                                <div class="col-md-6">
-                                    <h1 class="h3 fw-bold text-dark">
-                                        Work Smart,<br />
-                                        Manage Better.
-                                    </h1>
+                    <strong class="portal-workspace-mobile-title">Manning</strong>
 
-                                    <p class="text-secondary index-hero-desc">
-                                        작업 세션을 생성하고 실시간으로 인력을
-                                        관리하세요. 효율적인 업무 배정이 여기서
-                                        시작됩니다.
-                                    </p>
-                                </div>
+                    <span class="portal-workspace-number"> 01 </span>
 
-                                <div class="col-md-6 d-none d-md-block">
-                                    <div
-                                        class="card rounded-4 overflow-hidden shadow-sm images-hover-wrapper"
-                                    >
-                                        <img
-                                            src="{% static 'images/index_background.jpg' %}"
-                                            alt="Dashboard Preview"
-                                            class="w-100 index-hero-image"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="마우스 휠을 움직이세요"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <i class="bi bi-chevron-down portal-workspace-mobile-chevron"></i>
+                </div>
+
+                <div>
+                    <span class="portal-workspace-type"> WORKFORCE </span>
+
+                    <h3>Manning</h3>
+
+                    <p>
+                        Aircraft maintenance workforce, manpower allocation and
+                        operational planning workspace.
+                    </p>
+                </div>
+
+                <div class="portal-workspace-bottom">
+                    <span> Open Manning </span>
+
+                    <i class="bi bi-arrow-up-right"></i>
+                </div>
+            </a>
+
+            <!-- Manhour -->
+
+            <a
+                href="{% url 'manhour:session_list' %}"
+                class="portal-workspace"
+                data-mobile-workspace
+            >
+                <div class="portal-workspace-top">
+                    <div class="portal-workspace-icon">
+                        <i class="bi bi-stopwatch"></i>
                     </div>
 
-                    <div
-                        class="col-lg-4 d-flex flex-column justify-content-center"
-                    >
-                        <div
-                            class="card shadow-lg index-time-panel index-equal-panel rounded-4"
-                        >
-                            <div class="index-time-panel__bg-icon">
-                                <i class="bi bi-clock"></i>
-                            </div>
+                    <strong class="portal-workspace-mobile-title">Manhour</strong>
+
+                    <span class="portal-workspace-number"> 02 </span>
+
+                    <i class="bi bi-chevron-down portal-workspace-mobile-chevron"></i>
+                </div>
+
+                <div>
+                    <span class="portal-workspace-type"> ANALYSIS </span>
+
+                    <h3>Manhour</h3>
+
+                    <p>
+                        Analyze maintenance workload, manpower requirement and
+                        active operational sessions.
+                    </p>
+                </div>
+
+                <div class="portal-workspace-bottom">
+                    <span> Open Manhour </span>
+
+                    <i class="bi bi-arrow-up-right"></i>
+                </div>
+            </a>
+
+            <!-- Master Data -->
+
+            <a
+                href="{% url 'manhour:master_data_list' %}"
+                class="portal-workspace"
+                data-mobile-workspace
+            >
+                <div class="portal-workspace-top">
+                    <div class="portal-workspace-icon">
+                        <i class="bi bi-database"></i>
+                    </div>
+
+                    <strong class="portal-workspace-mobile-title">Master Data</strong>
+
+                    <span class="portal-workspace-number"> 03 </span>
+
+                    <i class="bi bi-chevron-down portal-workspace-mobile-chevron"></i>
+                </div>
+
+                <div>
+                    <span class="portal-workspace-type"> DATA </span>
+
+                    <h3>Master Data</h3>
+
+                    <p>
+                        Manage aircraft maintenance source data used by the
+                        Manhour calculation system.
+                    </p>
+                </div>
+
+                <div class="portal-workspace-bottom">
+                    <span> Open Master Data </span>
+
+                    <i class="bi bi-arrow-up-right"></i>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         STATUS
+    ====================================================== -->
+
+    <section class="portal-section">
+        <div class="portal-section-head">
+            <div>
+                <span class="portal-section-label"> SYSTEM STATUS </span>
+
+                <h2 class="portal-section-title">Current workload</h2>
+            </div>
+        </div>
+
+        <div class="portal-status-grid">
+            <!-- Master -->
+
+            <a
+                href="{% url 'manhour:master_data_list' %}"
+                class="portal-status-card portal-status-card--master"
+            >
+                <div class="portal-status-card-left">
+                    <div class="portal-status-icon">
+                        <i class="bi bi-database"></i>
+                    </div>
+
+                    <div>
+                        <strong> Master Data </strong>
+
+                        <small> Registered records </small>
+                    </div>
+                </div>
+
+                <div class="portal-status-number">
+                    <span class="master-data-count-num">
+                        {{ master_data_count }}
+                    </span>
+                </div>
+            </a>
+
+            <!-- Active -->
+
+            <a
+                href="{% url 'manhour:session_list' %}"
+                class="portal-status-card portal-status-card--active"
+            >
+                <div class="portal-status-card-left">
+                    <div class="portal-status-icon">
+                        <i class="bi bi-activity"></i>
+                    </div>
+
+                    <div>
+                        <strong> Active Sessions </strong>
+
+                        <small> Current operations </small>
+                    </div>
+                </div>
+
+                <div class="portal-status-number">
+                    <span class="active-count-num"> {{ active_count }} </span>
+                </div>
+            </a>
+
+            <!-- History -->
+
+            <a
+                href="{% url 'manhour:history' %}"
+                class="portal-status-card portal-status-card--history"
+            >
+                <div class="portal-status-card-left">
+                    <div class="portal-status-icon">
+                        <i class="bi bi-archive"></i>
+                    </div>
+
+                    <div>
+                        <strong> History </strong>
+
+                        <small> Completed sessions </small>
+                    </div>
+                </div>
+
+                <div class="portal-status-number">
+                    <span class="history-count-num"> {{ history_count }} </span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         LIVE OPERATIONS
+    ====================================================== -->
+
+    <section class="portal-section portal-mobile-hidden-section">
+        <div class="portal-section-head">
+            <div>
+                <span class="portal-section-label"> LIVE OPERATIONS </span>
+
+                <h2 class="portal-section-title">Operational overview</h2>
+            </div>
+        </div>
+
+        <div class="portal-ops-grid">
+            <!-- CLOCK -->
+
+            <article class="portal-card portal-card-dark">
+                <div class="portal-card-head">
+                    <span class="portal-card-head-label"> LOCAL TIME </span>
+
+                    <i class="bi bi-clock"></i>
+                </div>
+
+                <div class="portal-card-body">
+                    <div id="digital-time" class="portal-clock-value">
+                        --:--:--
+                    </div>
+
+                    <div class="portal-clock-meta">
+                        <span id="digital-date"> ---- -- -- </span>
+
+                        <span> · </span>
+
+                        <span id="digital-weekday"> --- </span>
+                    </div>
+
+                    <div class="portal-clock-divider"></div>
+
+                    <div class="portal-utc-label">UTC</div>
+
+                    <div id="digital-time-utc" class="portal-utc-value">
+                        --:--
+                    </div>
+
+                    <div class="portal-clock-meta">
+                        <span id="digital-date-utc"> ---- -- -- </span>
+
+                        <span> · </span>
+
+                        <span id="digital-weekday-utc"> --- </span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- METAR -->
+
+            <article class="portal-card" id="metarPanel">
+                <div class="portal-card-head">
+                    <span class="portal-card-head-label"> AIRPORT METAR </span>
+
+                    <i class="bi bi-cloud-sun"></i>
+                </div>
+
+                <div class="portal-card-body">
+                    <div id="metarTabs" class="portal-metar-tabs"></div>
+
+                    <div class="portal-weather-station">
+                        <div>
+                            <h3 id="metarStation">---</h3>
 
                             <div
-                                class="card-body border-0 d-flex flex-column justify-content-center index-time-panel__body py-4"
+                                id="metarUpdated"
+                                class="portal-weather-updated"
                             >
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-4"
-                                >
-                                    <span
-                                        class="fw-bold text-warning letter-spacing-1"
-                                    >
-                                        <i class="bi bi-globe2 me-1"></i> GLOBAL
-                                        TIME
-                                    </span>
-                                    <span
-                                        class="badge bg-danger rounded-pill px-3"
-                                        >LIVE</span
-                                    >
-                                </div>
-
-                                <div class="row align-items-end g-0 fw-bold">
-                                    <div class="col-7">
-                                        <small
-                                            class="text-white text-uppercase index-time-label"
-                                            >Local Time</small
-                                        >
-                                        <div
-                                            class="h2 fw-bold my-1 text-white font-digital"
-                                            id="digital-time"
-                                        >
-                                            00:00:00
-                                        </div>
-                                        <small
-                                            class="text-white"
-                                            id="digital-date-line"
-                                        >
-                                            <span id="digital-date"
-                                                >Loading...</span
-                                            >
-                                            <span id="digital-weekday"></span>
-                                        </small>
-                                    </div>
-
-                                    <div
-                                        class="col-5 text-end border-start border-secondary ps-3"
-                                    >
-                                        <small
-                                            class="text-white text-uppercase fw-bold index-time-label"
-                                            >UTC</small
-                                        >
-                                        <div
-                                            class="h2 fw-bold my-1 text-warning font-digital"
-                                            id="digital-time-utc"
-                                        >
-                                            00:00
-                                        </div>
-                                        <small
-                                            class="text-white"
-                                            id="digital-date-line-utc"
-                                        >
-                                            <span id="digital-date-utc"
-                                                >Loading...</span
-                                            >
-                                            <span
-                                                id="digital-weekday-utc"
-                                            ></span>
-                                        </small>
-                                    </div>
-                                </div>
+                                Updating weather information...
                             </div>
                         </div>
+                    </div>
+
+                    <div class="portal-weather-grid">
+                        <div class="portal-weather-item">
+                            <span> TEMPERATURE </span>
+
+                            <strong id="metarTemp"> -- </strong>
+                        </div>
+
+                        <div class="portal-weather-item">
+                            <span> WIND </span>
+
+                            <strong id="metarWind"> -- </strong>
+                        </div>
+
+                        <div class="portal-weather-item">
+                            <span> VISIBILITY </span>
+
+                            <strong id="metarVisibility"> -- </strong>
+                        </div>
+
+                        <div class="portal-weather-item">
+                            <span> PRESSURE </span>
+
+                            <strong id="metarPressure"> -- </strong>
+                        </div>
+                    </div>
+
+                    <div id="metarRaw" class="portal-metar-raw">
+                        Loading METAR...
                     </div>
                 </div>
+            </article>
 
-                <div
-                    class="row g-4 mt-2 dashboard-main-section"
-                    data-aos="fade-up"
-                    data-aos-duration="1000"
-                >
-                    <div class="col-12 order-0">
-                        <div class="dashboard-section-heading">
-                            <div>
-                                <span class="dashboard-section-kicker">OPERATIONS OVERVIEW</span>
-                                <h4 class="fw-bold text-dark mb-1">오늘의 운영 정보</h4>
-                                <p class="text-muted mb-0">
-                                    작업 현황은 바로 확인하고, 상세 정보는 필요할 때 펼쳐보세요.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- ADMIN-MANAGED OPERATIONS IMAGE -->
 
-                    <div class="col-lg-6 order-2">
-                        <section class="dashboard-fold-card">
-                            <button
-                                class="dashboard-fold-toggle"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#airportWeatherDetails"
-                                aria-expanded="false"
-                                aria-controls="airportWeatherDetails"
-                            >
-                                <span class="dashboard-fold-icon dashboard-fold-icon--weather">
-                                    <i class="bi bi-cloud-sun-fill"></i>
-                                </span>
-                                <span class="dashboard-fold-copy">
-                                    <strong>Airport Weather</strong>
-                                    <small>공항별 METAR 관측값</small>
-                                </span>
-                                <span class="dashboard-fold-action">
-                                    상세 보기
-                                    <i class="bi bi-chevron-down"></i>
-                                </span>
-                            </button>
+            <article class="portal-card portal-image-card">
+                <div class="portal-card-head">
+                    <span class="portal-card-head-label"> OPERATIONS IMAGE </span>
 
-                            <div class="collapse" id="airportWeatherDetails">
-                        <div
-                            class="card border-0 rounded-4 bg-dark text-light dashboard-insight-card"
-                            id="metarPanel"
-                        >
-                            <div class="card-body p-4">
-                                <div
-                                    class="d-flex gap-2 mb-3"
-                                    id="metarTabs"
-                                ></div>
-
-                                <div class="row align-items-center mb-4">
-                                    <div class="col-7">
-                                        <h2
-                                            class="fw-bold mb-0"
-                                            id="metarStation"
-                                        >
-                                            RKSI (Incheon)
-                                        </h2>
-                                        <p
-                                            class="small opacity-50 mb-0"
-                                            id="metarUpdated"
-                                        >
-                                            Updated: -
-                                        </p>
-                                    </div>
-
-                                    <div class="col-5 text-end">
-                                        <h1
-                                            class="display-5 fw-bold mb-0 text-info"
-                                            id="metarTemp"
-                                        >
-                                            -
-                                        </h1>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2"
-                                >
-                                    <span>Wind (풍향/풍속)</span>
-                                    <span class="fw-bold" id="metarWind"
-                                        >-</span
-                                    >
-                                </div>
-
-                                <div
-                                    class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2"
-                                >
-                                    <span>Visibility (시정)</span>
-                                    <span
-                                        class="fw-bold text-success"
-                                        id="metarVisibility"
-                                        >-</span
-                                    >
-                                </div>
-
-                                <div
-                                    class="weather-row d-flex justify-content-between border-bottom border-secondary pb-2 mb-2"
-                                >
-                                    <span>Pressure (QNH)</span>
-                                    <span class="fw-bold" id="metarPressure"
-                                        >-</span
-                                    >
-                                </div>
-
-                                <div class="mt-4 p-2 bg-black rounded-3">
-                                    <code
-                                        class="text-warning small metar-raw-text"
-                                        id="metarRaw"
-                                        >-</code
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                            </div>
-                        </section>
-                    </div>
-
-                    <div class="col-12 order-1">
-                        <div
-                            class="card border-0 shadow-lg rounded-4 dashboard-chart-card"
-                            id="workStatusPanel"
-                        >
-                            <div class="card-body p-4">
-                                <div
-                                    class="d-flex justify-content-between align-items-start gap-3 mb-3"
-                                >
-                                    <div>
-                                        <h5 class="fw-bold text-dark mb-2">
-                                            <i
-                                                class="bi bi-pie-chart-fill text-primary me-1"
-                                            ></i>
-                                            작업 현황
-                                        </h5>
-                                        <p class="text-muted small mb-0">
-                                            현재 작업과 완료 기록을 한눈에
-                                            확인합니다.
-                                        </p>
-                                    </div>
-
-                                    {% if active_count > 0 %}
-                                    <span
-                                        class="work__status-pill work__status-pill--active"
-                                    >
-                                        <span
-                                            class="spinner-grow spinner-grow-sm"
-                                            aria-hidden="true"
-                                        ></span>
-                                        가동 중
-                                    </span>
-                                    {% else %}
-                                    <span
-                                        class="work__status-pill work__status-pill--idle"
-                                    >
-                                        대기 중
-                                    </span>
-                                    {% endif %}
-                                </div>
-
-                                <div class="row g-3 mb-0 work-status-metrics">
-                                    <div class="col-4">
-                                        <div
-                                            class="dashboard-status-box master-data d-flex justify-content-center"
-                                        >
-                                            <div
-                                                class="d-flex align-items-center gap-2 mb-1"
-                                            >
-                                                <i class="bi bi-database-fill"></i>
-                                                <span>Master Data</span>
-                                            </div>
-                                            <div
-                                                class="badge fw-bold mb-0 d-flex align-items-center gap-1"
-                                            >
-                                                <span class="master-data-count-num"
-                                                    >{{ master_data_count }}</span
-                                                >
-                                                <small>건</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <div
-                                            class="dashboard-status-box active d-flex justify-content-center"
-                                        >
-                                            <div
-                                                class="d-flex align-items-center gap-2 mb-1"
-                                            >
-                                                <i class="bi bi-activity"></i>
-                                                <span>Active</span>
-                                            </div>
-                                            <div
-                                                class="badge fw-bold mb-0 d-flex align-items-center gap-1"
-                                            >
-                                                <span class="active-count-num"
-                                                    >{{ active_count }}</span
-                                                >
-                                                <small>건</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <div
-                                            class="dashboard-status-box history d-flex justify-content-center"
-                                        >
-                                            <div
-                                                class="d-flex align-items-center gap-2 mb-1"
-                                            >
-                                                <i class="bi bi-archive"></i>
-                                                <span>History</span>
-                                            </div>
-                                            <div
-                                                class="badge fw-bold mb-0 d-flex align-items-center gap-1"
-                                            >
-                                                <span class="history-count-num"
-                                                    >{{ history_count }}</span
-                                                >
-                                                <small>건</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="work-chart-wrapper pb-3">
-                                <canvas id="workStatusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 order-3">
-                        <section class="dashboard-fold-card">
-                            <button
-                                class="dashboard-fold-toggle"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#mroForecastDetails"
-                                aria-expanded="false"
-                                aria-controls="mroForecastDetails"
-                            >
-                                <span class="dashboard-fold-icon dashboard-fold-icon--forecast">
-                                    <i class="bi bi-graph-up-arrow"></i>
-                                </span>
-                                <span class="dashboard-fold-copy">
-                                    <strong>MRO Forecast</strong>
-                                    <small>24시간 작업 가용성 예보</small>
-                                </span>
-                                <span
-                                    class="badge bg-primary-soft text-primary dashboard-fold-city"
-                                    id="forecastCity"
-                                ></span>
-                                <span class="dashboard-fold-action">
-                                    상세 보기
-                                    <i class="bi bi-chevron-down"></i>
-                                </span>
-                            </button>
-
-                            <div class="collapse" id="mroForecastDetails">
-                        <div
-                            class="card border-0 rounded-4 bg-white dashboard-insight-card"
-                        >
-                            <div class="card-body p-4">
-                                <div class="forecast-chart-wrapper">
-                                    <canvas id="forecastChart"></canvas>
-                                </div>
-
-                                <div class="mt-3 p-3 bg-light rounded-3">
-                                    <div class="row text-center">
-                                        <div class="col-6 border-end">
-                                            <p class="small text-muted mb-1">
-                                                최적 작업 시간
-                                            </p>
-                                            <span
-                                                class="badge bg-success text-white"
-                                                id="bestWorkTime"
-                                                >데이터 분석 중</span
-                                            >
-                                        </div>
-
-                                        <div class="col-6">
-                                            <p class="small text-muted mb-1">
-                                                작업 제한 주의
-                                            </p>
-                                            <span
-                                                class="badge bg-danger text-white"
-                                                id="limitWorkTime"
-                                                >확인 중</span
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                            </div>
-                        </section>
-                    </div>
+                    <i class="bi bi-image"></i>
                 </div>
 
-                <div class="index-footer-spacer"></div>
+                <div class="portal-card-body portal-image-body">
+                    {% if index_operations_image.image_url %}
+                    <img
+                        src="{{ index_operations_image.image_url }}"
+                        class="portal-operations-image"
+                        alt="항공 정비 운영 이미지"
+                    />
+                    {% else %}
+                    <div class="portal-image-placeholder">
+                        <i class="bi bi-airplane-engines"></i>
+                        <strong>Operations Image</strong>
+                        {% if request.session.user_role == "admin" %}
+                        <small>
+                            관리자 페이지의 Background images에서<br />
+                            key를 <b>index_operations_image</b>로 등록하세요.
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         EXTERNAL LINKS
+    ====================================================== -->
+
+    <section class="portal-section portal-mobile-hidden-section">
+        <div class="portal-section-head">
+            <div>
+                <span class="portal-section-label"> QUICK ACCESS </span>
+
+                <h2 class="portal-section-title">External systems</h2>
             </div>
         </div>
-    </main>
-</div>
+
+        <div class="portal-links-grid">
+            <a
+                href="https://login.koreanair.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="portal-link-card"
+            >
+                <div class="portal-link-left">
+                    <div class="portal-link-icon">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </div>
+
+                    <div>
+                        <strong> Korean Air Login </strong>
+
+                        <small> External system </small>
+                    </div>
+                </div>
+
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+
+            <a
+                href="https://www.flightradar24.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="portal-link-card"
+            >
+                <div class="portal-link-left">
+                    <div class="portal-link-icon">
+                        <i class="bi bi-radar"></i>
+                    </div>
+
+                    <div>
+                        <strong> Flight Radar </strong>
+
+                        <small> Flight tracking </small>
+                    </div>
+                </div>
+
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+
+            <a
+                href="https://ammis.flyasiana.com/kor"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="portal-link-card"
+            >
+                <div class="portal-link-left">
+                    <div class="portal-link-icon">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+
+                    <div>
+                        <strong> AMMIS </strong>
+
+                        <small> Maintenance system </small>
+                    </div>
+                </div>
+
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+
+            <a
+                href="https://mae.flyasiana.com/nexa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="portal-link-card"
+            >
+                <div class="portal-link-left">
+                    <div class="portal-link-icon">
+                        <i class="bi bi-tools"></i>
+                    </div>
+
+                    <div>
+                        <strong> 정비 홈페이지 </strong>
+
+                        <small> Maintenance portal </small>
+                    </div>
+                </div>
+
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<!-- =========================================================
+     기존 index.js 호환용 VIDEO MODAL
+========================================================= -->
 
 <div
     class="modal fade"
@@ -673,16 +504,18 @@
     aria-hidden="true"
 >
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 rounded-4 overflow-hidden">
+        <div class="modal-content border-0 overflow-hidden">
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title" id="videoModalLabel">
-                    <i class="bi bi-play-circle me-1"></i> Video
+                    <i class="bi bi-play-circle me-1"></i>
+
+                    Video
                 </h5>
+
                 <button
                     type="button"
                     class="btn-close btn-close-white"
                     data-bs-dismiss="modal"
-                    aria-label="Close"
                 ></button>
             </div>
 
@@ -691,30 +524,21 @@
                     <iframe
                         id="youtubeFrame"
                         src=""
-                        referrerpolicy="origin-when-cross-origin"
-                        title="YouTube video player"
-                        allow="
-                            accelerometer;
-                            autoplay;
-                            clipboard-write;
-                            encrypted-media;
-                            gyroscope;
-                            picture-in-picture;
-                            web-share;
-                        "
+                        title="YouTube video"
                         allowfullscreen
                     ></iframe>
                 </div>
 
-                <div class="p-3 d-flex justify-content-end gap-2 bg-dark">
+                <div class="p-3 d-flex justify-content-end bg-dark">
                     <a
                         id="openOnYoutube"
-                        class="btn btn-sm btn-danger index-video-action-btn"
                         href="#"
                         target="_blank"
                         rel="noopener"
+                        class="btn btn-sm btn-danger"
                     >
                         <i class="bi bi-youtube me-1"></i>
+
                         YouTube에서 열기
                     </a>
                 </div>
@@ -722,20 +546,5 @@
         </div>
     </div>
 </div>
-{% endblock content %} {% block footer %}
-<footer class="index-footer-glass text-center py-3">
-    <div
-        class="container d-flex flex-wrap justify-content-center align-items-center gap-1"
-    >
-        <small class="text-muted">
-            © 2026 <strong>Man Hour Calculator System</strong>
-        </small>
-        <span class="mx-2 text-muted">|</span>
-        <small class="text-muted">All rights reserved</small>
-        {% if request.session.user_role == "admin" %}
-        <span class="mx-2 text-muted d-none d-sm-inline">|</span>
-        <small class="text-muted d-none d-sm-inline">Revision Date: SEP 2026 Rev : 04</small>
-        {% endif %}
-    </div>
-</footer>
-{% endblock footer %}
+
+{% endblock content %}

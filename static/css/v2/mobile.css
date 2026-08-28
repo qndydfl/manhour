@@ -1,0 +1,1054 @@
+/* =========================================================
+   SHARED MOBILE FOUNDATION
+   Loaded after page styles so every screen follows the same
+   spacing, touch-target, form and overflow rules.
+========================================================= */
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+iframe {
+    max-width: 100%;
+}
+
+.table-responsive,
+.assignment-table-wrap,
+.mh-worker-table-wrap,
+.master-v2-table-wrap,
+.edit-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --nav-content-gap-mobile: 22px;
+    }
+
+    .modal-dialog {
+        width: auto;
+        max-width: none;
+        margin: 14px;
+    }
+
+    .modal-content {
+        max-height: calc(100dvh - 28px);
+    }
+
+    .modal-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .offcanvas {
+        max-width: min(88vw, 390px);
+    }
+
+    .assignment-toast-area,
+    .portal-toast-container,
+    .global-message-container,
+    .manning-form-alert-floating {
+        top: 82px;
+        right: 14px;
+        left: 14px;
+        width: auto;
+        max-width: none;
+    }
+
+    .manage-action-bar,
+    .master-edit-savebar,
+    .template-editor-savebar,
+    .edit-action-bar {
+        bottom: 8px;
+    }
+}
+
+@media (max-width: 700px) {
+    :root {
+        --nav-content-gap-mobile: 12px;
+    }
+
+    body {
+        font-size: 13px;
+    }
+
+    body.portal-body {
+        padding-top: 48px;
+    }
+
+    body.assignment-console-body {
+        padding-top: 48px;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea,
+    .form-control,
+    .form-select,
+    .input-cell,
+    .dnd-input,
+    .template-items {
+        font-size: 14px !important;
+    }
+
+    button,
+    .btn,
+    [role="button"],
+    .assignment-topbar-btn,
+    .mh-btn,
+    .master-btn,
+    .manning-form-action,
+    .manning-primary-button,
+    .manning-session-action,
+    .edit-action-btn,
+    .edit-toolbar-btn,
+    .template-editor-header-btn,
+    .template-save-btn {
+        min-height: 36px;
+    }
+
+    .btn-close {
+        min-width: 42px;
+        min-height: 42px;
+        padding: 0;
+        background-position: center;
+    }
+
+    .assignment-topbar-inner,
+    .portal-header-inner {
+        width: calc(100% - 16px);
+        min-height: 48px;
+        gap: 6px;
+    }
+
+    .assignment-topbar,
+    .portal-header {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1030;
+        width: 100%;
+        min-height: 48px;
+    }
+
+    .portal-header {
+        width: 100%;
+    }
+
+    .assignment-brand-icon,
+    .portal-brand-icon {
+        width: 29px;
+        height: 29px;
+        flex: 0 0 29px;
+        border-radius: 7px;
+        font-size: 13px;
+    }
+
+    .assignment-topbar-actions,
+    .portal-header-right {
+        gap: 4px;
+    }
+
+    .assignment-topbar-btn {
+        min-width: 32px;
+        min-height: 32px;
+        padding-inline: 6px;
+        gap: 4px;
+        font-size: 11px;
+    }
+
+    .result-view-topbar .assignment-topbar-btn {
+        width: 32px;
+        padding: 0;
+    }
+
+    .assignment-topbar-btn span,
+    .portal-brand-description,
+    .portal-release-meta,
+    .portal-account-copy {
+        display: none;
+    }
+
+    .assignment-brand {
+        gap: 6px;
+    }
+
+    .assignment-brand strong,
+    .portal-brand-name {
+        font-size: 11px;
+    }
+
+    .portal-account-button {
+        min-width: 33px;
+        min-height: 33px;
+        padding: 3px 5px;
+        gap: 3px;
+        border-radius: 9px;
+    }
+
+    .portal-account-avatar {
+        width: 27px;
+        height: 27px;
+        border-radius: 8px;
+    }
+
+    .portal-login-button {
+        min-height: 33px;
+        padding: 0 8px;
+        gap: 5px;
+        font-size: 11px;
+    }
+
+    .assignment-hero,
+    .manning-dashboard-hero,
+    .mh-create-panel-body,
+    .workforce-editor-panel-body,
+    .manning-form-panel-body {
+        padding: 11px;
+    }
+
+    .mh-page,
+    .mh-create-page,
+    .master-v2-page,
+    .personal-v2-page,
+    .workforce-editor-page {
+        width: calc(100% - 16px);
+        padding-top: var(--nav-content-gap-mobile);
+        padding-bottom: var(--nav-content-gap-mobile);
+    }
+
+    .mh-page-header,
+    .mh-create-header,
+    .master-v2-header,
+    .personal-v2-header,
+    .workforce-editor-hero,
+    .manning-list-hero,
+    .manning-form-header,
+    .template-editor-header,
+    .edit-header {
+        margin-bottom: 10px;
+    }
+
+    .mh-session-panel,
+    .mh-create-panel,
+    .master-v2-panel,
+    .personal-v2-table-card,
+    .workforce-editor-panel,
+    .manning-form-panel,
+    .template-editor-panel {
+        border-radius: 10px;
+    }
+
+    .assignment-hero h2,
+    .mh-page-title,
+    .mh-create-title,
+    .workforce-editor-hero h1,
+    .manning-form-title,
+    .manning-list-title,
+    .template-editor-title,
+    .edit-header h2 {
+        font-size: clamp(18px, 5.5vw, 21px);
+        line-height: 1.2;
+    }
+
+    .assignment-section-head,
+    .mh-page-header,
+    .mh-history-toolbar,
+    .master-v2-header,
+    .personal-v2-header-inner,
+    .manning-list-hero,
+    .manning-form-header,
+    .template-editor-header,
+    .edit-header {
+        gap: 8px;
+    }
+
+    .mh-page-desc,
+    .assignment-hero p,
+    .manning-form-description,
+    .template-editor-description,
+    .edit-session-meta {
+        line-height: 1.6;
+    }
+
+    .mh-header-actions,
+    .master-v2-header-actions,
+    .personal-v2-actions,
+    .manning-dashboard-actions,
+    .manning-session-actions,
+    .edit-header-actions,
+    .template-editor-header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .mh-header-actions > *,
+    .master-v2-header-actions > *,
+    .personal-v2-actions > *,
+    .manning-dashboard-actions > *,
+    .manning-session-actions > *,
+    .edit-header-actions > *,
+    .template-editor-header-actions > * {
+        width: 100%;
+        margin: 0;
+    }
+
+    .manning-topbar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 50;
+        width: 100%;
+        min-height: 48px;
+        padding: 0 8px;
+        gap: 6px;
+    }
+
+    .manning-topbar-left,
+    .manning-topbar-right {
+        min-width: 0;
+        gap: 9px;
+    }
+
+    .manning-topbar-eyebrow,
+    .manning-user-copy,
+    .manning-topbar-date {
+        display: none;
+    }
+
+    .manning-topbar-title {
+        overflow: hidden;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .manning-content {
+        padding: 58px 7px 10px;
+    }
+
+    .manning-account-button {
+        min-width: 33px;
+        min-height: 33px;
+        padding: 1px;
+    }
+
+    .manning-sidebar-toggle {
+        width: 31px;
+        height: 31px;
+        min-height: 31px;
+        font-size: 15px;
+    }
+
+    .manning-user-avatar {
+        width: 29px;
+        height: 29px;
+        font-size: 12px;
+    }
+
+    .manning-session-actions .manning-delete-form {
+        display: block;
+    }
+
+    .manning-session-action {
+        width: 100%;
+    }
+
+    .manage-action-inner,
+    .master-edit-savebar,
+    .template-editor-savebar,
+    .edit-action-bar {
+        padding: 10px;
+    }
+
+    .master-edit-savebar-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .master-edit-savebar > span {
+        display: none;
+    }
+
+    .master-edit-savebar-actions > * {
+        width: 100%;
+    }
+
+    #pasteDataModal .modal-body,
+    #manualInputModal .modal-body,
+    #duplicateTimeModal .modal-body {
+        padding: 15px;
+    }
+
+    .portal-section-title,
+    .master-v2-title,
+    .personal-v2-name,
+    .assignment-section-title,
+    .manning-dashboard-section-title,
+    .manage-page-header h4 {
+        font-size: 18px;
+        line-height: 1.25;
+    }
+
+    .mh-page-desc,
+    .master-v2-description,
+    .personal-v2-sub,
+    .workforce-editor-hero p,
+    .manning-form-description,
+    .template-editor-description {
+        font-size: 11.5px;
+    }
+
+    .mh-session-card,
+    .mh-history-item,
+    .mh-session-list-page .mh-session-card,
+    .mh-session-panel-head,
+    .master-v2-panel-head,
+    .personal-v2-header,
+    .mh-create-panel-body,
+    .workforce-editor-panel-body,
+    .manning-form-panel-body,
+    .manning-form-panel-head,
+    .template-summary-card,
+    .edit-header {
+        padding: 10px;
+    }
+
+    .mh-session-list-page .mh-session-meta,
+    .mh-session-list-page .mh-session-stats {
+        display: none;
+    }
+
+    .mh-session-list-page .mh-session-actions {
+        margin-top: 8px;
+    }
+
+    .mh-session-list-page .mh-session-grid {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    /* Session list: keep the summary and primary actions on one row. */
+    .mh-session-list-page .mh-page-header {
+        gap: 8px;
+    }
+
+    .mh-session-list-page .mh-header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        gap: 5px;
+    }
+
+    .mh-session-list-page .mh-header-actions > * {
+        width: 100%;
+        min-width: 0;
+        min-height: 36px;
+        margin: 0;
+        padding: 5px 4px;
+        gap: 3px;
+        font-size: 10.5px;
+        white-space: nowrap;
+    }
+
+    .mh-session-list-page .mh-active-summary {
+        justify-content: center;
+        font-size: 10px;
+    }
+
+    .mh-session-list-page .mh-active-summary > i {
+        display: none;
+    }
+
+    .mh-session-list-page .mh-active-summary strong {
+        min-width: 18px;
+        padding: 2px 5px;
+        font-size: 10px;
+    }
+
+    .mh-session-list-page .mh-session-panel-heading h2 {
+        font-size: 15px;
+    }
+
+    .mh-session-list-page .mh-session-panel-heading p,
+    .mh-session-list-page .mh-session-panel-count {
+        font-size: 11px;
+    }
+
+    .mh-session-list-page .mh-session-card h3 {
+        font-size: 16px;
+        line-height: 1.3;
+    }
+
+    .mh-session-list-page .mh-session-date {
+        font-size: 11px;
+    }
+
+    .mh-session-list-page .mh-shift {
+        font-size: 10px;
+    }
+
+    .mh-session-list-page .mh-session-actions .mh-btn {
+        min-height: 36px;
+        padding: 7px 6px;
+        font-size: 12px;
+    }
+
+    .mh-session-list-page .mh-empty h3 {
+        font-size: 16px;
+    }
+
+    .mh-session-list-page .mh-empty p {
+        font-size: 12px;
+    }
+
+    .mh-create-sessions-link,
+    .mh-create-session-guide {
+        display: none !important;
+    }
+
+    body.assignment-console-body > .container > .manage-page-header {
+        padding: 12px !important;
+        border-radius: 13px;
+    }
+
+    .portal-section-head {
+        margin-bottom: 9px;
+    }
+
+    .portal-workspace-top {
+        min-height: 46px;
+        padding: 6px 8px;
+        grid-template-columns: 29px minmax(0, 1fr) auto;
+        gap: 7px;
+    }
+
+    .portal-workspace-icon {
+        width: 29px;
+        height: 29px;
+        font-size: 12px;
+    }
+
+    .portal-workspace-mobile-title {
+        font-size: 13px;
+    }
+
+    .portal-status-card {
+        min-height: 0;
+        padding: 8px 9px;
+    }
+
+    .portal-status-icon {
+        width: 29px;
+        height: 29px;
+    }
+
+    .portal-status-number {
+        font-size: 19px;
+    }
+
+    .mh-compact-stat,
+    .personal-v2-header-stat {
+        min-height: 0;
+        padding: 7px 8px;
+    }
+
+    .mh-empty,
+    .master-v2-empty,
+    .personal-v2-empty,
+    .manning-empty,
+    .template-editor-empty {
+        min-height: 140px;
+        padding: 20px 12px;
+    }
+
+    .mh-empty i,
+    .master-v2-empty i,
+    .personal-v2-empty i,
+    .manning-empty-icon {
+        font-size: 26px;
+    }
+
+    .mh-empty h3,
+    .master-v2-empty strong,
+    .personal-v2-empty h3,
+    .manning-empty h3,
+    .template-editor-empty h3 {
+        font-size: 15px;
+    }
+
+    /* Manning compact mode: summary first, details on demand. */
+    .manning-list-hero,
+    .manning-form-header,
+    .edit-header {
+        margin-bottom: 10px;
+    }
+
+    .manning-list-label,
+    .manning-dashboard-eyebrow,
+    .manning-session-type,
+    .manning-form-panel-head small {
+        display: none;
+    }
+
+    .manning-list-summary {
+        margin-bottom: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .manning-list-summary .manning-summary-card {
+        min-height: 0;
+        padding: 10px;
+    }
+
+    .manning-list-summary .manning-summary-card:nth-child(3) {
+        display: none;
+    }
+
+    .manning-summary-icon,
+    .manning-kpi-icon {
+        display: none;
+    }
+
+    .manning-session-grid {
+        gap: 10px;
+    }
+
+    .manning-session-card .manning-session-body,
+    .manning-session-card .manning-session-footer {
+        padding: 9px 8px;
+    }
+
+    .manning-session-meta {
+        gap: 8px 12px;
+    }
+
+    .manning-dashboard-warning {
+        margin-bottom: 10px;
+        padding: 10px 12px;
+    }
+
+    .manning-dashboard-hero {
+        margin-bottom: 10px;
+        padding: 13px;
+    }
+
+    .manning-dashboard-aircraft {
+        font-size: 22px;
+    }
+
+    .manning-dashboard-package {
+        margin-top: 4px;
+    }
+
+    .manning-dashboard-meta {
+        margin-top: 8px;
+        gap: 7px 12px;
+    }
+
+    .manning-dashboard-meta-item:nth-child(1),
+    .manning-dashboard-meta-item:nth-child(3) {
+        display: none;
+    }
+
+    .manning-dashboard-actions,
+    .edit-header-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .manning-dashboard-btn,
+    .edit-toolbar-btn {
+        min-width: 0;
+        min-height: 36px;
+        padding: 5px;
+        font-size: 11px;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .edit-toolbar-btn-light {
+        grid-column: auto;
+    }
+
+    .manning-dashboard-kpi {
+        margin-bottom: 14px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .manning-kpi-card {
+        min-height: 54px;
+        padding: 6px 5px;
+    }
+
+    .manning-kpi-copy span {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .manning-kpi-copy strong {
+        margin-top: 3px;
+        font-size: 17px;
+    }
+
+    .manning-dashboard-section {
+        margin-bottom: 9px;
+    }
+
+    .manning-zone-grid,
+    .manning-zone-list {
+        gap: 6px;
+    }
+
+    .manning-zone {
+        padding: 9px;
+    }
+
+    .manning-zone-header {
+        margin-bottom: 6px;
+    }
+
+    .manning-v2-worker {
+        min-height: 0;
+        padding: 8px;
+    }
+
+    .manning-v2-worker-avatar {
+        width: 27px;
+        height: 27px;
+        flex: 0 0 27px;
+    }
+
+    .manning-v2-worker-info span,
+    .manning-dashboard-section-description {
+        display: none;
+    }
+
+    .mobile-fold-toggle {
+        min-height: 40px;
+        padding: 7px 9px;
+        gap: 7px;
+        border-radius: 8px;
+    }
+
+    .mobile-fold-toggle-copy {
+        gap: 6px;
+    }
+
+    .mobile-fold-toggle-copy strong {
+        font-size: 12px;
+    }
+
+    .mobile-fold-toggle small {
+        font-size: 10px;
+    }
+
+    .app-dialog-card,
+    .duplicate-confirm-card {
+        padding: 15px 13px;
+        border-radius: 11px;
+    }
+
+    .app-dialog-actions,
+    .duplicate-confirm-actions {
+        gap: 5px;
+    }
+
+    .app-dialog-btn,
+    .duplicate-confirm-actions .btn {
+        min-height: 34px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --nav-content-gap-mobile: 10px;
+    }
+
+    .assignment-brand > div:last-child,
+    .portal-brand-copy,
+    .portal-release-meta,
+    .mh-eyebrow,
+    .mh-create-eyebrow,
+    .manning-form-eyebrow,
+    .template-editor-eyebrow,
+    .edit-eyebrow,
+    .edit-action-copy,
+    .template-save-info,
+    .manage-config-note {
+        display: none;
+    }
+
+    .assignment-topbar-inner,
+    .portal-header-inner {
+        width: calc(100% - 16px);
+    }
+
+    .mh-header-actions,
+    .master-v2-header-actions,
+    .personal-v2-actions,
+    .manning-dashboard-actions,
+    .manning-session-actions,
+    .edit-header-actions,
+    .template-editor-header-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .manning-dashboard-actions,
+    .edit-header-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .portal-hero-title {
+        font-size: 22px;
+    }
+
+    .portal-hero-description,
+    .portal-section-head p,
+    .manning-dashboard-section-description,
+    .mh-create-guide:not(.mh-create-guide-dark),
+    .workforce-guide:not(.workforce-guide-dark) {
+        display: none;
+    }
+
+    .portal-section {
+        margin-bottom: 14px;
+    }
+
+    .login-v2 {
+        min-height: 100dvh;
+        grid-template-columns: 1fr;
+        background: #f4f7fb;
+    }
+
+    .login-v2-brand {
+        display: none;
+    }
+
+    .login-v2-form-side {
+        min-height: 100dvh;
+        padding: 16px 12px;
+    }
+
+    .login-v2-card {
+        width: 100%;
+        padding: 18px 14px;
+    }
+
+    .portal-card-body,
+    .mh-session-card,
+    .mh-history-item,
+    .template-block .accordion-body {
+        padding: 10px;
+    }
+
+    .app-dialog-actions,
+    .duplicate-confirm-actions {
+        flex-direction: row;
+    }
+
+    .app-dialog-actions .app-dialog-btn,
+    .duplicate-confirm-actions .btn {
+        width: auto;
+        flex: 1 1 0;
+    }
+
+    .modal-dialog {
+        margin: 8px;
+    }
+
+    .modal-content {
+        max-height: calc(100dvh - 16px);
+        border-radius: 12px !important;
+    }
+}
+
+/* =========================================================
+   PHONE PORTRAIT BASELINE
+   Final readability layer for common 360px-430px phones.
+========================================================= */
+
+@media (max-width: 576px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body {
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .portal-content,
+    .mh-page,
+    .mh-create-page,
+    .master-v2-page,
+    .personal-v2-page,
+    .workforce-editor-page,
+    .result-view-container {
+        width: calc(100% - 20px);
+    }
+
+    .manning-content {
+        padding: 58px 10px 10px;
+    }
+
+    .mh-page,
+    .mh-create-page,
+    .master-v2-page,
+    .personal-v2-page,
+    .workforce-editor-page {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .mh-page-title,
+    .mh-create-title,
+    .master-v2-title,
+    .workforce-editor-hero h1,
+    .manning-list-title,
+    .manning-form-title,
+    .template-editor-title,
+    .edit-header h2 {
+        font-size: 20px;
+        line-height: 1.25;
+    }
+
+    .mh-page-desc,
+    .master-v2-description,
+    .personal-v2-sub,
+    .workforce-editor-hero p,
+    .manning-form-description,
+    .template-editor-description,
+    .edit-session-meta,
+    .portal-section-head p {
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+    .form-label,
+    .form-text,
+    .accordion-body,
+    .alert {
+        font-size: 12px;
+    }
+
+    .mh-btn,
+    .master-btn,
+    .manning-form-action,
+    .manning-primary-button,
+    .manning-session-action,
+    .manning-dashboard-btn,
+    .edit-toolbar-btn,
+    .template-editor-header-btn,
+    .template-save-btn {
+        min-height: 36px;
+        font-size: 12px;
+    }
+
+    .mh-session-list-page .mh-header-actions > * {
+        font-size: 11px;
+    }
+
+    .mh-session-list-page .mh-active-summary,
+    .mh-session-list-page .mh-active-summary strong {
+        font-size: 11px;
+    }
+
+    .mh-session-list-page .mh-session-panel-heading p,
+    .mh-session-list-page .mh-session-panel-count,
+    .mh-session-list-page .mh-session-date {
+        font-size: 12px;
+    }
+
+    .master-v2-list-page .master-v2-actions .master-btn {
+        min-height: 34px;
+        font-size: 10.5px;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td {
+        padding: 6px;
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td::before {
+        font-size: 9px;
+    }
+
+    .manning-kpi-copy span {
+        font-size: 10.5px;
+    }
+
+    .manning-kpi-copy strong {
+        font-size: 18px;
+    }
+
+    .mobile-fold-toggle-copy strong {
+        font-size: 13px;
+    }
+
+    .mobile-fold-toggle small {
+        font-size: 11px;
+    }
+
+    body.assignment-console-body.manage-items-body
+        .manage-action-btn {
+        font-size: 10.5px;
+    }
+
+    body.assignment-console-body.manage-items-body
+        #manageItemsTable .table-input,
+    body.assignment-console-body.manage-items-body
+        #manageItemsTable .adjusted-mh-input,
+    body.assignment-console-body.manage-items-body
+        #manageItemsTable .js-assigned-text {
+        font-size: 12px !important;
+    }
+
+    .settings-page {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    .settings-page > .card {
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        padding: 14px !important;
+    }
+
+    .modal-title,
+    .app-dialog-title,
+    .duplicate-confirm-title {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

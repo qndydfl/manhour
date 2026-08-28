@@ -1,113 +1,199 @@
-{% extends "manhour/base/base.html" %} 
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
-{% block title %}세션 수정 | {{ session.name }}{% endblock title %} 
+{% block title %} Workforce Editor | {{ session.name }} {% endblock title %}
 
-{% comment %} {% block background_image %} 
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
-{% endblock background_image %} {% endcomment %}
-
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/v2/workforce_editor.css' %}" />
+{% endblock css %}
 
 {% block content %}
-<div class="container my-4 rounded-3" style="max-width: 700px">
-    <div
-        class="card border-0 shadow-lg rounded-3 overflow-hidden glass-panel"
-        data-aos="fade-up"
-    >
-        <div
-            class="card-header bg-white border-0 px-4 py-4 text-center ios-topbar-shadow"
+
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a
+            href="{% url 'manhour:result_view' session.id %}"
+            class="assignment-brand"
         >
-            <h4 class="fw-bold text-dark mb-3">세션 정보 수정</h4>
-            <p class="text-muted small">
-                작업자 명단을 변경하거나 세션 이름을 수정합니다.
-            </p>
+            <div class="assignment-brand-icon">
+                <i class="bi bi-people"></i>
+            </div>
+
+            <div>
+                <strong> WORKFORCE </strong>
+
+                <span> Session Personnel Management </span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
                 href="{% url 'manhour:result_view' session.id %}"
-                class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold py-2"
+                class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
+                <span>Assignment</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
             </a>
         </div>
+    </div>
+</header>
 
-        <div class="card-body px-4 px-md-5 pb-5 pt-2">
+<main class="workforce-editor-page">
+    <section class="workforce-editor-hero">
+        <div>
+            <div class="workforce-editor-eyebrow">SESSION WORKFORCE</div>
+
+            <h4>세션 편집</h4>
+
+            <p>{{ session.name }}</p>
+        </div>
+
+        <a
+            href="{% url 'manhour:result_view' session.id %}"
+            class="workforce-back-button"
+        >
+            <i class="bi bi-arrow-left"></i>
+
+            Assignment
+        </a>
+    </section>
+
+    <div class="workforce-editor-layout">
+        <!-- =================================================
+             FORM
+        ================================================== -->
+
+        <section class="workforce-editor-panel">
+            <header class="workforce-editor-panel-head">
+                <div>
+                    <span> SESSION CONFIGURATION </span>
+
+                    <h2>세션 및 작업자 관리</h2>
+                </div>
+
+                <i class="bi bi-person-gear"></i>
+            </header>
+
             <form method="POST">
                 {% csrf_token %}
 
-                <div class="mb-4">
-                    <label
-                        class="form-label fw-bold text-white small text-uppercase ls-1"
-                        >1. 세션 이름</label
-                    >
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-0"
-                            ><i class="bi bi-tag-fill text-muted"></i
-                        ></span>
-                        <input
-                            type="text"
-                            name="session_name"
-                            class="form-control form-control-md bg-light border-0"
-                            value="{{ session.name }}"
-                            placeholder="세션 이름을 입력하세요"
-                            required
-                        />
-                    </div>
-                </div>
+                <div class="workforce-editor-panel-body">
+                    <!-- SESSION NAME -->
 
-                <div class="mb-4">
-                    <label
-                        class="form-label fw-bold text-white small text-uppercase ls-1 mb-2"
-                    >
-                        2. 작업자 명단 관리
-                    </label>
+                    <div class="workforce-field">
+                        <label>
+                            <span class="workforce-field-number"> 01 </span>
 
-                    <div
-                        class="alert alert-warning d-flex align-items-start gap-2 border-0 bg-soft-warning text-dark small rounded-3 mb-3"
-                    >
-                        <i
-                            class="bi bi-exclamation-triangle-fill text-warning mt-1"
-                        ></i>
-                        <div class="text-white"                    >
-                            <strong>주의사항:</strong><br />
-                            • 이름을 삭제하면 해당 작업자의
-                            <u>모든 배정 기록도 함께 삭제</u>됩니다.<br />
-                            • 이름을 수정하면 기존 작업자는 삭제되고
-                            <u>새로운 작업자로 인식</u>됩니다.
+                            세션 이름
+                        </label>
+
+                        <div class="workforce-input-wrap">
+                            <i class="bi bi-tag"></i>
+
+                            <input
+                                type="text"
+                                name="session_name"
+                                value="{{ session.name }}"
+                                placeholder="Session name"
+                                required
+                            />
                         </div>
                     </div>
 
-                    <textarea
-                        name="worker_names"
-                        class="form-control bg-light border-0 p-3"
-                        rows="5"
-                        placeholder="작업자 이름을 한 줄에 하나씩, 또는 콤마로 구분하여 입력하세요."
-                        style="resize: none"
-                    >{{ worker_names_str }}</textarea>
+                    <!-- WORKERS -->
 
-                    <div class="form-text text-end mt-2">
-                        <small class="text-white"
-                            ><i class="bi bi-info-circle me-1"></i>
-                            여러 명을 한꺼번에 붙여넣을 수 있습니다.
-                        </small>
+                    <div class="workforce-field">
+                        <label>
+                            <span class="workforce-field-number"> 02 </span>
+
+                            작업자 목록
+                        </label>
+
+                        <textarea
+                            name="worker_names"
+                            rows="14"
+                            placeholder="작업자 이름을 한 줄에 한 명씩 입력하세요."
+                        >
+                        {{ worker_names_str }}
+                        </textarea>
+
+                        <div class="workforce-field-help">
+                            <i class="bi bi-info-circle"></i>
+
+                            한 줄에 한 명씩 입력하거나 여러 명을 한 번에
+                            붙여넣을 수 있습니다.
+                        </div>
+                    </div>
+
+                    <div class="workforce-editor-actions">
+                        <a
+                            href="{% url 'manhour:result_view' session.id %}"
+                            class="workforce-action workforce-action-light"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="workforce-action workforce-action-primary"
+                        >
+                            <i class="bi bi-check2"></i>
+
+                            Save Changes
+                        </button>
                     </div>
                 </div>
-
-                <div class="d-flex gap-2 justify-content-end">
-                    <button
-                        type="submit"
-                        class="btn btn-primary btn-sm text-white fw-bold rounded-pill px-3 py-2"
-                    >
-                        <i class="bi bi-check-lg me-1"></i> 수정 완료
-                    </button>
-                    <a
-                        href="{% url 'manhour:result_view' session.id %}"
-                        class="btn btn-light btn-sm rounded-pill fw-bold text-muted px-3 py-2"
-                    >
-                        취소
-                    </a>
-                </div>
             </form>
-        </div>
+        </section>
+
+        <!-- =================================================
+             GUIDE
+        ================================================== -->
+
+        <aside class="workforce-editor-side">
+            <article class="workforce-guide workforce-guide-dark">
+                <div class="workforce-guide-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <h3>Workforce Management</h3>
+
+                <p>
+                    이 Session에서 자동 배정에 사용되는 작업자 명단을
+                    관리합니다.
+                </p>
+            </article>
+
+            <article class="workforce-guide">
+                <div class="workforce-guide-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+
+                <h3>Important</h3>
+
+                <ul>
+                    <li>
+                        작업자 이름을 삭제하면 해당 작업자의 기존 배정 기록도
+                        삭제될 수 있습니다.
+                    </li>
+
+                    <li>
+                        기존 이름을 변경하면 새로운 작업자로 인식될 수 있습니다.
+                    </li>
+
+                    <li>
+                        저장 후 Assignment Console에서 배정 결과를 다시
+                        확인하세요.
+                    </li>
+                </ul>
+            </article>
+        </aside>
     </div>
-</div>
+</main>
+
 {% endblock content %}

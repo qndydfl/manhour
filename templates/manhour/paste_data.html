@@ -1,150 +1,187 @@
-{% extends "manhour/base/base.html" %}
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %}
-
-{% block title %}데이터 등록 | manhour System{% endblock title %}
+{% block title %} Import Master Data | Manhour {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/paste_data.css' %}" />
-<link rel="stylesheet" href="{% static 'css/data_confirm_dialog.css' %}" />
+
+<link rel="stylesheet" href="{% static 'css/v2/dialog_v2.css' %}?v=20260827-1" />
+
+<link rel="stylesheet" href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3" />
+
 {% endblock css %}
 
 {% block js %}
+
 <script>
     const PASTE_DATA_POST_URL = "{% url 'manhour:paste_data' %}";
+
     const MASTER_DATA_LIST_URL = "{% url 'manhour:master_data_list' %}";
 </script>
+
 <script defer src="{% static 'js/paste_data.js' %}"></script>
+
 {% endblock js %}
 
-{% comment %} {% block background_image %}
-    {% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %}
-{% endblock background_image %} {% endcomment %}
-
 {% block content %}
-<div class="container rounded-3">
-    <div
-        class="d-flex flex-wrap text-white justify-content-between align-items-center gap-3"
-        data-aos="fade-down"
-    >
-        <div
-            class="bg-soft-primary p-3 rounded-circle"
-        >
-            <i class="bi bi-list-check fs-5 text-warning"></i>
-            <span class="ms-2 text-white fw-bold fs-5">데이터 관리</span>
-        </div>   
 
-        <div class="d-flex flex-wrap gap-2 align-items-center py-2 ms-auto">
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'manhour:paste_data' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-clipboard-data"></i>
+            </div>
+
+            <div>
+                <strong> DATA IMPORT </strong>
+
+                <span> Excel / Clipboard Import </span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
-                href="{% url 'manhour:master_data_list' %}?from=paste_data"
-                class="btn btn-warning btn-sm rounded-pill px-3 fw-bold me-2 py-2"
+                href="{% url 'manhour:master_data_list' %}"
+                class="assignment-topbar-btn"
             >
-                <i class="bi bi-list-ul me-1"></i> 마스터 데이터 관리
+                <i class="bi bi-database"></i>
+
+                <span> Master Data </span>
             </a>
 
-            <a
-                href="{% url 'manhour:index' %}"
-                class="btn btn-dark btn-sm rounded-pill px-3 fw-bold py-2"
-            >
-                <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+
+                <span> Home </span>
             </a>
         </div>
     </div>
+</header>
 
-    <div
-        class="card bg-light border-0 text-dark shadow-lg rounded-3 overflow-hidden my-4 py-4"
-        data-aos="fade-up"
-    >
-        <div class="card-header border-0 pt-4 px-4 px-md-5">
-            <div class="d-flex align-items-center gap-3">
-                <div
-                    class="bg-soft-primary p-3 rounded-circle"
-                    style="background-color: rgba(13, 110, 253, 0.1)"
-                >
-                    <i class="bi bi-magic fs-6 text-primary"></i>
-                </div>
-                <div>
-                    <h5 class="text-dark fw-bold mb-1">데이터 등록</h5>
-                    <p class="text-dark mb-0">
-                        엑셀 데이터를 복사(Ctrl+C)한 후,
-                        <strong>표의 첫 번째 칸을 클릭하고 붙여넣기(Ctrl+V)</strong>
-                        하세요.
-                    </p>
-                </div>
-            </div>
+<main class="master-v2-page master-v2-import-page">
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="master-import-hero">
+        <div class="master-import-eyebrow">CLIPBOARD IMPORT</div>
+
+        <h1>Import Maintenance Data</h1>
+
+        <p>
+            데이터를 복사한 후 Ctrl + V로 붙여넣으세요. 행은 필요한 만큼 자동으로 추가됩니다.
+        </p>
+    </section>
+
+    <!-- =====================================================
+         GUIDE
+    ====================================================== -->
+
+    <section class="master-import-guide">
+        <div class="master-import-guide-title">
+            <i class="bi bi-info-circle me-1"></i>
+
+            Excel Column Order
         </div>
 
-        <div class="card-body px-4 px-md-5 pb-5">
-            <div class="instruction-box p-3 rounded-3 mb-4 border">
-                <h6 class="fw-bold mb-2">
-                    <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)
-                </h6>
-                <div
-                    class="d-flex flex-wrap gap-2 font-monospace small align-items-center"
-                >
-                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">1. 기번 (HLxxxx)</span>
-                    <i class="bi bi-arrow-right text-muted"></i>
-                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">2. Work Order</span>
-                    <i class="bi bi-arrow-right text-muted"></i>
-                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">3. OP</span>
-                    <i class="bi bi-arrow-right text-muted"></i>
-                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">4. Description</span>
-                    <i class="bi bi-arrow-right text-muted"></i>
-                    <span class="badge bg-white text-dark border shadow-sm px-2 py-1">5. 기준 M/H</span>
-                </div>
+        <div class="master-import-columns">
+            <span class="master-import-column"> 1. Aircraft </span>
+
+            <i class="bi bi-arrow-right master-import-arrow"></i>
+
+            <span class="master-import-column"> 2. Work Order </span>
+
+            <i class="bi bi-arrow-right master-import-arrow"></i>
+
+            <span class="master-import-column"> 3. OP </span>
+
+            <i class="bi bi-arrow-right master-import-arrow"></i>
+
+            <span class="master-import-column"> 4. Description </span>
+
+            <i class="bi bi-arrow-right master-import-arrow"></i>
+
+            <span class="master-import-column"> 5. Base M/H </span>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         IMPORT PANEL
+    ====================================================== -->
+
+    <section class="master-v2-panel">
+        <header class="master-v2-panel-head">
+            <div>
+                <strong> Data Grid </strong>
+
+                <span> Paste Excel cells directly into the table. </span>
             </div>
-            <form id="pasteForm" data-loadingonsubmit="return false;">
+
+            <i class="bi bi-file-earmark-spreadsheet text-muted"></i>
+        </header>
+
+        <div class="master-import-panel-body">
+            <form id="pasteForm" onsubmit="return false;">
                 {% csrf_token %}
 
-                <div class="table-responsive mb-4 border rounded-3">
-                    <table
-                        class="table table-bordered text-center align-middle mb-0 smart-table"
-                        id="gridTable"
-                    >
-                        <thead>
-                            <tr>
-                                <th style="width: 15%">기번 (Gibun)</th>
-                                <th style="width: 15%">Work Order</th>
-                                <th style="width: 10%">OP</th>
-                                <th style="width: 45%">설명 (Description)</th>
-                                <th style="width: 15%">기준 M/H</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div class="master-import-table">
+                    <div class="table-responsive">
+                        <table
+                            id="gridTable"
+                            class="table text-center align-middle mb-0"
+                        >
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%">Aircraft</th>
+
+                                    <th style="width: 15%">Work Order</th>
+
+                                    <th style="width: 10%">OP</th>
+
+                                    <th style="width: 45%">Description</th>
+
+                                    <th style="width: 15%">Base M/H</th>
+                                </tr>
+                            </thead>
+
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <button
-                            type="button"
-                            onclick="addRow()"
-                            class="btn btn-light w-100 fw-bold border text-muted rounded-pill"
-                        >
-                            <i class="bi bi-plus-lg"></i> 줄 추가
-                        </button>
-                    </div>
-                    <div class="col-md-3">
-                        <a
-                            href="{% url 'manhour:index' %}"
-                            class="btn btn-light w-100 fw-bold text-secondary rounded-pill"
-                        >
-                            취소
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <button
-                            type="button"
-                            onclick="saveData()"
-                            class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
-                        >
-                            <i class="bi bi-save me-1"></i> 데이터 저장하기
-                        </button>
-                    </div>
+                <div class="master-import-actions">
+                    <button type="button" onclick="addRow()" class="master-btn">
+                        <i class="bi bi-plus-lg"></i>
+
+                        Add Row
+                    </button>
+
+                    <a
+                        href="{% url 'manhour:master_data_list' %}"
+                        class="master-btn"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="button"
+                        onclick="saveData()"
+                        class="master-btn master-btn-primary"
+                    >
+                        <i class="bi bi-cloud-arrow-up"></i>
+
+                        Validate & Save Data
+                    </button>
                 </div>
             </form>
         </div>
-    </div>
-</div>
+
+        <footer class="master-v2-panel-footer">
+            Aircraft는 숫자 4자리 입력 시 자동으로
+            <strong>HL</strong>
+            prefix가 적용됩니다.
+        </footer>
+    </section>
+</main>
+
 {% include "manhour/partials/data_confirm_dialog.html" %}
 {% endblock content %}

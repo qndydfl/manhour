@@ -1,142 +1,211 @@
-{% extends 'manning/base/manning_base.html' %} 
+{% extends 'manning/base/manning_v2_base.html' %}
 {% load static %} 
 
-{% block body_class %}manning-page-body no-navbar{% endblock %} 
+{% block title %} Maintenance Sessions | Manning {% endblock title %}
 
-{% block title %}정비 세션 목록 | Manning{% endblock %} 
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %}
+
+{% block page_title %} Maintenance Sessions {% endblock page_title %}
+
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
-<link
-    rel="stylesheet"
-    href="{% static 'css/manning/manning_components.css' %}"
-/>
-<link rel="stylesheet" href="{% static 'css/manning/manning_list.css' %}" />
-{% endblock css %} 
-{% block js %}
-<script src="{% static 'js/manning/manning_list.js' %}"></script>
-{% endblock js %} 
 
-{% block content %}
-<div
-    class="container glass-panel py-4 rounded-4 manning-list-page"
-    data-aos="fade-in"
->
-    <div
-        class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5 px-3"
-    >
+<link rel="stylesheet" href="{% static 'css/manning/v2/manning_list.css' %}" />
+
+{% endblock css %} {% block js %}
+
+<script defer src="{% static 'js/manning/manning_list.js' %}"></script>
+
+{% endblock js %} {% block content %}
+
+<!-- =====================================================
+    PAGE HEADER
+====================================================== -->
+
+<section class="manning-list-hero">
+    <div>
+        <div class="manning-list-label">WORKFORCE OPERATIONS</div>
+        <h2 class="manning-list-title">Maintenance Sessions</h2>
+    </div>
+
+    <a href="{% url 'manning:create_session' %}" class="manning-primary-button">
+        <i class="bi bi-plus-lg"></i>
+
+        New Session
+    </a>
+</section>
+
+<!-- =====================================================
+    SUMMARY
+====================================================== -->
+
+<section class="manning-list-summary">
+    <div class="manning-summary-card">
         <div>
-            <h3 class="fw-bold text-dark mb-2">Maintenance Sessions</h3>
-            <p class="text-muted mb-0">
-                현재 가동 중인 항공기 정비 세션 목록입니다.
-            </p>
+            <span> ACTIVE SESSIONS </span>
+
+            <strong> {{ active_sessions|length }} </strong>
         </div>
 
-        <div class="d-flex gap-2 justify-content-end">
-            <a
-                href="{% url 'manning:create_session' %}"
-                class="btn btn-primary btn-sm fw-bold py-2 px-4 rounded-pill"
-            >
-                <i class="bi bi-plus-lg me-1"></i> 새 세션 시작
-            </a>
-
-            <a
-                href="{% url 'manhour:index' %}"
-                class="btn btn-dark btn-sm fw-bold py-2 px-4 rounded-pill"
-            >
-                <i class="bi bi-arrow-left me-1"></i> 이전 화면으로
-            </a>
+        <div class="manning-summary-icon">
+            <i class="bi bi-activity"></i>
         </div>
     </div>
 
-    <div class="row g-4 justify-content-center">
-        {% for session in active_sessions %}
-        <div class="col-xl-4 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 session-card">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div
-                        class="d-flex justify-content-between align-items-center mb-3"
-                    >
-                        <span
-                            class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2"
-                        >
-                            {{ session.aircraft_reg }}
-                        </span>
-                        <small class="text-muted"
-                            >{{ session.created_at|date:"Y-m-d" }}</small
-                        >
-                    </div>
+    <div class="manning-summary-card">
+        <div>
+            <span> WORKPLACE </span>
 
-                    <h5 class="fw-bold mb-1">
-                        {{ session.work_package_name }}
-                    </h5>
+            <strong style="font-size: 19px">
+                {% if workplace %} {{ workplace }} {% else %} - {% endif %}
+            </strong>
+        </div>
 
-                    <div
-                        class="text-muted small mb-2 rounded-pill px-2 py-1 bg-primary"
-                        style="width: fit-content"
-                    >
-                        <span class="text-white"
-                            >Shift: {{ session.get_shift_type_display }}</span
-                        >
-                    </div>
+        <div class="manning-summary-icon">
+            <i class="bi bi-geo-alt"></i>
+        </div>
+    </div>
 
-                    <p class="text-muted small mb-4">
-                        근무지: {{ session.site_label|default:"-" }}
-                    </p>
+    <div class="manning-summary-card">
+        <div>
+            <span> SYSTEM </span>
 
-                    <div
-                        class="mt-auto d-flex justify-content-between align-items-center flex-wrap gap-2"
-                    >
-                        <div class="text-muted small">
-                            <i class="bi bi-people me-1"></i>
-                            {{ session.areas.count }} Areas
-                        </div>
+            <strong style="font-size: 19px"> ONLINE </strong>
+        </div>
 
-                        <div class="d-flex flex-wrap gap-2 justify-content-end">
-                            <a
-                                href="{% url 'manning:manning_dashboard' session.id %}"
-                                class="btn btn-dark btn-sm rounded-pill px-3"
-                            >
-                                매닝 관리 <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
+        <div class="manning-summary-icon">
+            <i class="bi bi-check-circle"></i>
+        </div>
+    </div>
+</section>
 
-                            {% if session.site == workplace %}
-                            <a
-                                href="{% url 'manning:update_session' session.id %}"
-                                class="btn btn-primary btn-sm rounded-pill px-3"
-                            >
-                                수정
-                            </a>
+<!-- =====================================================
+     SESSIONS
+====================================================== -->
 
-                            <form
-                                method="POST"
-                                action="{% url 'manning:delete_session' session.id %}"
-                                class="d-inline"
-                            >
-                                {% csrf_token %}
-                                <button
-                                    type="submit"
-                                    class="btn btn-danger btn-sm rounded-pill px-3"
-                                    onclick="
-                                        return confirm('이 세션을 삭제할까요?');
-                                    "
-                                >
-                                    삭제
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+<section class="manning-session-grid">
+    {% for session in active_sessions %}
+
+    <article
+        class="manning-session-card"
+        data-mobile-fold
+        data-mobile-fold-title="{{ session.aircraft_reg }} · {{ session.work_package_name }}"
+        data-mobile-fold-open="{% if forloop.first %}true{% else %}false{% endif %}"
+    >
+        <!-- TOP -->
+
+        <div class="manning-session-top">
+            <span class="manning-aircraft-badge">
+                {{ session.aircraft_reg }}
+            </span>
+
+            <span class="manning-session-date">
+                {{ session.created_at|date:"Y.m.d" }}
+            </span>
+        </div>
+
+        <!-- BODY -->
+
+        <div class="manning-session-body">
+            <div class="manning-session-type">MAINTENANCE SESSION</div>
+
+            <h3 class="manning-session-name">
+                {{ session.work_package_name }}
+            </h3>
+
+            <div class="manning-session-meta">
+                <span class="manning-session-meta-item">
+                    <i class="bi bi-clock"></i>
+
+                    {{ session.get_shift_type_display }}
+                </span>
+
+                <span class="manning-session-meta-item">
+                    <i class="bi bi-geo-alt"></i>
+
+                    {{ session.site_label|default:"-" }}
+                </span>
+
+                <span class="manning-session-meta-item">
+                    <i class="bi bi-diagram-3"></i>
+
+                    {{ session.areas.count }} Areas
+                </span>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <p class="text-dark fw-bold mb-0">
-                진행 중인 정비 세션이 없습니다.
-            </p>
+
+        <!-- FOOTER -->
+
+        <div class="manning-session-footer">
+            <div class="manning-area-count">Session #{{ session.id }}</div>
+
+            <div class="manning-session-actions">
+                <a
+                    href="{% url 'manning:manning_dashboard' session.id %}"
+                    class="manning-session-action manning-session-action-primary"
+                >
+                    Dashboard
+
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+                {% if session.site == workplace %}
+
+                <a
+                    href="{% url 'manning:update_session' session.id %}"
+                    class="manning-session-action"
+                >
+                    <i class="bi bi-pencil"></i>
+
+                    Edit
+                </a>
+
+                <form
+                    method="POST"
+                    action="{% url 'manning:delete_session' session.id %}"
+                    class="manning-delete-form"
+                    data-app-confirm="이 세션을 삭제할까요? 삭제한 세션은 복구할 수 없습니다."
+                    data-app-confirm-title="Manning 세션 삭제"
+                    data-app-confirm-variant="danger"
+                    data-app-confirm-button="삭제"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="manning-session-action manning-session-action-danger"
+                    >
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </form>
+
+                {% endif %}
+            </div>
         </div>
-        {% endfor %}
+    </article>
+
+    {% empty %}
+
+    <div class="manning-empty">
+        <div class="manning-empty-icon">
+            <i class="bi bi-airplane"></i>
+        </div>
+
+        <h3>진행 중인 정비 세션이 없습니다.</h3>
+
+        <p>새로운 Maintenance Session을 생성하여 Manning 작업을 시작하세요.</p>
+
+        <a
+            href="{% url 'manning:create_session' %}"
+            class="manning-primary-button"
+        >
+            <i class="bi bi-plus-lg"></i>
+
+            Create Session
+        </a>
     </div>
-</div>
+
+    {% endfor %}
+</section>
+
 {% endblock content %}

@@ -1,179 +1,201 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/result_v2_base.html" %}
+{% load static %}
 
-{% block title %}마스터 데이터 목록 | manhour System{% endblock title %} 
+{% block title %} Master Data | Manhour {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/master_data_list.css' %}" />
-{% endblock css %} 
 
-{% block js %}{% endblock js %} 
+<link rel="stylesheet" href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3" />
 
-{% comment %} {% block background_image %}
-{% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
-{% endblock background_image %}  {% endcomment %}
+{% endblock css %}
 
 {% block content %}
-<div
-    class="container rounded-3 master-data-page mb-4"
->
-    <div
-        class="d-flex flex-wrap text-white justify-content-between align-items-center pb-4 gap-2"
-        data-aos="fade-down"
-    >
-        <div
-            class="bg-soft-primary p-3 rounded-circle"
-        >
-            <i class="bi bi-list-check fs-5 text-warning"></i>
-            <span class="ms-2 text-white fw-bold fs-5">마스터 데이터</span>
-        </div>   
 
-        <div class="d-flex flex-wrap gap-2 align-items-center ms-auto py-2 top-action-group">
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'manhour:master_data_list' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-database"></i>
+            </div>
+
+            <div>
+                <strong> MASTER DATA </strong>
+
+                <span> Maintenance Data Administration </span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
-                href="{% url 'manhour:master_data_edit' %}"
-                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold py-2"
+                href="{% url 'manhour:session_list' %}"
+                class="assignment-topbar-btn"
             >
-                <i class="bi bi-pencil-square me-1"></i>수정
+                <i class="bi bi-stopwatch"></i>
+                <span>Sessions</span>
             </a>
 
-            <form
-                action="{% url 'manhour:delete_all_taskmasters' %}"
-                method="POST"
-                class="d-inline"
-            >
-                {% csrf_token %}
-                <input type="hidden" name="next" value="master_data_edit" />
-                <button
-                    type="submit"
-                    class="btn btn-danger btn-sm rounded-pill px-3 fw-bold py-2"
-                    onclick="
-                        return confirm(
-                            '⚠️ 경고: 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
-                        );
-                    "
-                >
-                    <i class="bi bi-trash3-fill me-1"></i> 
-                    <span class="d-none d-md-inline">전체 삭제</span>
-                </button>
-            </form>
-
-            <a
-                href="{% url 'manhour:paste_data' %}"
-                class="btn btn-dark btn-sm rounded-pill px-3 fw-bold py-2"
-            >
-                <i class="bi bi-arrow-left me-1"></i> 
-                <span class="d-none d-md-inline">데이터 등록</span>
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
             </a>
         </div>
     </div>
+</header>
 
-    <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden glass-panel"
-        data-aos="fade-up"
-    >
-        <div class="card-header bg-white border-bottom pt-4 px-4">
-            <div
-                class="d-flex justify-content-between align-items-center flex-wrap gap-3"
-            >
-                <div class="d-flex align-items-center gap-3">
-                    <div
-                        class="bg-soft-primary p-3 rounded-circle"
-                        style="background-color: rgba(13, 110, 253, 0.1)"
-                    >
-                        <i class="bi bi-list-check fs-4 text-primary"></i>
-                    </div>
-                    <div>
-                        <h5 class="fw-bold mb-1">마스터 데이터 목록</h5>
-                        <p class="text-muted small mb-0">
-                            총
-                            <strong class="text-primary"
-                                >{{ total_count }}</strong
-                            >
-                            개의 데이터를 수정할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
+<main class="master-v2-page master-v2-list-page">
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-            <div class="d-none d-md-block px-4 pt-3">
-                <i class="bi bi-apple text-warning"></i>
-                <span class="text-primary small">
-                    기번, Work Order, OP 기준으로 오름차순 정렬됩니다.
+    <section class="master-v2-header">
+        <div>
+            <div class="master-v2-eyebrow">DATA ADMINISTRATION</div>
+
+            <h1 class="master-v2-title">Master Data</h1>
+
+            <p class="master-v2-description">
+                Aircraft, Work Order, Operation 및 기준 Manhour 데이터를 조회하고 관리합니다.
+            </p>
+        </div>
+
+        <div class="master-v2-header-tools">
+            <div class="master-total-records">
+                <i class="bi bi-database"></i>
+                <span>
+                    TOTAL RECORDS
+                    <strong>{{ total_count }}</strong>
                 </span>
             </div>
-        </div>
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table
-                    class="table table-hover align-middle mb-0 master-data-table"
-                >   
-                    <colgroup>
-                        <col style="width: 100px;">
-                        <col style="width: 130px;">
-                        <col style="width: 80px;">
-                        <col />
-                        <col style="width: 100px;">
-                        <col style="width: 150px;">
-                    </colgroup>
-                    <thead class="bg-light text-muted small">
-                        <tr>
-                            <th
-                                class="col-gibun py-3 ps-4 text-nowrap"
-                            >
-                                기번
-                            </th>
-                            <th class="col-wo py-3 text-nowrap">
-                                Work Order
-                            </th>
-                            <th class="col-op py-3 text-nowrap">
-                                OP
-                            </th>
-                            <th class="col-desc py-3">
-                                설명 (Description)
-                            </th>
-                            <th
-                                class="col-mh py-3 text-center text-nowrap"
-                            >
-                                기준 M/H
-                            </th>
-                            <th class="col-created-at py-3 text-nowrap">
-                                생성 시간
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="border-top-0">
-                        {% for item in taskmasters %}
-                        <tr>
-                            <td class="ps-4">{{ item.gibun_code }}</td>
-                            <td>{{ item.work_order }}</td>
-                            <td>{{ item.op }}</td>
-                            <td>{{ item.description }}</td>
-                            <td class="text-center">{{ item.default_mh }}</td>
-                            <td>
-                                <span class="text-muted small">
-                                    {{ item.created_at|date:"Y-m-d H:i" }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr style="pointer-events: none;">
-                            <td class="ps-4 py-4 text-center" colspan="6">
-                                표시할 데이터가 없습니다.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="master-v2-actions">
+                <a href="{% url 'manhour:paste_data' %}" class="master-btn">
+                    <i class="bi bi-clipboard-plus"></i>
+
+                    Import Data
+                </a>
+
+                <a
+                    href="{% url 'manhour:master_data_edit' %}"
+                    class="master-btn master-btn-primary"
+                >
+                    <i class="bi bi-pencil-square"></i>
+
+                    Edit Data
+                </a>
+
+                <form
+                    action="{% url 'manhour:delete_all_taskmasters' %}"
+                    method="POST"
+                    data-app-confirm="모든 Master Data를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                    data-app-confirm-title="전체 데이터 삭제"
+                    data-app-confirm-variant="danger"
+                    data-app-confirm-button="모두 삭제"
+                >
+                    {% csrf_token %}
+
+                    <input type="hidden" name="next" value="master_data_edit" />
+
+                    <button
+                        type="submit"
+                        class="master-btn master-btn-danger"
+                    >
+                        <i class="bi bi-trash3"></i>
+
+                        Delete All
+                    </button>
+                </form>
             </div>
         </div>
+    </section>
 
-        <div
-            class="card-footer bg-light border-0 py-3 text-center text-muted small"
-        >
-            데이터 수정이 필요하면 “전체 수정” 버튼을 눌러 편집 화면으로
-            이동하세요.
+    <!-- =====================================================
+         TABLE
+    ====================================================== -->
+
+    <section class="master-v2-panel">
+        <header class="master-v2-panel-head">
+            <div>
+                <strong> Maintenance Task Master </strong>
+
+                <span> {{ total_count }} registered records </span>
+            </div>
+
+            <i class="bi bi-list-ul text-muted"></i>
+        </header>
+
+        <div class="master-v2-table-wrap">
+            <table class="master-v2-table">
+                <colgroup>
+                    <col style="width: 130px" />
+                    <col style="width: 150px" />
+                    <col style="width: 100px" />
+                    <col />
+                    <col style="width: 150px" />
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th>Aircraft</th>
+
+                        <th>Work Order</th>
+
+                        <th>OP</th>
+
+                        <th>Description</th>
+
+                        <th class="text-center">Base M/H</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in taskmasters %}
+
+                    <tr>
+                        <td class="master-code">{{ item.gibun_code }}</td>
+
+                        <td class="master-code">{{ item.work_order }}</td>
+
+                        <td class="master-code">{{ item.op }}</td>
+
+                        <td class="master-description">
+                            {{ item.description }}
+                        </td>
+
+                        <td class="text-center master-mh">
+                            {{ item.default_mh }}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="master-v2-empty">
+                            <i class="bi bi-database-x"></i>
+
+                            <strong> 등록된 Master Data가 없습니다. </strong>
+
+                            <div class="mt-2">
+                                <a
+                                    href="{% url 'manhour:paste_data' %}"
+                                    class="master-btn master-btn-primary"
+                                >
+                                    Import Data
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
+
+        <footer class="master-v2-panel-footer">
+            데이터 변경이 필요한 경우
+            <strong>Edit Data</strong>
+            메뉴를 사용하세요.
+        </footer>
+    </section>
+</main>
+
 {% endblock content %}

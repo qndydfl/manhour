@@ -1,0 +1,143 @@
+:root {
+
+    /*
+    |--------------------------------------------------------------------------
+    | V2 Color System
+    |--------------------------------------------------------------------------
+    */
+
+    --color-navy-950: #07111f;
+    --color-navy-900: #0b1729;
+    --color-navy-800: #14243b;
+
+    --color-blue-700: #1d4ed8;
+    --color-blue-600: #2563eb;
+    --color-blue-500: #3b82f6;
+
+    --color-slate-950: #0f172a;
+    --color-slate-900: #172033;
+    --color-slate-700: #334155;
+    --color-slate-600: #475569;
+    --color-slate-500: #64748b;
+    --color-slate-400: #94a3b8;
+    --color-slate-300: #cbd5e1;
+    --color-slate-200: #e2e8f0;
+    --color-slate-100: #f1f5f9;
+    --color-slate-50: #f8fafc;
+
+    --color-white: #ffffff;
+
+    --color-green: #22c55e;
+    --color-amber: #f59e0b;
+    --color-red: #ef4444;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Surface
+    |--------------------------------------------------------------------------
+    */
+
+    --surface-page: #e9eff5;
+    --surface-card: #ffffff;
+    --surface-dark: #07111f;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Border
+    |--------------------------------------------------------------------------
+    */
+
+    --border-soft: #d8e1eb;
+    --border-default: #c8d3df;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Radius
+    |--------------------------------------------------------------------------
+    */
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Shadow
+    |--------------------------------------------------------------------------
+    */
+
+    --shadow-sm:
+        0 2px 8px rgba(15, 23, 42, 0.04);
+
+    --shadow-md:
+        0 10px 30px rgba(15, 23, 42, 0.08);
+
+    --shadow-lg:
+        0 24px 60px rgba(15, 23, 42, 0.12);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Layout
+    |--------------------------------------------------------------------------
+    */
+
+    --page-width: 1480px;
+    --header-height: 76px;
+    --nav-content-gap: 38px;
+    --nav-content-gap-mobile: 28px;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Typography
+    |--------------------------------------------------------------------------
+    */
+
+    --font-main:
+        Inter,
+        Pretendard,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    --font-size-micro: 11px;
+    --font-size-xs: 13px;
+    --font-size-sm: 15px;
+    --font-size-base: 17px;
+    --font-size-lg: 19px;
+    --font-size-page-title: clamp(30px, 3vw, 36px);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Global V2 helpers
+|--------------------------------------------------------------------------
+*/
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--surface-page);
+    font-family: var(--font-main);
+    color: var(--color-slate-950);
+}
+
+a {
+    color: inherit;
+}
+
+.global-message-container {
+    position: fixed;
+
+    top: 90px;
+    right: 24px;
+
+    z-index: 9999;
+
+    width: min(420px, calc(100% - 48px));
+}

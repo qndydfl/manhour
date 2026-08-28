@@ -1,132 +1,159 @@
-{% extends "manhour/base/base.html" %} 
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
-{% block title %}세션 생성 | manhour System{% endblock title %} 
+{% block title %} Create Manhour Session {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/create_session.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/create_session_v2.css' %}" />
 {% endblock css %} 
 
 {% block js %}
 <script>
     const CHECK_GIBUN_URL = "{% url 'manhour:check_gibun' %}";
 </script>
+
 <script defer src="{% static 'js/create_session.js' %}"></script>
 {% endblock js %} 
 
-{% comment %} {% block background_image %} 
-{% include "manhour/image/background_url.html" with bg_key="session_list" bg_default="https://picsum.photos/id/296/3072/2048" %} 
-{% endblock background_image %}  {% endcomment %}
-
 {% block content %}
-<div class="container my-4 rounded-3" style="max-width: 900px">
-    <div
-        class="card border-0 shadow-lg rounded-4 overflow-hidden"
-        data-aos="fade-up"
-    >
-        <div
-            class="d-flex align-items-center card-header border-0 py-4 px-4 px-md-5 text-center"
-        >
-            <h4 class="fw-bold text-dark mb-1">작업 세션 시작</h4>
 
-            <i class="bi bi-rocket-takeoff-fill fs-3 text-primary ms-2"></i>
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'manhour:session_list' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-plus-square"></i>
+            </div>
 
+            <div>
+                <strong>NEW SESSION</strong>
+                <span>Manhour Operations</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
-                href="{% url 'manhour:index' %}"
-                class="btn btn-outline-dark btn-sm px-3 rounded-pill fw-bold ms-auto py-2"
+                href="{% url 'manhour:session_list' %}"
+                class="assignment-topbar-btn mh-create-sessions-link"
             >
-                <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
+                <i class="bi bi-stopwatch"></i>
+                <span>Sessions</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
             </a>
         </div>
+    </div>
+</header>
 
-        <div class="card-body px-4 px-md-5 pb-2 pt-3">
-            <form method="POST" 
-                id="createSessionForm"
-                data-loading
-                data-loading-title="세션 생성 중"
-                data-loading-text="잠시만 기다려 주세요.">
-                
-                {% csrf_token %}
-                <div class="row g-4 mb-4">
-                    <div class="col-12">
-                        <label
-                            class="form-label fw-bold text-dark small text-uppercase ls-1"
-                        >
-                            1. 세션 이름
+<main class="mh-create-page">
+    <section class="mh-create-header">
+        <div>
+            <div class="mh-create-eyebrow">NEW MANHOUR OPERATION</div>
+
+            <h1 class="mh-create-title">Create Session</h1>
+
+            <p class="mh-create-desc ms-1">
+                Shift, 기번 및 작업자 명단을 설정하여 새로운
+                Manhour Assignment Session을 시작합니다.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'manhour:session_list' %}"
+            class="mh-create-back mh-create-sessions-link"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Sessions
+        </a>
+    </section>
+
+    <form
+        method="POST"
+        id="createSessionForm"
+        data-loading
+        data-loading-title="세션 생성 중"
+        data-loading-text="잠시만 기다려 주세요."
+    >
+        {% csrf_token %}
+
+        <div class="mh-create-layout">
+            <section class="mh-create-panel">
+
+                <div class="mh-create-panel-body">
+                    <!-- SESSION NAME -->
+
+                    <div class="mh-create-field">
+                        <label class="mh-create-label">
+                            <span class="mh-create-step"> 01 </span>
+
+                            세션 이름
                         </label>
+
                         <input
                             type="text"
                             name="session_name"
-                            class="form-control form-control-md bg-light border-0"
                             placeholder="예: 엔진 교환"
                             value="{{ slot|default:'' }}"
                             required
                         />
                     </div>
 
-                    <div class="col-12">
-                        <label
-                            class="form-label fw-bold text-dark small text-uppercase ls-1"
-                        >
-                            2. 근무 형태
+                    <!-- SHIFT -->
+
+                    <div class="mh-create-field">
+                        <label class="mh-create-label">
+                            <span class="mh-create-step"> 02 </span>
+
+                            Shift Type
                         </label>
-                        <div class="row g-2">
-                            <div class="col-6">
+
+                        <div class="mh-shift-grid">
+                            <div class="mh-shift-option">
                                 <input
                                     type="radio"
-                                    class="btn-check"
                                     name="shift_type"
                                     id="shiftDay"
                                     value="DAY"
                                     required
                                 />
-                                <label
-                                    class="btn btn-outline-warning w-100 py-3 rounded-3 border-2 fw-bold"
-                                    for="shiftDay"
-                                >
-                                    <i class="bi bi-sun-fill me-1"></i> 주간
-                                    <div
-                                        class="small fw-normal opacity-75"
-                                        style="font-size: 0.75rem"
-                                    >
-                                        08:00 ~ 20:00
-                                    </div>
+
+                                <label for="shiftDay" class="mh-shift-card">
+                                    <i class="bi bi-sun-fill"></i>
+
+                                    <strong> Day Shift </strong>
+
+                                    <span> 08:00 ~ 20:00 </span>
                                 </label>
                             </div>
 
-                            <div class="col-6">
+                            <div class="mh-shift-option">
                                 <input
                                     type="radio"
-                                    class="btn-check"
                                     name="shift_type"
                                     id="shiftNight"
                                     value="NIGHT"
                                 />
-                                <label
-                                    class="btn btn-outline-dark w-100 py-3 rounded-3 border-2 fw-bold"
-                                    for="shiftNight"
-                                >
-                                    <i class="bi bi-moon-stars-fill me-1"></i>
-                                    야간
-                                    <div
-                                        class="small fw-normal opacity-75"
-                                        style="font-size: 0.75rem"
-                                    >
-                                        20:00 ~ 08:00
-                                    </div>
+
+                                <label for="shiftNight" class="mh-shift-card">
+                                    <i class="bi bi-moon-stars-fill"></i>
+
+                                    <strong> Night Shift </strong>
+
+                                    <span> 20:00 ~ 08:00 </span>
                                 </label>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row g-4 mb-3">
-                    <div class="col-md-6">
-                        <label
-                            class="form-label fw-bold text-dark small text-uppercase ls-1"
-                        >
-                            3. 항공기 기번 등록
+                    <!-- GIBUN -->
+
+                    <div class="mh-create-field">
+                        <label class="mh-create-label">
+                            <span class="mh-create-step"> 03 </span>
+
+                            항공 기번
                         </label>
 
                         <div id="gibunContainer" class="tag-input-container">
@@ -134,15 +161,16 @@
                                 type="text"
                                 id="gibunInput"
                                 class="tag-input-field"
-                                placeholder="기번 입력 후 엔터"
+                                placeholder="기번 입력 후 Enter"
                                 autocomplete="off"
                             />
+
                             <div id="gibunError" class="input-error-msg"></div>
                         </div>
 
-                        <div class="form-text small text-muted mt-1 ms-1">
+                        <div class="mh-create-help">
                             <i class="bi bi-info-circle me-1"></i>
-                            작업 대상 항공기를 모두 입력해주세요.
+                            작업 대상 항공기를 모두 입력하세요.
                         </div>
 
                         <input
@@ -152,50 +180,76 @@
                         />
                     </div>
 
-                    <div class="col-md-6">
-                        <label
-                            class="form-label fw-bold text-dark small text-uppercase ls-1"
-                        >
-                            4. 작업자 명단
+                    <!-- WORKERS -->
+
+                    <div class="mh-create-field">
+                        <label class="mh-create-label">
+                            <span class="mh-create-step"> 04 </span>
+
+                            작업자 명단
                         </label>
 
                         <textarea
                             id="workerNames"
                             name="worker_names"
-                            class="form-control bg-light border-0"
-                            rows="3"
                             placeholder="쉼표로 구분하여 입력하세요."
-                            style="resize: none"
                             required
                         ></textarea>
 
-                        <div class="form-text small text-muted mt-1 ms-1">
-                            <i class="bi bi-pencil-fill me-1"></i>
-                            쉼표로 구분하여 여러 명 입력 가능
+                        <div class="mh-create-help">
+                            <i class="bi bi-people me-1"></i>
+                            여러 명을 쉼표로 구분하여 입력할 수 있습니다.
                         </div>
                     </div>
-                </div>
 
-                <div class="d-grid gap-2 py-3">
-                    <div
-                        id="form_requirements"
-                        class="text-center text-danger small fw-bold mb-1 fade show"
-                    >
-                        <i class="bi bi-exclamation-circle me-1"></i>
-                        필수 항목을 모두 입력해주세요.
+                    <div class="mh-create-submit">
+                        <div id="form_requirements">
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            필수 항목을 모두 입력해주세요.
+                        </div>
+
+                        <button type="submit" id="submitBtn" disabled>
+                            <i class="bi bi-play-fill me-1"></i>
+                            세션 생성하기
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="mh-create-side">
+                <article class="mh-create-guide mh-create-guide-dark mh-create-session-guide">
+                    <div class="mh-create-guide-icon">
+                        <i class="bi bi-stopwatch"></i>
                     </div>
 
-                    <button
-                        type="submit"
-                        id="submitBtn"
-                        class="btn btn-primary btn-md py-3 rounded-4 fw-bold shadow-sm"
-                        disabled
-                    >
-                        🚀 작업 세션 생성하기
-                    </button>
-                </div>
-            </form>
+                    <h3>Manhour Session</h3>
+
+                    <p>
+                        Session 생성 후 등록된 작업자와 항공기를 기준으로 Work
+                        Item Assignment를 진행합니다.
+                    </p>
+                </article>
+
+                <article class="mh-create-guide">
+                    <div class="mh-create-guide-icon">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+
+                    <h3>Before Creating</h3>
+
+                    <ul>
+                        <li>Shift 시간을 먼저 확인하세요.</li>
+
+                        <li>항공 기번은 Enter로 등록합니다.</li>
+
+                        <li>동일 기번 사용 여부는 자동 확인됩니다.</li>
+
+                        <li>작업자 명단은 쉼표로 구분합니다.</li>
+                    </ul>
+                </article>
+            </aside>
         </div>
-    </div>
-</div>
+    </form>
+</main>
+
 {% endblock content %}

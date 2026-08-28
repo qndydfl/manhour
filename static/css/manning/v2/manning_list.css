@@ -1,0 +1,546 @@
+/* =========================================================
+   MANNING LIST V2
+========================================================= */
+
+.manning-list-hero {
+    margin-bottom: 28px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+
+.manning-list-label {
+    margin-bottom: 7px;
+
+    color: var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+}
+
+
+.manning-list-title {
+    margin: 0;
+
+    font-size: var(--font-size-page-title);
+
+    font-weight: 700;
+
+    letter-spacing: -0.045em;
+}
+
+
+.manning-primary-button {
+    min-height: 44px;
+
+    padding:
+        0 18px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    border-radius: 9px;
+
+    background:
+        var(--manning-blue);
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: var(--font-size-sm);
+
+    font-weight: 700;
+
+    transition: 0.18s ease;
+}
+
+
+.manning-primary-button:hover {
+    background:
+        var(--manning-blue-hover);
+
+    color: #ffffff;
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.manning-list-summary {
+    margin-bottom: 24px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+.manning-summary-card {
+    min-height: 104px;
+
+    padding:
+        19px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    border-radius:
+        var(--manning-radius);
+
+    background:
+        var(--manning-surface);
+
+    box-shadow:
+        0 5px 20px rgba(15, 23, 42, 0.035);
+}
+
+
+.manning-summary-card span {
+    display: block;
+
+    color:
+        var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+
+.manning-summary-card strong {
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 30px;
+
+    line-height: 1;
+
+    letter-spacing: -0.04em;
+}
+
+
+.manning-summary-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #f1f5f9;
+
+    color: var(--manning-text-2);
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   SESSION GRID
+========================================================= */
+
+.manning-session-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+.manning-session-card {
+    min-height: 285px;
+
+    padding: 22px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    border-radius:
+        var(--manning-radius);
+
+    background:
+        var(--manning-surface);
+
+    box-shadow:
+        0 6px 24px rgba(15, 23, 42, 0.04);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.manning-session-card:hover {
+    transform:
+        translateY(-4px);
+
+    border-color: #cfd7e2;
+
+    box-shadow:
+        0 16px 38px rgba(15, 23, 42, 0.08);
+}
+
+
+.manning-session-top {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+
+.manning-aircraft-badge {
+    padding:
+        6px 10px;
+
+    border-radius:
+        7px;
+
+    background:
+        #eff6ff;
+
+    color:
+        var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+
+    letter-spacing: 0.05em;
+}
+
+
+.manning-session-date {
+    color:
+        var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+
+.manning-session-body {
+    padding:
+        25px 0 22px;
+}
+
+
+.manning-session-type {
+    color:
+        var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+
+    letter-spacing: 0.14em;
+}
+
+
+.manning-session-name {
+    margin:
+        7px 0 15px;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.03em;
+}
+
+
+.manning-session-meta {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.manning-session-meta-item {
+    padding:
+        6px 9px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    border-radius: 7px;
+
+    background: #f8fafc;
+
+    color:
+        var(--manning-text-2);
+
+    font-size: var(--font-size-xs);
+}
+
+
+.manning-session-footer {
+    margin-top: auto;
+
+    padding-top: 17px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    border-top:
+        1px solid var(--manning-border-soft);
+}
+
+
+.manning-area-count {
+    color:
+        var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+
+.manning-session-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+
+    gap: 7px;
+}
+
+
+.manning-session-action {
+    min-height: 33px;
+
+    padding:
+        0 11px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    border:
+        1px solid var(--manning-border);
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color:
+        var(--manning-text);
+
+    text-decoration: none;
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 700;
+
+    transition: 0.16s ease;
+}
+
+
+.manning-session-action:hover {
+    background: #f8fafc;
+
+    color:
+        var(--manning-text);
+}
+
+
+.manning-session-action-primary {
+    border-color:
+        var(--manning-dark);
+
+    background:
+        var(--manning-dark);
+
+    color: #ffffff;
+}
+
+
+.manning-session-action-primary:hover {
+    background:
+        var(--manning-dark-2);
+
+    color: #ffffff;
+}
+
+
+.manning-session-action-danger {
+    color:
+        var(--manning-red);
+}
+
+
+.manning-delete-form {
+    display: inline-flex;
+
+    margin: 0;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.manning-empty {
+    grid-column:
+        1 / -1;
+
+    padding:
+        80px 30px;
+
+    border:
+        1px dashed #cbd5e1;
+
+    border-radius:
+        var(--manning-radius);
+
+    background:
+        rgba(255, 255, 255, 0.6);
+
+    text-align: center;
+}
+
+
+.manning-empty-icon {
+    width: 54px;
+    height: 54px;
+
+    margin:
+        0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: #f1f5f9;
+
+    font-size: 22px;
+}
+
+
+.manning-empty h3 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.manning-empty p {
+    margin:
+        8px 0 20px;
+
+    color:
+        var(--manning-text-3);
+
+    font-size: var(--font-size-sm);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .manning-session-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 760px) {
+
+    .manning-list-hero {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .manning-list-summary {
+        grid-template-columns: 1fr;
+    }
+
+
+    .manning-session-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .manning-session-footer {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .manning-session-actions {
+        justify-content: flex-start;
+    }
+
+}

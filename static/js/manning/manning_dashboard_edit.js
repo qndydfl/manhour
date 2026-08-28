@@ -1130,12 +1130,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (workerPanel) {
-        workerPanel.addEventListener("shown.bs.offcanvas", () => {
+        workerPanel.addEventListener("show.bs.offcanvas", () => {
             syncWorkerPanelWidth();
             document.body.classList.add("worker-panel-open");
         });
 
-        workerPanel.addEventListener("hidden.bs.offcanvas", () => {
+        workerPanel.addEventListener("hide.bs.offcanvas", () => {
             document.body.classList.remove("worker-panel-open");
         });
     }

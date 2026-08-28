@@ -1,487 +1,710 @@
-{% extends 'manning/base/manning_base.html' %} 
+{% extends 'manning/base/manning_v2_base.html' %}
 {% load static %} 
 
-{% block title %}템플릿 편집 | Manning{% endblock title %} 
+{% block title %} Template Configuration | Manning {% endblock title %}
+
+{% block nav_template_active %} active {% endblock nav_template_active %}
+
+{% block page_title %} Template Configuration {% endblock page_title %}
+
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/manning/manning_base.css' %}" />
+
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_components.css' %}"
+    href="{% static 'css/manning/v2/template_editor.css' %}"
 />
-<link rel="stylesheet" href="{% static 'css/manning/template_editor.css' %}" />
-{% endblock css %} 
 
-{% block js %}
-<script src="{% static 'js/manning/template_editor.js' %}"></script>
-{% endblock js %} 
+{% endblock css %} {% block js %}
 
-{% block content %}
-<div class="container glass-panel rounded-4 p-4">
-    <div
-        class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
-    >
+<script defer src="{% static 'js/manning/template_editor.js' %}"></script>
+
+{% endblock js %} {% block content %}
+
+<div class="template-editor-page">
+    <!-- =====================================================
+        HEADER
+    ====================================================== -->
+
+    <section class="template-editor-header">
         <div>
-            <h4 class="fw-bold mb-1">기본 구성 템플릿 편집</h4>
-            <p class="text-muted small mt-2 mb-0">
-                템플릿을 추가/수정/삭제할 수 있습니다.
+            <div class="template-editor-eyebrow">CONFIGURATION MANAGER</div>
+
+            <h2 class="template-editor-title">Area Templates</h2>
+
+            <p class="template-editor-description">
+                각 Area는 드래그하여 위치와 순서를 변경할 수 있습니다.
             </p>
         </div>
 
-        <a
-            href="{% url 'manning:create_session' %}"
-            class="btn btn-light rounded-pill px-3 fw-bold shadow-sm py-1"
-            style="font-size: 0.875rem"
-        >
-            <i class="bi bi-arrow-left me-1"></i> 세션 목록으로
-        </a>
-    </div>
+        <div class="template-editor-header-actions">
+            <a
+                href="{% url 'manning:manning_list' %}"
+                class="template-editor-header-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
 
-    <form method="post" class="card p-4 shadow-sm" id="templateEditorForm">
+                Sessions
+            </a>
+
+            <a
+                href="{% url 'manning:create_session' %}"
+                class="template-editor-header-btn"
+            >
+                <i class="bi bi-plus-lg"></i>
+
+                New Session
+            </a>
+        </div>
+    </section>
+
+    <!-- =====================================================
+        SUMMARY
+    ====================================================== -->
+
+    <section class="template-editor-summary">
+        <article class="template-summary-card">
+            <div>
+                <span> TOTAL TEMPLATES </span>
+
+                <strong> {{ templates|length }} </strong>
+            </div>
+
+            <div class="template-summary-icon">
+                <i class="bi bi-layout-text-window"></i>
+            </div>
+        </article>
+
+        <article class="template-summary-card">
+            <div>
+                <span> CONFIGURATION </span>
+
+                <strong style="font-size: 18px"> LEFT / NONE / RIGHT </strong>
+            </div>
+
+            <div class="template-summary-icon">
+                <i class="bi bi-columns-gap"></i>
+            </div>
+        </article>
+
+        <article class="template-summary-card">
+            <div>
+                <span> EDIT MODE </span>
+
+                <strong style="font-size: 18px"> DRAG & DROP </strong>
+            </div>
+
+            <div class="template-summary-icon">
+                <i class="bi bi-arrows-move"></i>
+            </div>
+        </article>
+    </section>
+
+    <!-- =====================================================
+        FORM
+    ====================================================== -->
+
+    <form method="post" id="templateEditorForm" class="template-editor-form">
         {% csrf_token %}
 
-        <h5 class="fw-bold mb-3">기존 템플릿</h5>
+        <!-- =================================================
+            EXISTING TEMPLATES
+        ================================================== -->
 
-        {% if templates %}
-        <div class="accordion template-accordion" id="templateAccordion">
-            {% for template in templates %}
-            <div
-                class="glass-panel accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden template-block"
-                data-template-id="{{ template.id }}"
-            >
-                <h2 class="accordion-header" id="heading-{{ template.id }}">
-                    <button
-                        class="accordion-button collapsed fw-semibold bg-transparent"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapse-{{ template.id }}"
-                        aria-expanded="false"
-                        aria-controls="collapse-{{ template.id }}"
-                    >
-                        <div
-                            class="w-100 d-flex flex-wrap justify-content-between align-items-center gap-2 pe-3"
+        <section>
+            <div class="template-editor-section-head">
+                <div>
+                    <span class="template-editor-section-label">
+                        EXISTING CONFIGURATIONS
+                    </span>
+
+                    <h3 class="template-editor-section-title">
+                        Current Templates
+                    </h3>
+                </div>
+
+                <p class="template-editor-section-note">
+                    변경 사항은 하단 Save Changes 버튼을 눌러 저장합니다.
+                </p>
+            </div>
+
+            {% if templates %}
+
+            <div class="accordion template-accordion" id="templateAccordion">
+                {% for template in templates %}
+
+                <article
+                    class="accordion-item template-block"
+                    data-template-id="{{ template.id }}"
+                >
+                    <!-- Hidden ID -->
+
+                    <input
+                        type="hidden"
+                        name="template_ids"
+                        value="{{ template.id }}"
+                    />
+
+                    <!-- HEADER -->
+
+                    <h2 class="accordion-header" id="heading-{{ template.id }}">
+                        <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse-{{ template.id }}"
+                            aria-expanded="false"
+                            aria-controls="collapse-{{ template.id }}"
                         >
-                            <div class="d-flex flex-column text-start">
-                                <span class="fw-bold"
-                                    >{{ template.label }}</span
-                                >
-                                <small class="text-muted">
-                                    Key: {{ template.key }} · Order: {{ template.sort_order }}
-                                </small>
-                            </div>
-
-                            <div class="text-muted small text-end">
-                                LEFT / NONE / RIGHT 편집
-                            </div>
-                        </div>
-                    </button>
-                </h2>
-
-                <div
-                    id="collapse-{{ template.id }}"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="heading-{{ template.id }}"
-                    data-bs-parent="#templateAccordion"
-                >
-                    <div class="accordion-body">
-                        <input
-                            type="hidden"
-                            name="template_ids"
-                            value="{{ template.id }}"
-                        />
-
-                        <div class="row g-2 align-items-center">
-                            <div class="col-md-3">
-                                <label class="form-label small">Key</label>
-                                <input
-                                    type="text"
-                                    name="template_key_{{ template.id }}"
-                                    class="form-control form-control-sm"
-                                    value="{{ template.key }}"
-                                    required
-                                />
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label small">라벨</label>
-                                <input
-                                    type="text"
-                                    name="template_label_{{ template.id }}"
-                                    class="form-control form-control-sm"
-                                    value="{{ template.label }}"
-                                    required
-                                />
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label small">순서</label>
-                                <input
-                                    type="number"
-                                    name="template_order_{{ template.id }}"
-                                    class="form-control form-control-sm"
-                                    value="{{ template.sort_order }}"
-                                    min="0"
-                                />
-                            </div>
-
-                            <div class="col-md-3 d-flex align-items-end">
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input template-delete-check"
-                                        type="checkbox"
-                                        name="template_delete_ids"
-                                        value="{{ template.id }}"
-                                        id="delete-template-{{ template.id }}"
-                                    />
-                                    <label
-                                        class="form-check-label"
-                                        for="delete-template-{{ template.id }}"
-                                    >
-                                        삭제
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 template-dnd">
                             <div
-                                class="d-flex align-items-center justify-content-between flex-wrap gap-2"
+                                class="w-100 d-flex align-items-center justify-content-between gap-3 pe-3"
                             >
-                                <label class="form-label small mb-0"
-                                    >드래그 편집</label
-                                >
-                                <small class="text-muted"
-                                    >드래그 후 자동 반영됩니다.</small
-                                >
-                            </div>
+                                <div class="template-block-title">
+                                    <div class="template-block-icon">
+                                        <i class="bi bi-grid-3x3-gap"></i>
+                                    </div>
 
-                            <div class="dnd-warning"></div>
+                                    <div class="template-block-title-copy">
+                                        <strong> {{ template.label }} </strong>
 
-                            <div class="row g-2 mt-1">
-                                <div
-                                    class="col-md-4 dnd-column"
-                                    data-position="LEFT"
-                                >
-                                    <div class="dnd-header">LEFT</div>
-                                    <div
-                                        class="dnd-list"
-                                        data-position="LEFT"
-                                    ></div>
-                                    <div class="dnd-add">
-                                        <input
-                                            type="text"
-                                            class="form-control form-control-sm dnd-input"
-                                            placeholder="항목 추가"
-                                        />
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-light dnd-btn"
-                                        >
-                                            +
-                                        </button>
+                                        <small>
+                                            Key: {{ template.key }} · Order: {{ template.sort_order }}
+                                        </small>
                                     </div>
                                 </div>
 
-                                <div
-                                    class="col-md-4 dnd-column"
-                                    data-position="NONE"
-                                >
-                                    <div class="dnd-header">NONE</div>
-                                    <div
-                                        class="dnd-list"
-                                        data-position="NONE"
-                                    ></div>
-                                    <div class="dnd-add">
-                                        <input
-                                            type="text"
-                                            class="form-control form-control-sm dnd-input"
-                                            placeholder="항목 추가"
-                                        />
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-light dnd-btn"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="col-md-4 dnd-column"
-                                    data-position="RIGHT"
-                                >
-                                    <div class="dnd-header">RIGHT</div>
-                                    <div
-                                        class="dnd-list"
-                                        data-position="RIGHT"
-                                    ></div>
-                                    <div class="dnd-add">
-                                        <input
-                                            type="text"
-                                            class="form-control form-control-sm dnd-input"
-                                            placeholder="항목 추가"
-                                        />
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-light dnd-btn"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
+                                <div class="template-block-side">
+                                    LEFT / NONE / RIGHT
                                 </div>
                             </div>
-                        </div>
+                        </button>
+                    </h2>
 
-                        <div class="mt-3">
-                            <label class="form-label small"
-                                >구역 목록 (컬럼별로 한 줄에 하나)</label
-                            >
-                            <div class="row g-2">
-                                <div class="col-md-4">
-                                    <label class="form-label small">LEFT</label>
-                                    <textarea
-                                        name="template_left_items_{{ template.id }}"
-                                        class="form-control template-items"
-                                        data-position="LEFT"
-                                        rows="6"
-                                    >
-{{ template.left_items_text|default_if_none:"" }}</textarea
-                                    >
-                                </div>
+                    <!-- BODY -->
 
-                                <div class="col-md-4">
-                                    <label class="form-label small">NONE</label>
-                                    <textarea
-                                        name="template_none_items_{{ template.id }}"
-                                        class="form-control template-items"
-                                        data-position="NONE"
-                                        rows="6"
-                                    >
-{{ template.none_items_text|default_if_none:"" }}</textarea
-                                    >
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label small"
-                                        >RIGHT</label
-                                    >
-                                    <textarea
-                                        name="template_right_items_{{ template.id }}"
-                                        class="form-control template-items"
-                                        data-position="RIGHT"
-                                        rows="6"
-                                    >
-{{ template.right_items_text|default_if_none:"" }}</textarea
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-muted">등록된 템플릿이 없습니다.</p>
-        {% endif %}
-
-        <h5 class="fw-bold mt-4 mb-3">새 템플릿 추가</h5>
-
-        <div class="accordion new-template-accordion" id="newTemplateAccordion">
-            <div
-                class="accordion-item border-0 shadow-sm rounded-3 overflow-hidden template-block"
-                data-template-id="new"
-            >
-                <h2 class="accordion-header" id="heading-new-template">
-                    <button
-                        class="accordion-button collapsed fw-semibold"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapse-new-template"
-                        aria-expanded="false"
-                        aria-controls="collapse-new-template"
+                    <div
+                        id="collapse-{{ template.id }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="heading-{{ template.id }}"
+                        data-bs-parent="#templateAccordion"
                     >
-                        새 템플릿 추가
-                    </button>
-                </h2>
+                        <div class="accordion-body">
+                            <!-- =====================
+                                        META
+                                    ====================== -->
 
-                <div
-                    id="collapse-new-template"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="heading-new-template"
-                >
-                    <div class="accordion-body">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-md-3">
-                                <label class="form-label small">Key</label>
-                                <input
-                                    type="text"
-                                    name="new_template_key"
-                                    class="form-control form-control-sm"
-                                    placeholder="예: lubrication"
-                                />
+                            <div class="template-meta-grid">
+                                <div class="template-field">
+                                    <label> TEMPLATE KEY </label>
+
+                                    <input
+                                        type="text"
+                                        name="template_key_{{ template.id }}"
+                                        value="{{ template.key }}"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="template-field">
+                                    <label> DISPLAY LABEL </label>
+
+                                    <input
+                                        type="text"
+                                        name="template_label_{{ template.id }}"
+                                        value="{{ template.label }}"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="template-field">
+                                    <label> SORT ORDER </label>
+
+                                    <input
+                                        type="number"
+                                        name="template_order_{{ template.id }}"
+                                        value="{{ template.sort_order }}"
+                                        min="0"
+                                    />
+                                </div>
+
+                                <div class="template-field">
+                                    <label> DELETE </label>
+
+                                    <div class="template-delete-wrap">
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input template-delete-check"
+                                                type="checkbox"
+                                                name="template_delete_ids"
+                                                value="{{ template.id }}"
+                                                id="delete-template-{{ template.id }}"
+                                            />
+
+                                            <label
+                                                class="form-check-label"
+                                                for="delete-template-{{ template.id }}"
+                                            >
+                                                Delete Template
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label small">라벨</label>
-                                <input
-                                    type="text"
-                                    name="new_template_label"
-                                    class="form-control form-control-sm"
-                                    placeholder="예: Lubrication"
-                                />
-                            </div>
+                            <!-- =====================
+                                        DND
+                                    ====================== -->
 
-                            <div class="col-md-2">
-                                <label class="form-label small">순서</label>
-                                <input
-                                    type="number"
-                                    name="new_template_order"
-                                    class="form-control form-control-sm"
-                                    value="0"
-                                    min="0"
-                                />
-                            </div>
-                        </div>
+                            <section class="template-dnd">
+                                <div class="template-dnd-toolbar">
+                                    <strong> Visual Area Editor </strong>
 
-                        <div class="mt-3 template-dnd">
-                            <div
-                                class="d-flex align-items-center justify-content-between flex-wrap gap-2"
-                            >
-                                <label class="form-label small mb-0"
-                                    >드래그 편집</label
-                                >
-                                <small class="text-muted"
-                                    >드래그 후 자동 반영됩니다.</small
-                                >
-                            </div>
+                                    <span>
+                                        Drag an item to another column to move
+                                        it.
+                                    </span>
+                                </div>
 
-                            <div class="dnd-warning"></div>
+                                <div class="dnd-warning"></div>
 
-                            <div class="row g-2 mt-1">
-                                <div
-                                    class="col-md-4 dnd-column"
-                                    data-position="LEFT"
-                                >
-                                    <div class="dnd-header">LEFT</div>
+                                <div class="template-position-grid">
+                                    <!-- LEFT -->
+
                                     <div
-                                        class="dnd-list"
+                                        class="dnd-column"
                                         data-position="LEFT"
-                                    ></div>
-                                    <div class="dnd-add">
-                                        <input
-                                            type="text"
-                                            class="form-control form-control-sm dnd-input"
-                                            placeholder="항목 추가"
-                                        />
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-light dnd-btn"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="col-md-4 dnd-column"
-                                    data-position="NONE"
-                                >
-                                    <div class="dnd-header">NONE</div>
-                                    <div
-                                        class="dnd-list"
-                                        data-position="NONE"
-                                    ></div>
-                                    <div class="dnd-add">
-                                        <input
-                                            type="text"
-                                            class="form-control form-control-sm dnd-input"
-                                            placeholder="항목 추가"
-                                        />
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-light dnd-btn"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="col-md-4 dnd-column"
-                                    data-position="RIGHT"
-                                >
-                                    <div class="dnd-header">RIGHT</div>
-                                    <div
-                                        class="dnd-list"
-                                        data-position="RIGHT"
-                                    ></div>
-                                    <div class="dnd-add">
-                                        <input
-                                            type="text"
-                                            class="form-control form-control-sm dnd-input"
-                                            placeholder="항목 추가"
-                                        />
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-light dnd-btn"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="form-label small"
-                                >구역 목록 (컬럼별로 한 줄에 하나)</label
-                            >
-                            <div class="row g-2">
-                                <div class="col-md-4">
-                                    <label class="form-label small">LEFT</label>
-                                    <textarea
-                                        name="new_template_left_items"
-                                        class="form-control template-items"
-                                        data-position="LEFT"
-                                        rows="6"
-                                        placeholder="Section Leader"
-                                    ></textarea>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label small">NONE</label>
-                                    <textarea
-                                        name="new_template_none_items"
-                                        class="form-control template-items"
-                                        data-position="NONE"
-                                        rows="6"
-                                        placeholder="COORDINATOR"
-                                    ></textarea>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label small"
-                                        >RIGHT</label
                                     >
-                                    <textarea
-                                        name="new_template_right_items"
-                                        class="form-control template-items"
+                                        <div class="dnd-header">LEFT</div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="LEFT"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                                aria-label="Add LEFT area"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- NONE -->
+
+                                    <div
+                                        class="dnd-column"
+                                        data-position="NONE"
+                                    >
+                                        <div class="dnd-header">
+                                            CENTER / NONE
+                                        </div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="NONE"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                                aria-label="Add NONE area"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- RIGHT -->
+
+                                    <div
+                                        class="dnd-column"
                                         data-position="RIGHT"
-                                        rows="6"
-                                        placeholder="ENG3"
-                                    ></textarea>
+                                    >
+                                        <div class="dnd-header">RIGHT</div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="RIGHT"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                                aria-label="Add RIGHT area"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </section>
+
+                            <!-- =====================
+                                        RAW TEXT
+                                    ====================== -->
+
+                            <section class="template-raw-section">
+                                <div class="template-raw-title">
+                                    <strong> Raw Area List </strong>
+
+                                    <span> One area per line </span>
+                                </div>
+
+                                <div class="template-text-grid">
+                                    <div class="template-text-field">
+                                        <label> LEFT </label>
+
+                                        <textarea
+                                            name="template_left_items_{{ template.id }}"
+                                            class="template-items"
+                                            data-position="LEFT"
+                                            rows="6"
+                                        >
+                                        {{ template.left_items_text|default_if_none:"" }}
+                                        </textarea>
+                                    </div>
+
+                                    <div class="template-text-field">
+                                        <label> CENTER / NONE </label>
+
+                                        <textarea
+                                            name="template_none_items_{{ template.id }}"
+                                            class="template-items"
+                                            data-position="NONE"
+                                            rows="6"
+                                        >
+                                        {{ template.none_items_text|default_if_none:"" }}
+                                        </textarea>
+                                    </div>
+
+                                    <div class="template-text-field">
+                                        <label> RIGHT </label>
+
+                                        <textarea
+                                            name="template_right_items_{{ template.id }}"
+                                            class="template-items"
+                                            data-position="RIGHT"
+                                            rows="6"
+                                        >
+                                        {{ template.right_items_text|default_if_none:"" }}
+                                        </textarea>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                </article>
 
-        <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn btn-primary">저장</button>
+                {% endfor %}
+            </div>
+
+            {% else %}
+
+            <div class="template-editor-empty">
+                <i class="bi bi-layout-text-window d-block fs-3 mb-3"></i>
+
+                등록된 Area Template이 없습니다.
+            </div>
+
+            {% endif %}
+        </section>
+
+        <!-- =================================================
+            NEW TEMPLATE
+        ================================================== -->
+
+        <section>
+            <div class="template-editor-section-head">
+                <div>
+                    <span class="template-editor-section-label">
+                        NEW CONFIGURATION
+                    </span>
+
+                    <h3 class="template-editor-section-title">Add Template</h3>
+                </div>
+
+                <p class="template-editor-section-note">
+                    필요한 경우 새로운 Area Template을 추가합니다.
+                </p>
+            </div>
+
+            <div
+                class="accordion new-template-accordion"
+                id="newTemplateAccordion"
+            >
+                <article
+                    class="accordion-item template-block new-template-block"
+                    data-template-id="new"
+                >
+                    <h2 class="accordion-header" id="heading-new-template">
+                        <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse-new-template"
+                            aria-expanded="false"
+                            aria-controls="collapse-new-template"
+                        >
+                            <div class="template-block-title">
+                                <div class="template-block-icon">
+                                    <i class="bi bi-plus-lg"></i>
+                                </div>
+
+                                <div class="template-block-title-copy">
+                                    <strong> Create New Template </strong>
+
+                                    <small>
+                                        Add a new maintenance area configuration
+                                    </small>
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+
+                    <div
+                        id="collapse-new-template"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="heading-new-template"
+                    >
+                        <div class="accordion-body">
+                            <!-- META -->
+
+                            <div class="template-meta-grid">
+                                <div class="template-field">
+                                    <label> TEMPLATE KEY </label>
+
+                                    <input
+                                        type="text"
+                                        name="new_template_key"
+                                        placeholder="e.g. lubrication"
+                                    />
+                                </div>
+
+                                <div class="template-field">
+                                    <label> DISPLAY LABEL </label>
+
+                                    <input
+                                        type="text"
+                                        name="new_template_label"
+                                        placeholder="e.g. Lubrication"
+                                    />
+                                </div>
+
+                                <div class="template-field">
+                                    <label> SORT ORDER </label>
+
+                                    <input
+                                        type="number"
+                                        name="new_template_order"
+                                        value="0"
+                                        min="0"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- DND -->
+
+                            <section class="template-dnd">
+                                <div class="template-dnd-toolbar">
+                                    <strong> Visual Area Editor </strong>
+
+                                    <span>
+                                        Create areas and move them between
+                                        columns.
+                                    </span>
+                                </div>
+
+                                <div class="dnd-warning"></div>
+
+                                <div class="template-position-grid">
+                                    <!-- LEFT -->
+
+                                    <div
+                                        class="dnd-column"
+                                        data-position="LEFT"
+                                    >
+                                        <div class="dnd-header">LEFT</div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="LEFT"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- NONE -->
+
+                                    <div
+                                        class="dnd-column"
+                                        data-position="NONE"
+                                    >
+                                        <div class="dnd-header">
+                                            CENTER / NONE
+                                        </div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="NONE"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- RIGHT -->
+
+                                    <div
+                                        class="dnd-column"
+                                        data-position="RIGHT"
+                                    >
+                                        <div class="dnd-header">RIGHT</div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="RIGHT"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- RAW TEXT -->
+
+                            <section class="template-raw-section">
+                                <div class="template-raw-title">
+                                    <strong> Raw Area List </strong>
+
+                                    <span> One area per line </span>
+                                </div>
+
+                                <div class="template-text-grid">
+                                    <div class="template-text-field">
+                                        <label> LEFT </label>
+
+                                        <textarea
+                                            name="new_template_left_items"
+                                            class="template-items"
+                                            data-position="LEFT"
+                                            rows="6"
+                                            placeholder="Section Leader"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="template-text-field">
+                                        <label> CENTER / NONE </label>
+
+                                        <textarea
+                                            name="new_template_none_items"
+                                            class="template-items"
+                                            data-position="NONE"
+                                            rows="6"
+                                            placeholder="COORDINATOR"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="template-text-field">
+                                        <label> RIGHT </label>
+
+                                        <textarea
+                                            name="new_template_right_items"
+                                            class="template-items"
+                                            data-position="RIGHT"
+                                            rows="6"
+                                            placeholder="ENG3"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- =================================================
+            SAVE
+        ================================================== -->
+
+        <div class="template-editor-savebar">
+            <div class="template-save-info">
+                <i class="bi bi-info-circle"></i>
+
+                <span>
+                    기존 Template 수정, 삭제 및 새 Template 추가가 한 번에
+                    저장됩니다.
+                </span>
+            </div>
+
+            <button type="submit" class="template-save-btn">
+                <i class="bi bi-check2 me-1"></i>
+
+                Save Changes
+            </button>
         </div>
     </form>
 </div>
+
 {% endblock content %}

@@ -1,224 +1,248 @@
-{% extends "manhour/base/base.html" %} 
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
-{% block title %}배정 요약 | manhour System{% endblock title %} 
-
+{% block title %} Assignment Time View {% endblock title %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/assigned_summary.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1" />
 {% endblock css %} 
 
-{% block script %}
-<script src="{% static 'js/assigned_summary.js' %}"></script>
-{% endblock script %} 
-
-{% comment %} {% block background_image %} {% include
-"manhour/image/background_url.html" with bg_key="session_list"
-bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
-background_image %} {% endcomment %} 
-
 {% block content %}
-<div class="container rounded-3" style="max-width: 1000px">
-    <div class="d-flex align-items-center mb-3 px-2" data-aos="fade-down">
-        <h4 class="fw-bold text-white my-3">📅 배정 현황 요약</h4>
-        <div
-            class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end"
+
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a
+            href="{% url 'manhour:assigned_summary' session.id %}"
+            class="assignment-brand"
         >
+            <div class="assignment-brand-icon">
+                <i class="bi bi-calendar-range"></i>
+            </div>
+
+            <div>
+                <strong>TIME VIEW</strong>
+                <span>Worker Assignment Overview</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
-                href="{% if request.GET.from == 'session_list' %}{% url 'manhour:session_list' %}{% elif not session.is_active %}{% url 'manhour:index' %}{% else %}{% url 'manhour:result_view' session.id %}{% endif %}"
-                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
+                href="
+                    {% if request.GET.from == 'session_list' %}
+                        {% url 'manhour:session_list' %}
+                    {% elif not session.is_active %}
+                        {% url 'manhour:history' %}
+                    {% else %}
+                        {% url 'manhour:result_view' session.id %}
+                    {% endif %}
+                "
+                class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
+                <span>Assignment</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
             </a>
         </div>
     </div>
+</header>
 
-    <div
-        class="alert border-0 d-flex align-items-center gap-2 small text-dark mb-3 py-3 shadow-sm"
-        data-aos="fade-in"
-    >
-        <span class="badge bg-primary btn-sm rounded-pill px-3 py-2">
-            총 인원: {{ workers_schedule|length }}명
-        </span>
-        <i class="bi bi-info-circle-fill text-primary fs-5"></i>
-        <span class="text-white fw-bold">
-            직비가 근무 한도를 초과하면&nbsp;
-            <strong class="text-danger">Overload</strong> 상태가 됩니다.
+<main class="mh-page mh-assigned-summary-page">
+    <section class="mh-page-header mh-page-header-summary">
+        <div>
+            <div class="mh-eyebrow">WORKER CAPACITY</div>
+
+            <h1 class="mh-page-title">배정 현황</h1>
+
+            <p class="mh-page-desc">
+                작업자별 직비·간비 Manhour와 근무 한도, 작업 건수를 확인합니다.
+            </p>
+        </div>
+
+        <div class="mh-compact-summary" aria-label="Assignment summary">
+            <div class="mh-compact-stat">
+                <div class="mh-compact-stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <span>TOTAL WORKERS</span>
+                    <strong>{{ workers_schedule|length }}</strong>
+                </div>
+            </div>
+
+            <div class="mh-compact-stat">
+                <div class="mh-compact-stat-icon">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <div>
+                    <span>SESSION</span>
+                    <strong
+                        class="{% if session.is_active %}is-active{% endif %}"
+                    >
+                        {% if session.is_active %} ACTIVE {% else %} COMPLETED {% endif %}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="mh-compact-stat mh-compact-stat-limit">
+                <div class="mh-compact-stat-icon">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div>
+                    <span>WORK LIMIT</span>
+                    <strong class="mh-work-limit-wide">DAY 10.5 / NIGHT 11.0</strong>
+                    <strong class="mh-work-limit-phone">10.5 / 11.0</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="mh-summary-notice">
+        <i class="bi bi-info-circle"></i>
+
+        <span>
+            직비가 근무 한도를 초과하면
+            <strong style="color: #dc2626"> Overload </strong>
+            상태로 표시됩니다.
         </span>
     </div>
 
-    <div
-        class="card border-0 shadow-lg overflow-hidden mb-3"
-        data-aos="fade-up"
-    >
-        <div class="table-responsive">
-            <table class="table table-hover align-middle summary-table mb-0">
-                <thead class="bg-opacity-50 p-0">
-                    <tr class="text-center">
-                        <th style="width: 25%" class="text-white">작업자 / 근무조</th>
-                        <th style="width: 8%" class="text-white">건수</th>
-                        <th style="width: 12%" class="text-white">상태</th>
-                        <th style="width: 30%" class="text-white">M/H 진행률</th>
-                        <th style="width: 25%" class="text-white">상세보기</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for w in workers_schedule %}
-                    <tr
-                        class="hover-row {% if w.is_overload %}summary-overload-row{% endif %}"
-                    >
-                        <td class="text-center">
-                            <div
-                                class="d-flex align-items-center justify-content-center gap-2 flex-wrap"
-                            >
-                                <div class="fw-bold text-dark text-center">
-                                    {{ w.worker_name }}
-                                </div>
+    <section class="mh-worker-table-wrap">
+        <table class="mh-worker-table">
+            <thead>
+                <tr>
+                    <th style="width: 24%">WORKER / SHIFT</th>
 
-                                {% if w.is_night %}
-                                <span
-                                    class="badge bg-dark rounded-pill ms-1 worker-shift-badge"
-                                    style="font-size: 0.7em"
-                                >
-                                    야간
-                                </span>
-                                {% else %}
-                                <span
-                                    class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill ms-1 worker-shift-badge"
-                                    style="font-size: 0.7em"
-                                >
-                                    주간
-                                </span>
-                                {% endif %}
-                            </div>
-                        </td>
+                    <th style="width: 8%">TASKS</th>
 
-                        <td class="text-center">
-                            <span class="fw-bold text-secondary">
-                                {{ w.task_count }}
-                            </span>
-                        </td>
+                    <th style="width: 12%">STATUS</th>
 
-                        <td class="text-center">
-                            {% if w.is_overload %}
-                            <span
-                                class="badge bg-danger rounded-pill shadow-sm status-badge"
-                            >
-                                Overload
-                            </span>
-                            {% else %}
-                            <span
-                                class="badge bg-success bg-opacity-75 text-white rounded-pill shadow-sm status-badge"
-                            >
-                                Normal
-                            </span>
-                            {% endif %}
-                        </td>
+                    <th style="width: 36%">M/H</th>
 
-                        <td>
-                            <div class="d-flex flex-column gap-2">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="flex-grow-1">
-                                        <div
-                                            class="progress bg-dark bg-opacity-10"
-                                            style="
-                                                height: 10px;
-                                                border-radius: 5px;
-                                            "
-                                        >
-                                            <div
-                                                class="progress-bar bg-primary"
-                                                role="progressbar"
-                                                style="width: {{ w.direct_ratio|default:0 }}%"
-                                                aria-valuenow="{{ w.direct_ratio|default:0 }}"
-                                                aria-valuemin="0"
-                                                aria-valuemax="100"
-                                            ></div>
-                                            <div
-                                                class="progress-bar bg-warning"
-                                                role="progressbar"
-                                                style="width: {{ w.kanbi_ratio|default:0 }}%"
-                                                aria-valuenow="{{ w.kanbi_ratio|default:0 }}"
-                                                aria-valuemin="0"
-                                                aria-valuemax="100"
-                                            ></div>
-                                        </div>
-                                    </div>
+                    <th style="width: 20%">DETAIL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for w in workers_schedule %}
+
+                <tr
+                    {% if w.is_overload %}
+                    class="summary-overload-row"
+                    {% endif %}
+                >
+                    <td class="text-center">
+                        <div class="mh-worker-name">{{ w.worker_name }}</div>
+
+                        {% if w.is_night %}
+
+                        <span
+                            class="mh-shift mh-shift-night mt-1 d-inline-flex"
+                        >
+                            NIGHT
+                        </span>
+
+                        {% else %}
+
+                        <span class="mh-shift mh-shift-day mt-1 d-inline-flex">
+                            DAY
+                        </span>
+
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        <strong> {{ w.task_count }} </strong>
+                    </td>
+
+                    <td class="text-center">
+                        {% if w.is_overload %}
+
+                        <span class="mh-worker-status mh-status-overload">
+                            OVERLOAD
+                        </span>
+
+                        {% else %}
+
+                        <span class="mh-worker-status mh-status-normal">
+                            NORMAL
+                        </span>
+
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <div class="mh-progress">
+                                    <div
+                                        class="mh-progress-direct"
+                                        style="width:{{ w.direct_ratio|default:0 }}%;"
+                                    ></div>
 
                                     <div
-                                        class="text-center"
-                                        style="min-width: 3.8rem"
-                                    >
-                                        <span
-                                            class="fw-bold {% if w.is_overload %}text-danger{% else %}text-dark{% endif %}"
-                                        >
-                                            {{ w.total_mh|floatformat:1 }}
-                                        </span>
-                                        <span
-                                            class="text-muted"
-                                            style="font-size: 0.8rem"
-                                        >
-                                            / {% if w.is_night %}11.0{% else %}10.5{% endif %}
-                                        </span>
-                                    </div>
+                                        class="mh-progress-indirect"
+                                        style="width:{{ w.kanbi_ratio|default:0 }}%;"
+                                    ></div>
                                 </div>
 
-                                <div
-                                    class="d-flex justify-content-end gap-3 small text-muted flex-wrap"
-                                >
+                                <div class="mh-progress-legend">
                                     <span>
-                                        <i
-                                            class="bi bi-square-fill text-primary me-1"
-                                        ></i>
-                                        직비 {{ w.direct_mh|floatformat:1 }}
+                                        Direct {{ w.direct_mh|floatformat:1 }}
                                     </span>
+
                                     <span>
-                                        <i
-                                            class="bi bi-square-fill text-warning me-1"
-                                        ></i>
-                                        간비 {{ w.kanbi_mh|floatformat:1 }}
+                                        Indirect {{ w.kanbi_mh|floatformat:1 }}
                                     </span>
                                 </div>
                             </div>
-                        </td>
 
-                        <td class="text-center">
-                            <div
-                                class="d-flex justify-content-center gap-2 flex-wrap"
-                            >
-                                <a
-                                    href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
-                                    class="btn btn-outline-secondary btn-sm rounded-pill py-2 px-2 fw-bold"
-                                >
-                                    <i class="bi bi-calendar-check me-1"></i>
-                                    <span class="d-none d-md-inline">
-                                    개인 시간표 
-                                    </span>
-                                    {% if not session.is_active %}
-                                    <span
-                                        class="badge text-bg-secondary ms-2"
-                                        style="font-size: 0.65rem"
-                                    >
-                                        작업 완료
-                                    </span>
+                            <div class="text-end">
+                                <strong
+                                    {% if w.is_overload %}
+                                    style="color: #dc2626"
                                     {% endif %}
-                                </a>
+                                >
+                                    {{ w.total_mh|floatformat:1 }}
+                                </strong>
+
+                                <span style="color: #94a3b8">
+                                    / {% if w.is_night %} 11.0 {% else %} 10.5
+                                    {% endif %}
+                                </span>
                             </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i
-                                class="bi bi-people fs-1 d-block mb-3 opacity-25"
-                            ></i>
-                            배정된 작업자가 없습니다.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                        </div>
+                    </td>
+
+                    <td class="text-center">
+                        <div
+                            class="d-flex justify-content-center gap-2 flex-wrap"
+                        >
+                            <a
+                                href="{% url 'manhour:personal_schedule' session.id %}?worker_id={{ w.worker.id }}"
+                                class="mh-btn"
+                            >
+                                <i class="bi bi-calendar-check"></i>
+                                개인 시간표
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        배정된 작업자가 없습니다.
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</main>
+
 {% endblock content %}

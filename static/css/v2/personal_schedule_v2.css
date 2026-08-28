@@ -1,0 +1,332 @@
+/* =========================================================
+   PERSONAL SCHEDULE V2
+========================================================= */
+
+.personal-v2-page {
+    width: min(1250px, calc(100% - 56px));
+    max-width: none !important;
+    margin: 0 auto;
+    padding: 38px 0 70px;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.personal-v2-header {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 27px;
+    overflow: hidden;
+    border-radius: 17px;
+    background:
+        radial-gradient(
+            circle at 90% 15%,
+            rgba(37,99,235,.25),
+            transparent 28%
+        ),
+        linear-gradient(135deg, #07111f, #0b1729);
+    color: #ffffff;
+}
+
+.personal-v2-header-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.personal-v2-eyebrow {
+    margin-bottom: 7px;
+    color: #60a5fa;
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+    letter-spacing: .17em;
+}
+
+.personal-v2-name {
+    margin: 0;
+    font-size: var(--font-size-page-title);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+}
+
+.personal-v2-sub {
+    margin-top: 7px;
+    color: #94a3b8;
+    font-size: var(--font-size-sm);
+}
+
+.personal-v2-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.personal-v2-header-tools {
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+}
+
+.personal-v2-header-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.personal-v2-header-stat {
+    min-height: 45px;
+    padding: 7px 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.personal-v2-header-stat > i {
+    color: #60a5fa;
+    font-size: 15px;
+}
+
+.personal-v2-header-stat span,
+.personal-v2-header-stat strong {
+    display: block;
+    white-space: nowrap;
+}
+
+.personal-v2-header-stat span {
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.personal-v2-header-stat strong {
+    margin-top: 1px;
+    color: #ffffff;
+    font-size: var(--font-size-sm);
+    letter-spacing: normal;
+}
+
+.personal-v2-btn {
+    min-height: 38px;
+    padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 8px;
+    background: rgba(255,255,255,.07);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.personal-v2-btn:hover {
+    background: rgba(255,255,255,.13);
+    color: #ffffff;
+}
+
+.personal-v2-btn-primary {
+    border-color: #2563eb;
+    background: #2563eb;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.personal-v2-table-card {
+    overflow: hidden;
+    border: 1px solid #edf1f5;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 5px 22px rgba(15,23,42,.04);
+}
+
+#scheduleTable {
+    width: 100%;
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+#scheduleTable thead th {
+    padding: 12px;
+    background: #f8fafc;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+    letter-spacing: .05em;
+}
+
+#scheduleTable tbody td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #edf1f5;
+    background: #ffffff;
+    color: #0f172a;
+}
+
+#scheduleTable tbody tr:hover td {
+    background: #f8fbff;
+}
+
+#scheduleTable .row-break td {
+    background: #fffbeb;
+}
+
+#scheduleTable .row-break .personal-v2-indirect-code {
+    color: #b45309;
+    font-weight: 800;
+}
+
+#scheduleTable .personal-v2-empty-cell {
+    user-select: text;
+}
+
+#scheduleTable .personal-v2-empty-copy {
+    width: 100%;
+    min-height: 1em;
+    display: block;
+    overflow: hidden;
+    color: transparent;
+    cursor: text;
+    letter-spacing: 1em;
+    line-height: 1.2;
+    white-space: nowrap;
+    user-select: text;
+}
+
+#scheduleTable .personal-v2-empty-copy::selection {
+    background: #0d6efd;
+    color: transparent;
+}
+
+.personal-v2-table-footer {
+    padding: 12px 15px;
+    background: #f8fafc;
+    color: #64748b;
+    text-align: center;
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.personal-v2-empty {
+    padding: 70px 25px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 15px;
+    background: rgba(255,255,255,.7);
+    text-align: center;
+}
+
+.personal-v2-empty i {
+    font-size: 30px;
+    color: #94a3b8;
+}
+
+.personal-v2-empty h3 {
+    margin: 14px 0 6px;
+    font-size: 15px;
+}
+
+.personal-v2-empty p {
+    color: #94a3b8;
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   MANUAL INPUT MODAL
+========================================================= */
+
+#manualInputModal .modal-content,
+#duplicateTimeModal .modal-content {
+    overflow: hidden;
+    border: 0 !important;
+    border-radius: 15px !important;
+    box-shadow: 0 20px 60px rgba(15,23,42,.16) !important;
+}
+
+#manualInputModal .modal-header {
+    padding: 17px 20px;
+    background: #07111f !important;
+}
+
+#manualInputModal .modal-body {
+    background: #ffffff;
+}
+
+#worker-checkbox-area {
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+
+.manual-input-card {
+    border-color: #edf1f5 !important;
+    border-radius: 11px !important;
+    overflow: hidden;
+}
+
+#modal-rows-body input {
+    min-height: 34px;
+    border: 1px solid #dce3eb;
+    border-radius: 7px;
+    font-size: var(--font-size-xs);
+}
+
+#btn-add-row {
+    border-style: dashed !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 720px) {
+    .personal-v2-page {
+        width: calc(100% - 28px);
+    }
+
+    .personal-v2-header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .personal-v2-header-tools {
+        width: 100%;
+        justify-items: stretch;
+    }
+
+    .personal-v2-header-stats,
+    .personal-v2-actions {
+        justify-content: flex-start;
+    }
+
+    .personal-v2-header-stat {
+        flex: 1 1 150px;
+    }
+
+    .personal-v2-table-card {
+        overflow-x: auto;
+    }
+
+    #scheduleTable {
+        min-width: 620px;
+    }
+}

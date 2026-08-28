@@ -17,10 +17,6 @@ if not SECRET_KEY:
 SIMPLE_PASSWORD_ADMIN = os.getenv("SIMPLE_PASSWORD_ADMIN")
 SIMPLE_PASSWORD_USER = os.getenv("SIMPLE_PASSWORD_USER")
 
-# Financial indicators API keys
-EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY", "")
-EIA_API_KEY = os.getenv("EIA_API_KEY", "")
-
 # CheckWX METAR API
 CHECKWX_API_KEY = os.getenv("CHECKWX_API_KEY", "")
 CHECKWX_STATIONS = os.getenv("CHECKWX_STATIONS", "RKSI,RKSS")
@@ -35,6 +31,10 @@ allowed_hosts = os.getenv(
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
+
+# 홈페이지 navbar에 표시되는 배포 정보
+SITE_REVISION = "05"
+SITE_LAST_UPDATED = "01-SEP-2026"
 
 
 INSTALLED_APPS = [

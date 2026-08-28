@@ -1,115 +1,148 @@
-{% extends "manhour/base/base.html" %}
+{% extends "manhour/base/auth_v2_base.html" %}
 {% load static %}
 
-{% block title %}로그인{% endblock title %}
+{% block title %} AIR OPS Login {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/login_v2.css' %}" />
 {% endblock css %}
 
 {% block content %}
-<div class="login-page">
-    <div class="login-bg-grid"></div>
-    <div class="login-orb login-orb-1"></div>
-    <div class="login-orb login-orb-2"></div>
-    <div class="login-orb login-orb-3"></div>
 
-    <div class="container login-container d-flex align-items-center justify-content-center">
-        <div class="row justify-content-center align-items-center g-4 w-100">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-5">
-                <div class="login-card mx-auto">
-                    <div class="login-card-header text-center">
-                        <div class="login-card-icon">
-                            <i class="bi bi-person-lock"></i>
-                        </div>
-                        <h3 class="fw-bold mb-2">Login</h3>
-                        <p class="text-muted mb-0">
-                            근무지를 선택하고 비밀번호를 입력하세요.
-                        </p>
-                    </div>
+<main class="login-v2">
+    <!-- =====================================================
+         BRAND
+    ====================================================== -->
 
-                    {% if messages %}
-                    <div class="login-alert-wrap">
-                        {% for message in messages %}
-                        <div class="login-alert" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span>{{ message }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
-                    <form
-                        method="POST"
-                        data-loading
-                        data-loading-title="로그인 중"
-                        data-loading-text="잠시만 기다려 주세요"
-                    >
-                        {% csrf_token %}
+    <section class="login-v2-brand">
+        <div class="login-v2-grid"></div>
 
-                        <div class="mb-3">
-                            <label class="form-label login-label">근무지</label>
-                            <div class="input-shell">
-                                <select
-                                    name="workplace"
-                                    class="form-select login-select"
-                                    required
-                                    autofocus
-                                >
-                                    <option
-                                        value=""
-                                        disabled
-                                        {% if not current_workplace %}selected{% endif %}
-                                    >
-                                        근무지 선택
-                                    </option>
-                                    {% for value, label in workplace_options %}
-                                    <option
-                                        value="{{ value }}"
-                                        {% if value == current_workplace %}selected{% endif %}
-                                    >
-                                        {{ label }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
+        <div class="login-v2-brand-content">
+            <div class="login-v2-logo">
+                <div class="login-v2-logo-icon">
+                    <i class="bi bi-airplane-engines"></i>
+                </div>
 
-                        <div class="mb-4">
-                            <label class="form-label login-label">비밀번호</label>
-                            <div class="input-shell input-shell-password">
-                                <span class="input-icon">
-                                    <i class="bi bi-key-fill"></i>
-                                </span>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    class="form-control login-input password-input"
-                                    placeholder="비밀번호 입력"
-                                    autocomplete="new-password"
-                                    required
-                                />
-                            </div>
-                        </div>
+                <div>
+                    <strong> AIR OPS </strong>
 
-                        <button
-                            type="submit"
-                            class="btn login-submit-btn w-100 fw-bold"
-                        >
-                            <span>접속하기</span>
-                            <i class="bi bi-arrow-right ms-2"></i>
-                        </button>
-
-                        <div class="login-help-text text-center">
-                            <i class="bi bi-info-circle me-1"></i>
-                            문의가 필요하면 관리자에게 연락하세요.
-                        </div>
-                    </form>
+                    <span> Maintenance Operations </span>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock content %}
 
-{% block footer %}{% endblock footer %}
+        <div class="login-v2-copy">
+            <div class="login-v2-eyebrow">AIRCRAFT MAINTENANCE OPERATIONS</div>
+
+            <h1>
+                Workforce.<br />
+                Manhour.<br />
+                Operations.
+            </h1>
+
+            <p>
+                Aircraft maintenance workforce planning, manhour analysis and
+                operational management in a unified workspace.
+            </p>
+        </div>
+
+        <div class="login-v2-footer">Maintenance Operations Platform</div>
+    </section>
+
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
+
+    <section class="login-v2-form-side">
+        <div class="login-v2-card">
+            <header class="login-v2-card-head">
+                <span> SECURE ACCESS </span>
+
+                <h2>Sign in</h2>
+
+                <p>근무지를 선택하고 비밀번호를 입력하세요.</p>
+            </header>
+
+            {% if messages %}
+
+            {% for message in messages %}
+
+            <div class="login-v2-alert">
+                <i class="bi bi-exclamation-triangle"></i>
+
+                <span> {{ message }} </span>
+            </div>
+
+            {% endfor %}
+            {% endif %}
+
+            <form
+                method="POST"
+                data-loading
+                data-loading-title="로그인 중"
+                data-loading-text="잠시만 기다려 주세요."
+            >
+                {% csrf_token %}
+
+                <div class="login-v2-field">
+                    <label class="login-v2-label"> Workplace </label>
+
+                    <div class="login-v2-control">
+                        <i class="bi bi-geo-alt"></i>
+
+                        <select name="workplace" required autofocus>
+                            <option
+                                value=""
+                                disabled
+                                {% if not current_workplace %} selected {% endif %}
+                            >
+                                근무지 선택
+                            </option>
+
+                            {% for value, label in workplace_options %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if value == current_workplace %} selected {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="login-v2-field">
+                    <label class="login-v2-label"> Password </label>
+
+                    <div class="login-v2-control">
+                        <i class="bi bi-key"></i>
+
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="비밀번호 입력"
+                            autocomplete="new-password"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <button type="submit" class="login-v2-submit">
+                    Sign In
+
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+
+                <div class="login-v2-help">
+                    <i class="bi bi-info-circle me-1"></i>
+
+                    접속 문제가 있는 경우 관리자에게 문의하세요.
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+{% endblock content %}

@@ -565,53 +565,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return data;
     }
 
-    function closeParentModalIfNeeded() {
-        if (window.parent && window.parent !== window) {
-            try {
-                window.parent.__indirectSaved = true;
-
-                const parentModalEl =
-                    window.parent.document.getElementById("indirectModal");
-
-                if (parentModalEl && window.parent.bootstrap) {
-                    let parentModal =
-                        window.parent.bootstrap.Modal.getInstance(
-                            parentModalEl,
-                        );
-
-                    if (!parentModal) {
-                        parentModal = new window.parent.bootstrap.Modal(
-                            parentModalEl,
-                        );
-                    }
-
-                    parentModal.hide();
-                    return true;
-                }
-            } catch (e) {
-                console.warn("부모 모달 닫기 실패:", e);
-            }
-        }
-
-        return false;
-    }
-
-    function finishAfterServerSuccess(message) {
-        alert(message);
-
-        if (closeParentModalIfNeeded()) {
-            return;
-        }
-
+    function finishAfterServerSuccess() {
         location.reload();
     }
 
-    function resetUI() {
-        if (
-            !confirm(
-                "입력 중인 내용(로컬 저장 포함)을 모두 지우고 초기화할까요?",
-            )
-        ) {
+    async function resetUI() {
+        const confirmed = await window.AppDialog.confirm(
+            "입력 중인 내용(로컬 저장 포함)을 모두 지우고 초기화할까요?",
+            {
+                title: "입력 내용 초기화",
+                variant: "danger",
+                confirmText: "초기화",
+            },
+        );
+        if (!confirmed) {
             return;
         }
 
@@ -637,8 +604,13 @@ document.addEventListener("DOMContentLoaded", () => {
             ? "전체 작업자의 수동입력(간비)을 모두 삭제할까요?"
             : "선택한 작업자의 수동입력(간비)을 모두 삭제할까요?";
 
-        if (!skipConfirm && !confirm(msg)) {
-            return;
+        if (!skipConfirm) {
+            const confirmed = await window.AppDialog.confirm(msg, {
+                title: "간비 데이터 삭제",
+                variant: "danger",
+                confirmText: "삭제",
+            });
+            if (!confirmed) return;
         }
 
         try {
@@ -648,7 +620,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             clearCurrentUiAndStorage();
-            finishAfterServerSuccess("DB 리셋 완료!");
+            finishAfterServerSuccess();
         } catch (err) {
             console.error(err);
             alert("서버 통신 오류: " + err.message);
@@ -670,17 +642,38 @@ document.addEventListener("DOMContentLoaded", () => {
                     ? "입력한 간비가 없습니다. 전체 작업자의 기존 간비를 삭제할까요?"
                     : "입력한 간비가 없습니다. 선택한 작업자의 기존 간비를 삭제할까요?";
 
-                if (!confirm(msg)) return;
+                const confirmed = await window.AppDialog.confirm(msg, {
+                    title: "기존 간비 삭제",
+                    variant: "danger",
+                    confirmText: "삭제",
+                });
+                if (!confirmed) return;
                 await resetDB({ skipConfirm: true });
                 return;
             }
 
             if (isApplyAll) {
-                if (!confirm("모든 작업자에게 동일하게 적용하시겠습니까?")) {
+                const confirmed = await window.AppDialog.confirm(
+                    "모든 작업자에게 동일하게 적용하시겠습니까?",
+                    {
+                        title: "전체 작업자 적용",
+                        variant: "warning",
+                        confirmText: "적용",
+                    },
+                );
+                if (!confirmed) {
                     return;
                 }
             } else {
-                if (!confirm("선택한 작업자들에게 적용하시겠습니까?")) {
+                const confirmed = await window.AppDialog.confirm(
+                    "선택한 작업자들에게 적용하시겠습니까?",
+                    {
+                        title: "선택 작업자 적용",
+                        variant: "warning",
+                        confirmText: "적용",
+                    },
+                );
+                if (!confirmed) {
                     return;
                 }
             }
@@ -692,7 +685,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             localStorage.removeItem(getActiveStorageKey());
-            finishAfterServerSuccess("저장되었습니다.");
+            finishAfterServerSuccess();
         } catch (err) {
             console.error(err);
 
@@ -720,9 +713,23 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const rows = [...table.querySelectorAll("tr")].map((tr) =>
+        const targetRows = [...table.querySelectorAll("tbody tr")].filter(
+            (row) => row.querySelectorAll("td").length === 5,
+        );
+
+        if (!targetRows.length) {
+            alert("복사할 행이 없습니다.");
+            return;
+        }
+
+        const rows = targetRows.map((tr) =>
             [...tr.querySelectorAll("th, td")]
-                .map((cell) => cell.innerText.replace(/\s+/g, " ").trim())
+                .map((cell) =>
+                    cell.innerText
+                        .replace(/[\u00A0\u200B]/g, "")
+                        .replace(/\s+/g, " ")
+                        .trim(),
+                )
                 .join("\t"),
         );
 
@@ -743,7 +750,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.body.removeChild(temp);
             }
 
-            alert("📋 시간표가 복사되었습니다! 엑셀 등에 붙여넣기 하세요.");
+            alert(
+                `📋 ${targetRows.length}개 행이 복사되었습니다. 엑셀 등에 붙여넣기 하세요.`,
+            );
         } catch (err) {
             console.error("복사 실패:", err);
             alert("복사에 실패했습니다.");
@@ -760,6 +769,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (copyBtn) {
         copyBtn.addEventListener("click", copyTableToClipboard);
+    }
+
+    const scheduleTable = document.getElementById("scheduleTable");
+    if (scheduleTable) {
+        scheduleTable.addEventListener("copy", (event) => {
+            const selectedText = window.getSelection()?.toString() || "";
+
+            if (
+                !/[\u00A0\u200B]/.test(selectedText) ||
+                !event.clipboardData
+            ) {
+                return;
+            }
+
+            event.clipboardData.setData(
+                "text/plain",
+                selectedText.replace(/[\u00A0\u200B]/g, ""),
+            );
+            event.preventDefault();
+        });
     }
 
     if (manualModal) {

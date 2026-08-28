@@ -1,0 +1,394 @@
+{% load static %}
+
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <meta name="theme-color" content="#08111f" />
+
+        <title>{% block title %} Manning Operations {% endblock title %}</title>
+
+        <!-- Pretendard -->
+        <link
+            rel="stylesheet"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
+        />
+
+        <!-- Bootstrap -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        />
+
+        <!-- Bootstrap Icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        />
+
+        <link rel="stylesheet" href="{% static 'css/v2/tokens.css' %}" />
+
+        <link
+            rel="stylesheet"
+            href="{% static 'css/manning/v2/manning_shell.css' %}?v=20260827-3"
+        />
+
+        <link rel="stylesheet" href="{% static 'css/v2/loader_v2.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/v2/app_dialog.css' %}" />
+        <script src="{% static 'js/v2_loader.js' %}" defer></script>
+        <script defer src="{% static 'js/app_dialog.js' %}"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const sidebar = document.getElementById("manningSidebar");
+
+                const toggle = document.getElementById("manningSidebarToggle");
+
+                if (toggle && sidebar) {
+                    const overlay = document.getElementById("manningSidebarOverlay");
+
+                    const setSidebarOpen = function (isOpen) {
+                        sidebar.classList.toggle("is-open", isOpen);
+                        document.body.classList.toggle("manning-sidebar-open", isOpen);
+                        toggle.setAttribute("aria-expanded", String(isOpen));
+                    };
+
+                    toggle.addEventListener("click", function () {
+                        setSidebarOpen(!sidebar.classList.contains("is-open"));
+                    });
+
+                    if (overlay) {
+                        overlay.addEventListener("click", function () {
+                            setSidebarOpen(false);
+                        });
+                    }
+
+                    document.addEventListener("keydown", function (event) {
+                        if (event.key === "Escape") {
+                            setSidebarOpen(false);
+                        }
+                    });
+                }
+
+                const dateTarget =
+                    document.getElementById("manningCurrentDate");
+
+                if (dateTarget) {
+                    const now = new Date();
+
+                    dateTarget.textContent = new Intl.DateTimeFormat("ko-KR", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        weekday: "short",
+                    }).format(now);
+                }
+
+                const mobileViewport = window.matchMedia("(max-width: 700px)");
+                const mobileFolds = document.querySelectorAll("[data-mobile-fold]");
+
+                mobileFolds.forEach(function (fold, index) {
+                    const hasVisibleError = fold.querySelector(
+                        ".manning-form-error:not(.d-none), .manning-form-alert:not(.d-none), .alert-danger:not(.d-none)"
+                    );
+                    let isOpen = fold.dataset.mobileFoldOpen === "true" || Boolean(hasVisibleError);
+                    const title = fold.dataset.mobileFoldTitle || "상세 내용";
+                    const toggleButton = document.createElement("button");
+                    const toggleCopy = document.createElement("span");
+                    const toggleIcon = document.createElement("i");
+                    const toggleTitle = document.createElement("strong");
+                    const toggleState = document.createElement("small");
+                    const contentId = fold.id || `mobile-fold-${index + 1}`;
+
+                    toggleButton.type = "button";
+                    toggleButton.className = "mobile-fold-toggle";
+                    toggleButton.setAttribute("aria-controls", contentId);
+                    toggleCopy.className = "mobile-fold-toggle-copy";
+                    toggleIcon.className = "bi bi-chevron-down";
+                    toggleTitle.textContent = title;
+                    toggleState.textContent = "펼쳐보기";
+                    toggleCopy.append(toggleIcon, toggleTitle);
+                    toggleButton.append(toggleCopy, toggleState);
+
+                    fold.id = contentId;
+                    fold.insertBefore(toggleButton, fold.firstChild);
+
+                    const syncFold = function () {
+                        const isMobile = mobileViewport.matches;
+                        fold.classList.toggle("is-mobile-fold", isMobile);
+                        fold.classList.toggle("is-mobile-collapsed", isMobile && !isOpen);
+                        toggleButton.hidden = !isMobile;
+                        toggleButton.setAttribute("aria-expanded", String(!isMobile || isOpen));
+                        toggleState.textContent = isOpen ? "접기" : "펼쳐보기";
+                    };
+
+                    toggleButton.addEventListener("click", function () {
+                        isOpen = !isOpen;
+                        syncFold();
+                    });
+
+                    mobileViewport.addEventListener("change", syncFold);
+                    syncFold();
+                });
+            });
+        </script>
+
+        {% block js %} {% endblock js %}
+
+        {% block css %} {% endblock css %}
+
+        <link rel="stylesheet" href="{% static 'css/v2/mobile.css' %}?v=20260828-3" />
+    </head>
+
+    <body class="manning-v2-body">
+        {% include "manhour/loading/loading_v2.html" %}
+
+        <div class="manning-shell">
+            <!-- =====================================================
+            SIDEBAR
+        ====================================================== -->
+
+            <aside id="manningSidebar" class="manning-sidebar">
+                <!-- Brand -->
+
+                <div class="manning-brand">
+                    <a
+                        href="{% url 'manning:manning_list' %}"
+                        class="manning-brand-link"
+                    >
+                        <div class="manning-brand-symbol">
+                            <i class="bi bi-airplane-engines"></i>
+                        </div>
+
+                        <div class="manning-brand-copy">
+                            <strong> MANNING </strong>
+
+                            <span> Operations </span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Main Navigation -->
+
+                <nav class="manning-nav">
+                    <div class="manning-nav-label">OPERATIONS</div>
+
+                    <a
+                        href="{% url 'manning:manning_list' %}"
+                        class="manning-nav-link {% block nav_sessions_active %}{% endblock %}"
+                    >
+                        <i class="bi bi-grid"></i>
+
+                        <span> Sessions </span>
+                    </a>
+
+                    <a
+                        href="{% url 'manning:create_session' %}"
+                        class="manning-nav-link {% block nav_create_active %}{% endblock %}"
+                    >
+                        <i class="bi bi-plus-square"></i>
+
+                        <span> New Session </span>
+                    </a>
+
+                    <a
+                        href="{% url 'manning:template_editor' %}"
+                        class="manning-nav-link {% block nav_template_active %}{% endblock %}"
+                    >
+                        <i class="bi bi-layout-text-window"></i>
+
+                        <span> Templates </span>
+                    </a>
+
+                    <div class="manning-nav-label manning-nav-label-secondary">
+                        SYSTEM
+                    </div>
+                </nav>
+
+                <!-- Bottom -->
+
+                <div class="manning-sidebar-bottom">
+                    <div class="manning-sidebar-status">
+                        <span class="manning-status-dot"></span>
+
+                        <div>
+                            <strong> System Online </strong>
+
+                            <small> Manning Service </small>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <button
+                type="button"
+                id="manningSidebarOverlay"
+                class="manning-sidebar-overlay"
+                aria-label="메뉴 닫기"
+            ></button>
+
+            <!-- =====================================================
+            RIGHT CONTENT
+        ====================================================== -->
+
+            <section class="manning-main">
+                <!-- Top bar -->
+
+                <header class="manning-topbar">
+                    <div class="manning-topbar-left">
+                        <button
+                            type="button"
+                            id="manningSidebarToggle"
+                            class="manning-sidebar-toggle"
+                            aria-controls="manningSidebar"
+                            aria-expanded="false"
+                            aria-label="메뉴 열기"
+                        >
+                            <i class="bi bi-list"></i>
+                        </button>
+
+                        <div>
+                            <div class="manning-topbar-eyebrow">
+                                MANNING OPERATIONS
+                            </div>
+
+                            <h1 class="manning-topbar-title">
+                                {% block page_title %} Workforce Management {% endblock page_title %}
+                            </h1>
+                        </div>
+                    </div>
+
+                    <div class="manning-topbar-right">
+                        <div class="manning-topbar-date">
+                            <i class="bi bi-calendar3"></i>
+
+                            <span id="manningCurrentDate"> - </span>
+                        </div>
+
+                        <div class="dropdown manning-account-dropdown">
+                            <button
+                                type="button"
+                                class="manning-user manning-account-button dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                <span class="manning-user-avatar">
+                                    {% if request.session.user_role == "admin" %}A{% else %}O{% endif %}
+                                </span>
+                                <span class="manning-user-copy">
+                                    <strong>
+                                        {{ request.session.workplace_label|default:request.session.workplace }}
+                                    </strong>
+                                    <span>
+                                        {% if request.session.user_role == "admin" %}Administrator{% else %}Operator{% endif %}
+                                    </span>
+                                </span>
+                            </button>
+
+                            <div
+                                class="dropdown-menu dropdown-menu-end manning-account-menu"
+                            >
+                                <div class="manning-account-current">
+                                    <small>현재 로그인 그룹</small>
+                                    <strong>
+                                        {{ request.session.workplace_label|default:request.session.workplace }}
+                                    </strong>
+                                </div>
+
+                                {% if request.session.user_role == "admin" %}
+                                <div class="manning-account-switcher">
+                                    <label for="manningWorkplaceSelect"
+                                        >다른 그룹으로 이동</label
+                                    >
+                                    <form
+                                        method="post"
+                                        action="{% url 'manhour:change_workplace' %}"
+                                    >
+                                        {% csrf_token %}
+                                        <input
+                                            type="hidden"
+                                            name="next"
+                                            value="{{ request.path }}"
+                                        />
+                                        <select
+                                            id="manningWorkplaceSelect"
+                                            name="workplace"
+                                            class="form-select form-select-sm"
+                                            onchange="this.form.submit()"
+                                        >
+                                            {% for workplace_code, workplace_label in navbar_workplace_options %}
+                                            <option
+                                                value="{{ workplace_code }}"
+                                                {% if request.session.workplace == workplace_code %}selected{% endif %}
+                                            >
+                                                {{ workplace_label }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </div>
+
+                                <div class="dropdown-divider"></div>
+                                <a
+                                    class="dropdown-item"
+                                    href="{% url 'manhour:settings' %}"
+                                >
+                                    <i class="bi bi-sliders me-2"></i>Settings
+                                </a>
+                                <a class="dropdown-item" href="/admin/">
+                                    <i class="bi bi-shield-lock me-2"></i>Admin
+                                </a>
+                                {% endif %}
+
+                                <div class="dropdown-divider"></div>
+                                <a
+                                    class="dropdown-item manning-account-logout"
+                                    href="{% url 'manhour:logout' %}"
+                                >
+                                    <i class="bi bi-box-arrow-right me-2"></i
+                                    >로그아웃
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page area -->
+
+                <main class="manning-content">
+                    {% if messages %}
+
+                    <div class="manning-message-area">
+                        {% for message in messages %}
+
+                        <div
+                            class="alert alert-{{ message.tags|default:'secondary' }} alert-dismissible fade show"
+                        >
+                            {{ message }}
+
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                            ></button>
+                        </div>
+
+                        {% endfor %}
+                    </div>
+
+                    {% endif %} 
+                    
+                    {% block content %} {% endblock content %}
+                </main>
+            </section>
+        </div>
+
+        {% include "manhour/partials/app_dialog.html" %}
+    </body>
+</html>

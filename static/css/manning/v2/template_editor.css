@@ -1,0 +1,870 @@
+/* =========================================================
+   TEMPLATE EDITOR V2
+========================================================= */
+
+.template-editor-page {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.template-editor-header {
+    margin-bottom: 28px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+.template-editor-eyebrow {
+    margin-bottom: 7px;
+
+    color: var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.17em;
+}
+
+.template-editor-title {
+    margin: 0;
+
+    font-size: var(--font-size-page-title);
+    font-weight: 700;
+
+    letter-spacing: -0.045em;
+}
+
+.template-editor-description {
+    max-width: 680px;
+
+    margin: 10px 0 0;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-base);
+    line-height: 1.7;
+}
+
+.template-editor-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.template-editor-header-btn {
+    min-height: 40px;
+
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    border: 1px solid var(--manning-border);
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: var(--manning-text);
+
+    text-decoration: none;
+
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.template-editor-header-btn:hover {
+    background: #f8fafc;
+    color: var(--manning-text);
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.template-editor-summary {
+    margin-bottom: 22px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.template-summary-card {
+    min-height: 100px;
+
+    padding: 19px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 20px rgba(15, 23, 42, 0.035);
+}
+
+.template-summary-card span {
+    display: block;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+.template-summary-card strong {
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    letter-spacing: -0.04em;
+}
+
+.template-summary-icon {
+    width: 41px;
+    height: 41px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.template-editor-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 22px;
+}
+
+
+/* =========================================================
+   SECTION HEADER
+========================================================= */
+
+.template-editor-section-head {
+    margin-bottom: 14px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.template-editor-section-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--manning-blue);
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.15em;
+}
+
+.template-editor-section-title {
+    margin: 0;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    letter-spacing: -0.03em;
+}
+
+.template-editor-section-note {
+    margin: 0;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   TEMPLATE BLOCK
+========================================================= */
+
+.template-block {
+    margin-bottom: 14px;
+
+    overflow: hidden;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 20px rgba(15, 23, 42, 0.035);
+}
+
+/* =========================================================
+   ACCORDION
+========================================================= */
+
+.template-accordion .accordion-item,
+.new-template-accordion .accordion-item {
+    background: #ffffff;
+}
+
+.template-accordion .accordion-button,
+.new-template-accordion .accordion-button {
+    padding: 18px 20px;
+
+    background: #ffffff;
+
+    box-shadow: none;
+
+    color: var(--manning-text);
+}
+
+.template-accordion .accordion-button:not(.collapsed),
+.new-template-accordion .accordion-button:not(.collapsed) {
+    background: #f8fafc;
+
+    box-shadow: none;
+}
+
+.template-accordion .accordion-button:focus,
+.new-template-accordion .accordion-button:focus {
+    box-shadow: none;
+}
+
+.template-accordion .accordion-body,
+.new-template-accordion .accordion-body {
+    padding: 22px;
+
+    border-top:
+        1px solid var(--manning-border-soft);
+}
+
+
+/* =========================================================
+   TEMPLATE HEADER
+========================================================= */
+
+.template-block-title {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.template-block-icon {
+    width: 37px;
+    height: 37px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #eff6ff;
+
+    color: var(--manning-blue);
+
+    font-size: 15px;
+}
+
+.template-block-title-copy strong {
+    display: block;
+
+    font-size: var(--font-size-sm);
+}
+
+.template-block-title-copy small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+.template-block-side {
+    padding-right: 10px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   META FORM
+========================================================= */
+
+.template-meta-grid {
+    margin-bottom: 22px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(150px, 0.8fr)
+        minmax(180px, 1fr)
+        120px
+        130px;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+.template-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.template-field input {
+    width: 100%;
+
+    min-height: 40px;
+
+    padding: 8px 10px;
+
+    border:
+        1px solid #dce3eb;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    font-family: inherit;
+
+    font-size: var(--font-size-sm);
+}
+
+.template-field input:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.template-delete-wrap {
+    min-height: 40px;
+
+    padding: 0 11px;
+
+    display: flex;
+    align-items: center;
+
+    border-radius: 8px;
+
+    background: #fff7f7;
+
+    border: 1px solid #fee2e2;
+}
+
+.template-delete-wrap label {
+    color: #dc2626;
+
+    font-size: var(--font-size-xs);
+}
+
+
+/* =========================================================
+   DND AREA
+========================================================= */
+
+.template-dnd {
+    margin-top: 5px;
+}
+
+.template-dnd-toolbar {
+    margin-bottom: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.template-dnd-toolbar strong {
+    font-size: var(--font-size-sm);
+}
+
+.template-dnd-toolbar span {
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+.dnd-warning {
+    margin-bottom: 10px;
+
+    color: #b45309;
+
+    font-size: var(--font-size-xs);
+}
+
+.template-position-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.dnd-column {
+    min-width: 0;
+
+    padding: 12px;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    border-radius: 12px;
+
+    background: #f8fafc;
+}
+
+.dnd-header {
+    margin-bottom: 9px;
+
+    padding-bottom: 8px;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+.dnd-list {
+    min-height: 100px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    transition: 0.15s ease;
+}
+
+.dnd-list.is-over {
+    border-radius: 8px;
+
+    background: #dbeafe;
+}
+
+.dnd-item {
+    min-height: 34px;
+
+    padding: 7px 9px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    cursor: grab;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: var(--manning-text);
+
+    font-size: var(--font-size-xs);
+
+    box-shadow:
+        0 2px 5px rgba(15, 23, 42, 0.025);
+}
+
+.dnd-item.is-dragging {
+    opacity: 0.45;
+}
+
+.dnd-item button {
+    border: 0;
+
+    background: transparent;
+
+    color: #94a3b8;
+}
+
+.dnd-item button:hover {
+    color: #ef4444;
+}
+
+.dnd-empty {
+    min-height: 68px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #94a3b8;
+
+    font-size: var(--font-size-xs);
+}
+
+.dnd-add {
+    margin-top: 9px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        35px;
+
+    gap: 6px;
+}
+
+.dnd-input {
+    min-height: 34px !important;
+
+    padding:
+        6px 8px !important;
+
+    border:
+        1px solid #dce3eb !important;
+
+    border-radius:
+        7px !important;
+
+    font-size: var(--font-size-xs) !important;
+}
+
+.dnd-btn {
+    width: 35px;
+
+    padding: 0;
+
+    border:
+        1px solid #dce3eb;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: var(--manning-text);
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   RAW TEXT
+========================================================= */
+
+.template-raw-section {
+    margin-top: 22px;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid var(--manning-border-soft);
+}
+
+.template-raw-title {
+    margin-bottom: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.template-raw-title strong {
+    font-size: var(--font-size-xs);
+}
+
+.template-raw-title span {
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+}
+
+.template-text-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.template-text-field label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.template-items {
+    width: 100%;
+
+    min-height: 125px;
+
+    padding: 9px;
+
+    resize: vertical;
+
+    border:
+        1px solid #dce3eb;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #fbfcfd;
+
+    color: #334155;
+
+    font-family:
+        Consolas,
+        "Courier New",
+        monospace;
+
+    font-size: var(--font-size-xs);
+
+    line-height: 1.55;
+}
+
+.template-items:focus {
+    border-color: #60a5fa;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.07);
+}
+
+
+/* =========================================================
+   NEW TEMPLATE
+========================================================= */
+
+.new-template-block {
+    border:
+        1px dashed #93c5fd;
+
+    background: #fbfdff;
+}
+
+.new-template-block
+.accordion-button {
+    background: #fbfdff;
+}
+
+
+/* =========================================================
+   SAVE BAR
+========================================================= */
+
+.template-editor-savebar {
+    position: sticky;
+
+    bottom: 18px;
+
+    z-index: 20;
+
+    margin-top: 22px;
+
+    padding: 14px 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border:
+        1px solid var(--manning-border-soft);
+
+    border-radius: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.94);
+
+    backdrop-filter: blur(14px);
+
+    box-shadow:
+        0 15px 40px rgba(15, 23, 42, 0.10);
+}
+
+.template-save-info {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    color: var(--manning-text-2);
+
+    font-size: var(--font-size-xs);
+}
+
+.template-save-info i {
+    color: var(--manning-blue);
+}
+
+.template-save-btn {
+    min-height: 42px;
+
+    padding:
+        0 18px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: var(--manning-blue);
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.template-save-btn:hover {
+    background:
+        var(--manning-blue-hover);
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.template-editor-empty {
+    padding: 50px 20px;
+
+    border:
+        1px dashed #cbd5e1;
+
+    border-radius: 13px;
+
+    text-align: center;
+
+    color: var(--manning-text-3);
+
+    font-size: var(--font-size-sm);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .template-meta-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .template-position-grid,
+    .template-text-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .template-editor-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .template-editor-title {
+        font-size: 28px;
+    }
+
+    .template-editor-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .template-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .template-editor-savebar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .template-save-btn {
+        width: 100%;
+    }
+
+}

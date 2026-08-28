@@ -1,216 +1,94 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("createSessionForm");
-    const aircraftInput = document.querySelector('input[name="aircraft_reg"]');
-    const blockCheckSelect = document.querySelector('select[name="block_check"]');
-    const shiftSelect = document.querySelector('select[name="shift_type"]');
-    const templateRadios = document.querySelectorAll('input[name="area_template"]');
-    const templateLabels = document.querySelectorAll(".template-card");
-    const templateArea = document.getElementById("template-selection-area");
-    const templateErrorMessage = document.getElementById("templateErrorMessage");
-    const shiftHelpMessage = document.getElementById("shiftHelpMessage");
-    const activeShiftDataEl = document.getElementById("activeShiftCombos");
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("createSessionForm") ||
+        document.getElementById("editSessionForm");
+    const workPackageSelect = document.getElementById("id_work_package_name");
+    const blockCheckField = document.getElementById("blockCheckField");
+    const blockCheckSelect = document.getElementById("id_block_check");
+    const templateOptions = Array.from(
+        document.querySelectorAll(".template-option[data-work-packages]"),
+    );
+    const templateError = document.getElementById("templateErrorMessage");
+    const emptyMessage = document.getElementById(
+        "noTemplatesForWorkPackage",
+    );
 
-    let activeShiftCombos = [];
+    if (!workPackageSelect) return;
 
-    if (activeShiftDataEl) {
-        try {
-            activeShiftCombos = JSON.parse(activeShiftDataEl.textContent || "[]");
-        } catch (error) {
-            console.error("activeShiftCombos JSON parsing error:", error);
-            activeShiftCombos = [];
-        }
-    }
+    const normalize = (value) => String(value || "").trim().toLowerCase();
+    const normalizeKey = (value) => normalize(value).replace(/[^a-z0-9]/g, "");
+    let engineChangeDefaultApplied = false;
+    let previousBlockCheckValue = "";
 
-    function normalizeAircraft(value) {
-        return String(value || "").trim().toUpperCase();
-    }
+    function updateBlockCheckVisibility() {
+        const isEngineChange =
+            normalizeKey(workPackageSelect.value) === "enginechange";
 
-    function formatAircraftInput(value) {
-        const raw = String(value || "")
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, "");
+        blockCheckField?.classList.toggle("d-none", isEngineChange);
+        if (!blockCheckSelect) return;
 
-        const digits = raw.replace(/^HL/, "").replace(/\D/g, "").slice(0, 4);
-        return digits ? `HL${digits}` : "";
-    }
-
-    function clearTemplateError() {
-        if (templateArea) {
-            templateArea.classList.remove("template-required-active");
-        }
-        if (templateErrorMessage) {
-            templateErrorMessage.classList.add("d-none");
-        }
-    }
-
-    function resetShiftOptions() {
-        if (!shiftSelect) return;
-
-        Array.from(shiftSelect.options).forEach((option) => {
-            option.disabled = false;
-        });
-
-        shiftSelect.value = "";
-    }
-
-    function updateShiftHelpMessage(disabledShiftValues) {
-        if (!shiftHelpMessage) return;
-
-        if (!disabledShiftValues.length) {
-            shiftHelpMessage.classList.add("d-none");
-            shiftHelpMessage.textContent = "";
-            return;
-        }
-
-        shiftHelpMessage.textContent =
-            `이미 사용 중인 Shift: ${disabledShiftValues.join(", ")}. 다른 Shift를 선택해주세요.`;
-        shiftHelpMessage.classList.remove("d-none");
-    }
-
-    function updateShiftAvailability() {
-        if (!shiftSelect || !blockCheckSelect || !aircraftInput) {
-            return;
-        }
-
-        const aircraftReg = normalizeAircraft(aircraftInput.value);
-        const blockCheck = String(blockCheckSelect.value || "").trim();
-
-        const hasRequiredInfo = aircraftReg && blockCheck;
-
-        shiftSelect.disabled = !hasRequiredInfo;
-
-        if (!hasRequiredInfo) {
-            resetShiftOptions();
-            updateShiftHelpMessage([]);
-            return;
-        }
-
-        const disabledShiftSet = new Set(
-            activeShiftCombos
-                .filter((item) => {
-                    return (
-                        normalizeAircraft(item.aircraft_reg) === aircraftReg &&
-                        String(item.block_check || "").trim() === blockCheck
-                    );
-                })
-                .map((item) => String(item.shift_type || "").trim())
-                .filter(Boolean)
-        );
-
-        const disabledShiftValues = [];
-        let selectedDisabled = false;
-
-        Array.from(shiftSelect.options).forEach((option) => {
-            if (!option.value) {
-                option.disabled = false;
-                return;
+        blockCheckSelect.required = !isEngineChange;
+        if (isEngineChange) {
+            if (!engineChangeDefaultApplied) {
+                previousBlockCheckValue = blockCheckSelect.value;
             }
-
-            const shouldDisable = disabledShiftSet.has(option.value);
-            option.disabled = shouldDisable;
-
-            if (shouldDisable) {
-                disabledShiftValues.push(option.value);
-            }
-
-            if (shouldDisable && option.selected) {
-                selectedDisabled = true;
-            }
-        });
-
-        if (selectedDisabled) {
-            shiftSelect.value = "";
+            blockCheckSelect.value = "1A";
+            engineChangeDefaultApplied = true;
+        } else if (engineChangeDefaultApplied) {
+            blockCheckSelect.value = previousBlockCheckValue;
+            engineChangeDefaultApplied = false;
         }
-
-        updateShiftHelpMessage(disabledShiftValues);
     }
 
-    if (blockCheckSelect) {
-        blockCheckSelect.required = true;
-        blockCheckSelect.addEventListener("change", updateShiftAvailability);
-    }
+    function filterTemplates() {
+        const selectedPackage = normalize(workPackageSelect.value);
+        let visibleCount = 0;
 
-    if (shiftSelect) {
-        shiftSelect.required = true;
-    }
-
-    if (aircraftInput) {
-        aircraftInput.addEventListener("input", (event) => {
-            const start = event.target.selectionStart;
-            const beforeLength = event.target.value.length;
-
-            event.target.value = formatAircraftInput(event.target.value);
-
-            const afterLength = event.target.value.length;
-            const diff = afterLength - beforeLength;
-            const newPos = Math.max(0, (start || 0) + diff);
-
-            try {
-                event.target.setSelectionRange(newPos, newPos);
-            } catch (e) {
-                // 일부 환경에서는 setSelectionRange 실패 가능
-            }
-
-            updateShiftAvailability();
-        });
-
-        aircraftInput.addEventListener("blur", (event) => {
-            event.target.value = formatAircraftInput(event.target.value);
-            updateShiftAvailability();
-        });
-
-        aircraftInput.value = formatAircraftInput(aircraftInput.value || "");
-    }
-
-    templateLabels.forEach((label) => {
-        label.addEventListener("click", () => {
-            const targetId = label.getAttribute("for");
-            const radio = targetId ? document.getElementById(targetId) : null;
-            if (!radio) return;
-
-            radio.checked = true;
-            radio.dispatchEvent(new Event("change", { bubbles: true }));
-        });
-    });
-
-    templateRadios.forEach((radio) => {
-        radio.addEventListener("change", clearTemplateError);
-    });
-
-    if (form) {
-        form.addEventListener("submit", function (event) {
-            const selectedTemplate = document.querySelector(
-                'input[name="area_template"]:checked'
+        templateOptions.forEach((option) => {
+            const packages = String(option.dataset.workPackages || "")
+                .split("|")
+                .map(normalize)
+                .filter(Boolean);
+            const isVisible = Boolean(
+                selectedPackage && packages.includes(selectedPackage),
             );
+            const radio = option.querySelector(".template-radio");
 
-            let hasError = false;
-
-            if (!selectedTemplate) {
-                hasError = true;
-
-                if (templateArea) {
-                    templateArea.classList.remove("template-required-active");
-                    void templateArea.offsetWidth;
-                    templateArea.classList.add("template-required-active");
-                }
-
-                if (templateErrorMessage) {
-                    templateErrorMessage.classList.remove("d-none");
-                }
-            } else {
-                clearTemplateError();
+            option.classList.toggle("d-none", !isVisible);
+            if (radio) {
+                radio.disabled = !isVisible;
+                if (!isVisible) radio.checked = false;
             }
-
-            if (shiftSelect && !shiftSelect.disabled && !shiftSelect.value) {
-                hasError = true;
-                shiftSelect.focus();
-            }
-
-            if (hasError) {
-                event.preventDefault();
-            }
+            if (isVisible) visibleCount += 1;
         });
+
+        emptyMessage?.classList.toggle(
+            "d-none",
+            !selectedPackage || visibleCount > 0,
+        );
+        templateError?.classList.add("d-none");
     }
 
-    updateShiftAvailability();
+    workPackageSelect.addEventListener("change", filterTemplates);
+    workPackageSelect.addEventListener("change", updateBlockCheckVisibility);
+
+    form?.addEventListener("submit", (event) => {
+        const selectedTemplate = document.querySelector(
+            ".template-radio:not(:disabled):checked",
+        );
+        if (!selectedTemplate) {
+            event.preventDefault();
+            templateError?.classList.remove("d-none");
+            document.getElementById("template-selection-area")?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+        }
+    });
+
+    document
+        .querySelector(".manning-message-area")
+        ?.classList.add("manning-form-floating-message");
+
+    updateBlockCheckVisibility();
+    filterTemplates();
 });

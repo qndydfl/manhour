@@ -25,11 +25,6 @@ urlpatterns = [
         name="edit_session",
     ),
     path(
-        "session/<int:session_id>/finish/",
-        views.FinishSessionView.as_view(),
-        name="finish_session",
-    ),
-    path(
         "session/<int:session_id>/delete/",
         views.DeleteSessionView.as_view(),
         name="delete_session",
@@ -120,11 +115,6 @@ urlpatterns = [
     ),
     # 기타 기능
     path("paste_data/", views.PasteDataView.as_view(), name="paste_data"),
-    path(
-        "session/<int:session_id>/worker/<int:worker_id>/indirect/",
-        views.WorkerIndirectView.as_view(),
-        name="worker_indirect",
-    ),
     path("history/clear/", views.clear_history, name="clear_history"),
     path(
         "history/<int:session_id>/delete/",
@@ -164,8 +154,6 @@ urlpatterns = [
         views.TaskMasterDeleteAllView.as_view(),
         name="delete_all_taskmasters",
     ),
-    # 동영상
-    path("video-page/", views.video_page, name="video_page"),
     path(
         "api/master-data-count/",
         views.MasterDataCountApiView.as_view(),
@@ -180,10 +168,5 @@ urlpatterns = [
         "api/checkwx-metar/",
         views.CheckWxMetarApiView.as_view(),
         name="checkwx_metar_api",
-    ),
-    path(
-        "api/weather-forecast/",
-        views.WeatherForecastApiView.as_view(),
-        name="weather_forecast_api"
     ),
 ]

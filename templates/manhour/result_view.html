@@ -1,156 +1,95 @@
-{% extends "manhour/base/base.html" %} 
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
 {% block title %}배정 결과 | {{ session.name }} {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/result_view.css' %}" />
+<link rel="stylesheet" href="{% static 'css/result_view.css' %}?v=20260827-8" />
 {% endblock css %} 
 
 {% block js %}
-<script defer src="{% static 'js/result_view.js' %}"></script>
+<script defer src="{% static 'js/result_view.js' %}?v=20260827-3"></script>
 {% endblock js %} 
 
-{% comment %} {% block background_image %} {% include
-"manhour/image/background_url.html" with bg_key="session_list"
-bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
-background_image %} {% endcomment %} 
-
 {% block content %}
-<div
-    class="container result-view-container rounded-3"
-    data-aos="fade-up"
-    data-aos-duration="1000"
->
-    <div
-        class="d-flex flex-wrap justify-content-between align-items-center gap-3"
-    >
-        <h2 class="fw-bold d-flex text-white align-items-center mb-0">
-            <span class="title-icon text-primary fw-bold me-2">
-                <i class="bi bi-graph-up"></i>
-            </span>
-            {{ session.name }} 
-            
-            {% if not session.is_active %}
-            <span
-                class="badge text-bg-secondary rounded-pill ms-2 p-2"
-                style="font-size: 0.9rem"
-                >작업 완료</span
-            >
-            {% else %}
-            <span
-                class="badge text-bg-primary rounded-pill ms-2 p-2"
-                style="font-size: 0.9rem"
-                >작업 중</span
-            >
-            {% endif %}
-        </h2>
 
-        <div class="d-flex flex-wrap gap-2 ms-auto">
-            {% if manning_list_available %}
+<header class="assignment-topbar result-view-topbar">
+    <div class="assignment-topbar-inner">
+        <a
+            href="{% url 'manhour:result_view' session.id %}"
+            class="assignment-brand"
+        >
+            <div class="assignment-brand-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+
+            <div>
+                <strong> ASSIGNMENT OPS </strong>
+
+                <span> Manhour & Workforce Control </span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
             <a
-                href="{% if manning_session_id %}{% url 'manning:manning_dashboard' manning_session_id %}{% else %}{% url 'manning:manning_list' %}{% endif %}"
-                class="btn btn-warning btn-sm rounded-pill fw-bold px-3 py-2"
+                href="{% url 'manhour:edit_session' session.id %}"
+                class="assignment-topbar-btn"
+                title="Worker List"
             >
-                <i class="bi bi-list-ul"></i>
-                <span class="d-none d-md-inline">Manning 데시 보드</span>
+                <i class="bi bi-people"></i>
+                <span>Worker List</span>
             </a>
-            {% endif %} {% if not session.is_active %}
+
             <a
-                href="{% url 'manhour:history' %}"
-                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
+                href="{% url 'manhour:manage_items' session.id %}"
+                class="assignment-topbar-btn assignment-topbar-btn-danger"
+                title="편집"
             >
-                <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
+                <i class="bi bi-list-task"></i>
+                <span>편집</span>
             </a>
-            {% else %}
+
             <a
-                href="{% url 'manhour:session_list' %}"
-                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 py-2"
+                href="{% url 'manhour:assigned_summary' session.id %}"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+                title="시간별 보기"
             >
-                <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
+                <i class="bi bi-calendar-range"></i>
+                <span>시간별 보기</span>
             </a>
-            {% endif %}
+
+            <a
+                href="{% url 'manhour:index' %}"
+                class="assignment-topbar-btn"
+                title="Home"
+            >
+                <i class="bi bi-house"></i>
+                <span>Home</span>
+            </a>
         </div>
     </div>
+</header>
+
+<div class="result-view-container">
 
     {% if strict_limit and unassigned_count %}
-    <div
-        class="alert alert-warning d-flex align-items-start gap-2 mt-4"
-        role="alert"
-    >
+
+    <div class="assignment-warning">
         <i class="bi bi-exclamation-triangle-fill"></i>
+
         <div>
-            근무 한도 제한으로 {{ unassigned_count }}건이 미배정되었습니다.
+            근무 한도 제한으로
+
+            <strong> {{ unassigned_count }}건 </strong>
+
+            이 미배정되었습니다.
         </div>
     </div>
+
     {% endif %}
-    <div
-        class="card border-0 shadow-lg rounded-3 my-4 bg-white glass-panel p-2"
-        data-aos="fade-up"
-    >
-        <div
-            class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"
-        >
-            <div>
-                <h5 class="fw-bold mb-2">작업 배정 컨트롤 🚀</h5>
-                <p class="text-muted small fw-bold mb-0">
-                    작업 완료 버튼 클릭 시 기록 보관소로 이동합니다.
-                </p>
-            </div>
-
-            <div
-                class="d-flex gap-3 mx-auto mx-md-0 flex-wrap align-items-center" 
-            >
-                <div class="btn-group">
-                    <a
-                        href="{% url 'manhour:edit_session' session.id %}"
-                        class="btn btn-success px-3 py-2 fw-bold"
-                        style="font-size: 0.9rem"
-                    >
-                        <i class="bi bi-people me-1"></i>
-                        명단<span class="d-none d-md-inline">관리</span>
-                    </a>
-                </div>
-
-                <div class="btn-group">
-                    <a
-                        href="{% url 'manhour:manage_items' session.id %}"
-                        class="btn btn-danger fw-bold px-3 py-2"
-                        style="font-size: 0.9rem"
-                    >
-                        <i class="bi bi-list-task me-1"></i>
-                        통합<span class="d-none d-md-inline"> 관리</span>
-                    </a>
-                </div>
-
-                <form
-                    id="finish-form"
-                    action="{% url 'manhour:finish_session' session.id %}"
-                    method="POST"
-                >
-                    {% csrf_token %}
-                    <button
-                        type="submit"
-                        class="btn btn-dark fw-bold shadow-sm px-3 py-2"
-                        style="font-size: 0.9rem"
-                        onclick="
-                            return confirm(
-                                '정말 작업을 완료하고 작업 이력(History)로 이동하시겠습니까?',
-                            );
-                        "
-                    >
-                        <i class="bi bi-check2-circle me-1"></i> 작업 완료
-                        <span class="d-none d-md-inline"> (퇴실)</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <div
-        class="card border-0 shadow-lg mb-5 overflow-hidden glass-panel"
+        class="card border-0 shadow-lg mb-5 overflow-hidden glass-panel worker-status-panel"
         data-aos="fade-up"
         data-aos-delay="100"
     >
@@ -160,7 +99,6 @@ background_image %} {% endcomment %}
                     <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황
                     <span
                         class="badge text-bg-primary rounded-pill text-white border ms-2"
-                        style="font-size: 0.8rem"
                     >
                         {{ workers|length }}명
                     </span>
@@ -238,41 +176,33 @@ background_image %} {% endcomment %}
         </div>
     </div>
 
-    <div
-        class="d-flex flex-wrap justify-content-between align-items-center mb-3 px-1 gap-2 rv-desktop-only"
-        data-aos="fade-up"
-        data-aos-delay="200"
-    >
-        <h5 class="fw-bold mb-0 text-white">
-            <i class="bi bi-table text-warning me-2"></i>작업 상세 내역
-            <span
-                class="badge bg-secondary rounded-pill text-white border ms-2"
-                style="font-size: 0.8rem"
-            >
-                {{ wo_total }}건
-            </span>
-        </h5>
+    <section class="assignment-section-head work-detail-section-head">
+        <div>
+            <span class="assignment-section-label"> WORK ITEMS </span>
 
-        <div class="d-flex flex-wrap gap-2">
-            <a
-                href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-primary rounded-pill fw-bold px-4 py-2"
-            >
-                <i class="bi bi-calendar-range me-1"></i> 시간별 보기 
-                {% if not session.is_active %}
-                <span
-                    class="badge text-bg-secondary ms-2"
-                    style="font-size: 0.7rem"
-                >
-                    작업 완료
-                </span>
-                {% endif %}
-            </a>
+            <h3 class="assignment-section-title">
+                작업 상세 내역
+
+                <small class="text-muted ms-2"> {{ wo_total }} 건 </small>
+            </h3>
         </div>
-    </div>
+
+        <div class="assignment-table-tools">
+            <div class="assignment-search">
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="search"
+                    id="tableSearch"
+                    placeholder="WO, OP, description, worker..."
+                    autocomplete="off"
+                />
+            </div>
+        </div>
+    </section>
 
     <div
-        class="card border-0 shadow-lg rounded-3 overflow-hidden glass-panel"
+        class="card border-0 shadow-lg rounded-3 overflow-hidden glass-panel work-detail-panel"
         data-aos="fade-up"
         data-aos-delay="200"
     >
@@ -303,14 +233,15 @@ background_image %} {% endcomment %}
                     <tbody>
                         {% for item in items %} {% if item.work_order != '간비' %}
                         <tr
-                            class="{% if item.is_manual %}bg-soft-warning{% endif %} bg-light"
+                            class="work-detail-row {% if not item.assigned_names_str %}unassigned-row{% elif item.is_manual %}bg-soft-warning{% endif %} bg-light"
                         >
                             <td
                                 class="col-gibun fw-bold text-dark"
+                                data-label="기번"
                                 style="font-size: 0.9rem"
                             >
-                                {% if not item.original_gibun or item.original_gibun == item.gibun_input %} 
-                                {{ item.gibun_input }} {% else %}
+                                <div class="work-detail-cell-value">
+                                {% if not item.original_gibun or item.original_gibun == item.gibun_input %} {{ item.gibun_input }} {% else %}
                                 <div class="mt-1">
                                     <span
                                         class="badge bg-warning text-dark original-gibun-badge"
@@ -319,27 +250,32 @@ background_image %} {% endcomment %}
                                     </span>
                                 </div>
                                 {% endif %}
+                                </div>
                             </td>
-                            <td class="col-wo text-dark fw-bold">
-                                {{ item.work_order }}
+                            <td class="col-wo text-dark fw-bold" data-label="W/O">
+                                <div class="work-detail-cell-value">{{ item.work_order }}</div>
                             </td>
-                            <td class="col-op text-dark fw-bold">
-                                {{ item.op }}
+                            <td class="col-op text-dark fw-bold" data-label="OP">
+                                <div class="work-detail-cell-value">{{ item.op }}</div>
                             </td>
                             <td
                                 class="col-desc text-start desc-hide"
+                                data-label="작업 설명"
                                 title="{{ item.description }}"
                             >
-                                {{ item.description }}
+                                <div class="work-detail-cell-value">{{ item.description }}</div>
                             </td>
-                            <td class="col-mh">
+                            <td class="col-mh" data-label="M/H">
+                                <div class="work-detail-cell-value">
                                 <span
                                     class="badge bg-soft-primary text-primary fw-bold"
                                 >
                                     {{ item.adjusted_mh|floatformat:1 }}H
                                 </span>
+                                </div>
                             </td>
-                            <td class="col-assign text-start">
+                            <td class="col-assign text-start" data-label="배정 결과">
+                                <div class="work-detail-cell-value work-detail-assignees">
                                 {% for assign in item.assignments.all %}
                                 <div class="d-inline-block me-1 mb-1">
                                     <span
@@ -358,15 +294,16 @@ background_image %} {% endcomment %}
                                 </div>
                                 {% empty %}
                                 <span
-                                    class="badge bg-light text-muted border border-dashed"
+                                    class="badge unassigned-badge"
                                     >미배정</span
                                 >
                                 {% endfor %}
+                                </div>
                             </td>
                         </tr>
                         {% endif %} {% empty %}
                         <tr>
-                            <td colspan="6" class="py-5 text-muted">
+                            <td colspan="7" class="py-5 text-muted">
                                 등록된 작업 아이템이 없습니다.
                             </td>
                         </tr>
@@ -378,34 +315,4 @@ background_image %} {% endcomment %}
     </div>
 </div>
 
-<div
-    class="modal fade"
-    id="reassignSuccessModal"
-    tabindex="-1"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content success-glass-modal">
-            <div class="modal-body text-center py-4">
-                <div class="success-icon mb-3">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
-
-                <h5 class="fw-bold mb-2">저장 및 재배정 완료</h5>
-
-                <p class="text-muted mb-4" style="font-size: 0.9rem">
-                    데이터가 정상적으로 반영되었습니다.
-                </p>
-
-                <button
-                    type="button"
-                    class="btn btn-success rounded-pill px-4 fw-bold"
-                    data-bs-dismiss="modal"
-                >
-                    확인
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock content %}

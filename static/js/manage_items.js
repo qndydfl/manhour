@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initPlanMhAdjust();
     initMasterItemsTab();
     initDeleteState();
+    initWorkerLimitEditor();
     initAssignedText();
     initAssignedNamesGuard();
     initDescriptionText();
@@ -59,6 +60,80 @@ function initClearAssignedButton() {
     clearBtn.addEventListener("click", () => {
         clearAllAssignedText();
     });
+}
+
+function initWorkerLimitEditor() {
+    const editor = document.querySelector("[data-worker-limit-editor]");
+    const source = document.querySelector("[data-worker-limit-source]");
+    if (!editor || !source) return;
+
+    const list = editor.querySelector("[data-worker-limit-list]");
+    const addButton = editor.querySelector("[data-worker-limit-add]");
+    if (!list || !addButton) return;
+
+    const syncSource = () => {
+        const lines = Array.from(list.querySelectorAll(".worker-limit-row"))
+            .map((row) => {
+                const name = row.querySelector(".worker-limit-name")?.value.trim() || "";
+                const limit = row.querySelector(".worker-limit-value")?.value.trim() || "";
+                if (!name) return "";
+                return limit ? `${name}: ${limit}` : name;
+            })
+            .filter(Boolean);
+
+        source.value = lines.join("\n");
+        source.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+
+    const updateEmptyState = () => {
+        const existingEmpty = list.querySelector("[data-worker-limit-empty]");
+        const hasRows = Boolean(list.querySelector(".worker-limit-row"));
+
+        if (hasRows && existingEmpty) {
+            existingEmpty.remove();
+        } else if (!hasRows && !existingEmpty) {
+            const empty = document.createElement("div");
+            empty.className = "worker-limit-empty";
+            empty.dataset.workerLimitEmpty = "";
+            empty.textContent = "등록된 작업자가 없습니다.";
+            list.appendChild(empty);
+        }
+    };
+
+    const createRow = () => {
+        const row = document.createElement("div");
+        row.className = "worker-limit-row";
+        row.innerHTML = `
+            <input type="text" class="worker-limit-name" aria-label="작업자 이름" placeholder="이름" />
+            <span class="worker-limit-separator">:</span>
+            <input type="number" class="worker-limit-value" min="0" step="0.5" aria-label="근무 한도 시간" placeholder="시간" />
+            <span class="worker-limit-unit">H</span>
+            <button type="button" class="worker-limit-remove" aria-label="작업자 삭제" title="작업자 삭제">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        `;
+        return row;
+    };
+
+    list.addEventListener("input", syncSource);
+    list.addEventListener("click", (event) => {
+        const removeButton = event.target.closest(".worker-limit-remove");
+        if (!removeButton) return;
+        removeButton.closest(".worker-limit-row")?.remove();
+        updateEmptyState();
+        syncSource();
+    });
+
+    addButton.addEventListener("click", () => {
+        const row = createRow();
+        list.appendChild(row);
+        updateEmptyState();
+        row.querySelector(".worker-limit-name")?.focus();
+        syncSource();
+    });
+
+    updateEmptyState();
+    syncSource();
 }
 
 function initAssignedText() {
@@ -398,7 +473,6 @@ function initMasterItemsTab() {
                 throw new Error(data.message || "duplicate failed");
             }
 
-            alert(`선택한 ${data.count}건을 추가했습니다.`);
             location.reload();
         } catch (err) {
             console.error(err);
@@ -640,8 +714,16 @@ function initPlanMhAdjust() {
     syncAdjustedHidden();
 }
 
-function clearAllAssignedText() {
-    if (!confirm("고정 배정(이름) 입력을 모두 비우시겠습니까?")) return false;
+async function clearAllAssignedText() {
+    const confirmed = await window.AppDialog.confirm(
+        "고정 배정(이름) 입력을 모두 비우시겠습니까?",
+        {
+            title: "고정 배정 초기화",
+            variant: "danger",
+            confirmText: "모두 비우기",
+        },
+    );
+    if (!confirmed) return false;
 
     const inputs = document.querySelectorAll(".js-assigned-text");
     let clearedCount = 0;

@@ -1,0 +1,982 @@
+/* =========================================================
+   MASTER DATA ADMINISTRATION V2
+========================================================= */
+
+.master-v2-page {
+    width: min(1480px, calc(100% - 56px));
+    min-width: 0;
+    margin: 0 auto;
+    padding: 38px 0 70px;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.master-v2-header {
+    margin-bottom: 24px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+.master-v2-eyebrow {
+    margin-bottom: 7px;
+
+    color: #2563eb;
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.17em;
+}
+
+.master-v2-title {
+    margin: 0;
+
+    font-size: var(--font-size-page-title);
+    font-weight: 700;
+
+    letter-spacing: -0.045em;
+}
+
+.master-v2-description {
+    max-width: 680px;
+
+    margin: 9px 0 0;
+
+    color: #64748b;
+
+    font-size: var(--font-size-sm);
+    line-height: 1.7;
+}
+
+.master-v2-actions {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.master-v2-header-tools {
+    display: grid;
+    justify-items: end;
+    gap: 9px;
+}
+
+.master-total-records {
+    min-height: 42px;
+    padding: 7px 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.master-total-records > i {
+    font-size: 15px;
+}
+
+.master-total-records span,
+.master-total-records strong {
+    display: block;
+    white-space: nowrap;
+}
+
+.master-total-records span {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.master-total-records strong {
+    margin-top: 1px;
+    color: #0f172a;
+    font-size: var(--font-size-sm);
+    letter-spacing: normal;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.master-btn {
+    min-height: 40px;
+
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    text-decoration: none;
+
+    font-family: inherit;
+
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+
+    transition: 0.17s ease;
+}
+
+.master-btn:hover {
+    background: #f8fafc;
+
+    color: #0f172a;
+}
+
+.master-btn-primary {
+    border-color: #2563eb;
+
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+.master-btn-primary:hover {
+    background: #1d4ed8;
+
+    color: #ffffff;
+}
+
+.master-btn-danger {
+    border-color: #ef4444;
+
+    background: #ef4444;
+
+    color: #ffffff;
+}
+
+.master-btn-danger:hover {
+    background: #dc2626;
+
+    color: #ffffff;
+}
+
+/* =========================================================
+   DATA PANEL
+========================================================= */
+
+.master-v2-panel {
+    overflow: hidden;
+
+    border: 1px solid #edf1f5;
+
+    border-radius: 16px;
+
+    background: #ffffff;
+
+    box-shadow: 0 6px 26px rgba(15, 23, 42, 0.045);
+}
+
+.master-v2-panel-head {
+    min-height: 67px;
+
+    padding: 0 21px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border-bottom: 1px solid #edf1f5;
+}
+
+.master-v2-panel-head strong {
+    display: block;
+
+    font-size: var(--font-size-base);
+}
+
+.master-v2-panel-head span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #94a3b8;
+
+    font-size: var(--font-size-xs);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.master-v2-table-wrap {
+    overflow-x: auto;
+}
+
+.master-v2-table {
+    width: 100%;
+
+    margin: 0;
+
+    border-collapse: collapse;
+
+    font-size: var(--font-size-sm);
+}
+
+.master-v2-table thead th {
+    padding: 12px 11px;
+
+    background: #f8fafc;
+
+    color: #64748b;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+
+    letter-spacing: 0.05em;
+
+    text-transform: uppercase;
+}
+
+.master-v2-table tbody td {
+    padding: 12px 11px;
+    vertical-align: middle;
+    border-bottom: 1px solid #edf1f5;
+    background: #ffffff;
+    font-size: var(--font-size-sm);
+}
+
+.master-v2-table tbody tr:hover td {
+    background: #f8fbff;
+}
+
+.master-v2-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.master-code {
+    font-family: Consolas, "Courier New", monospace;
+
+    color: #0f172a;
+
+    font-weight: 600;
+}
+
+.master-description {
+    min-width: 300px;
+
+    color: #334155;
+
+    line-height: 1.55;
+}
+
+.master-mh {
+    font-weight: 700;
+
+    color: #2563eb;
+}
+
+/* =========================================================
+   EDIT INPUTS
+========================================================= */
+
+.master-v2-table input[type="text"],
+.master-v2-table input[type="number"],
+.master-v2-table textarea,
+.master-v2-table select {
+    width: 100%;
+
+    min-height: 35px;
+
+    padding: 6px 8px;
+
+    border: 1px solid #dce3eb;
+
+    border-radius: 7px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    font-family: inherit;
+
+    font-size: var(--font-size-xs);
+}
+
+.master-v2-table textarea {
+    resize: vertical;
+}
+
+.master-v2-table input:focus,
+.master-v2-table textarea:focus,
+.master-v2-table select:focus {
+    border-color: #60a5fa;
+
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.07);
+}
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.master-v2-table .form-check-input {
+    width: 15px;
+    height: 15px;
+
+    cursor: pointer;
+}
+
+.master-v2-table .form-check-input:checked {
+    background-color: #2563eb;
+
+    border-color: #2563eb;
+}
+
+/* =========================================================
+   PANEL FOOTER
+========================================================= */
+
+.master-v2-panel-footer {
+    padding: 12px 18px;
+
+    background: #f8fafc;
+
+    border-top: 1px solid #edf1f5;
+
+    color: #64748b;
+
+    text-align: center;
+
+    font-size: var(--font-size-xs);
+}
+
+/* =========================================================
+   IMPORT HERO
+========================================================= */
+
+.master-import-hero {
+    position: relative;
+
+    margin-bottom: 22px;
+
+    padding: 28px;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background:
+        radial-gradient(
+            circle at 90% 15%,
+            rgba(37, 99, 235, 0.28),
+            transparent 28%
+        ),
+        linear-gradient(135deg, #07111f, #0b1729);
+
+    color: #ffffff;
+}
+
+.master-import-eyebrow {
+    margin-bottom: 7px;
+
+    color: #60a5fa;
+
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+
+    letter-spacing: 0.17em;
+}
+
+.master-import-hero h1 {
+    margin: 0;
+
+    font-size: 33px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.04em;
+}
+
+.master-import-hero p {
+    max-width: 660px;
+
+    margin: 10px 0 0;
+
+    color: #94a3b8;
+
+    font-size: var(--font-size-sm);
+
+    line-height: 1.7;
+}
+
+/* =========================================================
+   IMPORT GUIDE
+========================================================= */
+
+.master-import-guide {
+    margin-bottom: 17px;
+
+    padding: 16px;
+
+    border: 1px solid #dbeafe;
+
+    border-radius: 11px;
+
+    background: #eff6ff;
+}
+
+.master-import-guide-title {
+    margin-bottom: 11px;
+
+    color: #1e3a8a;
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 800;
+}
+
+.master-import-columns {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.master-import-column {
+    padding: 6px 9px;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    border: 1px solid #dbeafe;
+
+    color: #334155;
+
+    font-size: var(--font-size-xs);
+
+    font-weight: 700;
+}
+
+.master-import-arrow {
+    color: #94a3b8;
+
+    font-size: var(--font-size-xs);
+}
+
+/* =========================================================
+   GRID INPUT
+========================================================= */
+
+.master-import-table {
+    max-width: 100%;
+
+    overflow: hidden;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 13px;
+}
+
+.master-import-panel-body {
+    padding: 20px;
+}
+
+.master-import-table .table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+}
+
+#pasteForm {
+    min-width: 0;
+}
+
+#gridTable {
+    width: 100%;
+
+    margin: 0;
+
+    border-collapse: collapse;
+}
+
+#gridTable thead th {
+    padding: 11px 8px;
+
+    border: 1px solid #edf1f5;
+
+    background: #f8fafc;
+
+    color: #64748b;
+
+    font-size: var(--font-size-sm);
+
+    font-weight: 800;
+}
+
+#gridTable tbody td {
+    padding: 5px;
+
+    border: 1px solid #edf1f5;
+
+    background: #ffffff;
+}
+
+#gridTable .input-cell {
+    min-height: 35px;
+
+    border: 1px solid transparent;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: #0f172a;
+
+    font-size: var(--font-size-sm);
+}
+
+#gridTable .input-cell:focus {
+    border-color: #60a5fa;
+
+    background: #ffffff;
+
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.06);
+}
+
+#gridTable .input-cell.paste-highlight {
+    background: #dcfce7;
+
+    transition: background 0.3s ease;
+}
+
+/* =========================================================
+   IMPORT ACTION
+========================================================= */
+
+.master-import-actions {
+    margin-top: 17px;
+
+    display: grid;
+
+    grid-template-columns:
+        150px
+        150px
+        minmax(220px, 1fr);
+
+    gap: 9px;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.master-v2-empty {
+    padding: 65px 25px;
+
+    text-align: center;
+
+    color: #94a3b8;
+}
+
+.master-v2-empty i {
+    display: block;
+
+    margin-bottom: 12px;
+
+    font-size: 28px;
+}
+
+.master-v2-empty strong {
+    display: block;
+
+    color: #334155;
+
+    font-size: var(--font-size-base);
+}
+
+/* =========================================================
+   STICKY EDIT BAR
+========================================================= */
+
+.master-edit-savebar {
+    position: sticky;
+
+    bottom: 16px;
+
+    z-index: 30;
+
+    margin-top: 18px;
+
+    padding: 12px 14px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.95);
+
+    backdrop-filter: blur(14px);
+
+    box-shadow: 0 14px 38px rgba(15, 23, 42, 0.11);
+}
+
+.master-edit-savebar span {
+    color: #64748b;
+
+    font-size: var(--font-size-xs);
+}
+
+.master-edit-savebar-actions {
+    display: flex;
+
+    gap: 8px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+    .master-v2-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .master-v2-header-tools {
+        width: 100%;
+        justify-items: start;
+    }
+}
+
+@media (max-width: 700px) {
+    .master-v2-page {
+        width: calc(100% - 28px);
+    }
+
+    .master-import-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .master-import-actions .master-btn {
+        width: 100%;
+    }
+
+    .master-edit-savebar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .master-edit-savebar-actions {
+        flex-direction: column;
+    }
+
+    .master-edit-savebar-actions .master-btn {
+        width: 100%;
+    }
+
+    /* Master Data list: phone-friendly summary cards. */
+    .master-v2-list-page .master-v2-eyebrow,
+    .master-v2-list-page .master-v2-description {
+        display: none;
+    }
+
+    .master-v2-list-page .master-v2-header {
+        gap: 7px;
+    }
+
+    .master-v2-list-page .master-v2-header-tools {
+        width: 100%;
+        gap: 6px;
+    }
+
+    .master-v2-list-page .master-total-records {
+        min-height: 32px;
+        padding: 4px 7px;
+        gap: 5px;
+        border-radius: 7px;
+    }
+
+    .master-v2-list-page .master-total-records > i {
+        font-size: 12px;
+    }
+
+    .master-v2-list-page .master-total-records span {
+        font-size: 8px;
+    }
+
+    .master-v2-list-page .master-total-records strong {
+        font-size: 11px;
+    }
+
+    .master-v2-list-page .master-v2-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .master-v2-list-page .master-v2-actions form {
+        min-width: 0;
+    }
+
+    .master-v2-list-page .master-v2-actions .master-btn {
+        width: 100%;
+        min-height: 32px;
+        padding: 0 4px;
+        gap: 3px;
+        border-radius: 7px;
+        font-size: 9px;
+        white-space: nowrap;
+    }
+
+    .master-v2-list-page .master-v2-panel-head {
+        min-height: 40px;
+        padding: 5px 8px;
+        gap: 6px;
+    }
+
+    .master-v2-list-page .master-v2-panel-head strong {
+        font-size: 12px;
+    }
+
+    .master-v2-list-page .master-v2-panel-head span {
+        margin-top: 1px;
+        font-size: 9px;
+    }
+
+    .master-v2-list-page .master-v2-table-wrap {
+        overflow-x: hidden;
+    }
+
+    .master-v2-list-page .master-v2-table,
+    .master-v2-list-page .master-v2-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .master-v2-list-page .master-v2-table colgroup,
+    .master-v2-list-page .master-v2-table thead {
+        display: none;
+    }
+
+    .master-v2-list-page .master-v2-table tbody {
+        padding: 5px;
+        background: #f3f6fa;
+    }
+
+    .master-v2-list-page .master-v2-table tbody tr {
+        display: grid;
+        grid-template-columns: 0.9fr 1.35fr 0.7fr 0.55fr;
+        grid-template-areas:
+            "aircraft wo op mh"
+            "description description description description";
+        gap: 0;
+        margin-bottom: 5px;
+        overflow: hidden;
+        border: 1px solid #dbe4ee;
+        border-radius: 7px;
+        background: #ffffff;
+    }
+
+    .master-v2-list-page .master-v2-table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td {
+        min-width: 0;
+        padding: 4px 5px;
+        border: 0;
+        border-right: 1px solid #edf1f5;
+        background: transparent;
+        font-size: 10px;
+        line-height: 1.25;
+        text-align: left !important;
+        overflow-wrap: anywhere;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td::before {
+        display: block;
+        margin-bottom: 2px;
+        color: #94a3b8;
+        font-family: Pretendard, sans-serif;
+        font-size: 7px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(1) {
+        grid-area: aircraft;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(1)::before {
+        content: "AIRCRAFT";
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(2) {
+        grid-area: wo;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(2)::before {
+        content: "W/O";
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(3) {
+        grid-area: op;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(3)::before {
+        content: "OP";
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(4) {
+        grid-area: description;
+        border-top: 1px solid #edf1f5;
+        border-right: 0;
+        color: #475569;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(4)::before {
+        content: "DESCRIPTION";
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(5) {
+        grid-area: mh;
+        border-right: 0;
+        color: #2563eb;
+    }
+
+    .master-v2-list-page .master-v2-table tbody td:nth-child(5)::before {
+        content: "M/H";
+    }
+
+    .master-v2-list-page .master-v2-table tbody tr:has(.master-v2-empty) {
+        display: block;
+    }
+
+    .master-v2-list-page .master-v2-table .master-v2-empty {
+        display: block;
+        width: 100%;
+        padding: 22px 10px;
+        text-align: center !important;
+    }
+
+    .master-v2-list-page .master-v2-table .master-v2-empty::before {
+        content: none;
+    }
+
+    .master-v2-list-page .master-v2-panel-footer {
+        display: none;
+    }
+
+    /* Clipboard import: show the grid immediately on phones. */
+    .master-v2-import-page .master-import-hero,
+    .master-v2-import-page .master-import-guide {
+        display: none;
+    }
+
+    .master-v2-import-page .master-v2-panel-head {
+        min-height: 38px;
+        padding: 5px 8px;
+    }
+
+    .master-v2-import-page .master-v2-panel-head strong {
+        font-size: 11px;
+    }
+
+    .master-v2-import-page .master-v2-panel-head span,
+    .master-v2-import-page .master-v2-panel-head > i {
+        display: none;
+    }
+
+    .master-v2-import-page .master-import-panel-body {
+        padding: 5px;
+    }
+
+    .master-v2-import-page .master-import-table {
+        border-radius: 7px;
+    }
+
+    .master-v2-import-page .master-import-table .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .master-v2-import-page #gridTable {
+        width: 720px;
+        min-width: 720px;
+        table-layout: fixed;
+    }
+
+    .master-v2-import-page #gridTable thead th {
+        padding: 7px 5px;
+        font-size: 11px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+    }
+
+    .master-v2-import-page #gridTable tbody td {
+        padding: 3px;
+    }
+
+    .master-v2-import-page #gridTable .input-cell {
+        min-width: 0;
+        min-height: 34px;
+        height: 34px;
+        padding: 5px 7px;
+        border-radius: 5px;
+        font-size: 14px !important;
+        line-height: 1.25;
+    }
+
+    .master-v2-import-page #gridTable .input-cell::placeholder {
+        font-size: 12px;
+    }
+
+    .master-v2-import-page .master-import-actions {
+        margin-top: 6px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .master-v2-import-page .master-import-actions .master-btn {
+        min-height: 34px;
+        padding: 0 6px;
+        gap: 4px;
+        border-radius: 7px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .master-v2-import-page .master-v2-panel-footer {
+        display: none;
+    }
+}

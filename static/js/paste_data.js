@@ -317,9 +317,21 @@ function showCustomConfirmDialog({
         !cancelBtn ||
         !proceedBtn
     ) {
-        if (showCancel) return Promise.resolve(window.confirm(message));
-        window.alert(message);
-        return Promise.resolve(true);
+        if (!window.AppDialog) return Promise.resolve(false);
+
+        if (showCancel) {
+            return window.AppDialog.confirm(message, {
+                title,
+                variant,
+                confirmText,
+            });
+        }
+
+        return window.AppDialog.alert(message, {
+            title,
+            variant,
+            confirmText,
+        }).then(() => true);
     }
 
     const pasteModalEl = document.getElementById("pasteDataModal");

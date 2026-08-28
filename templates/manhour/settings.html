@@ -3,13 +3,8 @@
 
 {% block title %}설정 | manhour System{% endblock %} 
 
-{% comment %} {% block background_image %} {%
-include "manhour/image/background_url.html" with bg_key="settings"
-bg_default="https://picsum.photos/id/1015/3072/2048?grayscale" %} {% endblock
-background_image %} {% endcomment %} 
-
 {% block content %}
-<div class="container" style="max-width: 1000px">
+<div class="container settings-page" style="max-width: 1000px">
     <div class="card my-4 p-4">
         <div
             class="d-flex align-items-center justify-content-between gap-3 mb-4 flex-wrap"
@@ -267,7 +262,14 @@ background_image %} {% endcomment %}
                                     </div>
                                 </form>
 
-                                <form method="POST" class="mt-2">
+                                <form
+                                    method="POST"
+                                    class="mt-2"
+                                    data-app-confirm="근무지를 삭제할까요? 삭제한 근무지는 목록에서 제거됩니다."
+                                    data-app-confirm-title="근무지 삭제"
+                                    data-app-confirm-variant="danger"
+                                    data-app-confirm-button="삭제"
+                                >
                                     {% csrf_token %}
                                     <input
                                         type="hidden"
@@ -282,7 +284,6 @@ background_image %} {% endcomment %}
                                     <button
                                         type="submit"
                                         class="btn btn-outline-danger btn-sm"
-                                    onclick="return confirm('근무지를 삭제할까요?');"
                                     >
                                         삭제
                                     </button>

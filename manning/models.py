@@ -154,6 +154,27 @@ class AreaTemplate(models.Model):
         return self.label
 
 
+class WorkPackage(models.Model):
+    name = models.CharField(max_length=150, unique=True, verbose_name="이름")
+    area_templates = models.ManyToManyField(
+        AreaTemplate,
+        related_name="work_packages",
+        blank=True,
+        verbose_name="사용 가능한 Area Template",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="사용")
+    sort_order = models.PositiveIntegerField(default=0, verbose_name="정렬 순서")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        verbose_name = "Work Package"
+        verbose_name_plural = "Work Packages"
+
+    def __str__(self):
+        return self.name
+
+
 class AreaTemplateItem(models.Model):
     template = models.ForeignKey(
         AreaTemplate,

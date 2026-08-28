@@ -1,25 +1,52 @@
-{% extends "manhour/base/base.html" %} 
+{% extends "manhour/base/result_v2_base.html" %}
 {% load static %} 
 
-{% block title %}{{ worker_name }}님의 시간표 | manhour{% endblock title %} 
+{% block title %} {{ worker_name }} | Personal Schedule {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/personal_schedule.css' %}" />
-{% endblock css %} 
+<link rel="stylesheet" href="{% static 'css/v2/personal_schedule_v2.css' %}" />
+{% endblock css %}
 
 {% block js %}
 <script defer src="{% static 'js/personal_schedule.js' %}"></script>
 {% endblock js %} 
 
-{% comment %} {% block background_image %} {% include
-"manhour/image/background_url.html" with bg_key="session_list"
-bg_default="https://picsum.photos/id/296/3072/2048" %} {% endblock
-background_image %} {% endcomment %} 
-
 {% block content %}
-<div
-    class="container rounded-3"
-    style="max-width: 1000px"
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a
+            href="{% url 'manhour:assigned_summary' session.id %}"
+            class="assignment-brand"
+        >
+            <div class="assignment-brand-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <div>
+                <strong>PERSONAL SCHEDULE</strong>
+                <span>Worker Timeline</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
+            <a
+                href="{% url 'manhour:assigned_summary' session.id %}"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span>Time View</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main
+    class="personal-v2-page"
     id="personal-schedule-root"
     data-session-id="{{ session.id }}"
     data-current-worker-id="{{ worker_id|default:'' }}"
@@ -29,164 +56,148 @@ background_image %} {% endcomment %}
     data-manual-reset-url="{% url 'manhour:reset_manual_input' session.id %}"
     data-all-worker-ids="[{% for w in session.worker_set.all %}{{ w.id }}{% if not forloop.last %}, {% endif %}{% endfor %}]"
 >
-    <div
-        class="d-flex justify-content-between align-items-center flex-wrap gap-2"
-        data-aos="fade-down"
-    >
-        <div class="mb-2 border-start border-4 border-primary ps-3">
-            <span class="text-white fw-bold fs-4">{{ worker_name }}</span>
-            <span class="text-warning small fs-5 ms-2">님의 시간표</span>
-            <div class="text-white-50 small mt-1">
-                생성 날짜: {{ session.created_at|date:"Y-m-d" }}
-                {% comment %} 생성 날짜: {{ session.created_at|date:"Y-m-d H:i" }} {% endcomment %}
+    <!-- HERO -->
+
+    <section class="personal-v2-header">
+        <div class="personal-v2-header-inner">
+            <div>
+                <div class="personal-v2-eyebrow">WORKER ASSIGNMENT</div>
+
+                <h1 class="personal-v2-name">{{ worker_name }}</h1>
+
+                <div class="personal-v2-sub">
+                    {{ session.created_at|date:"Y-m-d" }} · {{ session.get_shift_type_display|default:session.shift_type }}
+                </div>
+            </div>
+
+            <div class="personal-v2-header-tools">
+                <div class="personal-v2-header-stats">
+                    <div class="personal-v2-header-stat">
+                        <i class="bi bi-clock-history"></i>
+                        <span>
+                            TOTAL MANHOUR
+                            <strong>{{ total_mh }} M/H</strong>
+                        </span>
+                    </div>
+
+                    <div class="personal-v2-header-stat">
+                        <i class="bi bi-list-check"></i>
+                        <span>
+                            WORK ITEMS
+                            <strong>{{ task_count|default:0 }}</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="personal-v2-actions">
+                    <button
+                        type="button"
+                        id="copy-schedule-btn"
+                        class="personal-v2-btn"
+                    >
+                        <i class="bi bi-clipboard-check"></i>
+                        Copy
+                    </button>
+
+                    <button
+                        type="button"
+                        class="personal-v2-btn personal-v2-btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#manualInputModal"
+                    >
+                        <i class="bi bi-pencil-square"></i>
+                        간비 입력
+                    </button>
+                </div>
             </div>
         </div>
-
-        <div class="d-flex gap-2 align-items-center flex-wrap ms-auto">
-            <button
-                type="button"
-                class="btn btn-light btn-sm rounded-pill px-3 fw-bold py-2 d-none d-md-inline-flex"
-                id="copy-schedule-btn"
-            >
-                <i class="bi bi-clipboard-check me-1"></i> 복사
-            </button>
-
-            <button
-                type="button"
-                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold py-2"
-                data-bs-toggle="modal"
-                data-bs-target="#manualInputModal"
-            >
-                <i class="bi bi-pencil-square me-1"></i> 간비 입력
-            </button>
-
-            <a
-                href="{% url 'manhour:assigned_summary' session.id %}"
-                class="btn btn-dark btn-sm rounded-pill fw-bold px-3 ms-2 py-2"
-            >
-                <i class="bi bi-arrow-left"></i>
-                <span class="d-none d-md-inline">이전 화면으로</span>
-            </a>
-        </div>
-    </div>
+    </section>
 
     {% if schedule %}
-    <div class="row g-3 my-3 py-2" data-aos="fade-up">
-        <div class="col-md-6">
-            <div
-                class="widget-card d-flex align-items-center gap-3 py-2 px-4 rounded-pill border-0"
-            >
-                <div
-                    class="bg-light bg-opacity-10 p-3 rounded-circle text-primary"
-                >
-                    <i class="bi bi-clock-history fs-4"></i>
-                </div>
-                <div>
-                    <div
-                        class="small text-muted text-uppercase fw-bold"
-                        style="letter-spacing: 1px"
-                    >
-                        Total Hours
-                    </div>
-                    <div class="fs-4 fw-bold text-dark">
-                        {{ total_mh }} <span class="fs-6 text-muted">M/H</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-md-6">
-            <div
-                class="widget-card bg-warning d-flex align-items-center gap-3 py-2 px-4 rounded-pill border-0"
-            >
-                <div
-                    class="bg-success bg-opacity-10 p-3 rounded-circle text-success"
-                >
-                    <i class="bi bi-check2-square fs-4"></i>
-                </div>
-                <div>
-                    <div
-                        class="small text-muted text-uppercase fw-bold"
-                        style="letter-spacing: 1px"
-                    >
-                        Task Count
-                    </div>
-                    <div class="fs-4 fw-bold text-dark">
-                        {{ unique_wo_count }}
-                        <span class="fs-6 text-muted">건</span>
-                        <span class="fs-6 text-muted">(OP 기준 :</span>
-                        <span class="fs-5 text-dark fw-bold"
-                            >{{ task_count }}</span
-                        >
-                        <span class="fs-6 text-muted">건)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="card border-0 shadow-lg rounded-3 overflow-hidden"
-        data-aos="fade-up"
-        data-aos-delay="100"
-    >
+    <section class="personal-v2-table-card">
         <div class="table-responsive">
-            <table
-                id="scheduleTable"
-                class="table table-schedule align-middle mb-0 text-center"
-            >
-                <thead class="bg-white bg-opacity-50">
+            <table id="scheduleTable" class="table text-center align-middle">
+                <thead>
                     <tr>
-                        <th width="20%">WO</th>
-                        <th width="10%">OP</th>
-                        <th width="20%">간비</th>
-                        <th width="25%">Start</th>
-                        <th width="25%">End</th>
+                        <th>WO</th>
+                        <th>OP</th>
+                        <th>간비</th>
+                        <th>Start</th>
+                        <th>End</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {% for item in schedule %} {% if item.wo != 'EMPTY_SLOT' %}
+
                     <tr
                         class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
-                        style="font-size: 0.9rem"
                     >
-                        <td class="fw-bold text-dark">
-                            {% if item.wo != '간비' %} {{ item.wo }} {% else %} &nbsp; {% endif %}
+                        <!-- WO -->
+
+                        <td{% if item.wo == '간비' or not item.wo %} class="personal-v2-empty-cell"{% endif %}>
+                            {% if item.wo != '간비' and item.wo %}{{ item.wo }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
                         </td>
-                        <td>
-                            {% if item.op %} {{ item.op }} {% else %} &nbsp; {% endif %}
+
+                        <!-- OP -->
+
+                        <td{% if not item.op %} class="personal-v2-empty-cell"{% endif %}>
+                            {% if item.op %}{{ item.op }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
                         </td>
-                        <td class="fw-bold text-primary">
-                            {% if item.wo == '간비' and item.desc and item.desc != '0' %} {{ item.desc }} {% else %} &nbsp; {% endif %}
+
+                        <!-- INDIRECT CODE -->
+
+                        <td class="personal-v2-indirect-code{% if item.wo != '간비' or not item.desc or item.desc == '0' %} personal-v2-empty-cell{% endif %}">
+                            {% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
                         </td>
-                        <td class="fw-bold font-monospace text-secondary">
-                            {% if item.wo != '간비' or item.desc != '0' %} {{ item.start_str }} {% endif %}
+
+                        <!-- START -->
+
+                        <td class="font-monospace">
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
                         </td>
-                        <td class="fw-bold font-monospace text-secondary">
-                            {% if item.wo != '간비' or item.desc != '0' %} {{ item.end_str }} {% endif %}
+
+                        <!-- END -->
+
+                        <td class="font-monospace">
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% endif %} {% empty %}
+
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            배정된 작업이 없습니다.
                         </td>
                     </tr>
-                    {% endif %} {% endfor %}
+
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <div
-            class="card-footer bg-white bg-opacity-25 border-0 text-center py-3"
-        >
-            <small class="text-dark opacity-75">
-                <i class="bi bi-info-circle me-1"></i>
-                표 내용을 드래그하거나 상단 [복사] 버튼을 사용하세요.
-            </small>
+        <div class="personal-v2-table-footer">
+            <i class="bi bi-info-circle me-1"></i>
+
+            숫자를 마우스로 선택하면 값이 없는 셀도 복사 범위에 포함됩니다.
         </div>
-    </div>
+    </section>
+
     {% else %}
-    <div class="text-center text-white my-5 py-5 rounded-3" data-aos="zoom-in">
-        <i class="bi bi-calendar-x fs-1 opacity-50 mb-3 d-block"></i>
-        <h6 class="text-white fw-bold">배정된 작업이 없습니다.</h6>
-    </div>
+
+    <section class="personal-v2-empty">
+        <i class="bi bi-calendar-x"></i>
+
+        <h3>배정된 작업이 없습니다.</h3>
+
+        <p>Assignment Console에서 작업 배정을 먼저 진행하세요.</p>
+    </section>
+
     {% endif %}
-</div>
+</main>
 
 <!-- 수동 입력 모달 -->
 <div
@@ -399,15 +410,4 @@ background_image %} {% endcomment %}
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const modalIds = ["manualInputModal", "duplicateTimeModal"];
-        modalIds.forEach((id) => {
-            const modalEl = document.getElementById(id);
-            if (modalEl && modalEl.parentElement !== document.body) {
-                document.body.appendChild(modalEl);
-            }
-        });
-    });
-</script>
 {% endblock content %}

@@ -188,7 +188,7 @@
     function wireDragAndDrop(block) {
         var dragged = null;
 
-        block.addEventListener("click", function (event) {
+        block.addEventListener("click", async function (event) {
             var target = event.target;
 
             if (target.classList.contains("dnd-remove")) {
@@ -203,7 +203,12 @@
                     ? '"' + name + '" 항목을 삭제할까요?'
                     : "이 항목을 삭제할까요?";
 
-                if (!window.confirm(message)) {
+                var confirmed = await window.AppDialog.confirm(message, {
+                    title: "템플릿 항목 삭제",
+                    variant: "danger",
+                    confirmText: "삭제",
+                });
+                if (!confirmed) {
                     return;
                 }
 
@@ -324,7 +329,14 @@
             return;
         }
 
-        form.addEventListener("submit", function (event) {
+        var confirmedSubmit = false;
+
+        form.addEventListener("submit", async function (event) {
+            if (confirmedSubmit) {
+                confirmedSubmit = false;
+                return;
+            }
+
             var hasDuplicate = false;
             var deleteChecked = form.querySelectorAll(
                 ".template-delete-check:checked"
@@ -340,17 +352,32 @@
 
             if (hasDuplicate) {
                 event.preventDefault();
-                window.alert("중복 항목이 있는 템플릿은 저장할 수 없습니다. 중복을 먼저 정리해 주세요.");
+                await window.AppDialog.alert(
+                    "중복 항목이 있는 템플릿은 저장할 수 없습니다. 중복을 먼저 정리해 주세요.",
+                    {
+                        title: "중복 항목 확인",
+                        variant: "danger",
+                    },
+                );
                 return;
             }
 
             if (deleteChecked > 0) {
-                var ok = window.confirm(
-                    "삭제 체크된 템플릿이 있습니다. 이대로 저장할까요?"
+                event.preventDefault();
+                var ok = await window.AppDialog.confirm(
+                    "삭제 체크된 템플릿이 있습니다. 이대로 저장할까요?",
+                    {
+                        title: "템플릿 삭제 확인",
+                        variant: "danger",
+                        confirmText: "저장",
+                    },
                 );
                 if (!ok) {
-                    event.preventDefault();
+                    return;
                 }
+
+                confirmedSubmit = true;
+                form.requestSubmit(event.submitter || undefined);
             }
         });
     }

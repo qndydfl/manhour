@@ -1,0 +1,136 @@
+.app-dialog[hidden] {
+    display: none;
+}
+
+body.app-dialog-open {
+    overflow: hidden;
+}
+
+.app-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    padding: 20px;
+    display: grid;
+    place-items: center;
+    background: rgba(7, 17, 31, 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.app-dialog-card {
+    width: min(440px, 100%);
+    padding: 26px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+    animation: app-dialog-enter 180ms ease-out;
+}
+
+.app-dialog-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 17px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #fff7ed;
+    color: #ea580c;
+    font-size: 18px;
+}
+
+.app-dialog.is-danger .app-dialog-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.app-dialog.is-success .app-dialog-icon {
+    background: #ecfdf5;
+    color: #16a34a;
+}
+
+.app-dialog.is-info .app-dialog-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.app-dialog-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+.app-dialog-message {
+    margin: 9px 0 22px;
+    color: #64748b;
+    font-size: var(--font-size-sm, 13px);
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.app-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.app-dialog-btn {
+    min-width: 86px;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    font: inherit;
+    font-size: var(--font-size-sm, 13px);
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.app-dialog-btn-cancel {
+    background: #ffffff;
+    color: #475569;
+}
+
+.app-dialog-btn-confirm {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.app-dialog.is-danger .app-dialog-btn-confirm {
+    border-color: #dc2626;
+    background: #dc2626;
+}
+
+.app-dialog.is-success .app-dialog-btn-confirm {
+    border-color: #16a34a;
+    background: #16a34a;
+}
+
+@keyframes app-dialog-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 520px) {
+    .app-dialog-card {
+        padding: 22px 18px;
+    }
+
+    .app-dialog-actions {
+        flex-direction: column-reverse;
+    }
+
+    .app-dialog-btn {
+        width: 100%;
+    }
+}
