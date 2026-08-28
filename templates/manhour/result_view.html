@@ -1,4 +1,4 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
 
 {% block title %}배정 결과 | {{ session.name }} {% endblock title %} 
@@ -9,7 +9,27 @@
 
 {% block js %}
 <script defer src="{% static 'js/result_view.js' %}?v=20260827-3"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const workerStatusPanel = document.querySelector(
+            ".worker-status-panel",
+        );
+        const mobileViewport = window.matchMedia("(max-width: 700px)");
+
+        if (!workerStatusPanel) {
+            return;
+        }
+
+        const syncWorkerStatusPanel = function () {
+            workerStatusPanel.open = !mobileViewport.matches;
+        };
+
+        mobileViewport.addEventListener("change", syncWorkerStatusPanel);
+        syncWorkerStatusPanel();
+    });
+</script>
 {% endblock js %} 
+
 
 {% block content %}
 
@@ -71,7 +91,6 @@
 </header>
 
 <div class="result-view-container">
-
     {% if strict_limit and unassigned_count %}
 
     <div class="assignment-warning">
@@ -88,15 +107,16 @@
 
     {% endif %}
 
-    <div
+    <details
         class="card border-0 shadow-lg mb-5 overflow-hidden glass-panel worker-status-panel"
         data-aos="fade-up"
         data-aos-delay="100"
     >
-        <div class="card-header bg-white border-bottom">
+        <summary class="card-header bg-white border-bottom">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황
+                    <i class="bi bi-person-gear text-primary me-2"></i>작업자
+                    현황
                     <span
                         class="badge text-bg-primary rounded-pill text-white border ms-2"
                     >
@@ -104,7 +124,7 @@
                     </span>
                 </h5>
             </div>
-        </div>
+        </summary>
 
         <div class="card-body p-4">
             <form
@@ -174,7 +194,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </details>
 
     <section class="assignment-section-head work-detail-section-head">
         <div>
@@ -241,63 +261,80 @@
                                 style="font-size: 0.9rem"
                             >
                                 <div class="work-detail-cell-value">
-                                {% if not item.original_gibun or item.original_gibun == item.gibun_input %} {{ item.gibun_input }} {% else %}
-                                <div class="mt-1">
-                                    <span
-                                        class="badge bg-warning text-dark original-gibun-badge"
-                                    >
-                                        {{ item.original_gibun }}
-                                    </span>
-                                </div>
-                                {% endif %}
+                                    {% if not item.original_gibun or item.original_gibun == item.gibun_input %}
+                                    {{ item.gibun_input }} {% else %}
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge"
+                                        >
+                                            {{ item.original_gibun }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </td>
-                            <td class="col-wo text-dark fw-bold" data-label="W/O">
-                                <div class="work-detail-cell-value">{{ item.work_order }}</div>
+                            <td
+                                class="col-wo text-dark fw-bold"
+                                data-label="W/O"
+                            >
+                                <div class="work-detail-cell-value">
+                                    {{ item.work_order }}
+                                </div>
                             </td>
-                            <td class="col-op text-dark fw-bold" data-label="OP">
-                                <div class="work-detail-cell-value">{{ item.op }}</div>
+                            <td
+                                class="col-op text-dark fw-bold"
+                                data-label="OP"
+                            >
+                                <div class="work-detail-cell-value">
+                                    {{ item.op }}
+                                </div>
                             </td>
                             <td
                                 class="col-desc text-start desc-hide"
                                 data-label="작업 설명"
                                 title="{{ item.description }}"
                             >
-                                <div class="work-detail-cell-value">{{ item.description }}</div>
+                                <div class="work-detail-cell-value">
+                                    {{ item.description }}
+                                </div>
                             </td>
                             <td class="col-mh" data-label="M/H">
                                 <div class="work-detail-cell-value">
-                                <span
-                                    class="badge bg-soft-primary text-primary fw-bold"
-                                >
-                                    {{ item.adjusted_mh|floatformat:1 }}H
-                                </span>
-                                </div>
-                            </td>
-                            <td class="col-assign text-start" data-label="배정 결과">
-                                <div class="work-detail-cell-value work-detail-assignees">
-                                {% for assign in item.assignments.all %}
-                                <div class="d-inline-block me-1 mb-1">
                                     <span
-                                        class="badge bg-white border border-secondary text-dark fw-normal shadow-sm"
+                                        class="badge bg-soft-primary text-primary fw-bold"
                                     >
-                                        <i
-                                            class="bi bi-person-fill text-primary me-1"
-                                        ></i
-                                        >{{ assign.worker.name }}
-                                        <span
-                                            class="badge bg-primary rounded-pill ms-1"
-                                        >
-                                            {{ assign.allocated_mh|floatformat:1 }}H
-                                        </span>
+                                        {{ item.adjusted_mh|floatformat:1 }}H
                                     </span>
                                 </div>
-                                {% empty %}
-                                <span
-                                    class="badge unassigned-badge"
-                                    >미배정</span
+                            </td>
+                            <td
+                                class="col-assign text-start"
+                                data-label="배정 결과"
+                            >
+                                <div
+                                    class="work-detail-cell-value work-detail-assignees"
                                 >
-                                {% endfor %}
+                                    {% for assign in item.assignments.all %}
+                                    <div class="d-inline-block me-1 mb-1">
+                                        <span
+                                            class="badge bg-white border border-secondary text-dark fw-normal shadow-sm"
+                                        >
+                                            <i
+                                                class="bi bi-person-fill text-primary me-1"
+                                            ></i
+                                            >{{ assign.worker.name }}
+                                            <span
+                                                class="badge bg-primary rounded-pill ms-1"
+                                            >
+                                                {{ assign.allocated_mh|floatformat:1 }}H
+                                            </span>
+                                        </span>
+                                    </div>
+                                    {% empty %}
+                                    <span class="badge unassigned-badge"
+                                        >미배정</span
+                                    >
+                                    {% endfor %}
                                 </div>
                             </td>
                         </tr>

@@ -6,32 +6,25 @@ body.assignment-console-body {
     padding-bottom: 0;
 }
 
-
 /* =========================================================
    MAIN
 ========================================================= */
 
-body.assignment-console-body
-> .container {
-    width:
-        min(1540px, calc(100% - 48px));
+body.assignment-console-body > .container {
+    width: min(1540px, calc(100% - 48px));
 
     max-width: none;
 
     margin: 0 auto;
 
-    padding:
-        34px 0;
+    padding: 34px 0;
 }
-
 
 /* =========================================================
    FIRST HEADER
 ========================================================= */
 
-body.assignment-console-body
-> .container
-> .d-flex:first-child {
+body.assignment-console-body > .container > .d-flex:first-child {
     margin-bottom: 15px;
 
     padding: 25px 27px !important;
@@ -44,19 +37,12 @@ body.assignment-console-body
             rgba(37, 99, 235, 0.25),
             transparent 27%
         ),
-        linear-gradient(
-            135deg,
-            #07111f,
-            #0b1729
-        );
+        linear-gradient(135deg, #07111f, #0b1729);
 
     color: #ffffff;
 }
 
-
-body.assignment-console-body
-> .container
-> .d-flex:first-child h4 {
+body.assignment-console-body > .container > .d-flex:first-child h4 {
     color: #ffffff !important;
 
     font-size: 27px;
@@ -64,15 +50,10 @@ body.assignment-console-body
     letter-spacing: -0.035em;
 }
 
-
-body.assignment-console-body
-> .container
-> .d-flex:first-child
-.btn {
+body.assignment-console-body > .container > .d-flex:first-child .btn {
     min-height: 38px;
 
-    padding:
-        0 13px !important;
+    padding: 0 13px !important;
 
     border-radius: 8px !important;
 
@@ -83,9 +64,7 @@ body.assignment-console-body
     font-weight: 700;
 }
 
-body.assignment-console-body
-> .container
-.manage-header-result-btn {
+body.assignment-console-body > .container .manage-header-result-btn {
     min-width: 104px;
     padding: 0 14px !important;
     display: inline-flex;
@@ -96,7 +75,6 @@ body.assignment-console-body
     text-align: center;
 }
 
-
 /* =========================================================
    INSTRUCTION
 ========================================================= */
@@ -106,8 +84,7 @@ body.assignment-console-body
 ========================================================= */
 
 #manage-form .card {
-    border:
-        1px solid #edf1f5 !important;
+    border: 1px solid #edf1f5 !important;
 
     border-radius: 14px !important;
 
@@ -115,30 +92,24 @@ body.assignment-console-body
 
     background: #ffffff;
 
-    box-shadow:
-        0 5px 22px rgba(15, 23, 42, 0.04) !important;
+    box-shadow: 0 5px 22px rgba(15, 23, 42, 0.04) !important;
 }
-
 
 #manage-form .card-header {
     min-height: 48px;
 
-    padding:
-        0 15px !important;
+    padding: 0 15px !important;
 
     display: flex;
 
     align-items: center;
 
-    background:
-        #ffffff !important;
+    background: #ffffff !important;
 
-    border-bottom:
-        1px solid #edf1f5 !important;
+    border-bottom: 1px solid #edf1f5 !important;
 
     font-size: var(--font-size-base);
 }
-
 
 /* =========================================================
    CONFIGURATION CARDS
@@ -209,7 +180,6 @@ body.assignment-console-body
 #manage-form .manage-limit-card {
     min-height: 150px;
 }
-
 
 /* =========================================================
    HORIZONTAL WORKER LIMIT EDITOR
@@ -337,21 +307,17 @@ body.assignment-console-body
     font-size: var(--font-size-xs);
 }
 
-
 /* =========================================================
    MAIN TABLE CARD
 ========================================================= */
 
-#manage-form
-.card.shadow-sm.border-0.mb-4 {
+#manage-form .card.shadow-sm.border-0.mb-4 {
     grid-column: 1 / -1;
     margin-top: 6px;
     margin-bottom: 0 !important;
 
-    border-radius:
-        15px !important;
+    border-radius: 15px !important;
 }
-
 
 /* =========================================================
    TABLE
@@ -365,10 +331,8 @@ body.assignment-console-body
     font-size: var(--font-size-xs);
 }
 
-
 #manageItemsTable thead th {
-    padding:
-        11px 8px;
+    padding: 11px 8px;
 
     position: sticky;
 
@@ -376,13 +340,11 @@ body.assignment-console-body
 
     z-index: 15;
 
-    background:
-        #f8fafc !important;
+    background: #f8fafc !important;
 
     color: #64748b;
 
-    border-bottom:
-        1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
 
     font-size: var(--font-size-sm);
 
@@ -391,122 +353,89 @@ body.assignment-console-body
     letter-spacing: 0.05em;
 }
 
-
 #manageItemsTable tbody td {
-    padding:
-        7px;
+    padding: 7px;
 
     vertical-align: middle;
 
-    border-color:
-        #edf1f5;
+    border-color: #edf1f5;
 
     background: #ffffff;
 }
 
-
-#manageItemsTable
-.sortable-row:hover td {
+#manageItemsTable .sortable-row:hover td {
     background: #f8fbff;
 }
-
 
 /* =========================================================
    GROUP HEADER
 ========================================================= */
 
-#manageItemsTable
-.group-header td {
-    padding:
-        9px 12px;
+#manageItemsTable .group-header td {
+    padding: 9px 12px;
 
-    background:
-        #f1f5f9 !important;
+    background: #f1f5f9 !important;
 
-    border-top:
-        1px solid #e2e8f0;
+    border-top: 1px solid #e2e8f0;
 
-    border-bottom:
-        1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-
-#manageItemsTable
-.group-header
-.fw-bold {
+#manageItemsTable .group-header .fw-bold {
     font-size: var(--font-size-sm) !important;
 }
-
 
 /* =========================================================
    TABLE INPUTS
 ========================================================= */
 
-#manageItemsTable
-.table-input,
-#manageItemsTable
-.form-control,
-#manageItemsTable
-.form-select {
+#manageItemsTable .table-input,
+#manageItemsTable .form-control,
+#manageItemsTable .form-select {
     min-height: 33px;
 
-    padding:
-        5px 7px;
+    padding: 5px 7px;
 
-    border:
-        1px solid #dce3eb !important;
+    border: 1px solid #dce3eb !important;
 
     border-radius: 6px;
 
     outline: none;
 
-    background:
-        #ffffff !important;
+    background: #ffffff !important;
 
     color: #0f172a !important;
 
     font-size: var(--font-size-xs);
 }
 
+#manageItemsTable .table-input:focus,
+#manageItemsTable .form-control:focus,
+#manageItemsTable .form-select:focus {
+    border-color: #60a5fa !important;
 
-#manageItemsTable
-.table-input:focus,
-#manageItemsTable
-.form-control:focus,
-#manageItemsTable
-.form-select:focus {
-    border-color:
-        #60a5fa !important;
-
-    box-shadow:
-        0 0 0 2px rgba(37, 99, 235, 0.07);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.07);
 }
-
 
 /* =========================================================
    DESCRIPTION
 ========================================================= */
 
-#manageItemsTable
-.desc-one-line {
+#manageItemsTable .desc-one-line {
     line-height: 1.45;
 
     resize: none;
 }
 
-
 /* =========================================================
    ASSIGNED
 ========================================================= */
 
-#manageItemsTable
-.col-assign {
-    background:#f8fbff !important;
+#manageItemsTable .col-assign {
+    background: #f8fbff !important;
 }
 
-
-#manageItemsTable
-.js-assigned-text {
+#manageItemsTable .js-assigned-text {
     min-width: 150px;
     min-height: 33px;
     margin: 0;
@@ -516,37 +445,30 @@ body.assignment-console-body
     resize: none;
 }
 
-
 /* =========================================================
    DRAG HANDLE
 ========================================================= */
 
-#manageItemsTable
-.drag-handle {
+#manageItemsTable .drag-handle {
     cursor: grab;
 
     color: #94a3b8 !important;
 }
 
-
-#manageItemsTable
-.drag-handle:hover {
+#manageItemsTable .drag-handle:hover {
     color: #2563eb !important;
 }
-
 
 /* =========================================================
    DELETE
 ========================================================= */
 
-#manageItemsTable
-.delete-trigger {
+#manageItemsTable .delete-trigger {
     width: 15px;
     height: 15px;
 
     cursor: pointer;
 }
-
 
 /* =========================================================
    ACTION CARD
@@ -651,55 +573,39 @@ body.assignment-console-body
     color: #ffffff;
 }
 
-
 /* =========================================================
    PASTE DATA MODAL
 ========================================================= */
 
-#pasteDataModal
-.modal-content {
+#pasteDataModal .modal-content {
     overflow: hidden;
 
     border: 0 !important;
 
     border-radius: 16px !important;
 
-    box-shadow:
-        0 20px 65px rgba(15, 23, 42, 0.18) !important;
+    box-shadow: 0 20px 65px rgba(15, 23, 42, 0.18) !important;
 }
 
+#pasteDataModal .modal-header {
+    padding: 17px 20px;
 
-#pasteDataModal
-.modal-header {
-    padding:
-        17px 20px;
-
-    background:
-        #07111f !important;
+    background: #07111f !important;
 }
 
-
-#pasteDataModal
-.modal-title {
+#pasteDataModal .modal-title {
     font-size: 14px;
 }
 
-
-#pasteDataModal
-.modal-body {
+#pasteDataModal .modal-body {
     background: #ffffff;
 }
 
-
-#pasteDataModal
-.nav-tabs {
-    border-bottom:
-        1px solid #e2e8f0;
+#pasteDataModal .nav-tabs {
+    border-bottom: 1px solid #e2e8f0;
 }
 
-
-#pasteDataModal
-.nav-link {
+#pasteDataModal .nav-link {
     border: 0;
 
     color: #64748b;
@@ -709,17 +615,13 @@ body.assignment-console-body
     font-weight: 700;
 }
 
-
-#pasteDataModal
-.nav-link.active {
+#pasteDataModal .nav-link.active {
     color: #2563eb;
 
-    border-bottom:
-        2px solid #2563eb;
+    border-bottom: 2px solid #2563eb;
 
     background: transparent;
 }
-
 
 /* =========================================================
    GRID TABLE
@@ -729,7 +631,6 @@ body.assignment-console-body
     font-size: var(--font-size-xs);
 }
 
-
 #gridTable thead th {
     background: #f8fafc;
 
@@ -737,7 +638,6 @@ body.assignment-console-body
 
     font-size: var(--font-size-xs);
 }
-
 
 /* =========================================================
    MASTER DATA TAB
@@ -749,11 +649,9 @@ body.assignment-console-body
     font-size: var(--font-size-xs);
 }
 
-
 #masterItemsTableBody td {
     font-size: var(--font-size-xs);
 }
-
 
 /* =========================================================
    ADJUST MH
@@ -763,28 +661,23 @@ body.assignment-console-body
     min-width: 78px;
 }
 
-
 /* =========================================================
    CHANGED AIRCRAFT
 ========================================================= */
 
 .gibun-changed td {
-    background:
-        #fffdf5 !important;
+    background: #fffdf5 !important;
 }
-
 
 .original-gibun-badge {
     font-size: 7px;
 }
-
 
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 900px) {
-
     #manage-form {
         grid-template-columns: 1fr;
     }
@@ -809,13 +702,10 @@ body.assignment-console-body
         min-height: 0;
     }
 
-    body.assignment-console-body
-    > .container {
-        width:
-            calc(100% - 28px);
+    body.assignment-console-body > .container {
+        width: calc(100% - 28px);
         padding: 28px 0;
     }
-
 }
 
 @media (max-width: 560px) {
@@ -864,7 +754,7 @@ body.assignment-console-body
 @media (max-width: 700px) {
     :root {
         --manage-mobile-topbar-height: 48px;
-        --manage-mobile-edge-gap: 4px;
+        --manage-mobile-edge-gap: 0px;
     }
 
     body.assignment-console-body.manage-items-body {
@@ -873,12 +763,16 @@ body.assignment-console-body
     }
 
     body.assignment-console-body.manage-items-body > .manage-items-topbar,
-    body.assignment-console-body.manage-items-body > .manage-items-topbar .assignment-topbar-inner {
+    body.assignment-console-body.manage-items-body
+        > .manage-items-topbar
+        .assignment-topbar-inner {
         height: var(--manage-mobile-topbar-height);
         min-height: var(--manage-mobile-topbar-height);
     }
 
-    body.assignment-console-body.manage-items-body > .manage-items-topbar + .container {
+    body.assignment-console-body.manage-items-body
+        > .manage-items-topbar
+        + .container {
         width: calc(100% - 12px);
         margin: 0 auto !important;
         padding-top: var(--manage-mobile-edge-gap) !important;
@@ -896,8 +790,7 @@ body.assignment-console-body
     .manage-config-grid {
         position: sticky;
         top: calc(
-            var(--manage-mobile-topbar-height) +
-            var(--manage-mobile-edge-gap)
+            var(--manage-mobile-topbar-height) + var(--manage-mobile-edge-gap)
         );
         z-index: 90;
         display: grid;
@@ -1026,18 +919,24 @@ body.assignment-console-body
     }
 
     #manage-form .manage-action-inner {
-        min-height: 38px;
+        min-height: 0;
         padding: 3px 5px;
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
     }
 
     .manage-action-copy {
+        grid-column: 1;
         display: flex;
         padding: 0;
         border: 0;
+    }
+
+    .manage-action-copy .manage-config-title {
+        white-space: nowrap;
     }
 
     .manage-action-copy > span:last-child {
@@ -1045,6 +944,9 @@ body.assignment-console-body
     }
 
     .manage-action-buttons {
+        grid-column: 1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 3px;
     }
 
@@ -1123,7 +1025,9 @@ body.assignment-console-body
         display: grid;
         width: 100%;
         box-sizing: border-box;
-        grid-template-columns: 24px minmax(46px, 0.8fr) minmax(70px, 1.35fr) 36px 43px;
+        grid-template-columns:
+            24px minmax(46px, 0.8fr) minmax(70px, 1.35fr)
+            36px 43px;
         grid-template-areas:
             "delete gibun wo op mhadj"
             "assign assign assign assign assign";

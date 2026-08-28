@@ -95,8 +95,12 @@
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
-    transition: background 0.18s ease, border-color 0.18s ease,
-        color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
 }
 
 .mh-btn:hover {
@@ -416,7 +420,9 @@
     border-radius: var(--assignment-radius);
     background: #ffffff;
     box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease,
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
         border-color 0.2s ease;
 }
 
@@ -589,7 +595,9 @@
     background: #ffffff;
     color: #94a3b8;
     cursor: pointer;
-    transition: border-color 0.18s ease, background 0.18s ease,
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease,
         color 0.18s ease;
 }
 
@@ -783,7 +791,9 @@
     border-radius: 13px;
     background: #ffffff;
     box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
 }
 
 .mh-history-item:hover {
@@ -1041,9 +1051,31 @@
     }
 
     .mh-assigned-summary-page .mh-worker-table {
-        width: 720px;
-        min-width: 720px;
+        width: 100%;
+        min-width: 0;
         table-layout: fixed;
+    }
+
+    .mh-assigned-summary-page .mh-worker-table th:nth-child(3),
+    .mh-assigned-summary-page .mh-worker-table td:nth-child(3),
+    .mh-assigned-summary-page .mh-worker-table th:nth-child(4),
+    .mh-assigned-summary-page .mh-worker-table td:nth-child(4) {
+        display: none;
+    }
+
+    .mh-assigned-summary-page .mh-worker-table th:nth-child(1),
+    .mh-assigned-summary-page .mh-worker-table td:nth-child(1) {
+        width: 54%;
+    }
+
+    .mh-assigned-summary-page .mh-worker-table th:nth-child(2),
+    .mh-assigned-summary-page .mh-worker-table td:nth-child(2) {
+        width: 16%;
+    }
+
+    .mh-assigned-summary-page .mh-worker-table th:nth-child(5),
+    .mh-assigned-summary-page .mh-worker-table td:nth-child(5) {
+        width: 30%;
     }
 
     .mh-assigned-summary-page .mh-worker-table th {

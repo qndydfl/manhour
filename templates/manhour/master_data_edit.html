@@ -1,16 +1,18 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
 
-{% block title %} Edit Master Data | Manhour {% endblock title %}
+{% block title %} Edit Master Data | Manhour {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3" />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3"
+/>
 {% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/master_data_edit.js' %}"></script>
-{% endblock js %}
-
+{% endblock js %} 
 
 {% block content %}
 
@@ -47,7 +49,7 @@
     </div>
 </header>
 
-<main class="master-v2-page">
+<main class="master-v2-page master-v2-edit-page">
     <section class="master-v2-header">
         <div>
             <div class="master-v2-eyebrow">DATA CONFIGURATION</div>
@@ -93,7 +95,9 @@
     </section>
 
     <form id="masterDataEditForm" method="POST">
-        {% csrf_token %} {{ formset.management_form }} {% if formset.non_form_errors %}
+        {% csrf_token %} 
+        
+        {{ formset.management_form }} {% if formset.non_form_errors %}
 
         <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
 

@@ -9,7 +9,6 @@
     padding: 38px 0 70px;
 }
 
-
 /* =========================================================
    HERO
 ========================================================= */
@@ -23,7 +22,7 @@
     background:
         radial-gradient(
             circle at 90% 15%,
-            rgba(37,99,235,.25),
+            rgba(37, 99, 235, 0.25),
             transparent 28%
         ),
         linear-gradient(135deg, #07111f, #0b1729);
@@ -44,7 +43,7 @@
     color: #60a5fa;
     font-size: var(--font-size-xs);
     font-weight: 800;
-    letter-spacing: .17em;
+    letter-spacing: 0.17em;
 }
 
 .personal-v2-name {
@@ -123,9 +122,9 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    border: 1px solid rgba(255,255,255,.10);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    background: rgba(255,255,255,.07);
+    background: rgba(255, 255, 255, 0.07);
     color: #ffffff;
     text-decoration: none;
     font-size: var(--font-size-xs);
@@ -133,7 +132,7 @@
 }
 
 .personal-v2-btn:hover {
-    background: rgba(255,255,255,.13);
+    background: rgba(255, 255, 255, 0.13);
     color: #ffffff;
 }
 
@@ -141,7 +140,6 @@
     border-color: #2563eb;
     background: #2563eb;
 }
-
 
 /* =========================================================
    TABLE
@@ -152,7 +150,7 @@
     border: 1px solid #edf1f5;
     border-radius: 15px;
     background: #ffffff;
-    box-shadow: 0 5px 22px rgba(15,23,42,.04);
+    box-shadow: 0 5px 22px rgba(15, 23, 42, 0.04);
 }
 
 #scheduleTable {
@@ -168,7 +166,7 @@
     border-bottom: 1px solid #e2e8f0;
     font-size: var(--font-size-sm);
     font-weight: 800;
-    letter-spacing: .05em;
+    letter-spacing: 0.05em;
 }
 
 #scheduleTable tbody td {
@@ -221,7 +219,6 @@
     font-size: var(--font-size-xs);
 }
 
-
 /* =========================================================
    EMPTY
 ========================================================= */
@@ -230,7 +227,7 @@
     padding: 70px 25px;
     border: 1px dashed #cbd5e1;
     border-radius: 15px;
-    background: rgba(255,255,255,.7);
+    background: rgba(255, 255, 255, 0.7);
     text-align: center;
 }
 
@@ -249,7 +246,6 @@
     font-size: var(--font-size-xs);
 }
 
-
 /* =========================================================
    MANUAL INPUT MODAL
 ========================================================= */
@@ -259,12 +255,12 @@
     overflow: hidden;
     border: 0 !important;
     border-radius: 15px !important;
-    box-shadow: 0 20px 60px rgba(15,23,42,.16) !important;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.16) !important;
 }
 
 #manualInputModal .modal-header {
     padding: 17px 20px;
-    background: #07111f !important;
+    background: #2563eb !important;
 }
 
 #manualInputModal .modal-body {
@@ -292,7 +288,6 @@
 #btn-add-row {
     border-style: dashed !important;
 }
-
 
 /* =========================================================
    RESPONSIVE
@@ -328,5 +323,104 @@
 
     #scheduleTable {
         min-width: 620px;
+    }
+
+    #manualInputModal .modal-dialog {
+        margin: 8px;
+        max-width: none;
+    }
+
+    #manualInputModal .modal-content {
+        max-height: calc(100dvh - 16px);
+        border-radius: 12px !important;
+    }
+
+    #manualInputModal .modal-header {
+        padding: 10px 12px;
+    }
+
+    #manualInputModal .modal-title {
+        font-size: 15px;
+    }
+
+    #manualInputModal .modal-body {
+        max-height: calc(100dvh - 126px);
+        padding: 10px !important;
+        overflow-y: auto;
+    }
+
+    #manualInputModal .modal-body > .mb-4 {
+        margin-bottom: 10px !important;
+    }
+
+    #manualInputModal .modal-body > .mb-4 > .form-label {
+        margin-bottom: 4px;
+        font-size: 11px;
+    }
+
+    #manualInputModal .modal-body > .mb-4 .form-check {
+        padding-top: 4px !important;
+        margin-bottom: 6px !important;
+    }
+
+    #manualInputModal .modal-body > .mb-4 .text-primary {
+        margin-bottom: 6px !important;
+        font-size: 10px;
+        line-height: 1.35;
+    }
+
+    #manualInputModal #worker-checkbox-area {
+        max-height: 96px !important;
+        padding: 8px !important;
+    }
+
+    #manualInputModal #worker-checkbox-area .mb-2 {
+        margin-bottom: 2px !important;
+    }
+
+    #manualInputModal .manual-input-card {
+        margin-bottom: 8px !important;
+    }
+
+    #manualInputModal .manual-input-card .card-header {
+        padding: 6px 8px !important;
+        font-size: 10px;
+    }
+
+    #manualInputModal .manual-input-card th,
+    #manualInputModal .manual-input-card td {
+        padding: 4px 2px;
+        font-size: 10px;
+    }
+
+    #manualInputModal #modal-rows-body input {
+        min-height: 30px;
+        padding: 3px 4px;
+        font-size: 11px;
+    }
+
+    #manualInputModal #btn-add-row {
+        min-height: 34px;
+        margin-bottom: 8px !important;
+        padding: 5px 8px !important;
+        font-size: 11px;
+    }
+
+    #manualInputModal .modal-body > .alert {
+        margin-bottom: 0;
+        padding: 7px 8px;
+        font-size: 10px;
+        line-height: 1.35;
+    }
+
+    #manualInputModal .modal-footer {
+        gap: 5px;
+        padding: 8px 10px 10px !important;
+    }
+
+    #manualInputModal .modal-footer .btn {
+        min-height: 34px;
+        padding: 5px 8px !important;
+        font-size: 11px !important;
     }
 }

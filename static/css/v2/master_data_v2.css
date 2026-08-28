@@ -680,6 +680,144 @@
         width: calc(100% - 28px);
     }
 
+    .master-v2-edit-page .master-v2-header > div:first-child {
+        display: none;
+    }
+
+    .master-v2-edit-page .master-v2-header {
+        margin-bottom: 8px;
+    }
+
+    .master-v2-edit-page .master-v2-header-tools {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1fr));
+        align-items: center;
+        gap: 4px;
+    }
+
+    .master-v2-edit-page .master-total-records {
+        min-width: 0;
+        min-height: 34px;
+        padding: 4px 5px;
+        gap: 4px;
+        border-radius: 7px;
+    }
+
+    .master-v2-edit-page .master-total-records > i {
+        display: none;
+    }
+
+    .master-v2-edit-page .master-total-records span {
+        overflow: hidden;
+        font-size: 8px;
+        text-overflow: ellipsis;
+    }
+
+    .master-v2-edit-page .master-total-records strong {
+        font-size: 11px;
+    }
+
+    .master-v2-edit-page .master-v2-actions {
+        display: contents;
+    }
+
+    .master-v2-edit-page .master-v2-actions .master-btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 34px;
+        padding: 0 4px;
+        gap: 3px;
+        border-radius: 7px;
+        font-size: 9px;
+        white-space: nowrap;
+    }
+
+    .master-v2-edit-page .master-v2-panel-head > div span,
+    .master-v2-edit-page .master-v2-panel-head > i,
+    .master-v2-edit-page .master-v2-panel-footer {
+        display: none;
+    }
+
+    .master-v2-edit-page .master-v2-panel-head {
+        min-height: 38px;
+        padding: 5px 8px;
+    }
+
+    .master-v2-edit-page .master-v2-panel-head strong {
+        font-size: 12px;
+    }
+
+    .master-v2-edit-page .master-v2-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .master-v2-edit-page .master-v2-table {
+        width: 560px;
+        min-width: 560px;
+        table-layout: fixed;
+        font-size: 8px;
+    }
+
+    .master-v2-edit-page .master-v2-table th,
+    .master-v2-edit-page .master-v2-table td {
+        min-width: 0;
+        padding: 4px 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .master-v2-edit-page .master-v2-table thead th {
+        font-size: 8px;
+        letter-spacing: 0;
+    }
+
+    .master-v2-edit-page .master-v2-table tbody td {
+        font-size: 8px;
+    }
+
+    .master-v2-edit-page .master-v2-table th:nth-child(1),
+    .master-v2-edit-page .master-v2-table td:nth-child(1) {
+        width: 8%;
+    }
+
+    .master-v2-edit-page .master-v2-table th:nth-child(2),
+    .master-v2-edit-page .master-v2-table td:nth-child(2) {
+        width: 18%;
+    }
+
+    .master-v2-edit-page .master-v2-table th:nth-child(3),
+    .master-v2-edit-page .master-v2-table td:nth-child(3) {
+        width: 22%;
+    }
+
+    .master-v2-edit-page .master-v2-table th:nth-child(4),
+    .master-v2-edit-page .master-v2-table td:nth-child(4) {
+        width: 10%;
+    }
+
+    .master-v2-edit-page .master-v2-table th:nth-child(5),
+    .master-v2-edit-page .master-v2-table td:nth-child(5) {
+        width: 30%;
+    }
+
+    .master-v2-edit-page .master-v2-table th:nth-child(6),
+    .master-v2-edit-page .master-v2-table td:nth-child(6) {
+        width: 12%;
+    }
+
+    .master-v2-edit-page .master-v2-table input[type="text"],
+    .master-v2-edit-page .master-v2-table input[type="number"],
+    .master-v2-edit-page .master-v2-table textarea,
+    .master-v2-edit-page .master-v2-table select {
+        min-height: 30px;
+        padding: 3px 4px;
+        border-radius: 5px;
+        font-size: 8px;
+    }
+
     .master-import-actions {
         grid-template-columns: 1fr;
     }

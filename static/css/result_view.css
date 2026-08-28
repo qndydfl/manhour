@@ -18,7 +18,7 @@
     border: 1px solid var(--rv-border) !important;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1) !important;
 
-    will-change: transform; 
+    will-change: transform;
     transform: translateZ(0);
 }
 
@@ -54,6 +54,25 @@
     background: #d8e8f7 !important;
     border-bottom: 1px solid #b7c9dc !important;
     color: #17324d;
+    cursor: pointer;
+    list-style: none;
+}
+
+.worker-status-panel > .card-header::-webkit-details-marker {
+    display: none;
+}
+
+.worker-status-panel > .card-header::after {
+    content: "+";
+    color: #2563eb;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.18s ease;
+}
+
+.worker-status-panel[open] > .card-header::after {
+    content: "-";
 }
 
 .worker-status-panel > .card-body {
@@ -66,7 +85,7 @@
     box-shadow: 0 3px 10px rgba(30, 64, 104, 0.07) !important;
 }
 
-    .worker-status-panel .worker-card:hover {
+.worker-status-panel .worker-card:hover {
     border-color: #79a6d2 !important;
     background: #e4f0fb !important;
 }
@@ -208,7 +227,7 @@
     }
 
     .worker-status-panel > .card-header h5 {
-        font-size: 11px;
+        font-size: 13px;
     }
 
     .worker-status-panel > .card-body {
@@ -266,7 +285,9 @@
     }
 
     .work-detail-section-head .assignment-section-title small {
-        font-size: 9px;
+        font-size: inherit !important;
+        font-weight: inherit;
+        vertical-align: baseline;
     }
 
     .table-sticky thead th {
@@ -364,7 +385,11 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         padding: 4px 3px;
-        font-size: 9px;
+        font-size: 11px;
+    }
+
+    .work-detail-assignees .d-inline-block > .badge .badge {
+        font-size: inherit;
     }
 
     .work-detail-panel .table-custom tbody tr.work-detail-row {
