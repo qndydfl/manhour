@@ -359,6 +359,16 @@
                                 작업 종류에 맞는 Area Template을 선택하세요.
                             </span>
                         </li>
+                        
+                        {% if request.session.user_role == 'admin' or request.user.is_superuser %}
+                        <li>
+                            <i class="bi bi-check2"></i>
+
+                            <span class="text-danger fw-bold">
+                                Work Package에 A-check 선택시 Base Template가 자동 선택되지 않는다면 어드민 페이지에서 Work Package와 Template 연결 여부를 확인하세요.
+                            </span>
+                        </li>
+                        {% endif %}
                     </ul>
                 </article>
             </aside>
