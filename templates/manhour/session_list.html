@@ -1,10 +1,13 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
 
-{% block title %} Manhour Sessions {% endblock title %}
+{% block title %} Manhour Sessions {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1" />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1"
+/>
 {% endblock css %} 
 
 
@@ -25,6 +28,28 @@
 
         <div class="assignment-topbar-actions">
 
+            <a
+                href="{% url 'manhour:create_session' %}"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+            >
+                <i class="bi bi-plus-lg"></i>
+                <span>New Session</span>
+            </a>
+
+            {% if request.session.user_role == 'admin' and active_count > 0 %}
+
+            <button
+                type="button"
+                class="assignment-topbar-btn assignment-topbar-btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#resetAllModal"
+            >
+                <i class="bi bi-trash3"></i>
+                <span>Reset All</span>
+            </button>
+
+            {% endif %}
+
             <a href="{% url 'manhour:history' %}" class="assignment-topbar-btn">
                 <i class="bi bi-clock-history"></i>
                 <span>History</span>
@@ -32,55 +57,13 @@
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
-                <span>Home</span>
+                <span>홈</span>
             </a>
         </div>
     </div>
 </header>
 
 <main class="mh-page mh-session-list-page">
-    <section class="mh-page-header">
-        <div>
-            <div class="mh-eyebrow">ACTIVE OPERATIONS</div>
-
-            <h1 class="mh-page-title">Manhour Sessions</h1>
-
-            <p class="mh-page-desc">
-                현재 진행 중인 Maintenance Workload Session을 확인하고
-                Assignment 작업으로 이동합니다.
-            </p>
-        </div>
-
-        <div class="mh-header-actions">
-            <div class="mh-active-summary" aria-label="Active sessions">
-                <i class="bi bi-activity"></i>
-                <span>Active Sessions</span>
-                <strong>{{ active_count }}</strong>
-            </div>
-
-            <a
-                href="{% url 'manhour:create_session' %}"
-                class="mh-btn mh-btn-primary"
-            >
-                <i class="bi bi-plus-lg"></i>
-                New Session
-            </a>
-
-            {% if request.session.user_role == 'admin' and active_count > 0 %}
-
-            <button
-                type="button"
-                class="mh-btn mh-btn-danger"
-                data-bs-toggle="modal"
-                data-bs-target="#resetAllModal"
-            >
-                <i class="bi bi-trash3"></i>
-                Reset All
-            </button>
-
-            {% endif %}
-        </div>
-    </section>
 
     <section class="mh-session-panel" aria-labelledby="activeSessionListTitle">
         <div class="mh-session-panel-head">
@@ -202,7 +185,7 @@
                         class="mh-btn"
                     >
                         <i class="bi bi-clock-history"></i>
-                        배정 현황
+                        시간별 보기
                     </a>
                 </div>
             </article>

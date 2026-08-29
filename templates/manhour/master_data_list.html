@@ -1,13 +1,15 @@
-{% extends "manhour/base/result_v2_base.html" %}
-{% load static %}
+{% extends "manhour/base/result_v2_base.html" %} 
+{% load static %} 
 
-{% block title %} Master Data | Manhour {% endblock title %}
+{% block title %} Master Data | Manhour {% endblock title %} 
 
 {% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3"
+/>
+{% endblock css %} 
 
-<link rel="stylesheet" href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3" />
-
-{% endblock css %}
 
 {% block content %}
 
@@ -27,100 +29,70 @@
 
         <div class="assignment-topbar-actions">
             <a
+                href="{% url 'manhour:paste_data' %}"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-clipboard-plus"></i>
+                <span>데이터 입력</span>
+            </a>
+
+            <a
+                href="{% url 'manhour:master_data_edit' %}"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+            >
+                <i class="bi bi-pencil-square"></i>
+                <span>데이터 수정</span>
+            </a>
+
+            <form
+                action="{% url 'manhour:delete_all_taskmasters' %}"
+                method="POST"
+                class="d-inline"
+                data-app-confirm="모든 Master Data를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                data-app-confirm-title="전체 데이터 삭제"
+                data-app-confirm-variant="danger"
+                data-app-confirm-button="모두 삭제"
+            >
+                {% csrf_token %}
+                <input type="hidden" name="next" value="master_data_edit" />
+                <button
+                    type="submit"
+                    class="assignment-topbar-btn assignment-topbar-btn-danger"
+                >
+                    <i class="bi bi-trash3"></i>
+                    <span>모두 삭제</span>
+                </button>
+            </form>
+
+            <a
                 href="{% url 'manhour:session_list' %}"
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-stopwatch"></i>
-                <span>Sessions</span>
+                <span>세션</span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
-                <span>Home</span>
+                <span>홈</span>
             </a>
         </div>
     </div>
 </header>
 
 <main class="master-v2-page master-v2-list-page">
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
-    <section class="master-v2-header">
-        <div>
-            <div class="master-v2-eyebrow">DATA ADMINISTRATION</div>
-
-            <h1 class="master-v2-title">Master Data</h1>
-
-            <p class="master-v2-description">
-                Aircraft, Work Order, Operation 및 기준 Manhour 데이터를 조회하고 관리합니다.
-            </p>
-        </div>
-
-        <div class="master-v2-header-tools">
-            <div class="master-total-records">
-                <i class="bi bi-database"></i>
-                <span>
-                    TOTAL RECORDS
-                    <strong>{{ total_count }}</strong>
-                </span>
-            </div>
-
-            <div class="master-v2-actions">
-                <a href="{% url 'manhour:paste_data' %}" class="master-btn">
-                    <i class="bi bi-clipboard-plus"></i>
-
-                    Import Data
-                </a>
-
-                <a
-                    href="{% url 'manhour:master_data_edit' %}"
-                    class="master-btn master-btn-primary"
-                >
-                    <i class="bi bi-pencil-square"></i>
-
-                    Edit Data
-                </a>
-
-                <form
-                    action="{% url 'manhour:delete_all_taskmasters' %}"
-                    method="POST"
-                    data-app-confirm="모든 Master Data를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-                    data-app-confirm-title="전체 데이터 삭제"
-                    data-app-confirm-variant="danger"
-                    data-app-confirm-button="모두 삭제"
-                >
-                    {% csrf_token %}
-
-                    <input type="hidden" name="next" value="master_data_edit" />
-
-                    <button
-                        type="submit"
-                        class="master-btn master-btn-danger"
-                    >
-                        <i class="bi bi-trash3"></i>
-
-                        Delete All
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- =====================================================
-         TABLE
-    ====================================================== -->
-
     <section class="master-v2-panel">
         <header class="master-v2-panel-head">
-            <div>
-                <strong> Maintenance Task Master </strong>
-
-                <span> {{ total_count }} registered records </span>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-list-ul text-muted fs-5"></i>
+                <div>
+                    <strong> MASTER DATA LIST </strong>
+                </div>
             </div>
 
-            <i class="bi bi-list-ul text-muted"></i>
+            <div class="text-end">
+                <span class="master-v2-count-badge">총 입력 : {{ total_count }} 건</span>
+            </div>
         </header>
 
         <div class="master-v2-table-wrap">
@@ -179,7 +151,7 @@
                                     href="{% url 'manhour:paste_data' %}"
                                     class="master-btn master-btn-primary"
                                 >
-                                    Import Data
+                                    데이터 입력
                                 </a>
                             </div>
                         </td>

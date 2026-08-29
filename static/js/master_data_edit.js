@@ -1,5 +1,7 @@
 function normalizeGibun(value) {
-    const digits = String(value || "").replace(/\D+/g, "").slice(0, 4);
+    const digits = String(value || "")
+        .replace(/\D+/g, "")
+        .slice(0, 4);
 
     if (!digits) return "";
     return `HL${digits}`;
@@ -64,8 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // 체크박스 / 선택 관련
     // -----------------------------
     const selectAll = document.querySelector(".js-select-all");
-    const rowCheckboxes = Array.from(document.querySelectorAll(".js-row-select"));
+    const rowCheckboxes = Array.from(
+        document.querySelectorAll(".js-row-select"),
+    );
     const rows = Array.from(document.querySelectorAll(".js-master-data-row"));
+    const rowDeleteButtons = Array.from(
+        document.querySelectorAll(".js-row-delete"),
+    );
 
     function syncRowHighlight() {
         rows.forEach(function (row) {
@@ -113,18 +120,33 @@ document.addEventListener("DOMContentLoaded", function () {
         const rowCheckbox = row.querySelector(".js-row-select");
         if (!rowCheckbox) return;
 
-        row.querySelectorAll("input, textarea, select").forEach(function (field) {
-            if (field === rowCheckbox) return;
+        row.querySelectorAll("input, textarea, select").forEach(
+            function (field) {
+                if (field === rowCheckbox) return;
 
-            field.addEventListener("input", function () {
-                rowCheckbox.checked = true;
-                updateSelectAllState();
+                field.addEventListener("input", function () {
+                    rowCheckbox.checked = true;
+                    updateSelectAllState();
+                });
+
+                field.addEventListener("change", function () {
+                    rowCheckbox.checked = true;
+                    updateSelectAllState();
+                });
+            },
+        );
+    });
+
+    rowDeleteButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            const row = button.closest(".js-master-data-row");
+            const rowCheckbox = row?.querySelector(".js-row-select");
+
+            rowCheckboxes.forEach(function (checkbox) {
+                checkbox.checked = checkbox === rowCheckbox;
             });
 
-            field.addEventListener("change", function () {
-                rowCheckbox.checked = true;
-                updateSelectAllState();
-            });
+            updateSelectAllState();
         });
     });
 
@@ -137,13 +159,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (form) {
         form.addEventListener("submit", function () {
-            document.querySelectorAll(".js-gibun-code").forEach(function (input) {
-                input.value = normalizeGibun(input.value);
-            });
+            document
+                .querySelectorAll(".js-gibun-code")
+                .forEach(function (input) {
+                    input.value = normalizeGibun(input.value);
+                });
 
-            document.querySelectorAll(".js-work-order").forEach(function (input) {
-                input.value = normalizeWorkOrder(input.value);
-            });
+            document
+                .querySelectorAll(".js-work-order")
+                .forEach(function (input) {
+                    input.value = normalizeWorkOrder(input.value);
+                });
 
             document.querySelectorAll(".js-op-code").forEach(function (input) {
                 input.value = normalizeOp(input.value);

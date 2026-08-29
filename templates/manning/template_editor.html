@@ -1,63 +1,53 @@
-{% extends 'manning/base/manning_v2_base.html' %}
+{% extends 'manning/base/manning_v2_base.html' %} 
 {% load static %} 
 
-{% block title %} Template Configuration | Manning {% endblock title %}
+{% block title %} Template Configuration | Manning {% endblock title %} 
 
-{% block nav_template_active %} active {% endblock nav_template_active %}
+{% block nav_template_active %} active {% endblock nav_template_active %} 
 
-{% block page_title %} Template Configuration {% endblock page_title %}
+{% block page_title %} Template Configuration {% endblock page_title %} 
 
+{% block topbar_right %}
+
+<div class="template-editor-header-actions">
+    <a
+        href="{% url 'manning:manning_list' %}"
+        class="template-editor-header-btn"
+    >
+        <i class="bi bi-arrow-left"></i>
+        Sessions
+    </a>
+
+    <a
+        href="{% url 'manning:create_session' %}"
+        class="template-editor-header-btn"
+    >
+        <i class="bi bi-plus-lg"></i>
+        New Session
+    </a>
+
+    <button type="submit" form="templateEditorForm" class="template-save-btn">
+        <i class="bi bi-check2 me-1"></i>
+        저장
+    </button>
+</div>
+{% endblock topbar_right %} 
 
 {% block css %}
-
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/template_editor.css' %}"
+    href="{% static 'css/manning/v2/template_editor.css' %}?v=20260829-1"
 />
+{% endblock css %} 
 
-{% endblock css %} {% block js %}
-
+{% block js %}
 <script defer src="{% static 'js/manning/template_editor.js' %}"></script>
+{% endblock js %} 
 
-{% endblock js %} {% block content %}
+
+{% block content %}
 
 <div class="template-editor-page">
-    <!-- =====================================================
-        HEADER
-    ====================================================== -->
-
-    <section class="template-editor-header">
-        <div>
-            <div class="template-editor-eyebrow">CONFIGURATION MANAGER</div>
-
-            <h2 class="template-editor-title">Area Templates</h2>
-
-            <p class="template-editor-description">
-                각 Area는 드래그하여 위치와 순서를 변경할 수 있습니다.
-            </p>
-        </div>
-
-        <div class="template-editor-header-actions">
-            <a
-                href="{% url 'manning:manning_list' %}"
-                class="template-editor-header-btn"
-            >
-                <i class="bi bi-arrow-left"></i>
-
-                Sessions
-            </a>
-
-            <a
-                href="{% url 'manning:create_session' %}"
-                class="template-editor-header-btn"
-            >
-                <i class="bi bi-plus-lg"></i>
-
-                New Session
-            </a>
-        </div>
-    </section>
-
     <!-- =====================================================
         SUMMARY
     ====================================================== -->
@@ -124,7 +114,7 @@
                 </div>
 
                 <p class="template-editor-section-note">
-                    변경 사항은 하단 Save Changes 버튼을 눌러 저장합니다.
+                    변경 사항은 Save Changes 버튼으로 저장합니다.
                 </p>
             </div>
 
@@ -383,8 +373,8 @@
                                             data-position="LEFT"
                                             rows="6"
                                         >
-                                        {{ template.left_items_text|default_if_none:"" }}
-                                        </textarea>
+{{ template.left_items_text|default_if_none:"" }}</textarea
+                                        >
                                     </div>
 
                                     <div class="template-text-field">
@@ -396,8 +386,8 @@
                                             data-position="NONE"
                                             rows="6"
                                         >
-                                        {{ template.none_items_text|default_if_none:"" }}
-                                        </textarea>
+{{ template.none_items_text|default_if_none:"" }}</textarea
+                                        >
                                     </div>
 
                                     <div class="template-text-field">
@@ -409,8 +399,8 @@
                                             data-position="RIGHT"
                                             rows="6"
                                         >
-                                        {{ template.right_items_text|default_if_none:"" }}
-                                        </textarea>
+{{ template.right_items_text|default_if_none:"" }}</textarea
+                                        >
                                     </div>
                                 </div>
                             </section>
@@ -683,27 +673,6 @@
                 </article>
             </div>
         </section>
-
-        <!-- =================================================
-            SAVE
-        ================================================== -->
-
-        <div class="template-editor-savebar">
-            <div class="template-save-info">
-                <i class="bi bi-info-circle"></i>
-
-                <span>
-                    기존 Template 수정, 삭제 및 새 Template 추가가 한 번에
-                    저장됩니다.
-                </span>
-            </div>
-
-            <button type="submit" class="template-save-btn">
-                <i class="bi bi-check2 me-1"></i>
-
-                Save Changes
-            </button>
-        </div>
     </form>
 </div>
 

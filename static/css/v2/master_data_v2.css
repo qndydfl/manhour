@@ -177,13 +177,13 @@
 .master-v2-panel {
     overflow: hidden;
 
-    border: 1px solid #edf1f5;
+    border: 1px solid #dbe4ed;
 
     border-radius: 16px;
 
-    background: #ffffff;
+    background: var(--assignment-white);
 
-    box-shadow: 0 6px 26px rgba(15, 23, 42, 0.045);
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
 }
 
 .master-v2-panel-head {
@@ -197,7 +197,9 @@
 
     gap: 20px;
 
-    border-bottom: 1px solid #edf1f5;
+    border-bottom: 1px solid #dbe4ed;
+
+    background: #eef4fa;
 }
 
 .master-v2-panel-head strong {
@@ -214,6 +216,27 @@
     color: #94a3b8;
 
     font-size: var(--font-size-xs);
+}
+
+.master-v2-count-badge {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 7px;
+    padding: 6px 12px;
+
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8 !important;
+
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 /* =========================================================
@@ -237,11 +260,11 @@
 .master-v2-table thead th {
     padding: 12px 11px;
 
-    background: #f8fafc;
+    background: #edf3f8;
 
     color: #64748b;
 
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #d5dde7;
 
     font-size: var(--font-size-sm);
     font-weight: 800;
@@ -254,13 +277,13 @@
 .master-v2-table tbody td {
     padding: 12px 11px;
     vertical-align: middle;
-    border-bottom: 1px solid #edf1f5;
-    background: #ffffff;
+    border-bottom: 1px solid #dbe4ed;
+    background: var(--assignment-white);
     font-size: var(--font-size-sm);
 }
 
 .master-v2-table tbody tr:hover td {
-    background: #f8fbff;
+    background: #edf4fa;
 }
 
 .master-v2-table tbody tr:last-child td {
@@ -345,6 +368,47 @@
     background-color: #2563eb;
 
     border-color: #2563eb;
+}
+
+.master-v2-action-col {
+    width: 56px;
+}
+
+.master-row-delete-btn {
+    width: 32px;
+    height: 32px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+
+    background: #fff5f5;
+    color: #dc2626;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.master-row-delete-btn:hover {
+    border-color: #f87171;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.master-row-delete-btn:focus-visible {
+    outline: none;
+
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.master-row-delete-btn:active {
+    transform: translateY(1px);
 }
 
 /* =========================================================

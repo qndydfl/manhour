@@ -1,275 +1,177 @@
-{% extends 'manning/base/manning_v2_base.html' %}
-{% load static %}
+{% extends 'manning/base/manning_v2_base.html' %} 
+{% load static %} 
 
+{% block title %} Edit Maintenance Session | Manning {% endblock title %} 
 
-{% block title %}
-Edit Maintenance Session | Manning
-{% endblock title %}
-
-
-{% block nav_sessions_active %}
-active
-{% endblock nav_sessions_active %}
-
-
-{% block page_title %}
-Edit Session
-{% endblock page_title %}
-
-
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %}
+{% block page_title %} Edit Session {% endblock page_title %}
 {% block css %}
 
 <link
     rel="stylesheet"
     href="{% static 'css/manning/v2/manning_form.css' %}?v=20260827-1"
->
+/>
 
-{% endblock css %}
+{% endblock css %} 
 
 {% block js %}
 <script
     defer
     src="{% static 'js/manning/manning_create_session.js' %}?v=20260827-2"
 ></script>
-{% endblock js %}
+{% endblock js %} 
 
 
 {% block content %}
 
 <div class="manning-form-page">
-
-
     <!-- =====================================================
-         HEADER
+        HEADER
     ====================================================== -->
 
     <section class="manning-form-header">
-
         <div>
+            <div class="manning-form-eyebrow">SESSION CONFIGURATION</div>
 
-            <div class="manning-form-eyebrow">
-                SESSION CONFIGURATION
-            </div>
-
-            <h2 class="manning-form-title">
-                Edit Maintenance Session
-            </h2>
+            <h2 class="manning-form-title">Edit Maintenance Session</h2>
 
             <p class="manning-form-description">
-
-                현재 Session의 Aircraft, Work Package,
-                Shift 및 Area Template 구성을 수정합니다.
-
+                현재 Session의 Aircraft, Work Package, Shift 및 Area Template
+                구성을 수정합니다.
             </p>
-
         </div>
-
 
         <a
             href="{% url 'manning:manning_list' %}"
             class="manning-form-header-back"
         >
-
             <i class="bi bi-arrow-left"></i>
 
             Sessions
-
         </a>
-
     </section>
 
-
-
-    <form
-        method="post"
-        id="editSessionForm"
-        novalidate
-    >
-
+    <form method="post" id="editSessionForm" novalidate>
         {% csrf_token %}
 
-
         <div class="manning-form-layout">
-
-
             <!-- LEFT -->
 
             <div>
-
-
                 <!-- SESSION INFORMATION -->
 
                 <section class="manning-form-panel">
-
                     <header class="manning-form-panel-head">
-
                         <div class="manning-form-panel-head-left">
-
-                            <div class="manning-form-panel-number">
-                                01
-                            </div>
+                            <div class="manning-form-panel-number">01</div>
 
                             <div>
-
-                                <strong>
-                                    Session Information
-                                </strong>
+                                <strong> Session Information </strong>
 
                                 <small>
                                     Update maintenance operation details
                                 </small>
-
                             </div>
-
                         </div>
 
-
                         <i class="bi bi-pencil-square"></i>
-
                     </header>
 
-
-
                     <div class="manning-form-panel-body">
-
                         <div class="manning-form-grid">
-
-
                             <!-- Aircraft -->
 
                             <div class="manning-form-field">
-
                                 <label class="manning-form-label">
-
                                     Aircraft Registration
 
                                     <span class="manning-form-required">
                                         *
                                     </span>
-
                                 </label>
 
+                                {{ form.aircraft_reg }} {% if form.aircraft_reg.errors %}
 
-                                {{ form.aircraft_reg }}
-
-
-                                {% if form.aircraft_reg.errors %}
-
-                                    <div class="manning-form-error">
-                                        {{ form.aircraft_reg.errors }}
-                                    </div>
+                                <div class="manning-form-error">
+                                    {{ form.aircraft_reg.errors }}
+                                </div>
 
                                 {% endif %}
-
                             </div>
-
-
 
                             <!-- Work Package -->
 
                             <div class="manning-form-field">
-
                                 <label class="manning-form-label">
-
                                     Work Package
 
                                     <span class="manning-form-required">
                                         *
                                     </span>
-
                                 </label>
 
+                                {{ form.work_package_name }} {% if form.work_package_name.errors %}
 
-                                {{ form.work_package_name }}
-
-
-                                {% if form.work_package_name.errors %}
-
-                                    <div class="manning-form-error">
-                                        {{ form.work_package_name.errors }}
-                                    </div>
+                                <div class="manning-form-error">
+                                    {{ form.work_package_name.errors }}
+                                </div>
 
                                 {% endif %}
-
                             </div>
-
-
 
                             <!-- Check -->
 
-                            <div class="manning-form-field" id="blockCheckField">
-
+                            <div
+                                class="manning-form-field"
+                                id="blockCheckField"
+                            >
                                 <label class="manning-form-label">
-
                                     A-Check (KJ)
 
                                     <span class="manning-form-required">
                                         *
                                     </span>
-
                                 </label>
 
+                                {{ form.block_check }} {% if form.block_check.errors %}
 
-                                {{ form.block_check }}
-
-
-                                {% if form.block_check.errors %}
-
-                                    <div class="manning-form-error">
-                                        {{ form.block_check.errors }}
-                                    </div>
+                                <div class="manning-form-error">
+                                    {{ form.block_check.errors }}
+                                </div>
 
                                 {% endif %}
-
                             </div>
-
-
 
                             <!-- Shift -->
 
                             <div class="manning-form-field">
-
                                 <label class="manning-form-label">
-
                                     Shift
 
                                     <span class="manning-form-required">
                                         *
                                     </span>
-
                                 </label>
 
+                                {{ form.shift_type }} {% if form.shift_type.errors %}
 
-                                {{ form.shift_type }}
-
-
-                                {% if form.shift_type.errors %}
-
-                                    <div class="manning-form-error">
-                                        {{ form.shift_type.errors }}
-                                    </div>
+                                <div class="manning-form-error">
+                                    {{ form.shift_type.errors }}
+                                </div>
 
                                 {% endif %}
-
                             </div>
-
                         </div>
-
-
 
                         {% if form.non_field_errors %}
 
-                            <div class="manning-form-alert">
-                                {{ form.non_field_errors }}
-                            </div>
+                        <div class="manning-form-alert">
+                            {{ form.non_field_errors }}
+                        </div>
 
                         {% endif %}
-
                     </div>
-
                 </section>
-
-
 
                 <!-- AREA TEMPLATE -->
 
@@ -280,139 +182,109 @@ Edit Session
                     data-mobile-fold-open="false"
                     id="template-selection-area"
                 >
-
                     <header class="manning-form-panel-head">
-
                         <div class="manning-form-panel-head-left">
-
-                            <div class="manning-form-panel-number">
-                                02
-                            </div>
+                            <div class="manning-form-panel-number">02</div>
 
                             <div>
+                                <strong> Area Configuration </strong>
 
-                                <strong>
-                                    Area Configuration
-                                </strong>
-
-                                <small>
-                                    Change session area layout
-                                </small>
-
+                                <small> Change session area layout </small>
                             </div>
-
                         </div>
 
-
                         <i class="bi bi-grid-3x3-gap"></i>
-
                     </header>
 
-
-
                     <div class="manning-form-panel-body">
-
                         <div class="manning-template-heading">
-
                             <div>
-
-                                <strong>
-                                    Base Template
-                                </strong>
+                                <strong> Base Template </strong>
 
                                 <span>
-                                    변경 시 현재 Area 구성이 새 Template 기준으로 다시 생성됩니다.
+                                    변경 시 현재 Area 구성이 새 Template
+                                    기준으로 다시 생성됩니다.
                                 </span>
-
                             </div>
-
 
                             <a
                                 href="{% url 'manning:template_editor' %}"
                                 class="manning-template-editor-link"
                             >
-
                                 <i class="bi bi-pencil-square"></i>
 
                                 Template Editor
-
                             </a>
-
                         </div>
 
-
-
                         <div class="manning-template-grid">
-
                             {% for tpl in templates %}
 
-                                <div
-                                    class="template-option"
-                                    data-work-packages="{{ tpl.work_package_names|join:'|' }}"
+                            <div
+                                class="template-option"
+                                data-work-packages="{{ tpl.work_package_names|join:'|' }}"
+                            >
+                                <input
+                                    class="template-radio"
+                                    type="radio"
+                                    name="area_template"
+                                    id="tpl_{{ tpl.id }}"
+                                    value="{{ tpl.key }}"
+                                    {%
+                                    if
+                                    selected_template
+                                    and
+                                    tpl.key|lower=""
+                                    ="selected_template|lower"
+                                    %}
+                                    checked
+                                    {%
+                                    endif
+                                    %}
+                                />
+
+                                <label
+                                    class="template-card"
+                                    for="tpl_{{ tpl.id }}"
                                 >
+                                    {% if tpl.key|lower == "standard" %}
 
-                                    <input
-                                        class="template-radio"
-                                        type="radio"
-                                        name="area_template"
-                                        id="tpl_{{ tpl.id }}"
-                                        value="{{ tpl.key }}"
-                                        {% if selected_template and tpl.key|lower == selected_template|lower %}
-                                            checked
-                                        {% endif %}
-                                    >
+                                    <i class="bi bi-grid-3x3-gap"></i>
 
+                                    {% elif tpl.key|lower == "lubrication" %}
 
-                                    <label
-                                        class="template-card"
-                                        for="tpl_{{ tpl.id }}"
-                                    >
+                                    <i class="bi bi-layout-split"></i>
 
-                                        {% if tpl.key|lower == "standard" %}
+                                    {% elif tpl.key|lower == "engine_only" %}
 
-                                            <i class="bi bi-grid-3x3-gap"></i>
+                                    <i class="bi bi-airplane-engines"></i>
 
-                                        {% elif tpl.key|lower == "lubrication" %}
+                                    {% else %}
 
-                                            <i class="bi bi-layout-split"></i>
+                                    <i class="bi bi-ui-checks-grid"></i>
 
-                                        {% elif tpl.key|lower == "engine_only" %}
+                                    {% endif %}
 
-                                            <i class="bi bi-airplane-engines"></i>
-
-                                        {% else %}
-
-                                            <i class="bi bi-ui-checks-grid"></i>
-
-                                        {% endif %}
-
-
-                                        <strong>
-                                            {{ tpl.label }}
-                                        </strong>
-
-                                    </label>
-
-                                </div>
+                                    <strong> {{ tpl.label }} </strong>
+                                </label>
+                            </div>
 
                             {% empty %}
 
-                                <div class="manning-form-alert">
-                                    사용 가능한 Area Template이 없습니다.
-                                </div>
+                            <div class="manning-form-alert">
+                                사용 가능한 Area Template이 없습니다.
+                            </div>
 
                             {% endfor %}
-
                         </div>
 
                         <div
                             id="noTemplatesForWorkPackage"
                             class="manning-form-alert d-none"
                         >
-                            선택한 Work Package에 연결된 Area Template이 없습니다.
+                            선택한 Work Package에 연결된 Area Template이
+                            없습니다.
                         </div>
-
-
 
                         <div
                             id="templateErrorMessage"
@@ -420,47 +292,27 @@ Edit Session
                         >
                             기본 구성 템플릿을 선택해주세요.
                         </div>
-
                     </div>
 
-
-
                     <footer class="manning-form-actions">
-
                         <a
                             href="{% url 'manning:manning_list' %}"
-                            class="
-                                manning-form-action
-                                manning-form-action-secondary
-                            "
+                            class="manning-form-action manning-form-action-secondary"
                         >
-
                             Cancel
-
                         </a>
-
 
                         <button
                             type="submit"
-                            class="
-                                manning-form-action
-                                manning-form-action-primary
-                            "
+                            class="manning-form-action manning-form-action-primary"
                         >
-
                             <i class="bi bi-check2"></i>
 
                             Save Changes
-
                         </button>
-
                     </footer>
-
                 </section>
-
             </div>
-
-
 
             <!-- RIGHT -->
 
@@ -470,62 +322,34 @@ Edit Session
                 data-mobile-fold-title="세션 수정 안내"
                 data-mobile-fold-open="false"
             >
-
-
                 <article class="manning-form-guide manning-form-guide-dark">
-
                     <div class="manning-form-guide-icon">
-
                         <i class="bi bi-pencil-square"></i>
-
                     </div>
 
-
-                    <h3>
-                        Editing Session
-                    </h3>
-
+                    <h3>Editing Session</h3>
 
                     <p>
-
-                        변경 내용을 저장하면 현재 Manning Session에
-                        즉시 적용됩니다.
-
+                        변경 내용을 저장하면 현재 Manning Session에 즉시
+                        적용됩니다.
                     </p>
-
                 </article>
-
-
 
                 <article class="manning-form-guide">
-
                     <div class="manning-form-guide-icon">
-
                         <i class="bi bi-exclamation-triangle"></i>
-
                     </div>
 
-
-                    <h3>
-                        Template Change
-                    </h3>
-
+                    <h3>Template Change</h3>
 
                     <p>
-
-                        Area Template을 변경하면 현재 세션의 구역 구성이
-                        새로운 Template 기준으로 다시 생성될 수 있습니다.
-
+                        Area Template을 변경하면 현재 세션의 구역 구성이 새로운
+                        Template 기준으로 다시 생성될 수 있습니다.
                     </p>
-
                 </article>
-
             </aside>
-
         </div>
-
     </form>
-
 </div>
 
 {% endblock content %}

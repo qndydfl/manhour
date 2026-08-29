@@ -717,6 +717,7 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
 
     def post(self, request, session_id):
         session = get_session_any_status_or_404(request, session_id)
+        submit_intent = (request.POST.get("submit_intent") or "").strip()
 
         session_name = request.POST.get("session_name")
         if session_name:
@@ -1017,6 +1018,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
 
     def post(self, request, session_id):
         session = get_session_any_status_or_404(request, session_id)
+        submit_intent = (request.POST.get("submit_intent") or "").strip()
 
         # ---------------------------------------------------------
         # 0. 기번 우선순위 업데이트 (prio_ 로 들어오는 값)
@@ -1354,6 +1356,9 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             .filter(assign_count=0)
         )
         run_sync_schedule(session.id)
+
+        if submit_intent == "delete_selected":
+            return redirect("manhour:manage_items", session_id=session.id)
 
         return redirect("manhour:result_view", session_id=session.id)
 
@@ -1978,8 +1983,7 @@ class PasteItemsView(SimpleLoginRequiredMixin, View):
             )
             if duplicate_keys and not allow_duplicates:
                 preview = [
-                    f"{gibun}/{wo}/{op}"
-                    for gibun, wo, op in duplicate_keys[:10]
+                    f"{gibun}/{wo}/{op}" for gibun, wo, op in duplicate_keys[:10]
                 ]
                 return JsonResponse(
                     {

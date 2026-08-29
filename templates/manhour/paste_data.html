@@ -1,14 +1,20 @@
-{% extends "manhour/base/result_v2_base.html" %}
-{% load static %}
-{% block title %} Import Master Data | Manhour {% endblock title %}
+{% extends "manhour/base/result_v2_base.html" %} 
+{% load static %} 
+
+{% block title %} Import Master Data | Manhour {% endblock title %} 
 
 {% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/dialog_v2.css' %}?v=20260829-1"
+/>
 
-<link rel="stylesheet" href="{% static 'css/v2/dialog_v2.css' %}?v=20260827-1" />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3"
+/>
+{% endblock css %} 
 
-<link rel="stylesheet" href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3" />
-
-{% endblock css %}
 
 {% block js %}
 
@@ -20,9 +26,7 @@
 
 <script defer src="{% static 'js/paste_data.js' %}"></script>
 
-{% endblock js %}
-
-{% block content %}
+{% endblock js %} {% block content %}
 
 <header class="assignment-topbar">
     <div class="assignment-topbar-inner">
@@ -43,35 +47,45 @@
                 href="{% url 'manhour:master_data_list' %}"
                 class="assignment-topbar-btn"
             >
-                <i class="bi bi-database"></i>
+                <i class="bi bi-x-lg"></i>
+                <span>취소</span>
+            </a>
 
-                <span> Master Data </span>
+            <button
+                type="button"
+                onclick="addRow()"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-plus-lg"></i>
+                <span>줄 추가</span>
+            </button>
+
+            <button
+                type="button"
+                onclick="saveData()"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+            >
+                <i class="bi bi-cloud-arrow-up"></i>
+                <span>데이터 저장</span>
+            </button>
+
+            <a
+                href="{% url 'manhour:master_data_list' %}"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-database"></i>
+                <span>마스터 데이터</span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
-
-                <span> Home </span>
+                <span>홈</span>
             </a>
         </div>
     </div>
 </header>
 
 <main class="master-v2-page master-v2-import-page">
-    <!-- =====================================================
-        HERO
-    ====================================================== -->
-
-    <section class="master-import-hero">
-        <div class="master-import-eyebrow">CLIPBOARD IMPORT</div>
-
-        <h1>Import Maintenance Data</h1>
-
-        <p>
-            데이터를 복사한 후 Ctrl + V로 붙여넣으세요. 행은 필요한 만큼 자동으로 추가됩니다.
-        </p>
-    </section>
-
     <!-- =====================================================
         GUIDE
     ====================================================== -->
@@ -147,31 +161,6 @@
                         </table>
                     </div>
                 </div>
-
-                <div class="master-import-actions">
-                    <button type="button" onclick="addRow()" class="master-btn">
-                        <i class="bi bi-plus-lg"></i>
-
-                        Add Row
-                    </button>
-
-                    <a
-                        href="{% url 'manhour:master_data_list' %}"
-                        class="master-btn"
-                    >
-                        Cancel
-                    </a>
-
-                    <button
-                        type="button"
-                        onclick="saveData()"
-                        class="master-btn master-btn-primary"
-                    >
-                        <i class="bi bi-cloud-arrow-up"></i>
-
-                        Validate & Save Data
-                    </button>
-                </div>
             </form>
         </div>
 
@@ -183,5 +172,4 @@
     </section>
 </main>
 
-{% include "manhour/partials/data_confirm_dialog.html" %}
-{% endblock content %}
+{% include "manhour/partials/data_confirm_dialog.html" %} {% endblock content %}

@@ -1,11 +1,59 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
 
-{% block title %} Workforce Editor | {{ session.name }} {% endblock title %}
+{% block title %} Workforce Editor | {{ session.name }} {% endblock title %} 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/v2/workforce_editor.css' %}" />
-{% endblock css %}
+{% endblock css %} 
+
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.querySelector(".workforce-editor-side");
+        const sidebarInner = document.querySelector(
+            ".workforce-editor-side-inner",
+        );
+
+        if (!sidebar || !sidebarInner) {
+            return;
+        }
+
+        const desktopMedia = window.matchMedia("(min-width: 901px)");
+
+        const syncPinnedSidebar = function () {
+            if (!desktopMedia.matches) {
+                sidebarInner.classList.remove("is-pinned");
+                sidebarInner.style.width = "";
+                sidebar.style.minHeight = "";
+                return;
+            }
+
+            const stickyTop = 88;
+            const sidebarRect = sidebar.getBoundingClientRect();
+            const shouldPin = sidebarRect.top <= stickyTop;
+
+            if (shouldPin) {
+                sidebarInner.classList.add("is-pinned");
+                sidebarInner.style.width = `${sidebar.clientWidth}px`;
+                sidebar.style.minHeight = `${sidebarInner.offsetHeight}px`;
+                return;
+            }
+
+            sidebarInner.classList.remove("is-pinned");
+            sidebarInner.style.width = "";
+            sidebar.style.minHeight = "";
+        };
+
+        syncPinnedSidebar();
+        window.addEventListener("scroll", syncPinnedSidebar, {
+            passive: true,
+        });
+        window.addEventListener("resize", syncPinnedSidebar);
+    });
+</script>
+{% endblock js %} 
+
 
 {% block content %}
 
@@ -31,41 +79,39 @@
                 href="{% url 'manhour:result_view' session.id %}"
                 class="assignment-topbar-btn"
             >
+                <i class="bi bi-x-lg"></i>
+                <span>취소</span>
+            </a>
+
+            <button
+                type="submit"
+                form="workforceEditForm"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+            >
+                <i class="bi bi-check2"></i>
+                <span>수정 저장</span>
+            </button>
+
+            <a
+                href="{% url 'manhour:result_view' session.id %}"
+                class="assignment-topbar-btn"
+            >
                 <i class="bi bi-arrow-left"></i>
-                <span>Assignment</span>
+                <span>배정 현황</span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
-                <span>Home</span>
+                <span>홈</span>
             </a>
         </div>
     </div>
 </header>
 
 <main class="workforce-editor-page">
-    <section class="workforce-editor-hero">
-        <div>
-            <div class="workforce-editor-eyebrow">SESSION WORKFORCE</div>
-
-            <h4>세션 편집</h4>
-
-            <p>{{ session.name }}</p>
-        </div>
-
-        <a
-            href="{% url 'manhour:result_view' session.id %}"
-            class="workforce-back-button"
-        >
-            <i class="bi bi-arrow-left"></i>
-
-            Assignment
-        </a>
-    </section>
-
     <div class="workforce-editor-layout">
         <!-- =================================================
-             FORM
+            FORM
         ================================================== -->
 
         <section class="workforce-editor-panel">
@@ -79,7 +125,7 @@
                 <i class="bi bi-person-gear"></i>
             </header>
 
-            <form method="POST">
+            <form method="POST" id="workforceEditForm">
                 {% csrf_token %}
 
                 <div class="workforce-editor-panel-body">
@@ -129,69 +175,54 @@
                             붙여넣을 수 있습니다.
                         </div>
                     </div>
-
-                    <div class="workforce-editor-actions">
-                        <a
-                            href="{% url 'manhour:result_view' session.id %}"
-                            class="workforce-action workforce-action-light"
-                        >
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="workforce-action workforce-action-primary"
-                        >
-                            <i class="bi bi-check2"></i>
-
-                            Save Changes
-                        </button>
-                    </div>
                 </div>
             </form>
         </section>
 
         <!-- =================================================
-             GUIDE
+            GUIDE
         ================================================== -->
 
         <aside class="workforce-editor-side">
-            <article class="workforce-guide workforce-guide-dark">
-                <div class="workforce-guide-icon">
-                    <i class="bi bi-people"></i>
-                </div>
+            <div class="workforce-editor-side-inner">
+                <article class="workforce-guide workforce-guide-dark">
+                    <div class="workforce-guide-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
 
-                <h3>Workforce Management</h3>
+                    <h3>Workforce Management</h3>
 
-                <p>
-                    이 Session에서 자동 배정에 사용되는 작업자 명단을
-                    관리합니다.
-                </p>
-            </article>
+                    <p>
+                        이 Session에서 자동 배정에 사용되는 작업자 명단을
+                        관리합니다.
+                    </p>
+                </article>
 
-            <article class="workforce-guide">
-                <div class="workforce-guide-icon">
-                    <i class="bi bi-exclamation-triangle"></i>
-                </div>
+                <article class="workforce-guide">
+                    <div class="workforce-guide-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
 
-                <h3>Important</h3>
+                    <h3>Important</h3>
 
-                <ul>
-                    <li>
-                        작업자 이름을 삭제하면 해당 작업자의 기존 배정 기록도
-                        삭제될 수 있습니다.
-                    </li>
+                    <ul>
+                        <li>
+                            작업자 이름을 삭제하면 해당 작업자의 기존 배정
+                            기록도 삭제될 수 있습니다.
+                        </li>
 
-                    <li>
-                        기존 이름을 변경하면 새로운 작업자로 인식될 수 있습니다.
-                    </li>
+                        <li>
+                            기존 이름을 변경하면 새로운 작업자로 인식될 수
+                            있습니다.
+                        </li>
 
-                    <li>
-                        저장 후 Assignment Console에서 배정 결과를 다시
-                        확인하세요.
-                    </li>
-                </ul>
-            </article>
+                        <li>
+                            저장 후 Assignment Console에서 배정 결과를 다시
+                            확인하세요.
+                        </li>
+                    </ul>
+                </article>
+            </div>
         </aside>
     </div>
 </main>

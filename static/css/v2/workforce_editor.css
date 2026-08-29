@@ -7,10 +7,8 @@
 
     margin: 0 auto;
 
-    padding:
-        42px 0 70px;
+    padding: 42px 0 70px;
 }
-
 
 /* =========================================================
    HERO
@@ -28,7 +26,6 @@
     gap: 30px;
 }
 
-
 .workforce-editor-eyebrow {
     margin-bottom: 7px;
 
@@ -41,7 +38,6 @@
     letter-spacing: 0.17em;
 }
 
-
 .workforce-editor-hero h1 {
     margin: 0;
 
@@ -52,22 +48,18 @@
     letter-spacing: -0.045em;
 }
 
-
 .workforce-editor-hero p {
-    margin:
-        8px 0 0;
+    margin: 8px 0 0;
 
     color: #64748b;
 
     font-size: var(--font-size-base);
 }
 
-
 .workforce-back-button {
     min-height: 40px;
 
-    padding:
-        0 14px;
+    padding: 0 14px;
 
     display: inline-flex;
 
@@ -75,12 +67,11 @@
 
     gap: 8px;
 
-    border:
-        1px solid #e2e8f0;
+    border: 1px solid #d3dce6;
 
     border-radius: 9px;
 
-    background: #ffffff;
+    background: var(--assignment-white);
 
     color: #0f172a;
 
@@ -91,13 +82,11 @@
     font-weight: 700;
 }
 
-
 .workforce-back-button:hover {
-    background: #f8fafc;
+    background: #eaf1f8;
 
     color: #0f172a;
 }
-
 
 /* =========================================================
    LAYOUT
@@ -115,7 +104,6 @@
     align-items: start;
 }
 
-
 /* =========================================================
    PANEL
 ========================================================= */
@@ -123,21 +111,19 @@
 .workforce-editor-panel {
     overflow: hidden;
 
-    border:
-        1px solid #edf1f5;
+    border: 1px solid #dbe4ed;
 
     border-radius: 17px;
 
-    background: #ffffff;
+    background: var(--assignment-white);
 
-    box-shadow:
-        0 7px 28px rgba(15, 23, 42, 0.045);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
-
 .workforce-editor-panel-head {
-    padding:
-        21px 24px;
+    background: #eef4fa;
+
+    padding: 21px 24px;
 
     display: flex;
 
@@ -145,10 +131,8 @@
 
     justify-content: space-between;
 
-    border-bottom:
-        1px solid #edf1f5;
+    border-bottom: 1px solid #dbe4ed;
 }
-
 
 .workforce-editor-panel-head span {
     color: #2563eb;
@@ -160,16 +144,13 @@
     letter-spacing: 0.15em;
 }
 
-
 .workforce-editor-panel-head h2 {
-    margin:
-        4px 0 0;
+    margin: 4px 0 0;
 
     font-size: 17px;
 
     font-weight: 700;
 }
-
 
 .workforce-editor-panel-head i {
     color: #94a3b8;
@@ -177,11 +158,9 @@
     font-size: 20px;
 }
 
-
 .workforce-editor-panel-body {
     padding: 26px;
 }
-
 
 /* =========================================================
    FIELD
@@ -190,7 +169,6 @@
 .workforce-field + .workforce-field {
     margin-top: 28px;
 }
-
 
 .workforce-field label {
     margin-bottom: 9px;
@@ -207,7 +185,6 @@
 
     font-weight: 700;
 }
-
 
 .workforce-field-number {
     width: 25px;
@@ -228,11 +205,9 @@
     font-size: var(--font-size-micro);
 }
 
-
 .workforce-input-wrap {
     position: relative;
 }
-
 
 .workforce-input-wrap i {
     position: absolute;
@@ -245,18 +220,15 @@
     color: #94a3b8;
 }
 
-
 .workforce-input-wrap input {
     padding-left: 38px !important;
 }
-
 
 .workforce-field input,
 .workforce-field textarea {
     width: 100%;
 
-    border:
-        1px solid #dce3eb;
+    border: 1px solid #dce3eb;
 
     border-radius: 9px;
 
@@ -271,14 +243,11 @@
     font-size: var(--font-size-sm);
 }
 
-
 .workforce-field input {
     min-height: 44px;
 
-    padding:
-        9px 12px;
+    padding: 9px 12px;
 }
-
 
 .workforce-field textarea {
     min-height: 290px;
@@ -290,15 +259,12 @@
     line-height: 1.7;
 }
 
-
 .workforce-field input:focus,
 .workforce-field textarea:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.08);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
-
 
 .workforce-field-help {
     margin-top: 8px;
@@ -307,7 +273,6 @@
 
     font-size: var(--font-size-xs);
 }
-
 
 /* =========================================================
    ACTIONS
@@ -323,12 +288,10 @@
     gap: 8px;
 }
 
-
 .workforce-action {
     min-height: 42px;
 
-    padding:
-        0 17px;
+    padding: 0 17px;
 
     display: inline-flex;
 
@@ -351,23 +314,19 @@
     font-weight: 700;
 }
 
-
 .workforce-action-light {
-    border:
-        1px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
 
     background: #ffffff;
 
     color: #334155;
 }
 
-
 .workforce-action-light:hover {
     background: #f8fafc;
 
     color: #334155;
 }
-
 
 .workforce-action-primary {
     min-width: 140px;
@@ -377,20 +336,22 @@
     color: #ffffff;
 }
 
-
 .workforce-action-primary:hover {
     background: #1d4ed8;
 }
-
 
 /* =========================================================
    SIDE
 ========================================================= */
 
 .workforce-editor-side {
+    align-self: start;
+}
+
+.workforce-editor-side-inner {
     position: sticky;
 
-    top: 100px;
+    top: 88px;
 
     display: flex;
 
@@ -399,32 +360,31 @@
     gap: 14px;
 }
 
+.workforce-editor-side-inner.is-pinned {
+    position: fixed;
+
+    top: 88px;
+
+    z-index: 40;
+}
 
 .workforce-guide {
     padding: 21px;
 
-    border:
-        1px solid #edf1f5;
+    border: 1px solid #edf1f5;
 
     border-radius: 15px;
 
     background: #ffffff;
 }
 
-
 .workforce-guide-dark {
-    background:
-        linear-gradient(
-            145deg,
-            #07111f,
-            #0b1729
-        );
+    background: linear-gradient(145deg, #07111f, #0b1729);
 
     border-color: #07111f;
 
     color: #ffffff;
 }
-
 
 .workforce-guide-icon {
     width: 39px;
@@ -445,15 +405,11 @@
     color: #475569;
 }
 
-
-.workforce-guide-dark
-.workforce-guide-icon {
-    background:
-        rgba(255, 255, 255, 0.08);
+.workforce-guide-dark .workforce-guide-icon {
+    background: rgba(255, 255, 255, 0.08);
 
     color: #60a5fa;
 }
-
 
 .workforce-guide h3 {
     margin: 0;
@@ -461,10 +417,8 @@
     font-size: var(--font-size-base);
 }
 
-
 .workforce-guide p {
-    margin:
-        8px 0 0;
+    margin: 8px 0 0;
 
     color: #64748b;
 
@@ -473,15 +427,12 @@
     line-height: 1.7;
 }
 
-
 .workforce-guide-dark p {
     color: #94a3b8;
 }
 
-
 .workforce-guide ul {
-    margin:
-        15px 0 0;
+    margin: 15px 0 0;
 
     padding-left: 17px;
 
@@ -492,37 +443,34 @@
     line-height: 1.7;
 }
 
-
 .workforce-guide li + li {
     margin-top: 8px;
 }
-
 
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 900px) {
-
     .workforce-editor-layout {
         grid-template-columns: 1fr;
     }
-
 
     .workforce-editor-side {
         position: static;
     }
 
+    .workforce-editor-side-inner.is-pinned {
+        position: static;
+
+        width: auto !important;
+    }
 }
 
-
 @media (max-width: 650px) {
-
     .workforce-editor-page {
-        width:
-            calc(100% - 28px);
+        width: calc(100% - 28px);
     }
-
 
     .workforce-editor-hero {
         align-items: flex-start;
@@ -530,14 +478,11 @@
         flex-direction: column;
     }
 
-
     .workforce-editor-actions {
         flex-direction: column-reverse;
     }
 
-
     .workforce-action {
         width: 100%;
     }
-
 }

@@ -51,11 +51,16 @@
                 const toggle = document.getElementById("manningSidebarToggle");
 
                 if (toggle && sidebar) {
-                    const overlay = document.getElementById("manningSidebarOverlay");
+                    const overlay = document.getElementById(
+                        "manningSidebarOverlay",
+                    );
 
                     const setSidebarOpen = function (isOpen) {
                         sidebar.classList.toggle("is-open", isOpen);
-                        document.body.classList.toggle("manning-sidebar-open", isOpen);
+                        document.body.classList.toggle(
+                            "manning-sidebar-open",
+                            isOpen,
+                        );
                         toggle.setAttribute("aria-expanded", String(isOpen));
                     };
 
@@ -91,13 +96,16 @@
                 }
 
                 const mobileViewport = window.matchMedia("(max-width: 700px)");
-                const mobileFolds = document.querySelectorAll("[data-mobile-fold]");
+                const mobileFolds =
+                    document.querySelectorAll("[data-mobile-fold]");
 
                 mobileFolds.forEach(function (fold, index) {
                     const hasVisibleError = fold.querySelector(
-                        ".manning-form-error:not(.d-none), .manning-form-alert:not(.d-none), .alert-danger:not(.d-none)"
+                        ".manning-form-error:not(.d-none), .manning-form-alert:not(.d-none), .alert-danger:not(.d-none)",
                     );
-                    let isOpen = fold.dataset.mobileFoldOpen === "true" || Boolean(hasVisibleError);
+                    let isOpen =
+                        fold.dataset.mobileFoldOpen === "true" ||
+                        Boolean(hasVisibleError);
                     const title = fold.dataset.mobileFoldTitle || "상세 내용";
                     const toggleButton = document.createElement("button");
                     const toggleCopy = document.createElement("span");
@@ -122,9 +130,15 @@
                     const syncFold = function () {
                         const isMobile = mobileViewport.matches;
                         fold.classList.toggle("is-mobile-fold", isMobile);
-                        fold.classList.toggle("is-mobile-collapsed", isMobile && !isOpen);
+                        fold.classList.toggle(
+                            "is-mobile-collapsed",
+                            isMobile && !isOpen,
+                        );
                         toggleButton.hidden = !isMobile;
-                        toggleButton.setAttribute("aria-expanded", String(!isMobile || isOpen));
+                        toggleButton.setAttribute(
+                            "aria-expanded",
+                            String(!isMobile || isOpen),
+                        );
                         toggleState.textContent = isOpen ? "접기" : "펼쳐보기";
                     };
 
@@ -139,11 +153,12 @@
             });
         </script>
 
-        {% block js %} {% endblock js %}
+        {% block js %} {% endblock js %} {% block css %} {% endblock css %}
 
-        {% block css %} {% endblock css %}
-
-        <link rel="stylesheet" href="{% static 'css/v2/mobile.css' %}?v=20260828-3" />
+        <link
+            rel="stylesheet"
+            href="{% static 'css/v2/mobile.css' %}?v=20260828-3"
+        />
     </head>
 
     <body class="manning-v2-body">
@@ -207,8 +222,10 @@
                     </a>
 
                     <div class="manning-nav-label manning-nav-label-secondary">
-                        SYSTEM
+                        STATUS
                     </div>
+
+                    {% block sidebar_system %}{% endblock sidebar_system %}
                 </nav>
 
                 <!-- Bottom -->
@@ -265,6 +282,8 @@
                     </div>
 
                     <div class="manning-topbar-right">
+                        {% block topbar_right %}{% endblock topbar_right %}
+
                         <div class="manning-topbar-date">
                             <i class="bi bi-calendar3"></i>
 
@@ -382,9 +401,7 @@
                         {% endfor %}
                     </div>
 
-                    {% endif %} 
-                    
-                    {% block content %} {% endblock content %}
+                    {% endif %} {% block content %} {% endblock content %}
                 </main>
             </section>
         </div>

@@ -84,15 +84,15 @@ body.assignment-console-body > .container .manage-header-result-btn {
 ========================================================= */
 
 #manage-form .card {
-    border: 1px solid #edf1f5 !important;
+    border: 1px solid #dbe4ed !important;
 
     border-radius: 14px !important;
 
     overflow: hidden;
 
-    background: #ffffff;
+    background: var(--assignment-white);
 
-    box-shadow: 0 5px 22px rgba(15, 23, 42, 0.04) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
 }
 
 #manage-form .card-header {
@@ -104,9 +104,9 @@ body.assignment-console-body > .container .manage-header-result-btn {
 
     align-items: center;
 
-    background: #ffffff !important;
+    background: #eef4fa !important;
 
-    border-bottom: 1px solid #edf1f5 !important;
+    border-bottom: 1px solid #dbe4ed !important;
 
     font-size: var(--font-size-base);
 }
@@ -129,6 +129,10 @@ body.assignment-console-body > .container .manage-header-result-btn {
 
 .manage-config-item {
     min-width: 0;
+}
+
+.manage-limit-item {
+    grid-column: 1 / -1;
 }
 
 #manage-form .manage-config-card {
@@ -187,11 +191,58 @@ body.assignment-console-body > .container .manage-header-result-btn {
 
 .worker-limit-editor {
     min-height: 96px;
-    padding: 12px;
+    padding: 10px;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    background: #f4f7fb;
+    gap: 8px;
+    background: #f8fafc;
+}
+
+.worker-limit-editor-direct {
+    min-height: 0;
+}
+
+.worker-limit-direct-input {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px 14px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #172033;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.7;
+    resize: vertical;
+    white-space: pre-wrap;
+}
+
+.worker-limit-direct-input::placeholder {
+    color: #94a3b8;
+}
+
+.worker-limit-direct-input.is-duplicate {
+    box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.45);
+    background: #fff7f7;
+}
+
+.worker-limit-help-text {
+    padding: 0 12px 12px;
+    color: #64748b;
+    font-size: var(--font-size-xs);
+}
+
+.worker-limit-duplicate-notice {
+    margin: 0 12px 12px;
+    padding: 8px 10px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fff7f7;
+    color: #b91c1c;
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+    white-space: pre-line;
 }
 
 .worker-limit-list {
@@ -201,102 +252,104 @@ body.assignment-console-body > .container .manage-header-result-btn {
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
-    gap: 8px;
+    gap: 6px;
     overflow-y: auto;
 }
 
 .worker-limit-row {
-    min-height: 38px;
-    padding: 4px 5px 4px 8px;
+    min-height: 32px;
+    padding: 2px 4px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    border: 1px solid #c8d5e3;
-    border-radius: 9px;
+    gap: 4px;
+    border: 1px solid #dbe3ec;
+    border-radius: 6px;
     background: #ffffff;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    box-shadow: none;
 }
 
 .worker-limit-row.is-custom {
-    border-color: #f2c35c;
-    background: #fff9e8;
+    border-color: #dbe3ec;
+    background: #ffffff;
 }
 
 .worker-limit-name,
 .worker-limit-value {
-    height: 28px;
-    padding: 2px 6px;
-    border: 1px solid transparent;
-    border-radius: 6px;
+    height: 26px;
+    padding: 1px 3px;
+    border: 0;
+    border-radius: 0;
     outline: none;
     background: transparent;
     color: #172033;
-    font-size: var(--font-size-sm);
-    font-weight: 750;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .worker-limit-name {
-    width: 94px;
+    width: 68px;
+    color: #334155;
 }
 
 .worker-limit-value {
-    width: 58px;
+    width: 42px;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
     text-align: right;
 }
 
 .worker-limit-name:focus,
 .worker-limit-value:focus {
-    border-color: #93b9e4;
     background: #ffffff;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.09);
+    box-shadow: inset 0 -1px 0 #93b9e4;
 }
 
 .worker-limit-separator,
 .worker-limit-unit {
     color: #64748b;
-    font-size: var(--font-size-xs);
+    font-size: 12px;
     font-weight: 800;
 }
 
 .worker-limit-remove {
-    width: 27px;
-    height: 27px;
+    width: 22px;
+    height: 22px;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 0;
-    border-radius: 6px;
-    background: #fff1f2;
-    color: #be123c;
+    border-radius: 4px;
+    background: transparent;
+    color: #94a3b8;
     font-size: 11px;
 }
 
 .worker-limit-remove:hover {
-    background: #e11d48;
-    color: #ffffff;
+    background: #f1f5f9;
+    color: #0f172a;
 }
 
 .worker-limit-add {
-    min-height: 38px;
-    padding: 0 11px;
+    min-height: 32px;
+    padding: 0 9px;
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    border: 1px solid #9ebbd9;
-    border-radius: 9px;
-    background: #e7f0fa;
-    color: #1d4f82;
-    font-size: var(--font-size-xs);
+    border: 1px solid #d5dee8;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12px;
     font-weight: 800;
 }
 
 .worker-limit-add:hover {
-    border-color: #2563eb;
-    background: #2563eb;
-    color: #ffffff;
+    border-color: #94a3b8;
+    background: #f8fafc;
+    color: #0f172a;
 }
 
 .worker-limit-empty {
@@ -324,7 +377,10 @@ body.assignment-console-body > .container .manage-header-result-btn {
 ========================================================= */
 
 #manageItemsTable {
+    width: 100%;
     min-width: 1120px;
+
+    table-layout: fixed;
 
     margin: 0;
 
@@ -435,14 +491,48 @@ body.assignment-console-body > .container .manage-header-result-btn {
     background: #f8fbff !important;
 }
 
+#manageItemsTable .col-gibun .table-input {
+    min-width: 0;
+}
+
+#manageItemsTable .col-wo .table-input {
+    min-width: 0;
+}
+
+#manageItemsTable .col-op .table-input {
+    min-width: 0;
+}
+
+#manageItemsTable .col-mh .table-input {
+    min-width: 0;
+}
+
+#manageItemsTable .col-mh-adjust .adjusted-mh-input {
+    min-width: 0;
+}
+
 #manageItemsTable .js-assigned-text {
-    min-width: 150px;
+    min-width: 0;
     min-height: 33px;
     margin: 0;
     line-height: 21px;
     vertical-align: middle;
     overflow: hidden;
     resize: none;
+}
+
+#manageItemsTable .col-gibun .table-input,
+#manageItemsTable .col-wo .table-input,
+#manageItemsTable .col-op .table-input,
+#manageItemsTable .col-desc .table-input,
+#manageItemsTable .col-mh .table-input,
+#manageItemsTable .col-mh-adjust .adjusted-mh-input,
+#manageItemsTable .col-assign .table-input,
+#manageItemsTable .col-assign .js-assigned-text {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 /* =========================================================
@@ -468,6 +558,24 @@ body.assignment-console-body > .container .manage-header-result-btn {
     height: 15px;
 
     cursor: pointer;
+}
+
+#manageItemsTable .row-delete-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #dc2626;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#manageItemsTable .row-delete-btn:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: #b91c1c;
 }
 
 /* =========================================================
@@ -658,7 +766,55 @@ body.assignment-console-body > .container .manage-header-result-btn {
 ========================================================= */
 
 .mh-adjust-select {
-    min-width: 78px;
+    min-width: 100px;
+    border: 1px solid #cbd5e1;
+    box-shadow: none;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.mh-adjust-select.is-custom-mode {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+#manageItemsTable .col-mh-adjust .adjusted-mh-input {
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease;
+}
+
+#manageItemsTable.adjust-mode-original .col-mh-adjust .adjusted-mh-input {
+    border-color: #dbe3ec;
+    background: #f8fafc !important;
+    color: #64748b !important;
+    box-shadow: none;
+}
+
+#manageItemsTable.adjust-mode-percent .col-mh-adjust .adjusted-mh-input {
+    border-color: #93c5fd;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+#manageItemsTable.adjust-mode-custom .col-mh-adjust .adjusted-mh-input {
+    border-color: #60a5fa;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.22);
+}
+
+#manageItemsTable.adjust-mode-custom .col-mh-adjust .adjusted-mh-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
 }
 
 /* =========================================================
@@ -802,18 +958,14 @@ body.assignment-console-body > .container .manage-header-result-btn {
         background: var(--assignment-bg);
     }
 
-    .manage-action-bar {
-        order: 1;
-    }
-
     .manage-limit-item {
-        order: 2;
-        display: none !important;
-        height: 0 !important;
+        order: 1;
+        display: block !important;
+        height: auto !important;
         min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
 
     .manage-limit-item,

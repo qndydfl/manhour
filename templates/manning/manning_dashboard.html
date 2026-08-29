@@ -1,52 +1,72 @@
-{% extends 'manning/base/manning_v2_base.html' %}
-{% load static %}
+{% extends 'manning/base/manning_v2_base.html' %} 
+{% load static %} 
 
+{% block title %} Aircraft Area Editor | {{ session.aircraft_reg }} {% endblock title %}
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block title %}
-Aircraft Area Editor | {{ session.aircraft_reg }}
-{% endblock title %}
+{% block page_title %} Aircraft Area Editor {% endblock page_title %} 
 
+{% block topbar_right %}
+<div class="manning-dashboard-topbar-actions">
+    <a
+        href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
+        class="manning-dashboard-btn manning-dashboard-btn-primary {% if not is_same_site %} is-disabled {% endif %}"
+    >
+        <i class="bi bi-pencil-square"></i>
+        Edit Session
+    </a>
 
-{% block nav_sessions_active %}
-active
-{% endblock nav_sessions_active %}
+    <a
+        href="{% url 'manning:manning_list' %}"
+        class="manning-dashboard-btn manning-dashboard-btn-topbar-light"
+    >
+        <i class="bi bi-arrow-left"></i>
+        Manning 그룹
+    </a>
+</div>
+{% endblock topbar_right %} {% block sidebar_system %}
 
+<div class="manning-dashboard-sidebar-meta">
+    <span class="manning-dashboard-sidebar-meta-item">
+        <i class="bi bi-airplane"></i>
+        {{ session.aircraft_reg }}
+    </span>
 
-{% block page_title %}
-Aircraft Area Editor
-{% endblock page_title %}
+    <span class="manning-dashboard-sidebar-meta-item">
+        <i class="bi bi-wrench-adjustable"></i>
+        {{ session.get_block_check_display }}
+    </span>
 
+    <span class="manning-dashboard-sidebar-meta-item">
+        <i class="bi bi-clock"></i>
+        {{ session.get_shift_type_display }}
+    </span>
 
-{% block css %}
+    <span class="manning-dashboard-sidebar-meta-item">
+        <i class="bi bi-geo-alt"></i>
+        {{ session.site_label|default:"-" }}
+    </span>
 
+    <span class="manning-dashboard-sidebar-meta-item">
+        <i class="bi bi-diagram-3"></i>
+        {{ session_areas|length }} Areas
+    </span>
+</div>
+{% endblock sidebar_system %} {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/manning_dashboard.css' %}"
->
-
-{% endblock css %}
-
-
-
-{% block js %}
-
+    href="{% static 'css/manning/v2/manning_dashboard.css' %}?v=20260829-2"
+/>
+{% endblock css %} {% block js %}
 <script>
     const MANNING_CONFIG = {
         csrfToken: "{{ csrf_token }}",
-        updateManningUrlPrefix: "/manning/"
+        updateManningUrlPrefix: "/manning/",
     };
 </script>
 
-<script
-    src="{% static 'js/manning/manning_dashboard.js' %}"
-></script>
-
-{% endblock js %}
-
-
-
-{% block content %}
-
+<script src="{% static 'js/manning/manning_dashboard.js' %}"></script>
+{% endblock js %} {% block content %}
 
 <!-- =====================================================
     WARNING
@@ -54,295 +74,17 @@ Aircraft Area Editor
 
 {% if show_empty_assignments %}
 
-    <div class="manning-dashboard-warning">
+<div class="manning-dashboard-warning">
+    <i class="bi bi-exclamation-triangle"></i>
 
-        <i class="bi bi-exclamation-triangle"></i>
-
-        <span>
-            작업 배정 또는 시간 입력 데이터가 없습니다.
-        </span>
-
-    </div>
+    <span> 작업 배정 또는 시간 입력 데이터가 없습니다. </span>
+</div>
 
 {% endif %}
 
 
-
 <!-- =====================================================
-    SESSION HERO
-====================================================== -->
-
-<section class="manning-dashboard-hero">
-
-    <div class="manning-dashboard-hero-inner">
-
-
-        <!-- LEFT -->
-
-        <div>
-
-            <div class="manning-dashboard-eyebrow">
-                ACTIVE MAINTENANCE SESSION
-            </div>
-
-
-            <h2 class="manning-dashboard-aircraft">
-                {{ session.aircraft_reg }}
-            </h2>
-
-
-            <div class="manning-dashboard-package">
-                {{ session.work_package_name }}
-            </div>
-
-
-
-            <div class="manning-dashboard-meta">
-
-
-                <span class="manning-dashboard-meta-item">
-
-                    <i class="bi bi-wrench-adjustable"></i>
-
-                    {{ session.get_block_check_display }}
-
-                </span>
-
-
-                <span class="manning-dashboard-meta-item">
-
-                    <i class="bi bi-clock"></i>
-
-                    {{ session.get_shift_type_display }}
-
-                </span>
-
-
-                <span class="manning-dashboard-meta-item">
-
-                    <i class="bi bi-geo-alt"></i>
-
-                    {{ session.site_label|default:"-" }}
-
-                </span>
-
-
-                <span class="manning-dashboard-meta-item">
-
-                    <i class="bi bi-diagram-3"></i>
-
-                    {{ session_areas|length }} Areas
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ACTIONS -->
-
-        <div class="manning-dashboard-actions">
-
-
-            <!-- Assignment -->
-
-            <a
-                href="
-                    {% if is_same_site and has_assignments %}
-                        {% url 'manning:assignment_view' session.id %}
-                    {% else %}
-                        #
-                    {% endif %}
-                "
-                class="
-                    manning-dashboard-btn
-                    manning-dashboard-btn-dark
-                    {% if not is_same_site or not has_assignments %}
-                        is-disabled
-                    {% endif %}
-                "
-            >
-
-                <i class="bi bi-person-workspace"></i>
-
-                Assignment / Hours
-
-            </a>
-
-
-
-            <!-- Edit -->
-
-            <a
-                href="
-                    {% if is_same_site %}
-                        {% url 'manning:manning_dashboard_edit' session.id %}
-                    {% else %}
-                        #
-                    {% endif %}
-                "
-                class="
-                    manning-dashboard-btn
-                    manning-dashboard-btn-primary
-                    {% if not is_same_site %}
-                        is-disabled
-                    {% endif %}
-                "
-            >
-
-                <i class="bi bi-pencil-square"></i>
-
-                Edit Session
-
-            </a>
-
-
-
-            <!-- Back -->
-
-            <a
-                href="{% url 'manning:manning_list' %}"
-                class="
-                    manning-dashboard-btn
-                    manning-dashboard-btn-light
-                "
-            >
-
-                <i class="bi bi-arrow-left"></i>
-
-                Sessions
-
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     KPI
-====================================================== -->
-
-<section class="manning-dashboard-kpi">
-
-
-    <!-- Left -->
-
-    <div class="manning-kpi-card">
-
-        <div class="manning-kpi-copy">
-
-            <span>
-                LEFT SIDE
-            </span>
-
-            <strong>
-                {{ left_unique_count }}
-            </strong>
-
-        </div>
-
-
-        <div class="manning-kpi-icon">
-
-            <i class="bi bi-arrow-left"></i>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- Center -->
-
-    <div class="manning-kpi-card">
-
-        <div class="manning-kpi-copy">
-
-            <span>
-                CENTER / NONE
-            </span>
-
-            <strong>
-                {{ none_unique_count }}
-            </strong>
-
-        </div>
-
-
-        <div class="manning-kpi-icon">
-
-            <i class="bi bi-dash-lg"></i>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- Right -->
-
-    <div class="manning-kpi-card">
-
-        <div class="manning-kpi-copy">
-
-            <span>
-                RIGHT SIDE
-            </span>
-
-            <strong>
-                {{ right_unique_count }}
-            </strong>
-
-        </div>
-
-
-        <div class="manning-kpi-icon">
-
-            <i class="bi bi-arrow-right"></i>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- Areas -->
-
-    <div class="manning-kpi-card">
-
-        <div class="manning-kpi-copy">
-
-            <span>
-                TOTAL AREAS
-            </span>
-
-            <strong>
-                {{ session_areas|length }}
-            </strong>
-
-        </div>
-
-
-        <div class="manning-kpi-icon">
-
-            <i class="bi bi-grid-3x3-gap"></i>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     AREA CONTROL
+    AREA CONTROL
 ====================================================== -->
 
 <section
@@ -351,192 +93,94 @@ Aircraft Area Editor
     data-mobile-fold-title="구역별 작업자 현황"
     data-mobile-fold-open="true"
 >
-
     <div class="manning-dashboard-section-head">
-
         <div>
-
-            <span class="manning-dashboard-section-label">
-                WORKFORCE DISTRIBUTION
-            </span>
-
             <h3 class="manning-dashboard-section-title">
-                Aircraft Area Manning
+                항공기 session Manning
             </h3>
-
         </div>
-
-
-        <p class="manning-dashboard-section-description">
-            Personnel and allocated manhours by aircraft zone.
-        </p>
-
     </div>
 
-
-
     <div class="manning-zone-grid">
-
-
         <!-- =================================================
-             LEFT
+            LEFT
         ================================================== -->
 
         <section class="manning-zone manning-zone-left">
-
             <header class="manning-zone-header">
-
                 <div class="manning-zone-heading">
-
                     <span class="manning-zone-marker"></span>
 
-                    <strong>
-                        LEFT SIDE
-                    </strong>
-
+                    <strong> LEFT SIDE </strong>
                 </div>
 
-
-                <span>
-                    {{ left_unique_count }} personnel
-                </span>
-
+                <span> {{ left_unique_count }} personnel </span>
             </header>
 
-
-
             <div class="manning-zone-list">
+                {% for area in session_areas %} {% if area.position == 'LEFT' %}
+                {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
 
-                {% for area in session_areas %}
-
-                    {% if area.position == 'LEFT' %}
-
-                        {% include "manning/partials/area_card_v2.html" with area=area %}
-
-                    {% endif %}
-
-                {% empty %}
-
-                    <div class="manning-zone-empty">
-                        No areas configured.
-                    </div>
+                <div class="manning-zone-empty">No areas configured.</div>
 
                 {% endfor %}
-
             </div>
-
         </section>
 
-
-
         <!-- =================================================
-             CENTER / NONE
+            CENTER / NONE
         ================================================== -->
 
         <section class="manning-zone manning-zone-center">
-
             <header class="manning-zone-header">
-
                 <div class="manning-zone-heading">
-
                     <span class="manning-zone-marker"></span>
 
-                    <strong>
-                        CENTER / NONE
-                    </strong>
-
+                    <strong> CENTER / NONE </strong>
                 </div>
 
-
-                <span>
-                    {{ none_unique_count }} personnel
-                </span>
-
+                <span> {{ none_unique_count }} personnel </span>
             </header>
 
-
-
             <div class="manning-zone-list">
+                {% for area in session_areas %} {% if area.position == 'NONE' %}
+                {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
 
-                {% for area in session_areas %}
-
-                    {% if area.position == 'NONE' %}
-
-                        {% include "manning/partials/area_card_v2.html" with area=area %}
-
-                    {% endif %}
-
-                {% empty %}
-
-                    <div class="manning-zone-empty">
-                        No areas configured.
-                    </div>
+                <div class="manning-zone-empty">No areas configured.</div>
 
                 {% endfor %}
-
             </div>
-
         </section>
 
-
-
         <!-- =================================================
-             RIGHT
+            RIGHT
         ================================================== -->
 
         <section class="manning-zone manning-zone-right">
-
             <header class="manning-zone-header">
-
                 <div class="manning-zone-heading">
-
                     <span class="manning-zone-marker"></span>
 
-                    <strong>
-                        RIGHT SIDE
-                    </strong>
-
+                    <strong> RIGHT SIDE </strong>
                 </div>
 
-
-                <span>
-                    {{ right_unique_count }} personnel
-                </span>
-
+                <span> {{ right_unique_count }} personnel </span>
             </header>
 
-
-
             <div class="manning-zone-list">
+                {% for area in session_areas %} {% if area.position == 'RIGHT' %} 
+                {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
 
-                {% for area in session_areas %}
-
-                    {% if area.position == 'RIGHT' %}
-
-                        {% include "manning/partials/area_card_v2.html" with area=area %}
-
-                    {% endif %}
-
-                {% empty %}
-
-                    <div class="manning-zone-empty">
-                        No areas configured.
-                    </div>
+                <div class="manning-zone-empty">No areas configured.</div>
 
                 {% endfor %}
-
             </div>
-
         </section>
-
     </div>
-
 </section>
 
-
-
 <!-- =====================================================
-     MEMO
+    MEMO
 ====================================================== -->
 
 <section
@@ -545,57 +189,31 @@ Aircraft Area Editor
     data-mobile-fold-title="세션 메모"
     data-mobile-fold-open="false"
 >
-
     <div class="manning-dashboard-section-head">
-
         <div>
-
             <span class="manning-dashboard-section-label">
                 SESSION INFORMATION
             </span>
 
-            <h3 class="manning-dashboard-section-title">
-                Session Memo
-            </h3>
-
+            <h3 class="manning-dashboard-section-title">Session Memo</h3>
         </div>
-
     </div>
 
-
-
     <article class="manning-dashboard-memo">
-
         <div class="manning-dashboard-memo-head">
-
-            <strong>
-                OPERATION NOTES
-            </strong>
+            <strong> OPERATION NOTES </strong>
 
             <i class="bi bi-journal-text"></i>
-
         </div>
-
 
         <div class="manning-dashboard-memo-body">
+            {% if session.memo %} {{ session.memo|safe }} {% else %}
 
-            {% if session.memo %}
-
-                {{ session.memo|safe }}
-
-            {% else %}
-
-                <span class="text-muted">
-                    등록된 메모가 없습니다.
-                </span>
+            <span class="text-muted"> 등록된 메모가 없습니다. </span>
 
             {% endif %}
-
         </div>
-
     </article>
-
 </section>
-
 
 {% endblock content %}

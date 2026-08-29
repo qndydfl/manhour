@@ -7,7 +7,6 @@
     margin: 0 auto;
 }
 
-
 /* =========================================================
    PAGE HEADER
 ========================================================= */
@@ -73,7 +72,7 @@
 
     border-radius: 9px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     color: var(--manning-text);
 
@@ -84,10 +83,9 @@
 }
 
 .template-editor-header-btn:hover {
-    background: #f8fafc;
+    background: #eaf1f8;
     color: var(--manning-text);
 }
-
 
 /* =========================================================
    SUMMARY
@@ -98,8 +96,7 @@
 
     display: grid;
 
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
     gap: 14px;
 }
@@ -115,15 +112,13 @@
 
     gap: 20px;
 
-    border:
-        1px solid var(--manning-border-soft);
+    border: 1px solid var(--manning-border-soft);
 
     border-radius: 15px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
-    box-shadow:
-        0 5px 20px rgba(15, 23, 42, 0.035);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
 }
 
 .template-summary-card span {
@@ -159,13 +154,12 @@
 
     border-radius: 10px;
 
-    background: #f1f5f9;
+    background: #e3edf7;
 
     color: #475569;
 
     font-size: 17px;
 }
-
 
 /* =========================================================
    FORM
@@ -177,7 +171,6 @@
 
     gap: 22px;
 }
-
 
 /* =========================================================
    SECTION HEADER
@@ -223,7 +216,6 @@
     font-size: var(--font-size-xs);
 }
 
-
 /* =========================================================
    TEMPLATE BLOCK
 ========================================================= */
@@ -233,15 +225,13 @@
 
     overflow: hidden;
 
-    border:
-        1px solid var(--manning-border-soft);
+    border: 1px solid var(--manning-border-soft);
 
     border-radius: 15px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
-    box-shadow:
-        0 5px 20px rgba(15, 23, 42, 0.035);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
 }
 
 /* =========================================================
@@ -250,14 +240,14 @@
 
 .template-accordion .accordion-item,
 .new-template-accordion .accordion-item {
-    background: #ffffff;
+    background: var(--manning-surface);
 }
 
 .template-accordion .accordion-button,
 .new-template-accordion .accordion-button {
     padding: 18px 20px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     box-shadow: none;
 
@@ -266,7 +256,7 @@
 
 .template-accordion .accordion-button:not(.collapsed),
 .new-template-accordion .accordion-button:not(.collapsed) {
-    background: #f8fafc;
+    background: #eaf1f8;
 
     box-shadow: none;
 }
@@ -280,10 +270,8 @@
 .new-template-accordion .accordion-body {
     padding: 22px;
 
-    border-top:
-        1px solid var(--manning-border-soft);
+    border-top: 1px solid var(--manning-border-soft);
 }
-
 
 /* =========================================================
    TEMPLATE HEADER
@@ -308,7 +296,7 @@
 
     border-radius: 9px;
 
-    background: #eff6ff;
+    background: #e3edf7;
 
     color: var(--manning-blue);
 
@@ -340,7 +328,6 @@
 
     text-align: right;
 }
-
 
 /* =========================================================
    META FORM
@@ -380,8 +367,7 @@
 
     padding: 8px 10px;
 
-    border:
-        1px solid #dce3eb;
+    border: 1px solid #dce3eb;
 
     border-radius: 8px;
 
@@ -395,8 +381,7 @@
 .template-field input:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.08);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .template-delete-wrap {
@@ -419,7 +404,6 @@
 
     font-size: var(--font-size-xs);
 }
-
 
 /* =========================================================
    DND AREA
@@ -460,8 +444,7 @@
 .template-position-grid {
     display: grid;
 
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
     gap: 12px;
 }
@@ -471,8 +454,7 @@
 
     padding: 12px;
 
-    border:
-        1px solid var(--manning-border-soft);
+    border: 1px solid var(--manning-border-soft);
 
     border-radius: 12px;
 
@@ -484,8 +466,7 @@
 
     padding-bottom: 8px;
 
-    border-bottom:
-        1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
 
     color: var(--manning-text-2);
 
@@ -525,8 +506,7 @@
 
     cursor: grab;
 
-    border:
-        1px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
 
     border-radius: 8px;
 
@@ -536,8 +516,7 @@
 
     font-size: var(--font-size-xs);
 
-    box-shadow:
-        0 2px 5px rgba(15, 23, 42, 0.025);
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.025);
 }
 
 .dnd-item.is-dragging {
@@ -583,14 +562,11 @@
 .dnd-input {
     min-height: 34px !important;
 
-    padding:
-        6px 8px !important;
+    padding: 6px 8px !important;
 
-    border:
-        1px solid #dce3eb !important;
+    border: 1px solid #dce3eb !important;
 
-    border-radius:
-        7px !important;
+    border-radius: 7px !important;
 
     font-size: var(--font-size-xs) !important;
 }
@@ -600,8 +576,7 @@
 
     padding: 0;
 
-    border:
-        1px solid #dce3eb;
+    border: 1px solid #dce3eb;
 
     border-radius: 7px;
 
@@ -612,7 +587,6 @@
     font-size: 16px;
 }
 
-
 /* =========================================================
    RAW TEXT
 ========================================================= */
@@ -622,8 +596,7 @@
 
     padding-top: 20px;
 
-    border-top:
-        1px solid var(--manning-border-soft);
+    border-top: 1px solid var(--manning-border-soft);
 }
 
 .template-raw-title {
@@ -649,8 +622,7 @@
 .template-text-grid {
     display: grid;
 
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
     gap: 12px;
 }
@@ -675,8 +647,7 @@
 
     resize: vertical;
 
-    border:
-        1px solid #dce3eb;
+    border: 1px solid #dce3eb;
 
     border-radius: 8px;
 
@@ -686,10 +657,7 @@
 
     color: #334155;
 
-    font-family:
-        Consolas,
-        "Courier New",
-        monospace;
+    font-family: Consolas, "Courier New", monospace;
 
     font-size: var(--font-size-xs);
 
@@ -701,27 +669,22 @@
 
     background: #ffffff;
 
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.07);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.07);
 }
-
 
 /* =========================================================
    NEW TEMPLATE
 ========================================================= */
 
 .new-template-block {
-    border:
-        1px dashed #93c5fd;
+    border: 1px dashed #93c5fd;
 
     background: #fbfdff;
 }
 
-.new-template-block
-.accordion-button {
+.new-template-block .accordion-button {
     background: #fbfdff;
 }
-
 
 /* =========================================================
    SAVE BAR
@@ -744,18 +707,15 @@
 
     gap: 20px;
 
-    border:
-        1px solid var(--manning-border-soft);
+    border: 1px solid var(--manning-border-soft);
 
     border-radius: 13px;
 
-    background:
-        rgba(255, 255, 255, 0.94);
+    background: rgba(255, 255, 255, 0.94);
 
     backdrop-filter: blur(14px);
 
-    box-shadow:
-        0 15px 40px rgba(15, 23, 42, 0.10);
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.1);
 }
 
 .template-save-info {
@@ -776,8 +736,7 @@
 .template-save-btn {
     min-height: 42px;
 
-    padding:
-        0 18px;
+    padding: 0 18px;
 
     border: 0;
 
@@ -794,10 +753,8 @@
 }
 
 .template-save-btn:hover {
-    background:
-        var(--manning-blue-hover);
+    background: var(--manning-blue-hover);
 }
-
 
 /* =========================================================
    EMPTY
@@ -806,8 +763,7 @@
 .template-editor-empty {
     padding: 50px 20px;
 
-    border:
-        1px dashed #cbd5e1;
+    border: 1px dashed #cbd5e1;
 
     border-radius: 13px;
 
@@ -818,27 +774,22 @@
     font-size: var(--font-size-sm);
 }
 
-
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 1100px) {
-
     .template-meta-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .template-position-grid,
     .template-text-grid {
         grid-template-columns: 1fr;
     }
-
 }
 
 @media (max-width: 760px) {
-
     .template-editor-header {
         align-items: flex-start;
 
@@ -866,5 +817,4 @@
     .template-save-btn {
         width: 100%;
     }
-
 }

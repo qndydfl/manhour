@@ -79,6 +79,58 @@
     text-align: center;
 }
 
+.mh-summary-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8;
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.mh-page-header-summary {
+    margin-bottom: 18px;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.mh-page-header-summary > .text-end {
+    margin-left: auto;
+}
+
+.mh-page-header-summary .assignment-topbar-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid #c9d9ea;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f4f8fc 0%, #e3edf7 100%);
+    color: #17324d;
+    box-shadow: 0 6px 16px rgba(30, 64, 104, 0.1);
+}
+
+.mh-page-header-summary .assignment-topbar-btn i {
+    color: #2563eb;
+}
+
+.mh-page-header-summary .assignment-topbar-btn span {
+    color: #17324d;
+    font-weight: 800;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.mh-page-header-summary .assignment-topbar-btn i {
+    font-size: 13px;
+}
+
 .mh-btn {
     min-height: 40px;
     padding: 9px 14px;
@@ -88,7 +140,7 @@
     gap: 7px;
     border: 1px solid var(--assignment-border);
     border-radius: 9px;
-    background: #ffffff;
+    background: var(--assignment-white);
     color: var(--assignment-text);
     font-size: var(--font-size-sm);
     font-weight: 700;
@@ -105,7 +157,7 @@
 
 .mh-btn:hover {
     border-color: #cbd5e1;
-    background: #f8fafc;
+    background: #e9f0f8;
     color: var(--assignment-text);
     transform: translateY(-1px);
 }
@@ -161,8 +213,8 @@
     gap: 9px;
     border: 1px solid var(--assignment-border-soft);
     border-radius: 10px;
-    background: #ffffff;
-    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.04);
+    background: var(--assignment-white);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
 }
 
 .mh-compact-stat-icon {
@@ -172,7 +224,7 @@
     display: grid;
     place-items: center;
     border-radius: 8px;
-    background: #eff6ff;
+    background: #e3edf7;
     color: var(--assignment-blue);
     font-size: 14px;
 }
@@ -229,8 +281,8 @@
     overflow-x: auto;
     border: 1px solid var(--assignment-border-soft);
     border-radius: 14px;
-    background: #ffffff;
-    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+    background: var(--assignment-white);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 .mh-worker-table {
@@ -242,7 +294,7 @@
 .mh-worker-table th {
     padding: 13px 16px;
     border-bottom: 1px solid var(--assignment-border);
-    background: #f8fafc;
+    background: #edf3f8;
     color: var(--assignment-text-3);
     font-size: var(--font-size-sm);
     font-weight: 800;
@@ -267,7 +319,7 @@
 }
 
 .mh-worker-table tbody tr:hover {
-    background: #f8fafc;
+    background: #eef4fa;
 }
 
 .mh-worker-table tbody tr.summary-overload-row {
@@ -280,7 +332,7 @@
 
 .mh-worker-name {
     color: var(--assignment-text);
-    font-size: var(--font-size-base);
+    font-size: 16px;
     font-weight: 750;
 }
 
@@ -338,8 +390,8 @@
     overflow: hidden;
     border: 1px solid #d8e0ea;
     border-radius: 16px;
-    background: #ffffff;
-    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+    background: var(--assignment-white);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.09);
 }
 
 .mh-session-panel-head {
@@ -350,7 +402,7 @@
     justify-content: space-between;
     gap: 20px;
     border-bottom: 1px solid #dfe6ee;
-    background: linear-gradient(135deg, #ffffff 35%, #f8fafc 100%);
+    background: linear-gradient(135deg, #f4f8fc 35%, #e9f1f8 100%);
 }
 
 .mh-session-panel-heading {
@@ -368,7 +420,7 @@
     place-items: center;
     border: 1px solid #bfdbfe;
     border-radius: 11px;
-    background: #eff6ff;
+    background: #e3edf7;
     color: #2563eb;
     font-size: 17px;
 }
@@ -395,7 +447,7 @@
     gap: 6px;
     border: 1px solid #dbe3ed;
     border-radius: 999px;
-    background: #ffffff;
+    background: #eef4fa;
     color: var(--assignment-text-2);
     font-size: var(--font-size-xs);
     font-weight: 750;
@@ -418,8 +470,8 @@
     padding: 22px;
     border: 1px solid var(--assignment-border-soft);
     border-radius: var(--assignment-radius);
-    background: #ffffff;
-    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+    background: var(--assignment-white);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
@@ -540,17 +592,17 @@
 /* Session list: stronger hierarchy and card boundaries */
 
 .mh-session-list-page .mh-session-grid {
-    padding: 22px;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+    padding: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
     justify-content: stretch;
-    gap: 18px;
+    gap: 14px;
     background: #f8fafc;
 }
 
 .mh-session-list-page .mh-session-card {
     position: relative;
     overflow: hidden;
-    padding: 20px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     border: 1px solid #d7e0ea;
@@ -579,8 +631,8 @@
 }
 
 .mh-session-list-page .mh-session-top {
-    margin-bottom: 17px;
-    padding-bottom: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 9px;
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -622,38 +674,40 @@
 }
 
 .mh-session-list-page .mh-session-card h3 {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .mh-session-list-page .mh-session-date {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-top: 4px;
+    font-size: var(--font-size-xs);
 }
 
 .mh-session-list-page .mh-session-meta {
-    margin-top: 19px;
+    margin-top: 12px;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
+    gap: 8px;
     border: 0;
 }
 
 .mh-session-list-page .mh-session-meta > div {
     min-width: 0;
-    padding: 11px;
+    padding: 8px 9px;
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     border: 1px solid #e2e8f0;
     border-radius: 9px;
     background: #ffffff;
 }
 
 .mh-session-meta-icon {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     flex: 0 0 auto;
     display: grid;
     place-items: center;
@@ -677,20 +731,28 @@
 
 .mh-session-list-page .mh-session-meta strong {
     color: var(--assignment-text);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .mh-session-list-page .mh-session-stats {
-    margin-top: 14px;
-    padding: 14px 0;
+    margin-top: 10px;
+    padding: 10px 0;
     border-top: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0;
 }
 
 .mh-session-list-page .mh-session-stat {
-    padding: 10px 12px;
+    padding: 8px 9px;
     border: 1px solid #e2e8f0;
     background: #f8fafc;
+}
+
+.mh-session-list-page .mh-session-stat span {
+    margin-bottom: 4px;
+}
+
+.mh-session-list-page .mh-session-stat strong {
+    font-size: 13px;
 }
 
 .mh-session-stat-status strong {
@@ -710,7 +772,7 @@
 
 .mh-session-list-page .mh-session-actions {
     margin-top: auto;
-    padding-top: 2px;
+    padding-top: 0;
 }
 
 .mh-session-list-page .mh-empty {
@@ -1091,7 +1153,7 @@
     }
 
     .mh-assigned-summary-page .mh-worker-name {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .mh-assigned-summary-page .mh-worker-status,

@@ -1,10 +1,15 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
 
-{% block title %} Assignment Time View {% endblock title %}
+{% block title %} Assignment Time View {% endblock title %} 
+
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1" />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1"
+/>
 {% endblock css %} 
+
 
 {% block content %}
 
@@ -24,7 +29,8 @@
             </div>
         </a>
 
-        <div class="assignment-topbar-actions">
+        <div class="assignment-topbar-actions">            
+
             <a
                 href="
                     {% if request.GET.from == 'session_list' %}
@@ -38,12 +44,12 @@
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span>Assignment</span>
+                <span>배정 현황</span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
-                <span>Home</span>
+                <span>홈</span>
             </a>
         </div>
     </div>
@@ -51,51 +57,22 @@
 
 <main class="mh-page mh-assigned-summary-page">
     <section class="mh-page-header mh-page-header-summary">
-        <div>
-            <div class="mh-eyebrow">WORKER CAPACITY</div>
-
-            <h1 class="mh-page-title">배정 현황</h1>
-
-            <p class="mh-page-desc">
-                작업자별 직비·간비 Manhour와 근무 한도, 작업 건수를 확인합니다.
-            </p>
+        <div class="assignment-topbar-btn">
+                <i class="bi bi-activity"></i>
+            <span>
+                SESSION {% if session.is_active %}ACTIVE{% else %}COMPLETED{% endif %}
+            </span>
         </div>
 
-        <div class="mh-compact-summary" aria-label="Assignment summary">
-            <div class="mh-compact-stat">
-                <div class="mh-compact-stat-icon">
-                    <i class="bi bi-people"></i>
-                </div>
-                <div>
-                    <span>TOTAL WORKERS</span>
-                    <strong>{{ workers_schedule|length }}</strong>
-                </div>
-            </div>
-
-            <div class="mh-compact-stat">
-                <div class="mh-compact-stat-icon">
-                    <i class="bi bi-activity"></i>
-                </div>
-                <div>
-                    <span>SESSION</span>
-                    <strong
-                        class="{% if session.is_active %}is-active{% endif %}"
-                    >
-                        {% if session.is_active %} ACTIVE {% else %} COMPLETED {% endif %}
-                    </strong>
-                </div>
-            </div>
-
-            <div class="mh-compact-stat mh-compact-stat-limit">
-                <div class="mh-compact-stat-icon">
-                    <i class="bi bi-clock"></i>
-                </div>
-                <div>
-                    <span>WORK LIMIT</span>
-                    <strong class="mh-work-limit-wide">DAY 10.5 / NIGHT 11.0</strong>
-                    <strong class="mh-work-limit-phone">10.5 / 11.0</strong>
-                </div>
-            </div>
+        <div class="assignment-topbar-btn">
+            <i class="bi bi-clock"></i>
+            <span>WORK LIMIT DAY 10.5 / NIGHT 11.0</span>
+        </div>
+        
+        <div class="text-end">
+            <span class="mh-summary-count-badge">
+                총 일꾼 : {{ workers_schedule|length }} 명
+            </span>
         </div>
     </section>
 
@@ -129,9 +106,14 @@
                 {% for w in workers_schedule %}
 
                 <tr
-                    {% if w.is_overload %}
+                    {%
+                    if
+                    w.is_overload
+                    %}
                     class="summary-overload-row"
-                    {% endif %}
+                    {%
+                    endif
+                    %}
                 >
                     <td class="text-center">
                         <div class="mh-worker-name">{{ w.worker_name }}</div>
@@ -201,9 +183,14 @@
 
                             <div class="text-end">
                                 <strong
-                                    {% if w.is_overload %}
+                                    {%
+                                    if
+                                    w.is_overload
+                                    %}
                                     style="color: #dc2626"
-                                    {% endif %}
+                                    {%
+                                    endif
+                                    %}
                                 >
                                     {{ w.total_mh|floatformat:1 }}
                                 </strong>

@@ -6,13 +6,14 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3"
+    href="{% static 'css/v2/master_data_v2.css' %}?v=20260829-1"
 />
 {% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/master_data_edit.js' %}"></script>
-{% endblock js %} 
+{% endblock js %}
+
 
 {% block content %}
 
@@ -31,73 +32,73 @@
         </a>
 
         <div class="assignment-topbar-actions">
+            <form
+                action="{% url 'manhour:delete_all_taskmasters' %}"
+                method="POST"
+                class="d-inline"
+                data-app-confirm="현재 작업장의 Master Data를 모두 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                data-app-confirm-title="전체 데이터 삭제"
+                data-app-confirm-variant="danger"
+                data-app-confirm-button="모두 삭제"
+            >
+                {% csrf_token %}
+                <input
+                    type="hidden"
+                    name="next"
+                    value="manhour:master_data_edit"
+                />
+                <button
+                    type="submit"
+                    class="assignment-topbar-btn assignment-topbar-btn-danger"
+                >
+                    <i class="bi bi-trash3"></i>
+
+                    <span> 전체 삭제 </span>
+                </button>
+            </form>
+
+            <a
+                href="{% url 'manhour:master_data_list' %}"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-x-lg"></i>
+
+                <span> 취소 </span>
+            </a>
+
+            <button
+                type="submit"
+                form="masterDataEditForm"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+            >
+                <i class="bi bi-check2"></i>
+
+                <span> 수정 저장 </span>
+            </button>
+
             <a
                 href="{% url 'manhour:master_data_list' %}"
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
 
-                <span> Master Data </span>
+                <span> 마스터 데이터 </span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
 
-                <span> Home </span>
+                <span> 홈 </span>
             </a>
         </div>
     </div>
 </header>
 
 <main class="master-v2-page master-v2-edit-page">
-    <section class="master-v2-header">
-        <div>
-            <div class="master-v2-eyebrow">DATA CONFIGURATION</div>
-
-            <h1 class="master-v2-title">Edit Master Data</h1>
-
-            <p class="master-v2-description">
-                Aircraft, Work Order, OP, Description 및 기준 M/H를 직접
-                수정하거나 선택한 항목을 삭제합니다.
-            </p>
-        </div>
-
-        <div class="master-v2-header-tools">
-            <div class="master-total-records">
-                <i class="bi bi-database"></i>
-                <span>
-                    TOTAL RECORDS
-                    <strong>{{ total_count }}</strong>
-                </span>
-            </div>
-
-            <div class="master-v2-actions">
-                <a
-                    href="{% url 'manhour:master_data_list' %}"
-                    class="master-btn"
-                >
-                    <i class="bi bi-arrow-left"></i>
-
-                    Cancel
-                </a>
-
-                <button
-                    type="submit"
-                    form="masterDataEditForm"
-                    class="master-btn master-btn-primary"
-                >
-                    <i class="bi bi-check2"></i>
-
-                    Save Changes
-                </button>
-            </div>
-        </div>
-    </section>
-
     <form id="masterDataEditForm" method="POST">
         {% csrf_token %} 
-        
-        {{ formset.management_form }} {% if formset.non_form_errors %}
+        {{ formset.management_form }} 
+        {% if formset.non_form_errors %}
 
         <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
 
@@ -105,21 +106,25 @@
 
         <section class="master-v2-panel">
             <header class="master-v2-panel-head">
-                <div>
-                    <strong> Bulk Data Editor </strong>
-
-                    <span>
-                        Select rows to delete or edit fields directly.
-                    </span>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-list-ul text-muted fs-5"></i>
+                    <div>
+                        <strong> 데이터 수정 </strong>
+                    </div>
                 </div>
 
-                <i class="bi bi-table text-muted"></i>
+                <div class="text-end">
+                    <span class="master-v2-count-badge"
+                        >총 입력 : {{ total_count }} 건</span
+                    >
+                </div>
             </header>
 
             <div class="master-v2-table-wrap">
                 <table class="master-v2-table">
                     <colgroup>
                         <col style="width: 55px" />
+                        <col style="width: 56px" />
                         <col style="width: 120px" />
                         <col style="width: 140px" />
                         <col style="width: 90px" />
@@ -136,6 +141,10 @@
                                     id="selectAllRows"
                                     aria-label="전체 선택"
                                 />
+                            </th>
+
+                            <th class="text-center master-v2-action-col">
+                                <i class="bi bi-trash3 text-muted"></i>
                             </th>
 
                             <th>Aircraft</th>
@@ -164,6 +173,25 @@
                                 />
                             </td>
 
+                            <td class="text-center master-v2-action-col">
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="delete_selected"
+                                    formnovalidate
+                                    class="master-row-delete-btn js-row-delete"
+                                    data-row-id="{{ form.instance.id }}"
+                                    data-app-confirm="선택한 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                                    data-app-confirm-title="행 데이터 삭제"
+                                    data-app-confirm-variant="danger"
+                                    data-app-confirm-button="삭제"
+                                    aria-label="행 삭제"
+                                    title="행 삭제"
+                                >
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </td>
+
                             <td>{{ form.gibun_code }}</td>
 
                             <td>{{ form.work_order }}</td>
@@ -178,7 +206,7 @@
                         {% if form.errors %}
 
                         <tr>
-                            <td colspan="6">
+                            <td colspan="7">
                                 <div class="alert alert-danger py-2 mb-0">
                                     {{ form.errors }}
                                 </div>
@@ -191,42 +219,12 @@
             </div>
 
             <footer class="master-v2-panel-footer">
-                체크한 항목은 선택 삭제할 수 있으며, 선택하지 않은 경우 모든
-                수정 내용이 저장됩니다.
+                체크박스로 대상을 확인한 뒤 각 행의 휴지통으로 개별 삭제할 수
+                있으며, 상단의 전체 삭제 버튼으로 모든 데이터를 지울 수
+                있습니다.
             </footer>
         </section>
-
-        <div class="master-edit-savebar">
-            <span>
-                <i class="bi bi-info-circle me-1"></i>
-
-                저장 시 Aircraft → Work Order → OP 순서로 다시 정렬됩니다.
-            </span>
-
-            <div class="master-edit-savebar-actions">
-                <button
-                    type="submit"
-                    name="action"
-                    value="delete_selected"
-                    formnovalidate
-                    class="master-btn master-btn-danger"
-                    data-app-confirm="선택한 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-                    data-app-confirm-title="선택 데이터 삭제"
-                    data-app-confirm-variant="danger"
-                    data-app-confirm-button="선택 삭제"
-                >
-                    <i class="bi bi-trash3"></i>
-
-                    Delete Selected
-                </button>
-
-                <button type="submit" class="master-btn master-btn-primary">
-                    <i class="bi bi-check2"></i>
-
-                    Save Changes
-                </button>
-            </div>
-        </div>
+        
     </form>
 </main>
 

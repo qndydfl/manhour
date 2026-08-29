@@ -54,10 +54,10 @@
             <a
                 href="{% url 'manhour:edit_session' session.id %}"
                 class="assignment-topbar-btn"
-                title="Worker List"
+                title="세션 편집"
             >
                 <i class="bi bi-people"></i>
-                <span>Worker List</span>
+                <span>세션 편집</span>
             </a>
 
             <a
@@ -84,7 +84,7 @@
                 title="Home"
             >
                 <i class="bi bi-house"></i>
-                <span>Home</span>
+                <span>홈</span>
             </a>
         </div>
     </div>
@@ -115,8 +115,7 @@
         <summary class="card-header bg-white border-bottom">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-person-gear text-primary me-2"></i>작업자
-                    현황
+                    <i class="bi bi-person-gear text-primary me-2"></i>작업자 현황
                     <span
                         class="badge text-bg-primary rounded-pill text-white border ms-2"
                     >
@@ -126,18 +125,18 @@
             </div>
         </summary>
 
-        <div class="card-body p-4">
+        <div class="card-body p-3">
             <form
                 id="limitForm"
                 action="{% url 'manhour:update_limits' session.id %}"
                 method="POST"
             >
                 {% csrf_token %}
-                <div class="row g-3">
+                <div class="worker-status-grid">
                     {% for worker in workers %}
-                    <div class="col-6 col-md-4 col-lg-2">
+                    <div class="worker-status-col">
                         <div
-                            class="worker-card p-2 rounded-3 h-100 position-relative border border-primary glass-panel"
+                            class="worker-card worker-card-compact p-2 rounded-3 h-100 position-relative border border-primary glass-panel"
                         >
                             <div
                                 class="d-flex justify-content-between align-items-start mb-1"
@@ -203,7 +202,7 @@
             <h3 class="assignment-section-title">
                 작업 상세 내역
 
-                <small class="text-muted ms-2"> {{ wo_total }} 건 </small>
+                <small class="text-primary ms-2 "> <strong>{{ wo_total }} 건 </strong></small>
             </h3>
         </div>
 
@@ -301,7 +300,7 @@
                             <td class="col-mh" data-label="M/H">
                                 <div class="work-detail-cell-value">
                                     <span
-                                        class="badge bg-soft-primary text-primary fw-bold"
+                                        class="badge bg-soft-primary text-primary fw-bold work-mh-badge"
                                     >
                                         {{ item.adjusted_mh|floatformat:1 }}H
                                     </span>
@@ -312,28 +311,20 @@
                                 data-label="배정 결과"
                             >
                                 <div
-                                    class="work-detail-cell-value work-detail-assignees"
+                                    class="work-detail-cell-value work-detail-assignees-text"
                                 >
                                     {% for assign in item.assignments.all %}
-                                    <div class="d-inline-block me-1 mb-1">
-                                        <span
-                                            class="badge bg-white border border-secondary text-dark fw-normal shadow-sm"
+                                    <span class="assign-text-item"
+                                        >{{ assign.worker.name }}
+                                        <span class="assign-text-hours"
+                                            >{{ assign.allocated_mh|floatformat:1 }}</span
                                         >
-                                            <i
-                                                class="bi bi-person-fill text-primary me-1"
-                                            ></i
-                                            >{{ assign.worker.name }}
-                                            <span
-                                                class="badge bg-primary rounded-pill ms-1"
-                                            >
-                                                {{ assign.allocated_mh|floatformat:1 }}H
-                                            </span>
-                                        </span>
-                                    </div>
-                                    {% empty %}
-                                    <span class="badge unassigned-badge"
-                                        >미배정</span
-                                    >
+                                    </span>
+                                    {% if not forloop.last %}<span
+                                        class="assign-text-sep"
+                                        >, </span
+                                    >{% endif %} {% empty %}
+                                    <span class="unassigned-text">미배정</span>
                                     {% endfor %}
                                 </div>
                             </td>

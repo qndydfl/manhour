@@ -26,13 +26,10 @@
 {% include "manhour/partials/portal_header.html" %}
 
 
-<!-- =========================================================
-     CONTENT
-========================================================= -->
 
 <main class="portal-content">
     <!-- =====================================================
-         WORKSPACES
+        WORKSPACES
     ====================================================== -->
 
     <section class="portal-section">
@@ -40,7 +37,7 @@
             <div>
                 <span class="portal-section-label"> WORKSPACES </span>
 
-                <h2 class="portal-section-title">Operations</h2>
+                <h2 class="portal-section-title">운영 현황</h2>
             </div>
         </div>
 
@@ -69,11 +66,6 @@
                     <span class="portal-workspace-type"> WORKFORCE </span>
 
                     <h3>Manning</h3>
-
-                    <p>
-                        Aircraft maintenance workforce, manpower allocation and
-                        operational planning workspace.
-                    </p>
                 </div>
 
                 <div class="portal-workspace-bottom">
@@ -106,11 +98,6 @@
                     <span class="portal-workspace-type"> ANALYSIS </span>
 
                     <h3>Manhour</h3>
-
-                    <p>
-                        Analyze maintenance workload, manpower requirement and
-                        active operational sessions.
-                    </p>
                 </div>
 
                 <div class="portal-workspace-bottom">
@@ -132,7 +119,7 @@
                         <i class="bi bi-database"></i>
                     </div>
 
-                    <strong class="portal-workspace-mobile-title">Master Data</strong>
+                    <strong class="portal-workspace-mobile-title">데이터 입력</strong>
 
                     <span class="portal-workspace-number"> 03 </span>
 
@@ -142,12 +129,7 @@
                 <div>
                     <span class="portal-workspace-type"> DATA </span>
 
-                    <h3>Master Data</h3>
-
-                    <p>
-                        Manage aircraft maintenance source data used by the
-                        Manhour calculation system.
-                    </p>
+                    <h3>데이터 입력</h3>
                 </div>
 
                 <div class="portal-workspace-bottom">
@@ -160,7 +142,7 @@
     </section>
 
     <!-- =====================================================
-         STATUS
+        STATUS
     ====================================================== -->
 
     <section class="portal-section">
@@ -168,7 +150,7 @@
             <div>
                 <span class="portal-section-label"> SYSTEM STATUS </span>
 
-                <h2 class="portal-section-title">Current workload</h2>
+                <h2 class="portal-section-title">현재 작업 현황</h2>
             </div>
         </div>
 
@@ -247,7 +229,7 @@
     </section>
 
     <!-- =====================================================
-         LIVE OPERATIONS
+        LIVE OPERATIONS
     ====================================================== -->
 
     <section class="portal-section portal-mobile-hidden-section">
@@ -255,7 +237,7 @@
             <div>
                 <span class="portal-section-label"> LIVE OPERATIONS </span>
 
-                <h2 class="portal-section-title">Operational overview</h2>
+                <h2 class="portal-section-title">즐겨 보기</h2>
             </div>
         </div>
 
@@ -391,7 +373,7 @@
     </section>
 
     <!-- =====================================================
-         EXTERNAL LINKS
+        EXTERNAL LINKS
     ====================================================== -->
 
     <section class="portal-section portal-mobile-hidden-section">
@@ -399,7 +381,7 @@
             <div>
                 <span class="portal-section-label"> QUICK ACCESS </span>
 
-                <h2 class="portal-section-title">External systems</h2>
+                <h2 class="portal-section-title">즐겨 찾기</h2>
             </div>
         </div>
 
@@ -491,60 +473,5 @@
     </section>
 
 </main>
-
-<!-- =========================================================
-     기존 index.js 호환용 VIDEO MODAL
-========================================================= -->
-
-<div
-    class="modal fade"
-    id="videoModal"
-    tabindex="-1"
-    aria-labelledby="videoModalLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 overflow-hidden">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title" id="videoModalLabel">
-                    <i class="bi bi-play-circle me-1"></i>
-
-                    Video
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"
-                ></button>
-            </div>
-
-            <div class="modal-body p-0 bg-black">
-                <div class="ratio ratio-16x9">
-                    <iframe
-                        id="youtubeFrame"
-                        src=""
-                        title="YouTube video"
-                        allowfullscreen
-                    ></iframe>
-                </div>
-
-                <div class="p-3 d-flex justify-content-end bg-dark">
-                    <a
-                        id="openOnYoutube"
-                        href="#"
-                        target="_blank"
-                        rel="noopener"
-                        class="btn btn-sm btn-danger"
-                    >
-                        <i class="bi bi-youtube me-1"></i>
-
-                        YouTube에서 열기
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 {% endblock content %}

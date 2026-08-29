@@ -1,86 +1,32 @@
-{% extends 'manning/base/manning_v2_base.html' %}
+{% extends 'manning/base/manning_v2_base.html' %} 
 {% load static %} 
 
-{% block title %} Maintenance Sessions | Manning {% endblock title %}
+{% block title %} Maintenance Sessions | Manning {% endblock title %} 
 
-{% block nav_sessions_active %} active {% endblock nav_sessions_active %}
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block page_title %} Maintenance Sessions {% endblock page_title %}
+{% block page_title %} Manning Group {% endblock page_title %} 
 
+{% block topbar_right %}
+<a href="{% url 'manning:create_session' %}" class="manning-primary-button">
+    <i class="bi bi-plus-lg"></i>
+    New Session
+</a>
+{% endblock topbar_right %} 
 
 {% block css %}
-
 <link rel="stylesheet" href="{% static 'css/manning/v2/manning_list.css' %}" />
+{% endblock css %} 
 
-{% endblock css %} {% block js %}
-
+{% block js %}
 <script defer src="{% static 'js/manning/manning_list.js' %}"></script>
+{% endblock js %} 
 
-{% endblock js %} {% block content %}
 
-<!-- =====================================================
-    PAGE HEADER
-====================================================== -->
-
-<section class="manning-list-hero">
-    <div>
-        <div class="manning-list-label">WORKFORCE OPERATIONS</div>
-        <h2 class="manning-list-title">Maintenance Sessions</h2>
-    </div>
-
-    <a href="{% url 'manning:create_session' %}" class="manning-primary-button">
-        <i class="bi bi-plus-lg"></i>
-
-        New Session
-    </a>
-</section>
+{% block content %}
 
 <!-- =====================================================
-    SUMMARY
-====================================================== -->
-
-<section class="manning-list-summary">
-    <div class="manning-summary-card">
-        <div>
-            <span> ACTIVE SESSIONS </span>
-
-            <strong> {{ active_sessions|length }} </strong>
-        </div>
-
-        <div class="manning-summary-icon">
-            <i class="bi bi-activity"></i>
-        </div>
-    </div>
-
-    <div class="manning-summary-card">
-        <div>
-            <span> WORKPLACE </span>
-
-            <strong style="font-size: 19px">
-                {% if workplace %} {{ workplace }} {% else %} - {% endif %}
-            </strong>
-        </div>
-
-        <div class="manning-summary-icon">
-            <i class="bi bi-geo-alt"></i>
-        </div>
-    </div>
-
-    <div class="manning-summary-card">
-        <div>
-            <span> SYSTEM </span>
-
-            <strong style="font-size: 19px"> ONLINE </strong>
-        </div>
-
-        <div class="manning-summary-icon">
-            <i class="bi bi-check-circle"></i>
-        </div>
-    </div>
-</section>
-
-<!-- =====================================================
-     SESSIONS
+    SESSIONS
 ====================================================== -->
 
 <section class="manning-session-grid">

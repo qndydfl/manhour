@@ -353,14 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rows = text
             .split(/\r?\n/)
-            .map((line) => line.trim())
-            .filter(Boolean)
-            .map((line) =>
-                line
-                    .split("\t")
-                    .map((cell) => cell.trim().replace(/[^0-9]/g, "")),
-            )
-            .filter((cols) => cols.length);
+            .map((line) => normalizePastedModalRow(line))
+            .filter((cols) => cols.some((cell) => cell !== ""));
 
         if (!rows.length) return;
 
@@ -376,7 +370,10 @@ document.addEventListener("DOMContentLoaded", () => {
             startIndex = 0;
         }
 
-        while (modalBody.querySelectorAll("tr").length < startIndex + rows.length) {
+        while (
+            modalBody.querySelectorAll("tr").length <
+            startIndex + rows.length
+        ) {
             createRow();
         }
 
@@ -396,6 +393,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         scheduleSaveToStorage();
+    }
+
+    function normalizePastedModalRow(line) {
+        const rawColumns = String(line || "")
+            .replace(/\u00A0/g, " ")
+            .split("\t")
+            .map((cell) => cell.trim().replace(/[^0-9]/g, ""));
+
+        const columns = rawColumns.some((cell) => cell !== "")
+            ? rawColumns
+            : [];
+
+        if (columns.length >= 4) {
+            return columns.slice(-3);
+        }
+
+        return columns.slice(0, 3);
     }
 
     function timeToMinutes(timeStr) {
@@ -495,7 +509,9 @@ document.addEventListener("DOMContentLoaded", () => {
             let eMin = timeToMinutes(eStr);
 
             if (sMin === null || eMin === null) {
-                throw new Error(`${rowNo}번째 줄: 시간 형식이 올바르지 않습니다.`);
+                throw new Error(
+                    `${rowNo}번째 줄: 시간 형식이 올바르지 않습니다.`,
+                );
             }
 
             if (eMin <= sMin) {
@@ -722,16 +738,15 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const rows = targetRows.map((tr) =>
-            [...tr.querySelectorAll("th, td")]
-                .map((cell) =>
-                    cell.innerText
-                        .replace(/[\u00A0\u200B]/g, "")
-                        .replace(/\s+/g, " ")
-                        .trim(),
-                )
-                .join("\t"),
-        );
+        const rows = targetRows
+            .map((tr) => getScheduleRowCopyValues(tr))
+            .filter((values) => values.some((value) => value !== ""))
+            .map((values) => values.join("\t"));
+
+        if (!rows.length) {
+            alert("복사할 데이터가 없습니다.");
+            return;
+        }
 
         const text = rows.join("\n");
 
@@ -767,6 +782,25 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/>/g, "&gt;");
     }
 
+    function getScheduleCellCopyText(cell) {
+        if (!cell) return "";
+
+        if (cell.querySelector(".personal-v2-empty-copy")) {
+            return "";
+        }
+
+        return cell.innerText
+            .replace(/[\u00A0\u200B]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function getScheduleRowCopyValues(row) {
+        return [...row.querySelectorAll("th, td")].map((cell) =>
+            getScheduleCellCopyText(cell),
+        );
+    }
+
     if (copyBtn) {
         copyBtn.addEventListener("click", copyTableToClipboard);
     }
@@ -774,18 +808,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const scheduleTable = document.getElementById("scheduleTable");
     if (scheduleTable) {
         scheduleTable.addEventListener("copy", (event) => {
-            const selectedText = window.getSelection()?.toString() || "";
+            const selection = window.getSelection();
 
             if (
-                !/[\u00A0\u200B]/.test(selectedText) ||
+                !selection ||
+                selection.rangeCount === 0 ||
                 !event.clipboardData
             ) {
                 return;
             }
 
+            const range = selection.getRangeAt(0);
+            const selectedRows = [...scheduleTable.querySelectorAll("tbody tr")]
+                .filter((row) => row.querySelectorAll("td").length === 5)
+                .filter((row) => range.intersectsNode(row));
+
+            if (!selectedRows.length) {
+                const selectedText = selection.toString() || "";
+                if (!/[\u00A0\u200B]/.test(selectedText)) {
+                    return;
+                }
+
+                event.clipboardData.setData(
+                    "text/plain",
+                    selectedText.replace(/[\u00A0\u200B]/g, ""),
+                );
+                event.preventDefault();
+                return;
+            }
+
+            const rows = selectedRows
+                .map((row) => getScheduleRowCopyValues(row))
+                .filter((values) => values.some((value) => value !== ""));
+
+            if (!rows.length) {
+                event.clipboardData.setData("text/plain", "");
+                event.preventDefault();
+                return;
+            }
+
             event.clipboardData.setData(
                 "text/plain",
-                selectedText.replace(/[\u00A0\u200B]/g, ""),
+                rows.map((values) => values.join("\t")).join("\n"),
             );
             event.preventDefault();
         });
@@ -830,5 +894,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resetDbBtn) {
         resetDbBtn.addEventListener("click", () => resetDB());
     }
-
 });

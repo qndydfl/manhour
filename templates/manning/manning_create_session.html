@@ -1,44 +1,38 @@
-{% extends 'manning/base/manning_v2_base.html' %}
+{% extends 'manning/base/manning_v2_base.html' %} 
 {% load static %} 
 
-{% block title %} New Maintenance Session | Manning {% endblock title %}
-{% block nav_create_active %} active {% endblock nav_create_active %}
-{% block page_title %} Create Session {% endblock page_title %}
+{% block title %} New Maintenance Session | Manning {% endblock title %} 
 
-{% block css %}
-<link rel="stylesheet" href="{% static 'css/manning/v2/manning_form.css' %}?v=20260827-1" />
+{% block nav_create_active %} active {% endblock nav_create_active %} 
+
+{% block page_title %} Create Session {% endblock page_title %} {% block topbar_right %}
+
+<a href="{% url 'manning:manning_list' %}" class="manning-form-header-back">
+    <i class="bi bi-arrow-left"></i>
+    Sessions
+</a>
+{% endblock topbar_right %} {% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/manning/v2/manning_form.css' %}?v=20260827-1"
+/>
 {% endblock css %} 
 
-{% block js %}
+{% block js %} 
 {{ active_shift_combos|json_script:"activeShiftCombos" }}
 <script
     defer
     src="{% static 'js/manning/manning_create_session.js' %}?v=20260827-2"
 ></script>
-{% endblock js %}
+{% endblock js %} 
 
 
 {% block content %}
 
 <div class="manning-form-page">
     <!-- =====================================================
-         HEADER
+        HEADER
     ====================================================== -->
-
-    <section class="manning-form-header">
-        <div>
-            <div class="manning-form-eyebrow">NEW MAINTENANCE OPERATION</div>
-            <h2 class="manning-form-title">Create Maintenance Session</h2>
-        </div>
-
-        <a
-            href="{% url 'manning:manning_list' %}"
-            class="manning-form-header-back"
-        >
-            <i class="bi bi-arrow-left"></i>
-            Sessions
-        </a>
-    </section>
 
     <form method="post" id="createSessionForm" novalidate>
         {% csrf_token %}
@@ -112,7 +106,10 @@
 
                             <!-- Check -->
 
-                            <div class="manning-form-field" id="blockCheckField">
+                            <div
+                                class="manning-form-field"
+                                id="blockCheckField"
+                            >
                                 <label class="manning-form-label">
                                     A-Check (KJ)
 
@@ -226,9 +223,17 @@
                                     name="area_template"
                                     id="tpl_{{ tpl.id }}"
                                     value="{{ tpl.key }}"
-                                    {% if selected_template and tpl.key|lower == selected_template|lower %}
+                                    {%
+                                    if
+                                    selected_template
+                                    and
+                                    tpl.key|lower=""
+                                    ="selected_template|lower"
+                                    %}
                                     checked
-                                    {% endif %}
+                                    {%
+                                    endif
+                                    %}
                                 />
 
                                 <label
@@ -270,7 +275,8 @@
                             id="noTemplatesForWorkPackage"
                             class="manning-form-alert d-none"
                         >
-                            선택한 Work Package에 연결된 Area Template이 없습니다.
+                            선택한 Work Package에 연결된 Area Template이
+                            없습니다.
                         </div>
 
                         <div

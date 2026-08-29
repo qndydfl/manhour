@@ -1,29 +1,20 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
+
 {% load widget_tweaks %}
 
-{% block title %}통합 데이터 관리 - {{ session.name }}{% endblock title %} 
-
-{% block body_class %}manage-items-body{% endblock body_class %}
+{% block title %} Manage Items | Manhour {% endblock title %}
 
 {% block css %}
-
-<link
-    rel="stylesheet"
-    href="{% static 'css/manage_items.css' %}?v=20260827-13"
->
-
 <link
     rel="stylesheet"
     href="{% static 'css/v2/dialog_v2.css' %}?v=20260827-1"
->
-
+/>
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/manage_items_v2.css' %}?v=20260828-24"
->
-
-{% endblock css %}
+    href="{% static 'css/v2/manage_items_v2.css' %}?v=20260829-2"
+/>
+{% endblock css %} 
 
 {% block js %}
 <script>
@@ -40,13 +31,17 @@
 </script>
 
 <script defer src="{% static 'js/paste_data.js' %}"></script>
-<script defer src="{% static 'js/manage_items.js' %}?v=20260827-11"></script>
+<script defer src="{% static 'js/manage_items.js' %}?v=20260829-6"></script>
 {% endblock js %} 
+
 
 {% block content %}
 <header class="assignment-topbar manage-items-topbar">
     <div class="assignment-topbar-inner">
-        <a href="{% url 'manhour:manage_items' session.id %}" class="assignment-brand">
+        <a
+            href="{% url 'manhour:manage_items' session.id %}"
+            class="assignment-brand"
+        >
             <div class="assignment-brand-icon">
                 <i class="bi bi-sliders2"></i>
             </div>
@@ -57,6 +52,41 @@
         </a>
 
         <div class="assignment-topbar-actions">
+            <button
+                type="button"
+                class="assignment-topbar-btn assignment-topbar-btn-danger d-none"
+                id="btn-delete-selected"
+                title="선택 항목 삭제"
+            >
+                <i class="bi bi-trash3"></i>
+                <span>선택 삭제</span>
+            </button>
+            <button
+                type="button"
+                class="assignment-topbar-btn"
+                id="btn-clear-assigned"
+                title="이름 전체 삭제"
+            >
+                <i class="bi bi-person-x"></i>
+                <span>이름 전체 삭제</span>
+            </button>
+            <a
+                href="{% url 'manhour:result_view' session.id %}"
+                class="assignment-topbar-btn"
+                title="취소"
+            >
+                <i class="bi bi-x-lg"></i>
+                <span>취소</span>
+            </a>
+            <button
+                type="submit"
+                form="manage-form"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+                title="저장"
+            >
+                <i class="bi bi-check-lg"></i>
+                <span>저장</span>
+            </button>
             <button
                 type="button"
                 class="assignment-topbar-btn assignment-topbar-btn-primary"
@@ -73,7 +103,7 @@
                 title="결과 보기"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span>결과 보기</span>
+                <span>배정 현황</span>
             </a>
             <a
                 href="{% url 'manhour:index' %}"
@@ -97,135 +127,45 @@
         action="{% url 'manhour:manage_items' session.id %}"
     >
         {% csrf_token %} {{ formset.management_form }}
+        <input type="hidden" name="submit_intent" id="submit-intent" value="" />
 
         <div class="manage-config-grid">
             <div class="manage-config-item manage-limit-item">
                 <div class="card manage-config-card manage-limit-card">
-                    <div
-                        class="card-header manage-config-header"
-                    >
+                    <div class="card-header manage-config-header">
                         <span class="manage-config-title">
                             <i class="bi bi-person-gear"></i>
-                            근무 한도
+                            작업자 : 근무 한도
                         </span>
-                        <span
-                            class="manage-config-note"
-                        >
-                            직비에만 적용
-                        </span>
+                        <span class="manage-config-note"> 직비에만 적용 </span>
                     </div>
 
                     <div class="card-body p-0">
-                        <div class="worker-limit-editor" data-worker-limit-editor>
-                            <div class="worker-limit-list" data-worker-limit-list>
-                                {% for worker in worker_limit_rows %}
-                                <div class="worker-limit-row{% if worker.is_custom %} is-custom{% endif %}">
-                                    <input
-                                        type="text"
-                                        class="worker-limit-name"
-                                        value="{{ worker.name }}"
-                                        aria-label="작업자 이름"
-                                    />
-                                    <span class="worker-limit-separator">:</span>
-                                    <input
-                                        type="number"
-                                        class="worker-limit-value"
-                                        value="{{ worker.limit }}"
-                                        min="0"
-                                        step="0.5"
-                                        aria-label="근무 한도 시간"
-                                    />
-                                    <span class="worker-limit-unit">H</span>
-                                    <button
-                                        type="button"
-                                        class="worker-limit-remove"
-                                        aria-label="작업자 삭제"
-                                        title="작업자 삭제"
-                                    >
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
-                                </div>
-                                {% empty %}
-                                <div class="worker-limit-empty" data-worker-limit-empty>
-                                    등록된 작업자가 없습니다.
-                                </div>
-                                {% endfor %}
-                            </div>
-
-                            <button type="button" class="worker-limit-add" data-worker-limit-add>
-                                <i class="bi bi-plus-lg"></i>
-                                작업자 추가
-                            </button>
+                        <div
+                            class="worker-limit-editor worker-limit-editor-direct"
+                        >
+                            <textarea
+                                name="worker_names_str"
+                                class="worker-limit-direct-input"
+                                data-worker-limit-source
+                                spellcheck="false"
+                                placeholder="예: 홍길동: 8&#10;김철수: 7.5&#10;이영희: 6"
+                            >{{ worker_names_str }}</textarea>
                         </div>
-                        <textarea
-                            name="worker_names_str"
-                            class="visually-hidden"
-                            data-worker-limit-source
-                            aria-hidden="true"
-                            tabindex="-1"
-                        >{{ worker_names_str }}
-                        </textarea>
+                        <div class="worker-limit-help-text">
+                            한 줄에 한 명씩 입력하세요. 형식은 이름 또는 이름:
+                            시간 입니다.
+                        </div>
+                        <div
+                            class="worker-limit-duplicate-notice d-none"
+                            data-worker-limit-duplicate-notice
+                        ></div>
                     </div>
                 </div>
             </div>
-
-            <aside class="manage-action-bar manage-config-item" aria-label="데이터 편집 작업">
-                <div class="manage-action-inner">
-                    <div class="manage-action-copy">
-                        <span class="manage-config-title">
-                            <i class="bi bi-check2-square"></i>
-                            변경 사항 적용
-                        </span>
-                        <span>저장하면 수정된 데이터를 기준으로 다시 배정합니다.</span>
-                    </div>
-
-                    <div class="manage-action-buttons">
-                        <button
-                            type="button"
-                            class="manage-action-btn manage-action-clear"
-                            id="btn-clear-assigned"
-                        >
-                            <i class="bi bi-person-x"></i>
-                            이름 전체 삭제
-                        </button>
-
-                        <a
-                            href="{% url 'manhour:result_view' session.id %}"
-                            class="manage-action-btn manage-action-cancel"
-                        >
-                            <i class="bi bi-x-lg"></i>
-                            취소
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="manage-action-btn manage-action-save"
-                        >
-                            <i class="bi bi-check-lg"></i>
-                            저장
-                        </button>
-                    </div>
-                </div>
-            </aside>
         </div>
 
         <div class="card shadow-sm border-0 mb-4">
-            <div
-                class="card-header bg-white py-3 d-flex justify-content-between align-items-center sticky-top"
-                style="z-index: 5; top: 0"
-            >
-                <div>
-                    <h5 class="fw-bold mb-0 d-inline-block">📋 데이터 목록</h5>
-                    <span class="badge bg-secondary ms-2 rounded-pill">
-                        {{ non_common_count }}건
-                    </span>
-                </div>
-                <span class="text-danger small fw-bold">
-                    <i class="bi bi-check-square me-1"></i>
-                    체크박스 선택 후 저장 시 삭제됩니다.
-                </span>
-            </div>
-
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table
@@ -233,14 +173,14 @@
                         class="table table-hover mb-0 align-middle text-center"
                     >
                         <colgroup>
-                            <col style="width: 60px" />
-                            <col style="width: 40px" />
                             <col style="width: 80px" />
-                            <col style="width: 140px" />
-                            <col style="width: 60px" />
-                            <col style="width: 300px" />
-                            <col style="width: 60px" />
-                            <col style="width: 60px" />
+                            <col style="width: 52px" />
+                            <col style="width: 92px" />
+                            <col style="width: 128px" />
+                            <col style="width: 78px" />
+                            <col style="width: 380px" />
+                            <col style="width: 92px" />
+                            <col style="width: 124px" />
                             <col />
                         </colgroup>
 
@@ -289,8 +229,7 @@
                         </thead>
 
                         <tbody>
-                            {% for form in formset %} 
-                            {% ifchanged form.instance.gibun_input %}
+                            {% for form in formset %} {% ifchanged form.instance.gibun_input %}
                             <tr
                                 class="table-secondary border-bottom border-secondary group-header"
                                 data-gibun="{{ form.instance.gibun_input|escape }}"
@@ -359,26 +298,25 @@
                                 data-gibun="{{ form.instance.gibun_input|escape }}"
                                 data-original-gibun="{{ form.instance.original_gibun|default:form.instance.gibun_input|escape }}"
                             >
-                                <td class="d-none">
-                                    {{ form.id }} 
-                                    {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
-                                    <input
-                                        type="hidden"
-                                        name="{{ form.prefix }}-ordering"
-                                        value="{{ form.instance.ordering|default:0 }}"
-                                        class="ordering-input"
-                                    />
-                                    <input
-                                        type="hidden"
-                                        name="{{ form.prefix }}-adjusted_mh"
-                                        value="{{ form.initial.adjusted_mh|default_if_none:'' }}"
-                                        class="adjusted-mh-hidden"
-                                    />
-                                </td>
-
                                 <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        {{ form.id }} {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %}
+                                        <input
+                                            type="hidden"
+                                            name="{{ form.prefix }}-ordering"
+                                            value="{{ form.instance.ordering|default:0 }}"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="{{ form.prefix }}-adjusted_mh"
+                                            value="{{ form.initial.adjusted_mh|default_if_none:'' }}"
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
                                     {% if form.instance.pk %}
-                                    <div class="d-flex justify-content-center">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
                                         <div class="d-none">
                                             {{ form.DELETE }}
                                         </div>
@@ -388,6 +326,15 @@
                                             data-gibun="{{ form.instance.gibun_input|escape }}"
                                             onchange="toggleDeleteRow(this)"
                                         />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
                                     </div>
                                     {% endif %}
                                 </td>
@@ -448,7 +395,7 @@
                                         tabindex="-1"
                                         aria-readonly="true"
                                         style="
-                                            background: #f8f9fa;
+                                            background: #0a2186;
                                             pointer-events: none;
                                         "
                                     />
@@ -479,7 +426,9 @@
 </div>
 
 <div class="modal fade" id="pasteDataModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div
+        class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
+    >
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title fw-bold">📋 데이터 일괄 등록</h5>
@@ -526,8 +475,7 @@
                             class="instruction-box p-3 rounded-3 mb-4 bg-light border"
                         >
                             <h6 class="fw-bold text-primary mb-2">
-                                <i class="bi bi-info-circle me-1"></i>데이터
-                                순서 (엑셀 컬럼)
+                                <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)
                             </h6>
                             <div
                                 class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
@@ -613,7 +561,8 @@
                                         onclick="saveData()"
                                         class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
                                     >
-                                        <i class="bi bi-save me-1"></i> 저장 하기
+                                        <i class="bi bi-save me-1"></i> 저장
+                                        하기
                                     </button>
                                 </div>
                             </div>
@@ -695,9 +644,7 @@
         if (pasteModal) {
             document.body.appendChild(pasteModal);
         }
-
     });
 </script>
 
-{% endblock content %}
-{% block footer %}{% endblock footer %}
+{% endblock content %} {% block footer %}{% endblock footer %}

@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const shiftInputs = document.querySelectorAll('input[name="shift_type"]');
     const submitBtn = document.getElementById("submitBtn");
     const reqText = document.getElementById("form_requirements");
+    const sidebar = document.querySelector(".mh-create-side");
+    const sidebarInner = document.querySelector(".mh-create-side-inner");
 
     if (!gibunContainer || !gibunInput || !realGibunField) return;
 
@@ -263,6 +265,37 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    function syncPinnedSidebar() {
+        if (!sidebar || !sidebarInner) return;
+
+        const desktopMedia = window.matchMedia("(min-width: 781px)");
+        if (!desktopMedia.matches) {
+            sidebarInner.classList.remove("is-pinned");
+            sidebarInner.style.width = "";
+            sidebar.style.minHeight = "";
+            return;
+        }
+
+        const stickyTop = 88;
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const shouldPin = sidebarRect.top <= stickyTop;
+
+        if (shouldPin) {
+            sidebarInner.classList.add("is-pinned");
+            sidebarInner.style.width = `${sidebar.clientWidth}px`;
+            sidebar.style.minHeight = `${sidebarInner.offsetHeight}px`;
+            return;
+        }
+
+        sidebarInner.classList.remove("is-pinned");
+        sidebarInner.style.width = "";
+        sidebar.style.minHeight = "";
+    }
+
+    syncPinnedSidebar();
+    window.addEventListener("scroll", syncPinnedSidebar, { passive: true });
+    window.addEventListener("resize", syncPinnedSidebar);
 
     // 최초 상태 체크
     checkFormValidity();

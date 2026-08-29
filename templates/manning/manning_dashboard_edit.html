@@ -1,24 +1,73 @@
-{% extends 'manning/base/manning_v2_base.html' %}
-{% load static %}
+{% extends 'manning/base/manning_v2_base.html' %} 
+{% load static %} 
 
-{% block title %}구역 일괄 편집 | {{ session.aircraft_reg }}{% endblock %}
+{% block title %}구역 일괄 편집 | {{ session.aircraft_reg }}{% endblock %} 
 
-{% block nav_sessions_active %}active{% endblock nav_sessions_active %}
+{% block nav_sessions_active %}active{% endblock nav_sessions_active %} 
 
-{% block page_title %}구역 일괄 편집{% endblock page_title %}
+{% block page_title %}구역 일괄 편집{% endblock page_title %} {% block sidebar_system %}
 
-{% block css %}
+<div class="edit-sidebar-meta edit-session-meta">
+    <span><i class="bi bi-airplane"></i>{{ session.aircraft_reg }}</span>
+    <span><i class="bi bi-briefcase"></i>{{ session.work_package_name }}</span>
+    <span><i class="bi bi-clock"></i>{{ session.get_shift_type_display }}</span>
+</div>
+{% endblock sidebar_system %} {% block topbar_right %}
+<div class="edit-topbar-cluster">
+    <div class="edit-header-actions">
+        <button
+            type="button"
+            id="loadWorkersBtn"
+            class="edit-toolbar-btn edit-toolbar-btn-warning"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#loadWorkersPanel"
+        >
+            <i class="bi bi-people"></i> 작업자 명단
+        </button>
+
+        <button
+            type="button"
+            id="addAreaRowBtn"
+            class="edit-toolbar-btn edit-toolbar-btn-primary"
+            data-bs-toggle="modal"
+        >
+            <i class="bi bi-plus-circle"></i> 행 추가
+        </button>
+
+        <a
+            href="{% url 'manning:manning_dashboard' session.id %}"
+            class="edit-toolbar-btn edit-toolbar-btn-light"
+        >
+            <i class="bi bi-x-lg"></i> 취소
+        </a>
+
+        <button
+            type="button"
+            class="edit-toolbar-btn edit-toolbar-btn-danger"
+            id="btn-clear-assigned"
+        >
+            <i class="bi bi-person-x"></i> 전체 이름 삭제
+        </button>
+
+        <button
+            type="submit"
+            class="edit-toolbar-btn edit-toolbar-btn-primary"
+            form="areaEditForm"
+        >
+            <i class="bi bi-check-lg"></i> 저장
+        </button>
+    </div>
+</div>
+{% endblock topbar_right %} {% block css %}
 <link
     rel="stylesheet"
     href="{% static 'css/manning/manning_components.css' %}"
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260827-3"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260829-2"
 />
-{% endblock css %}
-
-{% block js %}
+{% endblock css %} {% block js %}
 <script>
     window.MANNING_WORKER_DIR = {
         updateUrl: "{% url 'manning:update_worker_directory' session.id %}",
@@ -30,471 +79,412 @@
     src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20260827-2"
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }}
-{{default_worker_names|json_script:"defaultWorkerNames" }}
-{% endblock js %}
+{{default_worker_names|json_script:"defaultWorkerNames" }} {% endblock js %} 
+
 
 {% block content %}
 <div class="edit-shell">
-    <header class="edit-header">
-        <div class="edit-header-copy">
-            <span class="edit-eyebrow">AREA &amp; WORKFORCE CONTROL</span>
-            <h2>구역 일괄 편집</h2>
-            <div class="edit-session-meta">
-                <span><i class="bi bi-airplane"></i>{{ session.aircraft_reg }}</span>
-                <span><i class="bi bi-briefcase"></i>{{ session.work_package_name }}</span>
-                <span><i class="bi bi-clock"></i>{{ session.get_shift_type_display }}</span>
-            </div>
-        </div>
-
-        <div class="edit-header-actions">
-            <button
-                type="button"
-                id="loadWorkersBtn"
-                class="edit-toolbar-btn edit-toolbar-btn-warning"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#loadWorkersPanel"
-            >
-                <i class="bi bi-people"></i> 작업자 명단
-            </button>
-
-            <button
-                type="button"
-                id="addAreaRowBtn"
-                class="edit-toolbar-btn edit-toolbar-btn-primary"
-                data-bs-toggle="modal"
-            >
-                <i class="bi bi-plus-circle"></i> 행 추가
-            </button>
-
-            <a
-                href="{% url 'manning:manning_dashboard' session.id %}"
-                class="edit-toolbar-btn edit-toolbar-btn-light"
-            >
-                <i class="bi bi-arrow-left"></i> 대시보드로
-            </a>
-        </div>
-    </header>
-
     {% include "messages/worker_validation_modal.html" %}
 
     <div class="edit-layout">
-            <section class="edit-main-panel">
-                <form
-                    method="POST"
-                    id="areaEditForm"
-                    action="{% url 'manning:area_bulk_edit' session.id %}"
-                >
-                    {% csrf_token %}
+        <section class="edit-main-panel">
+            <form
+                method="POST"
+                id="areaEditForm"
+                action="{% url 'manning:area_bulk_edit' session.id %}"
+            >
+                {% csrf_token %}
 
-                    <div
-                        id="workerDuplicateMessage"
-                        class="alert alert-danger d-none mt-3 mb-0"
-                        role="alert"
-                    ></div>
+                <div
+                    id="workerDuplicateMessage"
+                    class="alert alert-danger d-none mt-3 mb-0"
+                    role="alert"
+                ></div>
 
-                    <div class="table-responsive edit-table-wrap">
-                        <table class="table align-middle edit-table mb-0">
-                            <thead>
-                                <tr class="text-dark text-center">
-                                    <th style="width: 18%">구역 이름</th>
-                                    <th style="width: 12%">위치</th>
-                                    <th style="">작업자 이름</th>
-                                    <th
-                                        style="width: 5%"
-                                        class="text-center text-danger"
+                <div class="table-responsive edit-table-wrap">
+                    <table class="table align-middle edit-table mb-0">
+                        <thead>
+                            <tr class="text-dark text-center">
+                                <th style="width: 18%">구역 이름</th>
+                                <th style="width: 12%">위치</th>
+                                <th style="">작업자 이름</th>
+                                <th
+                                    style="width: 5%"
+                                    class="text-center text-danger"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="area-group" data-position="LEFT">
+                            <tr class="area-group-header">
+                                <th colspan="5">LEFT SIDE</th>
+                            </tr>
+                            {% for area in session_areas %} {% if area.position == "LEFT" %}
+                            <tr class="area-row" data-position="LEFT">
+                                <td>
+                                    <input
+                                        type="hidden"
+                                        name="area_id"
+                                        value="{{ area.id }}"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="area_order"
+                                        class="area-order"
+                                        value="{{ area.ordering }}"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="area_name"
+                                        class="form-control"
+                                        value="{{ area.name }}"
+                                        required
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        name="area_position"
+                                        class="form-select"
                                     >
-                                        <i class="bi bi-trash"></i>
-                                    </th>
-                                </tr>
-                            </thead>
+                                        <option value="LEFT" selected>
+                                            LEFT SIDE
+                                        </option>
+                                        <option value="RIGHT">
+                                            RIGHT SIDE
+                                        </option>
+                                        <option value="NONE">NONE</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <textarea
+                                        name="area_workers"
+                                        class="form-control worker-drop-target auto-resize"
+                                        rows="1"
+                                    >
+{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    </textarea>
+                                </td>
+                                <td class="text-center">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="area_delete"
+                                        value="{{ area.id }}"
+                                    />
+                                </td>
+                            </tr>
+                            {% endif %} {% endfor %}
+                        </tbody>
 
-                            <tbody class="area-group" data-position="LEFT">
-                                <tr class="area-group-header">
-                                    <th colspan="5">LEFT SIDE</th>
-                                </tr>
-                                {% for area in session_areas %} {% if area.position == "LEFT" %}
-                                <tr class="area-row" data-position="LEFT">
-                                    <td>
-                                        <input
-                                            type="hidden"
-                                            name="area_id"
-                                            value="{{ area.id }}"
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="area_order"
-                                            class="area-order"
-                                            value="{{ area.ordering }}"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="area_name"
-                                            class="form-control"
-                                            value="{{ area.name }}"
-                                            required
-                                        />
-                                    </td>
-                                    <td>
-                                        <select
-                                            name="area_position"
-                                            class="form-select"
-                                        >
-                                            <option value="LEFT" selected>
-                                                LEFT SIDE
-                                            </option>
-                                            <option value="RIGHT">
-                                                RIGHT SIDE
-                                            </option>
-                                            <option value="NONE">NONE</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <textarea
-                                            name="area_workers"
-                                            class="form-control worker-drop-target auto-resize"
-                                            rows="1"
-                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
-                                    </td>
-                                    <td class="text-center">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="area_delete"
-                                            value="{{ area.id }}"
-                                        />
-                                    </td>
-                                </tr>
-                                {% endif %} {% endfor %}
-                            </tbody>
+                        <tbody class="area-group" data-position="RIGHT">
+                            <tr class="area-group-header">
+                                <th colspan="5">RIGHT SIDE</th>
+                            </tr>
+                            {% for area in session_areas %} {% if area.position == "RIGHT" %}
+                            <tr class="area-row" data-position="RIGHT">
+                                <td>
+                                    <input
+                                        type="hidden"
+                                        name="area_id"
+                                        value="{{ area.id }}"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="area_order"
+                                        class="area-order"
+                                        value="{{ area.ordering }}"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="area_name"
+                                        class="form-control"
+                                        value="{{ area.name }}"
+                                        required
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        name="area_position"
+                                        class="form-select"
+                                    >
+                                        <option value="LEFT">LEFT SIDE</option>
+                                        <option value="RIGHT" selected>
+                                            RIGHT SIDE
+                                        </option>
+                                        <option value="NONE">NONE</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <textarea
+                                        name="area_workers"
+                                        class="form-control worker-drop-target auto-resize"
+                                        rows="1"
+                                    >
+{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    </textarea>
+                                </td>
+                                <td class="text-center">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="area_delete"
+                                        value="{{ area.id }}"
+                                    />
+                                </td>
+                            </tr>
+                            {% endif %} {% endfor %}
+                        </tbody>
 
-                            <tbody class="area-group" data-position="RIGHT">
-                                <tr class="area-group-header">
-                                    <th colspan="5">RIGHT SIDE</th>
-                                </tr>
-                                {% for area in session_areas %} {% if area.position == "RIGHT" %}
-                                <tr class="area-row" data-position="RIGHT">
-                                    <td>
-                                        <input
-                                            type="hidden"
-                                            name="area_id"
-                                            value="{{ area.id }}"
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="area_order"
-                                            class="area-order"
-                                            value="{{ area.ordering }}"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="area_name"
-                                            class="form-control"
-                                            value="{{ area.name }}"
-                                            required
-                                        />
-                                    </td>
-                                    <td>
-                                        <select
-                                            name="area_position"
-                                            class="form-select"
-                                        >
-                                            <option value="LEFT">
-                                                LEFT SIDE
-                                            </option>
-                                            <option value="RIGHT" selected>
-                                                RIGHT SIDE
-                                            </option>
-                                            <option value="NONE">NONE</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <textarea
-                                            name="area_workers"
-                                            class="form-control worker-drop-target auto-resize"
-                                            rows="1"
-                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
-                                    </td>
-                                    <td class="text-center">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="area_delete"
-                                            value="{{ area.id }}"
-                                        />
-                                    </td>
-                                </tr>
-                                {% endif %} {% endfor %}
-                            </tbody>
+                        <tbody class="area-group" data-position="NONE">
+                            <tr class="area-group-header">
+                                <th colspan="5">NONE</th>
+                            </tr>
+                            {% for area in session_areas %} {% if area.position == "NONE" or area.position == "N/A" %}
+                            <tr class="area-row" data-position="NONE">
+                                <td>
+                                    <input
+                                        type="hidden"
+                                        name="area_id"
+                                        value="{{ area.id }}"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="area_order"
+                                        class="area-order"
+                                        value="{{ area.ordering }}"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="area_name"
+                                        class="form-control"
+                                        value="{{ area.name }}"
+                                        required
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        name="area_position"
+                                        class="form-select"
+                                    >
+                                        <option value="LEFT">LEFT SIDE</option>
+                                        <option value="RIGHT">
+                                            RIGHT SIDE
+                                        </option>
+                                        <option value="NONE" selected>
+                                            NONE
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <textarea
+                                        name="area_workers"
+                                        class="form-control worker-drop-target auto-resize"
+                                        rows="1"
+                                    >
+{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
+                                    >
+                                </td>
+                                <td class="text-center">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="area_delete"
+                                        value="{{ area.id }}"
+                                    />
+                                </td>
+                            </tr>
+                            {% endif %} {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </section>
 
-                            <tbody class="area-group" data-position="NONE">
-                                <tr class="area-group-header">
-                                    <th colspan="5">NONE</th>
-                                </tr>
-                                {% for area in session_areas %} {% if area.position == "NONE" or area.position == "N/A" %}
-                                <tr class="area-row" data-position="NONE">
-                                    <td>
-                                        <input
-                                            type="hidden"
-                                            name="area_id"
-                                            value="{{ area.id }}"
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="area_order"
-                                            class="area-order"
-                                            value="{{ area.ordering }}"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="area_name"
-                                            class="form-control"
-                                            value="{{ area.name }}"
-                                            required
-                                        />
-                                    </td>
-                                    <td>
-                                        <select
-                                            name="area_position"
-                                            class="form-select"
-                                        >
-                                            <option value="LEFT">
-                                                LEFT SIDE
-                                            </option>
-                                            <option value="RIGHT">
-                                                RIGHT SIDE
-                                            </option>
-                                            <option value="NONE" selected>
-                                                NONE
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <textarea
-                                            name="area_workers"
-                                            class="form-control worker-drop-target auto-resize"
-                                            rows="1"
-                                        >{% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea>
-                                    </td>
-                                    <td class="text-center">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="area_delete"
-                                            value="{{ area.id }}"
-                                        />
-                                    </td>
-                                </tr>
-                                {% endif %} {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </form>
-            </section>
-
-                <aside
-                    class="edit-memo-panel"
-                    data-mobile-fold
-                    data-mobile-fold-title="전체 메모 입력"
-                    data-mobile-fold-open="false"
+        <aside
+            class="edit-memo-panel"
+            data-mobile-fold
+            data-mobile-fold-title="전체 메모 입력"
+            data-mobile-fold-open="false"
+        >
+            <div class="memo-card">
+                <!-- 헤더 영역 -->
+                <div
+                    class="memo-card-header p-3 border-bottom d-flex justify-content-between align-items-center"
                 >
-                    <div class="memo-card">
-                        <!-- 헤더 영역 -->
-                        <div
-                            class="memo-card-header p-3 border-bottom d-flex justify-content-between align-items-center"
+                    <div class="text-primary fw-bold">
+                        <i class="bi bi-journal-text me-1"></i> 전체 메모
+                    </div>
+                    <button
+                        type="submit"
+                        class="btn btn-warning btn-sm fw-bold memo-save-btn"
+                        form="areaEditForm"
+                        formaction="{% url 'manning:area_bulk_edit' session.id %}"
+                    >
+                        메모 저장하기
+                    </button>
+                </div>
+
+                <!-- 메모 입력 영역 -->
+                <div class="memo-body p-3">
+                    <!-- [업무 전달] -->
+                    <div class="memo-section mb-4">
+                        <label class="fw-bold text-secondary mb-2 small"
+                            >[업무 전달]</label
                         >
-                            <div class="text-primary fw-bold">
-                                <i class="bi bi-journal-text me-1"></i> 전체 메모
+                        <div class="ms-2">
+                            <div class="d-flex align-items-start">
+                                <textarea
+                                    name="important_process"
+                                    class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
+                                    rows="2"
+                                    placeholder="내용 입력"
+                                    form="areaEditForm"
+                                >
+{{ memo_values.important_process }}
+                                        </textarea
+                                >
                             </div>
-                            <span
-                                class="badge bg-light text-dark border shadow-sm"
-                                >📋 업무 전달 사항</span
+                        </div>
+                    </div>
+
+                    <!-- [오전 업무] -->
+                    <div class="memo-section mb-4">
+                        <label class="fw-bold text-secondary mb-2 small"
+                            >[오전 업무]</label
+                        >
+                        <div class="">
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >Tool 준비 :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="morning_tool"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.morning_tool }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >자재 준비 :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="morning_material"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.morning_material }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >작업대 준비 :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="morning_bench"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.morning_bench }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >Towing :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="morning_towing"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.morning_towing }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- [오후 업무] -->
+                    <div class="memo-section mb-4">
+                        <label class="fw-bold text-secondary mb-2 small"
+                            >[오후 업무]</label
+                        >
+                        <div class="">
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >정리 정돈 :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="afternoon_cleanup"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.afternoon_cleanup }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >Card 100% :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="afternoon_card"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.afternoon_card }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                            <div class="input-group input-group-sm mb-2">
+                                <span
+                                    class="input-group-text border-0 bg-transparent"
+                                    >Towing :</span
+                                >
+                                <input
+                                    type="text"
+                                    name="afternoon_towing"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    form="areaEditForm"
+                                    value="{{ memo_values.afternoon_towing }}"
+                                    placeholder="내용 입력"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 특이 사항 -->
+                    <div class="memo-section mb-3">
+                        <label class="fw-bold text-danger mb-2 small"
+                            >[특이 사항]</label
+                        >
+                        <div class="ms-2">
+                            <textarea
+                                name="special_note"
+                                class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
+                                rows="2"
+                                placeholder="내용 입력"
+                                form="areaEditForm"
+                            >
+{{ memo_values.special_note }}</textarea
                             >
                         </div>
-
-                        <!-- 메모 입력 영역 -->
-                        <div
-                            class="memo-body p-3"
-                        >
-                            <!-- [업무 전달] -->
-                            <div class="memo-section mb-4">
-                                <label class="fw-bold text-secondary mb-2 small"
-                                    >[업무 전달]</label
-                                >
-                                <div class="ms-2">
-                                    <div class="d-flex align-items-start">
-                                        <textarea
-                                            name="important_process"
-                                            class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
-                                            rows="2"
-                                            placeholder="내용 입력"
-                                            form="areaEditForm"
-                                        >{{ memo_values.important_process }}
-                                        </textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- [오전 업무] -->
-                            <div class="memo-section mb-4">
-                                <label class="fw-bold text-secondary mb-2 small"
-                                    >[오전 업무]</label
-                                >
-                                <div class="">
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >Tool 준비 :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="morning_tool"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.morning_tool }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >자재 준비 :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="morning_material"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.morning_material }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >작업대 준비 :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="morning_bench"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.morning_bench }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >Towing :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="morning_towing"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.morning_towing }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- [오후 업무] -->
-                            <div class="memo-section mb-4">
-                                <label class="fw-bold text-secondary mb-2 small"
-                                    >[오후 업무]</label
-                                >
-                                <div class="">
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >정리 정돈 :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="afternoon_cleanup"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.afternoon_cleanup }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >Card 100% :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="afternoon_card"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.afternoon_card }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                    <div
-                                        class="input-group input-group-sm mb-2"
-                                    >
-                                        <span
-                                            class="input-group-text border-0 bg-transparent"
-                                            >Towing :</span
-                                        >
-                                        <input
-                                            type="text"
-                                            name="afternoon_towing"
-                                            class="form-control border-0 border-bottom bg-transparent text-primary"
-                                            form="areaEditForm"
-                                            value="{{ memo_values.afternoon_towing }}"
-                                            placeholder="내용 입력"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 특이 사항 -->
-                            <div class="memo-section mb-3">
-                                <label class="fw-bold text-danger mb-2 small"
-                                    >[특이 사항]</label
-                                >
-                                <div class="ms-2">
-                                    <textarea
-                                        name="special_note"
-                                        class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
-                                        rows="2"
-                                        placeholder="내용 입력"
-                                        form="areaEditForm"
-                                    >{{ memo_values.special_note }}</textarea
-                                    >
-                                </div>
-                            </div>
-
-                            <!-- 저장 버튼 (선택 사항) -->
-                            <div class="d-grid mt-3">
-                                <button
-                                    type="submit"
-                                    class="btn btn-warning btn-sm fw-bold"
-                                    form="areaEditForm"
-                                    formaction="{% url 'manning:area_bulk_edit' session.id %}"
-                                >
-                                    메모 저장하기
-                                </button>
-                            </div>
-                        </div>
                     </div>
-                </aside>
+                </div>
+            </div>
+        </aside>
     </div>
 </div>
 
@@ -698,37 +688,6 @@
         </div>
     </div>
 </div>
-
-<nav class="bottom-action-bar edit-action-bar" aria-label="편집 작업">
-    <div class="edit-action-copy">
-        <strong>변경 사항 적용</strong>
-        <span>구역, 작업자 및 메모 변경사항을 한 번에 저장합니다.</span>
-    </div>
-    <div class="edit-action-buttons">
-            <a
-                href="{% url 'manning:manning_dashboard' session.id %}"
-                class="edit-action-btn edit-action-cancel"
-            >
-                <i class="bi bi-x-lg"></i>
-                취소
-            </a>
-            <button
-                type="button"
-                class="edit-action-btn edit-action-clear"
-                id="btn-clear-assigned"
-            >
-                <i class="bi bi-person-x"></i>
-                전체 이름 삭제
-            </button>
-            <button
-                type="submit"
-                class="edit-action-btn edit-action-save"
-                form="areaEditForm"
-            >
-                <i class="bi bi-check-lg"></i> 저장
-            </button>
-    </div>
-</nav>
 
 <div
     class="modal fade"

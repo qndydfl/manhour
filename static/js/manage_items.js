@@ -1,9 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     initPlanMhAdjust();
     initMasterItemsTab();
     initDeleteState();
+    initBulkDeleteButton();
+    initRowDeleteButtons();
     initWorkerLimitEditor();
+    initWorkerLimitDuplicateNotice();
     initAssignedText();
     initAssignedNamesGuard();
     initDescriptionText();
@@ -51,6 +53,8 @@ function initDeleteState() {
     document.querySelectorAll(".delete-trigger").forEach((chk) => {
         syncDeleteState(chk);
     });
+
+    updateBulkDeleteButton();
 }
 
 function initClearAssignedButton() {
@@ -60,6 +64,119 @@ function initClearAssignedButton() {
     clearBtn.addEventListener("click", () => {
         clearAllAssignedText();
     });
+}
+
+function initBulkDeleteButton() {
+    const form = document.getElementById("manage-form");
+    const deleteBtn = document.getElementById("btn-delete-selected");
+    if (!form || !deleteBtn) return;
+
+    deleteBtn.addEventListener("click", async () => {
+        const checkedRows = Array.from(
+            form.querySelectorAll(".delete-trigger:checked"),
+        );
+
+        if (checkedRows.length < 2) {
+            updateBulkDeleteButton();
+            return;
+        }
+
+        const confirmed = window.AppDialog?.confirm
+            ? await window.AppDialog.confirm(
+                  `선택한 ${checkedRows.length}개 항목을 삭제하시겠습니까?`,
+                  {
+                      title: "선택 항목 삭제",
+                      variant: "danger",
+                      confirmText: "삭제",
+                  },
+              )
+            : window.confirm(
+                  `선택한 ${checkedRows.length}개 항목을 삭제하시겠습니까?`,
+              );
+
+        if (!confirmed) return;
+
+        setSubmitIntent("delete_selected");
+        form.dataset.loadingTitle = "선택 항목 삭제 중";
+        form.dataset.loadingText = "선택한 항목을 삭제하고 있습니다.";
+        form.requestSubmit();
+    });
+}
+
+function initRowDeleteButtons() {
+    const form = document.getElementById("manage-form");
+    if (!form) return;
+
+    form.querySelectorAll("[data-row-delete]").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const row = button.closest("tr");
+            const checkbox = row?.querySelector(".delete-trigger");
+
+            if (!row || !checkbox) {
+                alert("삭제할 항목을 찾을 수 없습니다.");
+                return;
+            }
+
+            checkbox.checked = true;
+            syncDeleteState(checkbox);
+
+            const gibun =
+                row.querySelector(".col-gibun input")?.value?.trim() ||
+                "이 항목";
+            const workOrder =
+                row.querySelector(".col-wo input")?.value?.trim() || "-";
+            const op = row.querySelector(".col-op input")?.value?.trim() || "-";
+            const description =
+                row.querySelector(".col-desc textarea")?.value?.trim() ||
+                row.querySelector(".col-desc input")?.value?.trim() ||
+                "-";
+            const confirmMessage = [
+                "아래 항목을 삭제하시겠습니까?",
+                "",
+                `기번: ${gibun}`,
+                `W/O: ${workOrder}`,
+                `OP: ${op}`,
+                `작업내용: ${description}`,
+            ].join("\n");
+
+            const confirmed = window.AppDialog?.confirm
+                ? await window.AppDialog.confirm(confirmMessage, {
+                      title: "항목 삭제",
+                      variant: "danger",
+                      confirmText: "삭제",
+                  })
+                : window.confirm(confirmMessage);
+
+            if (!confirmed) {
+                checkbox.checked = false;
+                syncDeleteState(checkbox);
+                return;
+            }
+
+            setSubmitIntent("delete_selected");
+            form.dataset.loadingTitle = "항목 삭제 중";
+            form.dataset.loadingText = "선택한 항목을 삭제하고 있습니다.";
+            form.requestSubmit();
+        });
+    });
+}
+
+function updateBulkDeleteButton() {
+    const deleteBtn = document.getElementById("btn-delete-selected");
+    if (!deleteBtn) return;
+
+    const checkedCount = document.querySelectorAll(
+        "#manage-form .delete-trigger:checked",
+    ).length;
+
+    deleteBtn.classList.toggle("d-none", checkedCount < 2);
+}
+
+function setSubmitIntent(value) {
+    const intentInput = document.getElementById("submit-intent");
+    if (intentInput) {
+        intentInput.value = value || "";
+    }
 }
 
 function initWorkerLimitEditor() {
@@ -74,8 +191,11 @@ function initWorkerLimitEditor() {
     const syncSource = () => {
         const lines = Array.from(list.querySelectorAll(".worker-limit-row"))
             .map((row) => {
-                const name = row.querySelector(".worker-limit-name")?.value.trim() || "";
-                const limit = row.querySelector(".worker-limit-value")?.value.trim() || "";
+                const name =
+                    row.querySelector(".worker-limit-name")?.value.trim() || "";
+                const limit =
+                    row.querySelector(".worker-limit-value")?.value.trim() ||
+                    "";
                 if (!name) return "";
                 return limit ? `${name}: ${limit}` : name;
             })
@@ -134,6 +254,50 @@ function initWorkerLimitEditor() {
 
     updateEmptyState();
     syncSource();
+}
+
+function initWorkerLimitDuplicateNotice() {
+    const source = document.querySelector("[data-worker-limit-source]");
+    const notice = document.querySelector(
+        "[data-worker-limit-duplicate-notice]",
+    );
+
+    if (!(source instanceof HTMLTextAreaElement) || !notice) return;
+
+    const updateNotice = () => {
+        const seen = new Map();
+        const duplicates = new Set();
+
+        source.value.split(/\r?\n/).forEach((line) => {
+            const raw = String(line || "").trim();
+            if (!raw) return;
+
+            const name = raw.split(":", 1)[0].trim();
+            if (!name) return;
+
+            const count = seen.get(name) || 0;
+            seen.set(name, count + 1);
+
+            if (count >= 1) {
+                duplicates.add(name);
+            }
+        });
+
+        if (duplicates.size === 0) {
+            source.classList.remove("is-duplicate");
+            notice.classList.add("d-none");
+            notice.textContent = "";
+            return;
+        }
+
+        source.classList.add("is-duplicate");
+        notice.classList.remove("d-none");
+        notice.textContent = `중복된 작업자 이름이 있습니다: ${Array.from(duplicates).join(", ")}`;
+    };
+
+    source.addEventListener("input", updateNotice);
+    source.addEventListener("change", updateNotice);
+    updateNotice();
 }
 
 function initAssignedText() {
@@ -484,6 +648,7 @@ function initMasterItemsTab() {
 function initPlanMhAdjust() {
     const select = document.querySelector(".mh-adjust-select");
     if (!select) return;
+    const table = document.getElementById("manageItemsTable");
 
     const rows = Array.from(
         document.querySelectorAll("#manageItemsTable tbody tr.sortable-row"),
@@ -519,6 +684,28 @@ function initPlanMhAdjust() {
         });
     };
 
+    const updateAdjustModeVisuals = (mode) => {
+        if (!table) return;
+
+        table.classList.remove(
+            "adjust-mode-original",
+            "adjust-mode-percent",
+            "adjust-mode-custom",
+        );
+
+        if (mode === "custom") {
+            table.classList.add("adjust-mode-custom");
+            return;
+        }
+
+        if (mode === "0") {
+            table.classList.add("adjust-mode-original");
+            return;
+        }
+
+        table.classList.add("adjust-mode-percent");
+    };
+
     const setAdjustedEditable = (isEditable) => {
         adjustedInputs.forEach((input) => {
             if (!input) return;
@@ -534,6 +721,8 @@ function initPlanMhAdjust() {
                 input.dataset.baseAdjusted = "";
             }
         });
+
+        select.classList.toggle("is-custom-mode", isEditable);
     };
 
     const setCustomBaseline = () => {
@@ -625,6 +814,7 @@ function initPlanMhAdjust() {
     if (lastPercentRaw === "custom" || (!lastPercentRaw && hasAdjustedValues)) {
         select.value = "custom";
         setAdjustedEditable(true);
+        updateAdjustModeVisuals("custom");
         setCustomBaseline();
 
         adjustedInputs.forEach((input) => {
@@ -650,6 +840,7 @@ function initPlanMhAdjust() {
             select.value = String(lastPercent);
         }
         setAdjustedEditable(false);
+        updateAdjustModeVisuals(select.value);
         updateAdjustedAll(lastPercent);
     }
 
@@ -672,6 +863,7 @@ function initPlanMhAdjust() {
     select.addEventListener("change", function () {
         if (this.value === "custom") {
             setAdjustedEditable(true);
+            updateAdjustModeVisuals("custom");
             setCustomBaseline();
 
             adjustedInputs.forEach((input) => {
@@ -692,6 +884,7 @@ function initPlanMhAdjust() {
 
         lastPercent = percent;
         setAdjustedEditable(false);
+        updateAdjustModeVisuals(this.value);
         updateAdjustedAll(percent);
     });
 
@@ -712,6 +905,7 @@ function initPlanMhAdjust() {
     });
 
     syncAdjustedHidden();
+    updateAdjustModeVisuals(select.value);
 }
 
 async function clearAllAssignedText() {
@@ -776,6 +970,7 @@ function syncDeleteState(chk) {
 
     row.classList.toggle("deleted-row", chk.checked);
     row.classList.toggle("table-danger", chk.checked);
+    updateBulkDeleteButton();
 }
 
 function formatAssignedText(el) {
@@ -903,6 +1098,7 @@ function initSortableRows() {
 function initNativeDragRows(tbody) {
     let draggedRow = null;
     let draggedGibun = "";
+    let armedRow = null;
 
     const setRowDraggable = (row, value) => {
         if (!row) return;
@@ -916,24 +1112,30 @@ function initNativeDragRows(tbody) {
         const row = handle.closest("tr.sortable-row");
         if (!row) return;
 
+        armedRow = row;
         setRowDraggable(row, true);
     });
 
-    tbody.addEventListener("pointerup", (e) => {
-        const row = e.target.closest("tr.sortable-row");
-        if (!row) return;
-        setRowDraggable(row, false);
+    tbody.addEventListener("pointerup", () => {
+        if (!draggedRow && armedRow) {
+            setRowDraggable(armedRow, false);
+            armedRow = null;
+        }
+    });
+
+    tbody.addEventListener("pointercancel", () => {
+        if (!draggedRow && armedRow) {
+            setRowDraggable(armedRow, false);
+            armedRow = null;
+        }
     });
 
     tbody.addEventListener("dragstart", (e) => {
-        const handle = e.target.closest(".drag-handle");
-        if (!handle) {
+        const row = e.target.closest("tr.sortable-row");
+        if (!row || row !== armedRow) {
             e.preventDefault();
             return;
         }
-
-        const row = handle.closest("tr.sortable-row");
-        if (!row) return;
 
         draggedRow = row;
         draggedGibun = (row.dataset.gibun || "").trim();
@@ -982,6 +1184,7 @@ function initNativeDragRows(tbody) {
         }
         draggedRow = null;
         draggedGibun = "";
+        armedRow = null;
     });
 }
 

@@ -37,7 +37,6 @@
     }
 }
 
-
 /* =========================================================
    PAGE HEADER
 ========================================================= */
@@ -118,7 +117,6 @@
     background: #f8fafc;
 }
 
-
 /* =========================================================
    WORKSPACE GRID
 ========================================================= */
@@ -135,7 +133,6 @@
     align-items: start;
 }
 
-
 /* =========================================================
    FORM PANEL
 ========================================================= */
@@ -147,13 +144,14 @@
 
     border-radius: 17px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
-    box-shadow:
-        0 7px 28px rgba(15, 23, 42, 0.045);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.075);
 }
 
 .manning-form-panel-head {
+    background: #eef4fa;
+
     padding: 21px 24px;
 
     display: flex;
@@ -162,8 +160,7 @@
 
     gap: 20px;
 
-    border-bottom:
-        1px solid var(--manning-border-soft);
+    border-bottom: 1px solid var(--manning-border-soft);
 }
 
 .manning-form-panel-head-left {
@@ -212,7 +209,6 @@
     padding: 25px;
 }
 
-
 /* =========================================================
    FIELD GRID
 ========================================================= */
@@ -220,8 +216,7 @@
 .manning-form-grid {
     display: grid;
 
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
     gap: 20px;
 }
@@ -248,7 +243,6 @@
     color: #ef4444;
 }
 
-
 /* =========================================================
    DJANGO FORM CONTROLS
 ========================================================= */
@@ -260,17 +254,15 @@
 
     min-height: 44px;
 
-    padding:
-        9px 12px;
+    padding: 9px 12px;
 
-    border:
-        1px solid #dce3eb;
+    border: 1px solid #c8d5e2;
 
     border-radius: 9px;
 
     outline: none;
 
-    background: #ffffff;
+    background: #f9fbfd;
 
     color: #0f172a;
 
@@ -294,13 +286,12 @@
 .manning-form-field textarea:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.09);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
 }
 
 .manning-form-field select:disabled,
 .manning-form-field input:disabled {
-    background: #f8fafc;
+    background: #edf3f8;
 
     color: #94a3b8;
 }
@@ -320,7 +311,6 @@
 
     font-size: var(--font-size-xs);
 }
-
 
 /* =========================================================
    TEMPLATE PANEL
@@ -374,7 +364,6 @@
     color: var(--manning-blue-hover);
 }
 
-
 /* =========================================================
    TEMPLATE GRID
 ========================================================= */
@@ -382,8 +371,7 @@
 .manning-template-grid {
     display: grid;
 
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
     gap: 12px;
 }
@@ -415,8 +403,7 @@
 
     gap: 9px;
 
-    border:
-        1px solid var(--manning-border);
+    border: 1px solid var(--manning-border);
 
     border-radius: 12px;
 
@@ -458,14 +445,12 @@
 
     background: #eff6ff;
 
-    box-shadow:
-        0 0 0 2px rgba(37, 99, 235, 0.08);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
 .template-radio:checked + .template-card i {
     color: var(--manning-blue);
 }
-
 
 /* =========================================================
    SIDE PANEL
@@ -487,22 +472,15 @@
 
     border-radius: 15px;
 
-    border:
-        1px solid var(--manning-border-soft);
+    border: 1px solid var(--manning-border-soft);
 
     background: #ffffff;
 
-    box-shadow:
-        0 5px 20px rgba(15, 23, 42, 0.035);
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.035);
 }
 
 .manning-form-guide-dark {
-    background:
-        linear-gradient(
-            145deg,
-            #08111f,
-            #0d1929
-        );
+    background: linear-gradient(145deg, #08111f, #0d1929);
 
     border-color: #08111f;
 
@@ -528,10 +506,8 @@
     font-size: 16px;
 }
 
-.manning-form-guide-dark
-.manning-form-guide-icon {
-    background:
-        rgba(255, 255, 255, 0.08);
+.manning-form-guide-dark .manning-form-guide-icon {
+    background: rgba(255, 255, 255, 0.08);
 
     color: #60a5fa;
 }
@@ -543,8 +519,7 @@
 }
 
 .manning-form-guide p {
-    margin:
-        8px 0 0;
+    margin: 8px 0 0;
 
     color: var(--manning-text-2);
 
@@ -557,8 +532,7 @@
 }
 
 .manning-form-guide-list {
-    margin:
-        17px 0 0;
+    margin: 17px 0 0;
 
     padding: 0;
 
@@ -566,16 +540,14 @@
 }
 
 .manning-form-guide-list li {
-    padding:
-        9px 0;
+    padding: 9px 0;
 
     display: flex;
     align-items: flex-start;
 
     gap: 8px;
 
-    border-bottom:
-        1px solid var(--manning-border-soft);
+    border-bottom: 1px solid var(--manning-border-soft);
 
     color: var(--manning-text-2);
 
@@ -590,7 +562,6 @@
 .manning-form-guide-list i {
     color: var(--manning-blue);
 }
-
 
 /* =========================================================
    FORM FOOTER
@@ -607,8 +578,7 @@
 
     gap: 9px;
 
-    border-top:
-        1px solid var(--manning-border-soft);
+    border-top: 1px solid var(--manning-border-soft);
 
     background: #fafbfc;
 }
@@ -616,8 +586,7 @@
 .manning-form-action {
     min-height: 42px;
 
-    padding:
-        0 16px;
+    padding: 0 16px;
 
     border: 0;
 
@@ -640,8 +609,7 @@
 }
 
 .manning-form-action-secondary {
-    border:
-        1px solid var(--manning-border);
+    border: 1px solid var(--manning-border);
 
     background: #ffffff;
 
@@ -663,12 +631,10 @@
 }
 
 .manning-form-action-primary:hover {
-    background:
-        var(--manning-blue-hover);
+    background: var(--manning-blue-hover);
 
     color: #ffffff;
 }
-
 
 /* =========================================================
    NON FIELD ERRORS
@@ -679,8 +645,7 @@
 
     padding: 13px 15px;
 
-    border:
-        1px solid #fecaca;
+    border: 1px solid #fecaca;
 
     border-radius: 10px;
 
@@ -691,13 +656,11 @@
     font-size: var(--font-size-sm);
 }
 
-
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 1050px) {
-
     .manning-form-layout {
         grid-template-columns: 1fr;
     }
@@ -707,15 +670,11 @@
 
         display: grid;
 
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
 }
 
-
 @media (max-width: 700px) {
-
     .manning-form-header {
         align-items: flex-start;
 
@@ -751,5 +710,4 @@
     .manning-form-action {
         width: 100%;
     }
-
 }
