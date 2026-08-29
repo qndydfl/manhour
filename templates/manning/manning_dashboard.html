@@ -57,7 +57,7 @@
 {% endblock sidebar_system %} {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/manning_dashboard.css' %}?v=20260829-2"
+    href="{% static 'css/manning/v2/manning_dashboard.css' %}?v=20260829-3"
 />
 {% endblock css %} {% block js %}
 <script>
@@ -89,8 +89,9 @@
     AREA CONTROL
 ====================================================== -->
 
+<div class="manning-dashboard-content-stack">
 <section
-    class="manning-dashboard-section"
+    class="manning-dashboard-section manning-dashboard-area-section"
     data-mobile-fold
     data-mobile-fold-title="구역별 작업자 현황"
     data-mobile-fold-open="true"
@@ -186,10 +187,7 @@
 ====================================================== -->
 
 <section
-    class="manning-dashboard-section"
-    data-mobile-fold
-    data-mobile-fold-title="세션 메모"
-    data-mobile-fold-open="false"
+    class="manning-dashboard-section manning-dashboard-memo-section"
 >
     <div class="manning-dashboard-section-head">
         <div>
@@ -217,5 +215,6 @@
         </div>
     </article>
 </section>
+</div>
 
 {% endblock content %}

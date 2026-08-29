@@ -63,6 +63,8 @@ class WorkplaceIsolationTests(TestCase):
             response,
             reverse("manning:manning_dashboard_edit", args=[self.site_b_session.id]),
         )
+        self.assertContains(response, "manning-dashboard-memo-section")
+        self.assertNotContains(response, 'data-mobile-fold-title="세션 메모"')
 
     def test_other_workplace_session_hides_edit_and_delete_controls(self):
         response = self.client.get(reverse("manning:manning_list"))
