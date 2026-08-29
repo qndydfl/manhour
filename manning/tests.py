@@ -33,11 +33,14 @@ class WorkplaceIsolationTests(TestCase):
         browser_session["workplace"] = "SITE-A"
         browser_session.save()
 
-    def test_list_only_contains_selected_workplace(self):
+    def test_list_contains_active_sessions_from_all_workplaces(self):
         response = self.client.get(reverse("manning:manning_list"))
 
         session_ids = [session.id for session in response.context["active_sessions"]]
-        self.assertEqual(session_ids, [self.site_a_session.id])
+        self.assertCountEqual(
+            session_ids,
+            [self.site_a_session.id, self.site_b_session.id],
+        )
 
     def test_mobile_list_renders_collapsible_session_summary(self):
         self.site_a_session.aircraft_reg = "HL1234"
@@ -49,12 +52,46 @@ class WorkplaceIsolationTests(TestCase):
         self.assertContains(response, "data-mobile-fold")
         self.assertContains(response, 'data-mobile-fold-title="HL1234 · A-Check"')
 
-    def test_dashboard_rejects_session_from_another_workplace(self):
+    def test_dashboard_allows_reading_session_from_another_workplace(self):
         response = self.client.get(
             reverse("manning:manning_dashboard", args=[self.site_b_session.id])
         )
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_same_site"])
+        self.assertNotContains(
+            response,
+            reverse("manning:manning_dashboard_edit", args=[self.site_b_session.id]),
+        )
+
+    def test_other_workplace_session_hides_edit_and_delete_controls(self):
+        response = self.client.get(reverse("manning:manning_list"))
+        content = response.content.decode()
+
+        self.assertNotIn(
+            reverse("manning:update_session", args=[self.site_b_session.id]),
+            content,
+        )
+        self.assertNotIn(
+            reverse("manning:delete_session", args=[self.site_b_session.id]),
+            content,
+        )
+        self.assertIn(
+            reverse("manning:update_session", args=[self.site_a_session.id]),
+            content,
+        )
+
+    def test_other_workplace_cannot_open_edit_page_or_delete_session(self):
+        edit_response = self.client.get(
+            reverse("manning:update_session", args=[self.site_b_session.id])
+        )
+        delete_response = self.client.post(
+            reverse("manning:delete_session", args=[self.site_b_session.id])
+        )
+
+        self.assertEqual(edit_response.status_code, 404)
+        self.assertEqual(delete_response.status_code, 404)
+        self.assertTrue(WorkSession.objects.filter(id=self.site_b_session.id).exists())
 
     def test_area_update_rejects_area_from_another_workplace(self):
         area = SessionArea.objects.create(
@@ -125,6 +162,8 @@ class AreaTemplateSelectionTests(TestCase):
         response = self.client.get(reverse("manning:create_session"))
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'form="createSessionForm"')
+        self.assertContains(response, "Create Session")
         self.assertContains(response, f'id="tpl_{self.area_template.id}"')
         self.assertContains(response, f'for="tpl_{self.area_template.id}"')
         self.assertContains(response, 'data-work-packages="A-Check"')

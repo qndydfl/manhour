@@ -38,12 +38,20 @@ def _get_current_workplace(request):
 
 
 def _get_session_or_404(request, session_id):
-    """Return a Manning session only when it belongs to the selected workplace."""
+    """Return a Manning session only when it belongs to the selected workplace.
+
+    Use this helper for every endpoint that changes session data.
+    """
     return get_object_or_404(
         WorkSession,
         id=session_id,
         site=_get_current_workplace(request),
     )
+
+
+def _get_visible_session_or_404(session_id):
+    """Return a session for read-only pages shared by all workplaces."""
+    return get_object_or_404(WorkSession, id=session_id)
 
 
 def _get_area_or_404(request, area_id, **kwargs):
@@ -235,7 +243,7 @@ class ManningListView(ManningSessionRequiredMixin, View):
     def get(self, request):
         workplace = _get_current_workplace(request)
         active_sessions = list(
-            WorkSession.objects.filter(is_active=True, site=workplace).order_by(
+            WorkSession.objects.filter(is_active=True).order_by(
                 "shift_type",
                 "-created_at",
             )
@@ -749,8 +757,10 @@ class DeleteSessionView(ManningSessionRequiredMixin, View):
 class ManningDashboardView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
         workplace = _get_current_workplace(request)
-        session = _get_session_or_404(request, session_id)
-        ensure_default_areas(session)
+        session = _get_visible_session_or_404(session_id)
+        is_same_site = (session.site or workplace) == workplace
+        if is_same_site:
+            ensure_default_areas(session)
         show_empty_assignments = request.GET.get("no_assignments") == "1"
         session_areas = (
             session.areas.all()
@@ -804,7 +814,6 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
             .order_by("name")
         )
         all_workers = [{"name": name} for name in worker_names]
-        is_same_site = (session.site or workplace) == workplace
         return render(
             request,
             "manning/manning_dashboard.html",

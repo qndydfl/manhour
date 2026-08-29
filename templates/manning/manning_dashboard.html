@@ -8,13 +8,15 @@
 
 {% block topbar_right %}
 <div class="manning-dashboard-topbar-actions">
+    {% if is_same_site %}
     <a
-        href="{% if is_same_site %}{% url 'manning:manning_dashboard_edit' session.id %}{% else %}#{% endif %}"
-        class="manning-dashboard-btn manning-dashboard-btn-primary {% if not is_same_site %} is-disabled {% endif %}"
+        href="{% url 'manning:manning_dashboard_edit' session.id %}"
+        class="manning-dashboard-btn manning-dashboard-btn-primary"
     >
         <i class="bi bi-pencil-square"></i>
         편집
     </a>
+    {% endif %}
 
     <a
         href="{% url 'manning:manning_list' %}"

@@ -117,6 +117,49 @@
     background: #f8fafc;
 }
 
+.manning-form-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.manning-form-topbar-action {
+    min-height: 38px;
+    padding: 0 13px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 750;
+    line-height: 1;
+    text-decoration: none;
+    transition: 0.18s ease;
+}
+
+.manning-form-topbar-action-secondary {
+    border-color: var(--manning-border);
+    background: #ffffff;
+    color: var(--manning-text);
+}
+
+.manning-form-topbar-action-secondary:hover {
+    background: #f8fafc;
+    color: var(--manning-text);
+}
+
+.manning-form-topbar-action-primary {
+    background: var(--manning-blue);
+    color: #ffffff;
+}
+
+.manning-form-topbar-action-primary:hover {
+    background: var(--manning-blue-hover);
+}
+
 /* =========================================================
    WORKSPACE GRID
 ========================================================= */
@@ -675,6 +718,24 @@
 }
 
 @media (max-width: 700px) {
+    .manning-topbar-right:has(.manning-form-topbar-actions) {
+        gap: 10px;
+    }
+
+    .manning-form-topbar-actions {
+        gap: 5px;
+    }
+
+    .manning-form-topbar-action {
+        width: 36px;
+        min-height: 36px;
+        padding: 0;
+    }
+
+    .manning-form-topbar-label {
+        display: none;
+    }
+
     .manning-form-header {
         align-items: flex-start;
 

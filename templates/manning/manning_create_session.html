@@ -6,15 +6,30 @@
 {% block nav_create_active %} active {% endblock nav_create_active %} 
 
 {% block page_title %} Create Session {% endblock page_title %} {% block topbar_right %}
+<div class="manning-form-topbar-actions">
+    <a
+        href="{% url 'manning:manning_list' %}"
+        class="manning-form-topbar-action manning-form-topbar-action-secondary"
+        aria-label="세션 생성을 취소하고 목록으로 이동"
+    >
+        <i class="bi bi-x-lg"></i>
+        <span class="manning-form-topbar-label">취소</span>
+    </a>
 
-<a href="{% url 'manning:manning_list' %}" class="manning-form-header-back">
-    <i class="bi bi-arrow-left"></i>
-    Sessions
-</a>
+    <button
+        type="submit"
+        form="createSessionForm"
+        class="manning-form-topbar-action manning-form-topbar-action-primary"
+        aria-label="세션 생성"
+    >
+        <i class="bi bi-play-fill"></i>
+        <span class="manning-form-topbar-label">저장</span>
+    </button>
+</div>
 {% endblock topbar_right %} {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/manning_form.css' %}?v=20260827-1"
+    href="{% static 'css/manning/v2/manning_form.css' %}?v=20260829-2"
 />
 {% endblock css %} 
 
@@ -287,23 +302,6 @@
                         </div>
                     </div>
 
-                    <footer class="manning-form-actions">
-                        <a
-                            href="{% url 'manning:manning_list' %}"
-                            class="manning-form-action manning-form-action-secondary"
-                        >
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="manning-form-action manning-form-action-primary"
-                        >
-                            <i class="bi bi-play-fill"></i>
-
-                            Create Session
-                        </button>
-                    </footer>
                 </section>
             </div>
 
