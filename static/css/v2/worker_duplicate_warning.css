@@ -1,0 +1,33 @@
+.worker-duplicate-warning {
+    margin-top: 9px;
+    padding: 10px 12px;
+    border: 1px solid #f59e0b;
+    border-radius: 9px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #fff3cd;
+    color: #713f12;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.worker-duplicate-warning[hidden] {
+    display: none;
+}
+
+.worker-duplicate-warning i {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    color: #b45309;
+}
+
+.worker-duplicate-warning strong {
+    color: #9a3412;
+}
+
+textarea.has-duplicate-worker-names {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16) !important;
+}

@@ -646,6 +646,21 @@ body.portal-body {
     margin-bottom: 0;
 }
 
+.portal-home-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 286px;
+    align-items: start;
+    gap: 24px;
+}
+
+.portal-home-main {
+    min-width: 0;
+}
+
+.portal-home-main > .portal-section:last-child {
+    margin-bottom: 0;
+}
+
 .portal-section-head {
     margin-bottom: 26px;
 
@@ -1295,16 +1310,38 @@ WORKSPACE CARDS
    LINKS
 ========================================================= */
 
+.portal-favorites-aside {
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 124px);
+    padding: 22px 18px;
+    overflow-y: auto;
+    border: 1px solid var(--portal-border-soft);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: var(--portal-shadow);
+}
+
+.portal-favorites-head {
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.portal-favorites-head .portal-section-title {
+    font-size: 23px;
+}
+
 .portal-links-grid {
     display: grid;
 
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 1fr;
 
     gap: 14px;
 }
 
 .portal-link-card {
-    padding: 20px;
+    min-width: 0;
+    padding: 15px 13px;
 
     display: flex;
 
@@ -1407,6 +1444,22 @@ WORKSPACE CARDS
 
     .portal-ops-grid {
         grid-template-columns: 1fr;
+    }
+
+    .portal-home-layout {
+        grid-template-columns: minmax(0, 1fr) 250px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 980px) {
+    .portal-home-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-favorites-aside {
+        position: static;
+        max-height: none;
     }
 
     .portal-links-grid {

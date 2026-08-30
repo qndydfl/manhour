@@ -5,9 +5,17 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/v2/workforce_editor.css' %}" />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/worker_duplicate_warning.css' %}?v=20260830-1"
+/>
 {% endblock css %} 
 
 {% block js %}
+<script
+    defer
+    src="{% static 'js/worker_duplicate_warning.js' %}?v=20260830-1"
+></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const sidebar = document.querySelector(".workforce-editor-side");
@@ -164,9 +172,24 @@
                             name="worker_names"
                             rows="14"
                             placeholder="작업자 이름을 한 줄에 한 명씩 입력하세요."
+                            data-worker-duplicate-input
+                            data-worker-duplicate-separators="lines"
+                            data-worker-duplicate-warning="editWorkerDuplicateWarning"
+                        >{{ worker_names_str }}</textarea>
+
+                        <div
+                            id="editWorkerDuplicateWarning"
+                            class="worker-duplicate-warning"
+                            role="alert"
+                            hidden
                         >
-                        {{ worker_names_str }}
-                        </textarea>
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>
+                                중복된 작업자 이름이 있습니다:
+                                <strong data-worker-duplicate-names></strong>.
+                                저장하면 중복 이름은 하나로 정리됩니다.
+                            </span>
+                        </div>
 
                         <div class="workforce-field-help">
                             <i class="bi bi-info-circle"></i>

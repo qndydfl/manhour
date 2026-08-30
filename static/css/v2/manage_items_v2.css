@@ -204,7 +204,7 @@ body.assignment-console-body > .container .manage-header-result-btn {
 
 .worker-limit-direct-input {
     width: 100%;
-    min-height: 120px;
+    min-height: 78px;
     padding: 12px 14px;
     border: 0;
     outline: none;
@@ -213,7 +213,7 @@ body.assignment-console-body > .container .manage-header-result-btn {
     font-family: inherit;
     font-size: 15px;
     font-weight: 500;
-    line-height: 1.7;
+    line-height: 1.65;
     resize: vertical;
     white-space: pre-wrap;
 }

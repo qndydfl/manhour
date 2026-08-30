@@ -12,7 +12,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/manage_items_v2.css' %}?v=20260829-2"
+    href="{% static 'css/v2/manage_items_v2.css' %}?v=20260830-1"
 />
 {% endblock css %} 
 
@@ -31,7 +31,7 @@
 </script>
 
 <script defer src="{% static 'js/paste_data.js' %}"></script>
-<script defer src="{% static 'js/manage_items.js' %}?v=20260829-6"></script>
+<script defer src="{% static 'js/manage_items.js' %}?v=20260830-1"></script>
 {% endblock js %} 
 
 
@@ -149,12 +149,12 @@
                                 class="worker-limit-direct-input"
                                 data-worker-limit-source
                                 spellcheck="false"
-                                placeholder="예: 홍길동: 8&#10;김철수: 7.5&#10;이영희: 6"
+                                placeholder="예: 홍길동: 8, 김철수: 7.5, 이영희: 6"
                             >{{ worker_names_str }}</textarea>
                         </div>
                         <div class="worker-limit-help-text">
-                            한 줄에 한 명씩 입력하세요. 형식은 이름 또는 이름:
-                            시간 입니다.
+                            쉼표로 구분하여 옆으로 입력하세요. 줄바꿈도 사용할 수
+                            있으며 형식은 이름 또는 이름: 시간입니다.
                         </div>
                         <div
                             class="worker-limit-duplicate-notice d-none"

@@ -5,7 +5,7 @@
 {% block title %} Aviation Operations | Manning System {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/portal.css' %}?v=20260827-4" />
+<link rel="stylesheet" href="{% static 'css/v2/portal.css' %}?v=20260830-1" />
 {% endblock css %} 
 
 {% block js %}
@@ -28,6 +28,8 @@
 
 
 <main class="portal-content">
+    <div class="portal-home-layout">
+        <div class="portal-home-main">
     <!-- =====================================================
         WORKSPACES
     ====================================================== -->
@@ -371,13 +373,17 @@
             </article>
         </div>
     </section>
+        </div>
 
     <!-- =====================================================
         EXTERNAL LINKS
     ====================================================== -->
 
-    <section class="portal-section portal-mobile-hidden-section">
-        <div class="portal-section-head">
+    <aside
+        class="portal-favorites-aside portal-mobile-hidden-section"
+        aria-label="즐겨 찾기"
+    >
+        <div class="portal-section-head portal-favorites-head">
             <div>
                 <span class="portal-section-label"> QUICK ACCESS </span>
 
@@ -470,7 +476,8 @@
                 <i class="bi bi-arrow-up-right"></i>
             </a>
         </div>
-    </section>
+    </aside>
+    </div>
 
 </main>
 

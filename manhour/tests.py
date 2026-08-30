@@ -122,6 +122,111 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertEqual(response.content.count(b"data-mobile-workspace"), 3)
         self.assertEqual(response.content.count(b"portal-mobile-hidden-section"), 2)
         self.assertContains(response, "portal-workspace-mobile-title")
+        self.assertContains(response, "portal-home-layout")
+        self.assertContains(response, "portal-favorites-aside")
+
+    def test_edit_session_textarea_starts_with_first_worker_name(self):
+        Worker.objects.create(session=self.site_a_session, name="김정비")
+
+        response = self.client.get(
+            reverse("manhour:edit_session", args=[self.site_a_session.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, ">김정비</textarea>")
+        self.assertContains(response, "editWorkerDuplicateWarning")
+        self.assertContains(response, "worker_duplicate_warning")
+
+    def test_create_and_edit_session_remove_case_insensitive_worker_duplicates(self):
+        create_response = self.client.post(
+            reverse("manhour:create_session"),
+            {
+                "session_name": "Duplicate workers",
+                "worker_names": "Alice, alice, Bob",
+                "shift_type": "DAY",
+                "gibun_input": "",
+            },
+        )
+        created_session = WorkSession.objects.get(name="Duplicate workers")
+
+        self.assertEqual(create_response.status_code, 302)
+        self.assertEqual(
+            list(
+                created_session.worker_set.order_by("id").values_list(
+                    "name", flat=True
+                )
+            ),
+            ["Alice", "Bob"],
+        )
+
+        edit_response = self.client.post(
+            reverse("manhour:edit_session", args=[created_session.id]),
+            {
+                "session_name": created_session.name,
+                "worker_names": "Charlie\ncharlie\nDelta",
+            },
+        )
+
+        self.assertEqual(edit_response.status_code, 302)
+        self.assertEqual(
+            list(
+                created_session.worker_set.order_by("id").values_list(
+                    "name", flat=True
+                )
+            ),
+            ["Charlie", "Delta"],
+        )
+
+    def test_create_session_renders_worker_duplicate_warning(self):
+        response = self.client.get(reverse("manhour:create_session"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "createWorkerDuplicateWarning")
+        self.assertContains(response, "worker_duplicate_warning")
+
+    def test_settings_textarea_starts_with_first_default_worker_name(self):
+        browser_session = self.client.session
+        browser_session["user_role"] = "admin"
+        browser_session.save()
+        DefaultWorkerDirectory.objects.create(site="SITE-A", name="박정비")
+
+        response = self.client.get(reverse("manhour:settings"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, ">박정비</textarea>")
+
+    def test_manage_items_renders_and_saves_horizontal_worker_limits(self):
+        Worker.objects.create(session=self.site_a_session, name="Alice", limit_mh=8)
+        Worker.objects.create(session=self.site_a_session, name="Bob", limit_mh=7.5)
+
+        response = self.client.get(
+            reverse("manhour:manage_items", args=[self.site_a_session.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, ">Alice: 8, Bob: 7.5</textarea>")
+
+        save_response = self.client.post(
+            reverse("manhour:manage_items", args=[self.site_a_session.id]),
+            {
+                "form-TOTAL_FORMS": "0",
+                "form-INITIAL_FORMS": "0",
+                "form-MIN_NUM_FORMS": "0",
+                "form-MAX_NUM_FORMS": "1000",
+                "worker_names_str": "Alice: 6.5, Bob: 7, Charlie: 8",
+                "mh_percent": "0",
+            },
+        )
+
+        self.assertEqual(save_response.status_code, 302)
+        self.assertEqual(
+            list(
+                self.site_a_session.worker_set.order_by("name").values_list(
+                    "name", "limit_mh"
+                )
+            ),
+            [("Alice", 6.5), ("Bob", 7.0), ("Charlie", 8.0)],
+        )
 
 
 class PasteItemsDuplicateConfirmationTests(TestCase):

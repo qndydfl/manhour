@@ -6,7 +6,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1"
+    href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260830-1"
 />
 {% endblock css %} 
 
@@ -106,14 +106,9 @@
                 {% for w in workers_schedule %}
 
                 <tr
-                    {%
-                    if
-                    w.is_overload
-                    %}
+                    {% if w.is_overload %}
                     class="summary-overload-row"
-                    {%
-                    endif
-                    %}
+                    {% endif %}
                 >
                     <td class="text-center">
                         <div class="mh-worker-name">{{ w.worker_name }}</div>
@@ -183,14 +178,9 @@
 
                             <div class="text-end">
                                 <strong
-                                    {%
-                                    if
-                                    w.is_overload
-                                    %}
+                                    {% if w.is_overload %}
                                     style="color: #dc2626"
-                                    {%
-                                    endif
-                                    %}
+                                    {% endif %}
                                 >
                                     {{ w.total_mh|floatformat:1 }}
                                 </strong>

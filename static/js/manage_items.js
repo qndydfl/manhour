@@ -268,8 +268,8 @@ function initWorkerLimitDuplicateNotice() {
         const seen = new Map();
         const duplicates = new Set();
 
-        source.value.split(/\r?\n/).forEach((line) => {
-            const raw = String(line || "").trim();
+        source.value.split(/[,\r\n]+/).forEach((entry) => {
+            const raw = String(entry || "").trim();
             if (!raw) return;
 
             const name = raw.split(":", 1)[0].trim();
@@ -1006,9 +1006,9 @@ function formatAssignedText(el) {
 
 function parseWorkerLimitNames(text) {
     const names = new Set();
-    const lines = String(text || "").split("\n");
-    lines.forEach((line) => {
-        const trimmed = line.trim();
+    const entries = String(text || "").split(/[,\r\n]+/);
+    entries.forEach((entry) => {
+        const trimmed = entry.trim();
         if (!trimmed) return;
         const namePart = trimmed.includes(":")
             ? trimmed.split(":", 1)[0].trim()

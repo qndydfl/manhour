@@ -8,6 +8,10 @@
     rel="stylesheet"
     href="{% static 'css/v2/create_session_v2.css' %}?v=20260829-1"
 />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/worker_duplicate_warning.css' %}?v=20260830-1"
+/>
 {% endblock css %} 
 
 {% block js %}
@@ -16,6 +20,10 @@
 </script>
 
 <script defer src="{% static 'js/create_session.js' %}"></script>
+<script
+    defer
+    src="{% static 'js/worker_duplicate_warning.js' %}?v=20260830-1"
+></script>
 {% endblock js %} 
 
 
@@ -190,8 +198,25 @@
                             id="workerNames"
                             name="worker_names"
                             placeholder="쉼표로 구분하여 입력하세요."
+                            data-worker-duplicate-input
+                            data-worker-duplicate-separators="create"
+                            data-worker-duplicate-warning="createWorkerDuplicateWarning"
                             required
                         ></textarea>
+
+                        <div
+                            id="createWorkerDuplicateWarning"
+                            class="worker-duplicate-warning"
+                            role="alert"
+                            hidden
+                        >
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>
+                                중복된 작업자 이름이 있습니다:
+                                <strong data-worker-duplicate-names></strong>.
+                                저장하면 중복 이름은 하나로 정리됩니다.
+                            </span>
+                        </div>
 
                         <div class="mh-create-help">
                             <i class="bi bi-people me-1"></i>

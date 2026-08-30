@@ -647,14 +647,15 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
                 names = [n.strip() for n in names if n.strip()]
 
                 for name in names:
-                    if name not in seen_names:
+                    normalized_name = name.casefold()
+                    if normalized_name not in seen_names:
                         # 팀 정보 없이 이름만 저장 -> 입력 순서(ID)대로 저장됨
                         Worker.objects.create(
                             session=session,
                             name=name,
                             limit_mh=default_limit_mh,
                         )
-                        seen_names.add(name)
+                        seen_names.add(normalized_name)
 
             # -------------------------------------------------------------
             # 2. 기번 및 마스터 데이터 저장
@@ -732,8 +733,15 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         # 그 다음 줄바꿈 기준으로 쪼개고 공백 제거
         raw_names = [n.strip() for n in normalized_str.split("\n") if n.strip()]
 
-        # 중복 제거
-        new_names = list(dict.fromkeys(raw_names))
+        # 중복 제거: 대소문자만 다른 이름도 같은 작업자로 처리
+        new_names = []
+        seen_names = set()
+        for name in raw_names:
+            normalized_name = name.casefold()
+            if normalized_name in seen_names:
+                continue
+            seen_names.add(normalized_name)
+            new_names.append(name)
 
         workers_to_delete = session.worker_set.exclude(name__in=new_names)
 
@@ -961,7 +969,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                 }
             )
             worker_names_list.append(f"{w.name}: {limit_str}")
-        worker_names_str = "\n".join(worker_names_list)
+        worker_names_str = ", ".join(worker_names_list)
 
         # --- 조정 % 및 조정값 복원 (세션에서) ---
         last_mh_percent = request.session.get(f"mh_percent_{session.id}")
@@ -1077,19 +1085,19 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
             valid_names = set()
             default_limit_mh = get_default_worker_limit_mh(session.site)
 
-            lines = worker_str.splitlines()
+            entries = re.split(r"[,\r\n]+", worker_str)
             before_names = set(
                 Worker.objects.filter(session=session).values_list("name", flat=True)
             )
 
-            for line in lines:
-                line = line.strip()
-                if not line:
+            for entry in entries:
+                entry = entry.strip()
+                if not entry:
                     continue
 
                 # "이름: 시간" 파싱
-                if ":" in line:
-                    parts = line.split(":", 1)
+                if ":" in entry:
+                    parts = entry.split(":", 1)
                     name_part = parts[0].strip()
                     limit_part = parts[1].strip()
                     number_match = re.search(r"[-+]?\d+(?:\.\d+)?", limit_part)
@@ -1098,7 +1106,7 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     else:
                         limit_val = default_limit_mh
                 else:
-                    name_part = line
+                    name_part = entry
                     limit_val = default_limit_mh
 
                 if name_part:
