@@ -671,8 +671,7 @@
 
 .master-v2-empty strong {
     display: block;
-
-    color: #334155;
+    color: #ffffff;
 
     font-size: var(--font-size-base);
 }
