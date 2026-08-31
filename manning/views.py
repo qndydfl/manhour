@@ -54,6 +54,21 @@ def _get_visible_session_or_404(session_id):
     return get_object_or_404(WorkSession, id=session_id)
 
 
+def _get_editable_session_or_redirect(request, session_id):
+    session = _get_visible_session_or_404(session_id)
+    current_workplace = _get_current_workplace(request)
+    session_workplace = _resolve_workplace_key(session.site) or session.site
+
+    if session_workplace and current_workplace != session_workplace:
+        messages.error(
+            request,
+            "현재 선택한 근무지에서는 이 세션을 편집할 수 없습니다.",
+        )
+        return None, redirect("manning:manning_dashboard", session_id=session.id)
+
+    return session, None
+
+
 def _get_area_or_404(request, area_id, **kwargs):
     """Return an area scoped through its session's workplace."""
     return get_object_or_404(
@@ -268,7 +283,9 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
 
     def get(self, request):
         active_shift_combos = list(
-            WorkSession.objects.filter(is_active=True, site=_get_current_workplace(request))
+            WorkSession.objects.filter(
+                is_active=True, site=_get_current_workplace(request)
+            )
             .values("aircraft_reg", "block_check", "shift_type")
             .order_by("id")
         )
@@ -443,9 +460,7 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
             {
                 "form": form,
                 "templates": _get_area_template_choices(),
-                "selected_template": (
-                    request.POST.get("area_template") or ""
-                ).strip(),
+                "selected_template": (request.POST.get("area_template") or "").strip(),
                 "active_shift_combos": active_shift_combos,
             },
         )
@@ -965,7 +980,12 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
 
 class AreaBulkEditView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
-        session = _get_session_or_404(request, session_id)
+        session, redirect_response = _get_editable_session_or_redirect(
+            request,
+            session_id,
+        )
+        if redirect_response:
+            return redirect_response
         resolved_site = _resolve_workplace_key(session.site)
         workplace = resolved_site or _get_current_workplace(request)
         session_areas = (
@@ -1019,7 +1039,12 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
         )
 
     def post(self, request, session_id):
-        session = _get_session_or_404(request, session_id)
+        session, redirect_response = _get_editable_session_or_redirect(
+            request,
+            session_id,
+        )
+        if redirect_response:
+            return redirect_response
         errors = []
         area_ids = request.POST.getlist("area_id")
         area_names = request.POST.getlist("area_name")
@@ -1102,7 +1127,7 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
 
         if special_note:
             memo_sections.append(
-                "<div><span class=\"fw-bold text-danger\">[특이 사항]</span><br>"
+                '<div><span class="fw-bold text-danger">[특이 사항]</span><br>'
                 f'<span class="text-primary">{to_html(special_note)}</span></div>'
             )
 
@@ -1214,7 +1239,18 @@ class WorkerDirectoryUpdateView(ManningSessionRequiredMixin, View):
 
     def post(self, request, session_id, *args, **kwargs):
         workplace = _get_current_workplace(request)
-        session = _get_session_or_404(request, session_id)
+        session, redirect_response = _get_editable_session_or_redirect(
+            request,
+            session_id,
+        )
+        if redirect_response:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "현재 선택한 근무지에서는 이 세션을 편집할 수 없습니다.",
+                },
+                status=403,
+            )
 
         try:
             payload = json.loads(request.body.decode("utf-8"))
