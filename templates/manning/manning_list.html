@@ -5,7 +5,7 @@
 
 {% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block page_title %} Manning Group {% endblock page_title %} 
+{% block page_title %} Sessions {% endblock page_title %}
 
 {% block topbar_right %}
 <a href="{% url 'manning:create_session' %}" class="manning-primary-button">
@@ -32,12 +32,7 @@
 <section class="manning-session-grid">
     {% for session in active_sessions %}
 
-    <article
-        class="manning-session-card"
-        data-mobile-fold
-        data-mobile-fold-title="{{ session.aircraft_reg }} · {{ session.work_package_name }}"
-        data-mobile-fold-open="{% if forloop.first %}true{% else %}false{% endif %}"
-    >
+    <article class="manning-session-card">
         <!-- TOP -->
 
         <div class="manning-session-top">

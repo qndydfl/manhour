@@ -838,6 +838,18 @@
         order: 1;
         margin-top: 16px;
     }
+
+    .manning-v2-worker-info strong {
+        font-size: 11px;
+    }
+
+    .manning-v2-hour-box strong {
+        font-size: 12px;
+    }
+
+    .manning-v2-hour-box span {
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 600px) {

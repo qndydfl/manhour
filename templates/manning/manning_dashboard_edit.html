@@ -5,9 +5,7 @@
 
 {% block nav_sessions_active %}active{% endblock nav_sessions_active %} 
 
-{% block page_title %}구역 일괄 편집{% endblock page_title %} 
-
-{% block sidebar_system %}
+{% block page_title %}구역 일괄 편집{% endblock page_title %} {% block sidebar_system %}
 
 <div class="edit-sidebar-meta edit-session-meta">
     <span><i class="bi bi-airplane"></i>{{ session.aircraft_reg }}</span>
@@ -71,7 +69,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260831-4"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260831-9"
 />
 {% endblock css %}
 
@@ -88,6 +86,7 @@
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }}
 {{default_worker_names|json_script:"defaultWorkerNames" }}
+
 {% endblock js %}
 
 
