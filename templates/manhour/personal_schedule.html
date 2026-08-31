@@ -4,7 +4,7 @@
 {% block title %} {{ worker_name }} | Personal Schedule {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/personal_schedule_v2.css' %}?v=20260831-2" />
+<link rel="stylesheet" href="{% static 'css/v2/personal_schedule_v2.css' %}?v=20260831-3" />
 {% endblock css %}
 
 {% block js %}
@@ -160,8 +160,8 @@
 
                         <!-- END -->
 
-                        <td data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}" class="font-monospace">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
+                        <td data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}" class="font-monospace personal-v2-end-cell">
+                            {% if item.wo != '간비' or item.desc != '0' %}<span class="personal-v2-cell-value">{{ item.end_str }}</span><span class="personal-v2-selection-tail" aria-hidden="true">&nbsp;</span>{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
                         </td>
 
                     </tr>
