@@ -153,15 +153,16 @@
             });
         </script>
 
-        {% block js %} {% endblock js %} {% block css %} {% endblock css %}
+        {% block js %} {% endblock js %}
+        <link
+            rel="stylesheet"
+            href="{% static 'css/v2/ios_theme.css' %}?v=20260831-6"
+        />
+        {% block css %} {% endblock css %}
 
         <link
             rel="stylesheet"
             href="{% static 'css/v2/mobile.css' %}?v=20260828-3"
-        />
-        <link
-            rel="stylesheet"
-            href="{% static 'css/v2/ios_theme.css' %}?v=20260831-4"
         />
     </head>
 
@@ -280,7 +281,8 @@
                             </div>
 
                             <h1 class="manning-topbar-title">
-                                {% block page_title %} Workforce Management {% endblock page_title %}
+                                {% block page_title %} Workforce Management {%
+                                endblock page_title %}
                             </h1>
                         </div>
                     </div>
@@ -302,14 +304,19 @@
                                 aria-expanded="false"
                             >
                                 <span class="manning-user-avatar">
-                                    {% if request.session.user_role == "admin" %}A{% else %}O{% endif %}
+                                    {% if request.session.user_role == "admin"
+                                    %}A{% else %}O{% endif %}
                                 </span>
                                 <span class="manning-user-copy">
                                     <strong>
-                                        {{ request.session.workplace_label|default:request.session.workplace }}
+                                        {{
+                                        request.session.workplace_label|default:request.session.workplace
+                                        }}
                                     </strong>
                                     <span>
-                                        {% if request.session.user_role == "admin" %}Administrator{% else %}Operator{% endif %}
+                                        {% if request.session.user_role ==
+                                        "admin" %}Administrator{% else
+                                        %}Operator{% endif %}
                                     </span>
                                 </span>
                             </button>
@@ -320,7 +327,9 @@
                                 <div class="manning-account-current">
                                     <small>현재 로그인 그룹</small>
                                     <strong>
-                                        {{ request.session.workplace_label|default:request.session.workplace }}
+                                        {{
+                                        request.session.workplace_label|default:request.session.workplace
+                                        }}
                                     </strong>
                                 </div>
 
@@ -345,10 +354,18 @@
                                             class="form-select form-select-sm"
                                             onchange="this.form.submit()"
                                         >
-                                            {% for workplace_code, workplace_label in navbar_workplace_options %}
+                                            {% for workplace_code,
+                                            workplace_label in
+                                            navbar_workplace_options %}
                                             <option
                                                 value="{{ workplace_code }}"
-                                                {% if request.session.workplace == workplace_code %}selected{% endif %}
+                                                {%
+                                                if
+                                                request.session.workplace=""
+                                                ="workplace_code"
+                                                %}selected{%
+                                                endif
+                                                %}
                                             >
                                                 {{ workplace_label }}
                                             </option>

@@ -1,11 +1,11 @@
-{% extends 'manhour/base/portal_base.html' %}
+{% extends 'manhour/base/portal_base.html' %} 
 {% load static %} 
-{% load background_tags %}
 
-{% block title %} Aviation Operations | Manning System {% endblock title %}
+{% load background_tags %} 
+{% block title %} Aviation Operations | Manning System {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/portal.css' %}?v=20260830-1" />
+<link rel="stylesheet" href="{% static 'css/v2/portal.css' %}?v=20260831-1" />
 {% endblock css %} 
 
 {% block js %}
@@ -17,15 +17,12 @@
 </script>
 
 <script defer src="{% static 'js/index.js' %}?v=20260827-2"></script>
-{% endblock js %}
+{% endblock js %} 
 
-{% block content %}
 
-{% background_config "index_operations_image" as index_operations_image %}
-
+{% block content %} 
+{% background_config "index_operations_image" as index_operations_image %} 
 {% include "manhour/partials/portal_header.html" %}
-
-
 
 <main class="portal-content">
     <div class="portal-home-layout">
@@ -34,451 +31,481 @@
         WORKSPACES
     ====================================================== -->
 
-    <section class="portal-section">
-        <div class="portal-section-head">
-            <div>
-                <span class="portal-section-label"> WORKSPACES </span>
+            <section class="portal-section">
+                <div class="portal-section-head">
+                    <div>
+                        <span class="portal-section-label"> WORKSPACES </span>
 
-                <h2 class="portal-section-title">운영 현황</h2>
-            </div>
-        </div>
-
-        <div class="portal-workspace-grid">
-            <!-- Manning -->
-
-            <a
-                href="{% url 'manning:manning_list' %}"
-                class="portal-workspace portal-workspace-primary"
-                target="_blank"
-                data-mobile-workspace
-            >
-                <div class="portal-workspace-top">
-                    <div class="portal-workspace-icon">
-                        <i class="bi bi-people"></i>
+                        <h2 class="portal-section-title">운영 현황</h2>
                     </div>
-
-                    <strong class="portal-workspace-mobile-title">Manning</strong>
-
-                    <span class="portal-workspace-number"> 01 </span>
-
-                    <i class="bi bi-chevron-down portal-workspace-mobile-chevron"></i>
                 </div>
 
-                <div>
-                    <span class="portal-workspace-type"> WORKFORCE </span>
+                <div class="portal-workspace-grid">
+                    <!-- Manning -->
 
-                    <h3>Manning</h3>
+                    <a
+                        href="{% url 'manning:manning_list' %}"
+                        class="portal-workspace portal-workspace-primary"
+                        target="_blank"
+                        data-mobile-workspace
+                    >
+                        <div class="portal-workspace-top">
+                            <div class="portal-workspace-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+
+                            <strong class="portal-workspace-mobile-title"
+                                >Manning</strong
+                            >
+
+                            <span class="portal-workspace-number"> 01 </span>
+
+                            <i
+                                class="bi bi-chevron-down portal-workspace-mobile-chevron"
+                            ></i>
+                        </div>
+
+                        <div>
+                            <span class="portal-workspace-type">
+                                WORKFORCE
+                            </span>
+
+                            <h3>Manning</h3>
+                        </div>
+
+                        <div class="portal-workspace-bottom">
+                            <span> Open Manning </span>
+
+                            <i class="bi bi-arrow-up-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- Manhour -->
+
+                    <a
+                        href="{% url 'manhour:session_list' %}"
+                        class="portal-workspace"
+                        data-mobile-workspace
+                    >
+                        <div class="portal-workspace-top">
+                            <div class="portal-workspace-icon">
+                                <i class="bi bi-stopwatch"></i>
+                            </div>
+
+                            <strong class="portal-workspace-mobile-title"
+                                >Manhour</strong
+                            >
+
+                            <span class="portal-workspace-number"> 02 </span>
+
+                            <i
+                                class="bi bi-chevron-down portal-workspace-mobile-chevron"
+                            ></i>
+                        </div>
+
+                        <div>
+                            <span class="portal-workspace-type">
+                                ANALYSIS
+                            </span>
+
+                            <h3>Manhour</h3>
+                        </div>
+
+                        <div class="portal-workspace-bottom">
+                            <span> Open Manhour </span>
+
+                            <i class="bi bi-arrow-up-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- Master Data -->
+
+                    <a
+                        href="{% url 'manhour:master_data_list' %}"
+                        class="portal-workspace"
+                        data-mobile-workspace
+                    >
+                        <div class="portal-workspace-top">
+                            <div class="portal-workspace-icon">
+                                <i class="bi bi-database"></i>
+                            </div>
+
+                            <strong class="portal-workspace-mobile-title"
+                                >데이터 입력</strong
+                            >
+
+                            <span class="portal-workspace-number"> 03 </span>
+
+                            <i
+                                class="bi bi-chevron-down portal-workspace-mobile-chevron"
+                            ></i>
+                        </div>
+
+                        <div>
+                            <span class="portal-workspace-type"> DATA </span>
+
+                            <h3>데이터 입력</h3>
+                        </div>
+
+                        <div class="portal-workspace-bottom">
+                            <span> Open Master Data </span>
+
+                            <i class="bi bi-arrow-up-right"></i>
+                        </div>
+                    </a>
                 </div>
-
-                <div class="portal-workspace-bottom">
-                    <span> Open Manning </span>
-
-                    <i class="bi bi-arrow-up-right"></i>
-                </div>
-            </a>
-
-            <!-- Manhour -->
-
-            <a
-                href="{% url 'manhour:session_list' %}"
-                class="portal-workspace"
-                data-mobile-workspace
-            >
-                <div class="portal-workspace-top">
-                    <div class="portal-workspace-icon">
-                        <i class="bi bi-stopwatch"></i>
-                    </div>
-
-                    <strong class="portal-workspace-mobile-title">Manhour</strong>
-
-                    <span class="portal-workspace-number"> 02 </span>
-
-                    <i class="bi bi-chevron-down portal-workspace-mobile-chevron"></i>
-                </div>
-
-                <div>
-                    <span class="portal-workspace-type"> ANALYSIS </span>
-
-                    <h3>Manhour</h3>
-                </div>
-
-                <div class="portal-workspace-bottom">
-                    <span> Open Manhour </span>
-
-                    <i class="bi bi-arrow-up-right"></i>
-                </div>
-            </a>
-
-            <!-- Master Data -->
-
-            <a
-                href="{% url 'manhour:master_data_list' %}"
-                class="portal-workspace"
-                data-mobile-workspace
-            >
-                <div class="portal-workspace-top">
-                    <div class="portal-workspace-icon">
-                        <i class="bi bi-database"></i>
-                    </div>
-
-                    <strong class="portal-workspace-mobile-title">데이터 입력</strong>
-
-                    <span class="portal-workspace-number"> 03 </span>
-
-                    <i class="bi bi-chevron-down portal-workspace-mobile-chevron"></i>
-                </div>
-
-                <div>
-                    <span class="portal-workspace-type"> DATA </span>
-
-                    <h3>데이터 입력</h3>
-                </div>
-
-                <div class="portal-workspace-bottom">
-                    <span> Open Master Data </span>
-
-                    <i class="bi bi-arrow-up-right"></i>
-                </div>
-            </a>
-        </div>
-    </section>
+            </section>
 
     <!-- =====================================================
         STATUS
     ====================================================== -->
 
-    <section class="portal-section">
-        <div class="portal-section-head">
-            <div>
-                <span class="portal-section-label"> SYSTEM STATUS </span>
-
-                <h2 class="portal-section-title">현재 작업 현황</h2>
-            </div>
-        </div>
-
-        <div class="portal-status-grid">
-            <!-- Master -->
-
-            <a
-                href="{% url 'manhour:master_data_list' %}"
-                class="portal-status-card portal-status-card--master"
-            >
-                <div class="portal-status-card-left">
-                    <div class="portal-status-icon">
-                        <i class="bi bi-database"></i>
-                    </div>
-
+            <section class="portal-section">
+                <div class="portal-section-head">
                     <div>
-                        <strong> Master Data </strong>
+                        <span class="portal-section-label">
+                            SYSTEM STATUS
+                        </span>
 
-                        <small> Registered records </small>
+                        <h2 class="portal-section-title">현재 작업 현황</h2>
                     </div>
                 </div>
 
-                <div class="portal-status-number">
-                    <span class="master-data-count-num">
-                        {{ master_data_count }}
-                    </span>
+                <div class="portal-status-grid">
+                    <!-- Master -->
+
+                    <a
+                        href="{% url 'manhour:master_data_list' %}"
+                        class="portal-status-card portal-status-card--master"
+                    >
+                        <div class="portal-status-card-left">
+                            <div class="portal-status-icon">
+                                <i class="bi bi-database"></i>
+                            </div>
+
+                            <div>
+                                <strong> Master Data </strong>
+
+                                <small> Registered records </small>
+                            </div>
+                        </div>
+
+                        <div class="portal-status-number">
+                            <span class="master-data-count-num">
+                                {{ master_data_count }}
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Active -->
+
+                    <a
+                        href="{% url 'manhour:session_list' %}"
+                        class="portal-status-card portal-status-card--active"
+                    >
+                        <div class="portal-status-card-left">
+                            <div class="portal-status-icon">
+                                <i class="bi bi-activity"></i>
+                            </div>
+
+                            <div>
+                                <strong> Active Sessions </strong>
+
+                                <small> Current operations </small>
+                            </div>
+                        </div>
+
+                        <div class="portal-status-number">
+                            <span class="active-count-num">
+                                {{ active_count }}
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- History -->
+
+                    <a
+                        href="{% url 'manhour:history' %}"
+                        class="portal-status-card portal-status-card--history"
+                    >
+                        <div class="portal-status-card-left">
+                            <div class="portal-status-icon">
+                                <i class="bi bi-archive"></i>
+                            </div>
+
+                            <div>
+                                <strong> History </strong>
+
+                                <small> Completed sessions </small>
+                            </div>
+                        </div>
+
+                        <div class="portal-status-number">
+                            <span class="history-count-num">
+                                {{ history_count }}
+                            </span>
+                        </div>
+                    </a>
                 </div>
-            </a>
-
-            <!-- Active -->
-
-            <a
-                href="{% url 'manhour:session_list' %}"
-                class="portal-status-card portal-status-card--active"
-            >
-                <div class="portal-status-card-left">
-                    <div class="portal-status-icon">
-                        <i class="bi bi-activity"></i>
-                    </div>
-
-                    <div>
-                        <strong> Active Sessions </strong>
-
-                        <small> Current operations </small>
-                    </div>
-                </div>
-
-                <div class="portal-status-number">
-                    <span class="active-count-num"> {{ active_count }} </span>
-                </div>
-            </a>
-
-            <!-- History -->
-
-            <a
-                href="{% url 'manhour:history' %}"
-                class="portal-status-card portal-status-card--history"
-            >
-                <div class="portal-status-card-left">
-                    <div class="portal-status-icon">
-                        <i class="bi bi-archive"></i>
-                    </div>
-
-                    <div>
-                        <strong> History </strong>
-
-                        <small> Completed sessions </small>
-                    </div>
-                </div>
-
-                <div class="portal-status-number">
-                    <span class="history-count-num"> {{ history_count }} </span>
-                </div>
-            </a>
-        </div>
-    </section>
+            </section>
 
     <!-- =====================================================
         LIVE OPERATIONS
     ====================================================== -->
 
-    <section class="portal-section portal-mobile-hidden-section">
-        <div class="portal-section-head">
-            <div>
-                <span class="portal-section-label"> LIVE OPERATIONS </span>
+            <section class="portal-section portal-mobile-hidden-section">
+                <div class="portal-section-head">
+                    <div>
+                        <span class="portal-section-label">
+                            LIVE OPERATIONS
+                        </span>
 
-                <h2 class="portal-section-title">즐겨 보기</h2>
-            </div>
-        </div>
-
-        <div class="portal-ops-grid">
-            <!-- CLOCK -->
-
-            <article class="portal-card portal-card-dark">
-                <div class="portal-card-head">
-                    <span class="portal-card-head-label"> LOCAL TIME </span>
-
-                    <i class="bi bi-clock"></i>
-                </div>
-
-                <div class="portal-card-body">
-                    <div id="digital-time" class="portal-clock-value">
-                        --:--:--
-                    </div>
-
-                    <div class="portal-clock-meta">
-                        <span id="digital-date"> ---- -- -- </span>
-
-                        <span> · </span>
-
-                        <span id="digital-weekday"> --- </span>
-                    </div>
-
-                    <div class="portal-clock-divider"></div>
-
-                    <div class="portal-utc-label">UTC</div>
-
-                    <div id="digital-time-utc" class="portal-utc-value">
-                        --:--
-                    </div>
-
-                    <div class="portal-clock-meta">
-                        <span id="digital-date-utc"> ---- -- -- </span>
-
-                        <span> · </span>
-
-                        <span id="digital-weekday-utc"> --- </span>
+                        <h2 class="portal-section-title">즐겨 보기</h2>
                     </div>
                 </div>
-            </article>
 
-            <!-- METAR -->
+                <div class="portal-ops-grid">
+                    <!-- CLOCK -->
 
-            <article class="portal-card" id="metarPanel">
-                <div class="portal-card-head">
-                    <span class="portal-card-head-label"> AIRPORT METAR </span>
+                    <article class="portal-card portal-card-dark">
+                        <div class="portal-card-head">
+                            <span class="portal-card-head-label">
+                                LOCAL TIME
+                            </span>
 
-                    <i class="bi bi-cloud-sun"></i>
-                </div>
+                            <i class="bi bi-clock"></i>
+                        </div>
 
-                <div class="portal-card-body">
-                    <div id="metarTabs" class="portal-metar-tabs"></div>
+                        <div class="portal-card-body">
+                            <div id="digital-time" class="portal-clock-value">
+                                --:--:--
+                            </div>
 
-                    <div class="portal-weather-station">
-                        <div>
-                            <h3 id="metarStation">---</h3>
+                            <div class="portal-clock-meta">
+                                <span id="digital-date"> ---- -- -- </span>
 
-                            <div
-                                id="metarUpdated"
-                                class="portal-weather-updated"
-                            >
-                                Updating weather information...
+                                <span> · </span>
+
+                                <span id="digital-weekday"> --- </span>
+                            </div>
+
+                            <div class="portal-clock-divider"></div>
+
+                            <div class="portal-utc-label">UTC</div>
+
+                            <div id="digital-time-utc" class="portal-utc-value">
+                                --:--
+                            </div>
+
+                            <div class="portal-clock-meta">
+                                <span id="digital-date-utc"> ---- -- -- </span>
+
+                                <span> · </span>
+
+                                <span id="digital-weekday-utc"> --- </span>
                             </div>
                         </div>
-                    </div>
+                    </article>
 
-                    <div class="portal-weather-grid">
-                        <div class="portal-weather-item">
-                            <span> TEMPERATURE </span>
+                    <!-- METAR -->
 
-                            <strong id="metarTemp"> -- </strong>
+                    <article class="portal-card" id="metarPanel">
+                        <div class="portal-card-head">
+                            <span class="portal-card-head-label">
+                                AIRPORT METAR
+                            </span>
+
+                            <i class="bi bi-cloud-sun"></i>
                         </div>
 
-                        <div class="portal-weather-item">
-                            <span> WIND </span>
+                        <div class="portal-card-body">
+                            <div id="metarTabs" class="portal-metar-tabs"></div>
 
-                            <strong id="metarWind"> -- </strong>
+                            <div class="portal-weather-station">
+                                <div>
+                                    <h3 id="metarStation">---</h3>
+
+                                    <div
+                                        id="metarUpdated"
+                                        class="portal-weather-updated"
+                                    >
+                                        Updating weather information...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="portal-weather-grid">
+                                <div class="portal-weather-item">
+                                    <span> TEMPERATURE </span>
+
+                                    <strong id="metarTemp"> -- </strong>
+                                </div>
+
+                                <div class="portal-weather-item">
+                                    <span> WIND </span>
+
+                                    <strong id="metarWind"> -- </strong>
+                                </div>
+
+                                <div class="portal-weather-item">
+                                    <span> VISIBILITY </span>
+
+                                    <strong id="metarVisibility"> -- </strong>
+                                </div>
+
+                                <div class="portal-weather-item">
+                                    <span> PRESSURE </span>
+
+                                    <strong id="metarPressure"> -- </strong>
+                                </div>
+                            </div>
+
+                            <div id="metarRaw" class="portal-metar-raw">
+                                Loading METAR...
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- ADMIN-MANAGED OPERATIONS IMAGE -->
+
+                    <article class="portal-card portal-image-card">
+                        <div class="portal-card-head">
+                            <span class="portal-card-head-label">
+                                OPERATIONS IMAGE
+                            </span>
+
+                            <i class="bi bi-image"></i>
                         </div>
 
-                        <div class="portal-weather-item">
-                            <span> VISIBILITY </span>
-
-                            <strong id="metarVisibility"> -- </strong>
+                        <div class="portal-card-body portal-image-body">
+                            {% if index_operations_image.image_url %}
+                            <img
+                                src="{{ index_operations_image.image_url }}"
+                                class="portal-operations-image"
+                                alt="항공 정비 운영 이미지"
+                            />
+                            {% else %}
+                            <div class="portal-image-placeholder">
+                                <i class="bi bi-airplane-engines"></i>
+                                <strong>Operations Image</strong>
+                                {% if request.session.user_role == "admin" %}
+                                <small>
+                                    관리자 페이지의 Background images에서<br />
+                                    key를 <b>index_operations_image</b>로
+                                    등록하세요.
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                         </div>
-
-                        <div class="portal-weather-item">
-                            <span> PRESSURE </span>
-
-                            <strong id="metarPressure"> -- </strong>
-                        </div>
-                    </div>
-
-                    <div id="metarRaw" class="portal-metar-raw">
-                        Loading METAR...
-                    </div>
+                    </article>
                 </div>
-            </article>
-
-            <!-- ADMIN-MANAGED OPERATIONS IMAGE -->
-
-            <article class="portal-card portal-image-card">
-                <div class="portal-card-head">
-                    <span class="portal-card-head-label"> OPERATIONS IMAGE </span>
-
-                    <i class="bi bi-image"></i>
-                </div>
-
-                <div class="portal-card-body portal-image-body">
-                    {% if index_operations_image.image_url %}
-                    <img
-                        src="{{ index_operations_image.image_url }}"
-                        class="portal-operations-image"
-                        alt="항공 정비 운영 이미지"
-                    />
-                    {% else %}
-                    <div class="portal-image-placeholder">
-                        <i class="bi bi-airplane-engines"></i>
-                        <strong>Operations Image</strong>
-                        {% if request.session.user_role == "admin" %}
-                        <small>
-                            관리자 페이지의 Background images에서<br />
-                            key를 <b>index_operations_image</b>로 등록하세요.
-                        </small>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </article>
+            </section>
         </div>
-    </section>
-        </div>
 
-    <!-- =====================================================
+        <!-- =====================================================
         EXTERNAL LINKS
     ====================================================== -->
 
-    <aside
-        class="portal-favorites-aside portal-mobile-hidden-section"
-        aria-label="즐겨 찾기"
-    >
-        <div class="portal-section-head portal-favorites-head">
-            <div>
-                <span class="portal-section-label"> QUICK ACCESS </span>
+        <aside
+            class="portal-favorites-aside portal-mobile-hidden-section"
+            aria-label="즐겨 찾기"
+        >
+            <div class="portal-section-head portal-favorites-head">
+                <div>
+                    <span class="portal-section-label"> QUICK ACCESS </span>
 
-                <h2 class="portal-section-title">즐겨 찾기</h2>
+                    <h2 class="portal-section-title">즐겨 찾기</h2>
+                </div>
             </div>
-        </div>
 
-        <div class="portal-links-grid">
-            <a
-                href="https://login.koreanair.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="portal-link-card"
-            >
-                <div class="portal-link-left">
-                    <div class="portal-link-icon">
-                        <i class="bi bi-box-arrow-up-right"></i>
+            <div class="portal-links-grid">
+                <a
+                    href="https://login.koreanair.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="portal-link-card"
+                >
+                    <div class="portal-link-left">
+                        <div class="portal-link-icon">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </div>
+
+                        <div>
+                            <strong> Korean Air Login </strong>
+
+                            <small> External system </small>
+                        </div>
                     </div>
 
-                    <div>
-                        <strong> Korean Air Login </strong>
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
 
-                        <small> External system </small>
-                    </div>
-                </div>
+                <a
+                    href="https://www.flightradar24.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="portal-link-card"
+                >
+                    <div class="portal-link-left">
+                        <div class="portal-link-icon">
+                            <i class="bi bi-radar"></i>
+                        </div>
 
-                <i class="bi bi-arrow-up-right"></i>
-            </a>
+                        <div>
+                            <strong> Flight Radar </strong>
 
-            <a
-                href="https://www.flightradar24.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="portal-link-card"
-            >
-                <div class="portal-link-left">
-                    <div class="portal-link-icon">
-                        <i class="bi bi-radar"></i>
-                    </div>
-
-                    <div>
-                        <strong> Flight Radar </strong>
-
-                        <small> Flight tracking </small>
-                    </div>
-                </div>
-
-                <i class="bi bi-arrow-up-right"></i>
-            </a>
-
-            <a
-                href="https://ammis.flyasiana.com/kor"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="portal-link-card"
-            >
-                <div class="portal-link-left">
-                    <div class="portal-link-icon">
-                        <i class="bi bi-journal-text"></i>
+                            <small> Flight tracking </small>
+                        </div>
                     </div>
 
-                    <div>
-                        <strong> AMMIS </strong>
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
 
-                        <small> Maintenance system </small>
+                <a
+                    href="https://ammis.flyasiana.com/kor"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="portal-link-card"
+                >
+                    <div class="portal-link-left">
+                        <div class="portal-link-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+
+                        <div>
+                            <strong> AMMIS </strong>
+
+                            <small> Maintenance system </small>
+                        </div>
                     </div>
-                </div>
 
-                <i class="bi bi-arrow-up-right"></i>
-            </a>
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
 
-            <a
-                href="https://mae.flyasiana.com/nexa/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="portal-link-card"
-            >
-                <div class="portal-link-left">
-                    <div class="portal-link-icon">
-                        <i class="bi bi-tools"></i>
+                <a
+                    href="https://mae.flyasiana.com/nexa/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="portal-link-card"
+                >
+                    <div class="portal-link-left">
+                        <div class="portal-link-icon">
+                            <i class="bi bi-tools"></i>
+                        </div>
+
+                        <div>
+                            <strong> 정비 홈페이지 </strong>
+
+                            <small> Maintenance portal </small>
+                        </div>
                     </div>
 
-                    <div>
-                        <strong> 정비 홈페이지 </strong>
-
-                        <small> Maintenance portal </small>
-                    </div>
-                </div>
-
-                <i class="bi bi-arrow-up-right"></i>
-            </a>
-        </div>
-    </aside>
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </div>
+        </aside>
     </div>
-
 </main>
 
 {% endblock content %}

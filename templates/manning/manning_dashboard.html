@@ -1,12 +1,8 @@
-{% extends 'manning/base/manning_v2_base.html' %} 
-{% load static %} 
-
-{% block title %} Aircraft Area Editor | {{ session.aircraft_reg }} {% endblock title %}
-{% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
-
-{% block page_title %} Aircraft Area Editor {% endblock page_title %} 
-
-{% block topbar_right %}
+{% extends 'manning/base/manning_v2_base.html' %} {% load static %} {% block
+title %} Aircraft Area Editor | {{ session.aircraft_reg }} {% endblock title %}
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %} {%
+block page_title %} Aircraft Area Editor {% endblock page_title %} {% block
+topbar_right %}
 <div class="manning-dashboard-topbar-actions">
     {% if is_same_site %}
     <a
@@ -57,7 +53,7 @@
 {% endblock sidebar_system %} {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/manning_dashboard.css' %}?v=20260829-3"
+    href="{% static 'css/manning/v2/manning_dashboard.css' %}?v=20260831-1"
 />
 {% endblock css %} {% block js %}
 <script>
@@ -67,11 +63,8 @@
     };
 </script>
 
-<script src="{% static 'js/manning/manning_dashboard.js' %}"></script>
-{% endblock js %} 
-
-
-{% block content %}
+<script src="{% static 'js/manning/manning_dashboard.js' %}?v=20260831-1"></script>
+{% endblock js %} {% block content %}
 
 <!-- =====================================================
     WARNING
@@ -87,137 +80,137 @@
 
 {% endif %}
 
-
 <!-- =====================================================
     AREA CONTROL
 ====================================================== -->
 
 <div class="manning-dashboard-content-stack">
-<section
-    class="manning-dashboard-section manning-dashboard-area-section"
-    data-mobile-fold
-    data-mobile-fold-title="구역별 작업자 현황"
-    data-mobile-fold-open="true"
->
-    <div class="manning-dashboard-section-head">
-        <div>
-            <h3 class="manning-dashboard-section-title">
-                항공기 session Manning
-            </h3>
+    <section
+        class="manning-dashboard-section manning-dashboard-area-section"
+        data-mobile-fold
+        data-mobile-fold-title="구역별 작업자 현황"
+        data-mobile-fold-open="true"
+    >
+        <div class="manning-dashboard-section-head">
+            <div>
+                <h3 class="manning-dashboard-section-title">
+                    항공기 session Manning
+                </h3>
+            </div>
         </div>
-    </div>
 
-    <div class="manning-zone-grid">
-        <!-- =================================================
+        <div class="manning-zone-grid">
+            <!-- =================================================
             LEFT
         ================================================== -->
 
-        <section class="manning-zone manning-zone-left">
-            <header class="manning-zone-header">
-                <div class="manning-zone-heading">
-                    <span class="manning-zone-marker"></span>
+            <section class="manning-zone manning-zone-left">
+                <header class="manning-zone-header">
+                    <div class="manning-zone-heading">
+                        <span class="manning-zone-marker"></span>
 
-                    <strong> LEFT SIDE </strong>
+                        <strong> LEFT SIDE </strong>
+                    </div>
+
+                    <span> {{ left_unique_count }} personnel </span>
+                </header>
+
+                <div class="manning-zone-list">
+                    {% for area in session_areas %} {% if area.position ==
+                    'LEFT' %} {% include "manning/partials/area_card_v2.html"
+                    with area=area %} {% endif %} {% empty %}
+
+                    <div class="manning-zone-empty">No areas configured.</div>
+
+                    {% endfor %}
                 </div>
+            </section>
 
-                <span> {{ left_unique_count }} personnel </span>
-            </header>
-
-            <div class="manning-zone-list">
-                {% for area in session_areas %} {% if area.position == 'LEFT' %}
-                {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
-
-                <div class="manning-zone-empty">No areas configured.</div>
-
-                {% endfor %}
-            </div>
-        </section>
-
-        <!-- =================================================
+            <!-- =================================================
             CENTER / NONE
         ================================================== -->
 
-        <section class="manning-zone manning-zone-center">
-            <header class="manning-zone-header">
-                <div class="manning-zone-heading">
-                    <span class="manning-zone-marker"></span>
+            <section class="manning-zone manning-zone-center">
+                <header class="manning-zone-header">
+                    <div class="manning-zone-heading">
+                        <span class="manning-zone-marker"></span>
 
-                    <strong> CENTER / NONE </strong>
+                        <strong> CENTER / NONE </strong>
+                    </div>
+
+                    <span> {{ none_unique_count }} personnel </span>
+                </header>
+
+                <div class="manning-zone-list">
+                    {% for area in session_areas %} {% if area.position ==
+                    'NONE' %} {% include "manning/partials/area_card_v2.html"
+                    with area=area %} {% endif %} {% empty %}
+
+                    <div class="manning-zone-empty">No areas configured.</div>
+
+                    {% endfor %}
                 </div>
+            </section>
 
-                <span> {{ none_unique_count }} personnel </span>
-            </header>
-
-            <div class="manning-zone-list">
-                {% for area in session_areas %} {% if area.position == 'NONE' %}
-                {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
-
-                <div class="manning-zone-empty">No areas configured.</div>
-
-                {% endfor %}
-            </div>
-        </section>
-
-        <!-- =================================================
+            <!-- =================================================
             RIGHT
         ================================================== -->
 
-        <section class="manning-zone manning-zone-right">
-            <header class="manning-zone-header">
-                <div class="manning-zone-heading">
-                    <span class="manning-zone-marker"></span>
+            <section class="manning-zone manning-zone-right">
+                <header class="manning-zone-header">
+                    <div class="manning-zone-heading">
+                        <span class="manning-zone-marker"></span>
 
-                    <strong> RIGHT SIDE </strong>
+                        <strong> RIGHT SIDE </strong>
+                    </div>
+
+                    <span> {{ right_unique_count }} personnel </span>
+                </header>
+
+                <div class="manning-zone-list">
+                    {% for area in session_areas %} {% if area.position ==
+                    'RIGHT' %} {% include "manning/partials/area_card_v2.html"
+                    with area=area %} {% endif %} {% empty %}
+
+                    <div class="manning-zone-empty">No areas configured.</div>
+
+                    {% endfor %}
                 </div>
+            </section>
+        </div>
+    </section>
 
-                <span> {{ right_unique_count }} personnel </span>
-            </header>
-
-            <div class="manning-zone-list">
-                {% for area in session_areas %} {% if area.position == 'RIGHT' %} 
-                {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
-
-                <div class="manning-zone-empty">No areas configured.</div>
-
-                {% endfor %}
-            </div>
-        </section>
-    </div>
-</section>
-
-<!-- =====================================================
+    <!-- =====================================================
     MEMO
 ====================================================== -->
 
-<section
-    class="manning-dashboard-section manning-dashboard-memo-section"
->
-    <div class="manning-dashboard-section-head">
-        <div>
-            <span class="manning-dashboard-section-label">
-                SESSION INFORMATION
-            </span>
+    <section class="manning-dashboard-section manning-dashboard-memo-section">
+        <div class="manning-dashboard-section-head">
+            <div>
+                <span class="manning-dashboard-section-label">
+                    SESSION INFORMATION
+                </span>
 
-            <h3 class="manning-dashboard-section-title">Session Memo</h3>
-        </div>
-    </div>
-
-    <article class="manning-dashboard-memo">
-        <div class="manning-dashboard-memo-head">
-            <strong> OPERATION NOTES </strong>
-
-            <i class="bi bi-journal-text"></i>
+                <h3 class="manning-dashboard-section-title">Session Memo</h3>
+            </div>
         </div>
 
-        <div class="manning-dashboard-memo-body">
-            {% if session.memo %} {{ session.memo|safe }} {% else %}
+        <article class="manning-dashboard-memo">
+            <div class="manning-dashboard-memo-head">
+                <strong> OPERATION NOTES </strong>
 
-            <span class="text-muted"> 등록된 메모가 없습니다. </span>
+                <i class="bi bi-journal-text"></i>
+            </div>
 
-            {% endif %}
-        </div>
-    </article>
-</section>
+            <div class="manning-dashboard-memo-body">
+                {% if session.memo %} {{ session.memo|safe }} {% else %}
+
+                <span class="text-muted"> 등록된 메모가 없습니다. </span>
+
+                {% endif %}
+            </div>
+        </article>
+    </section>
 </div>
 
 {% endblock content %}

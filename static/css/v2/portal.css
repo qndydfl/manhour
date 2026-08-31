@@ -1039,6 +1039,19 @@ WORKSPACE CARDS
     color: #ffffff;
 }
 
+.portal-card-dark .portal-card-head-label,
+.portal-card-dark .portal-utc-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.portal-card-dark .portal-clock-meta {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.portal-card-dark .bi {
+    color: #ffffff;
+}
+
 .portal-card-head {
     padding: 22px 24px;
 

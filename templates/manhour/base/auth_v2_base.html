@@ -31,15 +31,21 @@
 
         <link rel="stylesheet" href="{% static 'css/v2/app_dialog.css' %}" />
 
+        <link
+            rel="stylesheet"
+            href="{% static 'css/v2/ios_theme.css' %}?v=20260831-6"
+        />
+
         {% block css %} {% endblock css %}
 
-        <link rel="stylesheet" href="{% static 'css/v2/mobile.css' %}?v=20260828-3" />
-        <link rel="stylesheet" href="{% static 'css/v2/ios_theme.css' %}?v=20260831-4" />
+        <link
+            rel="stylesheet"
+            href="{% static 'css/v2/mobile.css' %}?v=20260828-3"
+        />
     </head>
 
     <body>
-        {% block content %} {% endblock content %}
-
+        {% block content %} {% endblock content %} 
         {% include "manhour/partials/app_dialog.html" %}
 
         <script src="{% static 'js/app_dialog.js' %}"></script>

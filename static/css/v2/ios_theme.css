@@ -83,14 +83,8 @@
     --manning-shadow: var(--ios-shadow);
 
     --font-main:
-        -apple-system,
-        BlinkMacSystemFont,
-        "SF Pro Text",
-        "SF Pro Display",
-        Pretendard,
-        "Apple SD Gothic Neo",
-        "Segoe UI",
-        sans-serif;
+        -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+        Pretendard, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
     --font-size-micro: 11px;
     --font-size-xs: 13px;
     --font-size-sm: 15px;
@@ -188,6 +182,21 @@ small,
     box-shadow: var(--ios-shadow);
 }
 
+.portal-card:not(.portal-card-dark),
+.portal-image-card,
+.portal-link-card,
+.portal-status-card {
+    border-color: var(--portal-border-soft);
+    background: #ffffff;
+    box-shadow: var(--portal-shadow);
+}
+
+.portal-card-dark {
+    border-color: var(--portal-dark);
+    background: var(--portal-dark);
+    color: #ffffff;
+}
+
 :is(
     .mh-session-panel-head,
     .mh-history-toolbar,
@@ -203,13 +212,16 @@ small,
 }
 
 /* Native-looking controls; 16px prevents iPhone input zoom. */
-form :is(
-    input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
-    select,
-    textarea,
-    .form-control,
-    .form-select
-) {
+form
+    :is(
+        input:not([type="button"]):not([type="submit"]):not([type="reset"]):not(
+                [type="checkbox"]
+            ):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+        select,
+        textarea,
+        .form-control,
+        .form-select
+    ) {
     min-height: 44px;
     border-color: rgba(60, 60, 67, 0.24);
     border-radius: 11px;
@@ -288,14 +300,7 @@ button:active,
     transform: scale(0.98);
 }
 
-:is(
-    button,
-    a,
-    input,
-    select,
-    textarea,
-    [role="button"]
-):focus-visible {
+:is(button, a, input, select, textarea, [role="button"]):focus-visible {
     outline: 3px solid rgba(0, 122, 255, 0.28);
     outline-offset: 2px;
 }
@@ -319,44 +324,56 @@ button:active,
     color: var(--ios-label);
 }
 
-body :is(
-    .table,
-    .table-custom,
-    .mh-worker-table,
-    .master-v2-table,
-    .edit-table,
-    #manageItemsTable,
-    #gridTable,
-    #scheduleTable
-) > tbody > tr > td {
+body
+    :is(
+        .table,
+        .table-custom,
+        .mh-worker-table,
+        .master-v2-table,
+        .edit-table,
+        #manageItemsTable,
+        #gridTable,
+        #scheduleTable
+    )
+    > tbody
+    > tr
+    > td {
     border-color: var(--ios-separator);
     background-color: var(--ios-secondary-background);
     color: var(--ios-label);
 }
 
-body :is(
-    .table,
-    .table-custom,
-    .mh-worker-table,
-    .master-v2-table,
-    .edit-table,
-    #manageItemsTable,
-    #gridTable,
-    #scheduleTable
-) > tbody > tr:nth-child(even) > td {
+body
+    :is(
+        .table,
+        .table-custom,
+        .mh-worker-table,
+        .master-v2-table,
+        .edit-table,
+        #manageItemsTable,
+        #gridTable,
+        #scheduleTable
+    )
+    > tbody
+    > tr:nth-child(even)
+    > td {
     background-color: var(--ios-tertiary-background);
 }
 
-body :is(
-    .table,
-    .table-custom,
-    .mh-worker-table,
-    .master-v2-table,
-    .edit-table,
-    #manageItemsTable,
-    #gridTable,
-    #scheduleTable
-) > tbody > tr:hover > td {
+body
+    :is(
+        .table,
+        .table-custom,
+        .mh-worker-table,
+        .master-v2-table,
+        .edit-table,
+        #manageItemsTable,
+        #gridTable,
+        #scheduleTable
+    )
+    > tbody
+    > tr:hover
+    > td {
     background-color: #eef6ff;
 }
 
@@ -387,12 +404,9 @@ body #scheduleTable tbody tr.row-break > td {
     font-size: 14px;
 }
 
-.master-v2-edit-page .master-v2-table :is(
-    input[type="text"],
-    input[type="number"],
-    textarea,
-    select
-) {
+.master-v2-edit-page
+    .master-v2-table
+    :is(input[type="text"], input[type="number"], textarea, select) {
     min-height: 36px !important;
     padding: 5px 7px;
     border-radius: 9px !important;
@@ -453,13 +467,18 @@ body:has(.app-dialog:not([hidden])) {
         line-height: 1.4;
     }
 
-    form :is(
-        input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
-        select,
-        textarea,
-        .form-control,
-        .form-select
-    ) {
+    form
+        :is(
+            input:not([type="button"]):not([type="submit"]):not(
+                    [type="reset"]
+                ):not([type="checkbox"]):not([type="radio"]):not(
+                    [type="hidden"]
+                ):not([type="file"]),
+            select,
+            textarea,
+            .form-control,
+            .form-select
+        ) {
         min-height: 42px;
         font-size: 16px !important;
     }
@@ -513,12 +532,9 @@ body:has(.app-dialog:not([hidden])) {
         font-size: 12px;
     }
 
-    .master-v2-edit-page .master-v2-table :is(
-        input[type="text"],
-        input[type="number"],
-        textarea,
-        select
-    ) {
+    .master-v2-edit-page
+        .master-v2-table
+        :is(input[type="text"], input[type="number"], textarea, select) {
         min-height: 34px !important;
         padding: 3px 5px;
         border-radius: 7px !important;
