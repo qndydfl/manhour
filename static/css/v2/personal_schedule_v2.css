@@ -194,21 +194,24 @@
 }
 
 #scheduleTable .personal-v2-empty-copy {
-    width: 100%;
+    width: 1.15em;
     min-height: 1em;
-    display: block;
-    overflow: hidden;
-    color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    color: #aeaeb2;
     cursor: text;
-    letter-spacing: 1em;
-    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
     white-space: nowrap;
     user-select: text;
 }
 
 #scheduleTable .personal-v2-empty-copy::selection {
     background: #0d6efd;
-    color: transparent;
+    color: #ffffff;
 }
 
 .personal-v2-table-footer {

@@ -406,6 +406,7 @@ function showCustomConfirmDialog({
                 suspendedPasteModalInstance.show();
                 suspendedPasteModalInstance = null;
             }
+            document.body.classList.remove("paste-dialog-open");
             resolve(confirmed);
         };
 
@@ -420,6 +421,7 @@ function showCustomConfirmDialog({
         };
         document.addEventListener("keydown", handleKeydown);
 
+        document.body.classList.add("paste-dialog-open");
         dialog.classList.remove("d-none");
         proceedBtn.focus();
     });

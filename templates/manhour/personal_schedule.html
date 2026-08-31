@@ -4,11 +4,11 @@
 {% block title %} {{ worker_name }} | Personal Schedule {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/personal_schedule_v2.css' %}" />
+<link rel="stylesheet" href="{% static 'css/v2/personal_schedule_v2.css' %}?v=20260831-2" />
 {% endblock css %}
 
 {% block js %}
-<script defer src="{% static 'js/personal_schedule.js' %}"></script>
+<script defer src="{% static 'js/personal_schedule.js' %}?v=20260831-3"></script>
 {% endblock js %} 
 
 {% block content %}
@@ -136,32 +136,32 @@
                     >
                         <!-- WO -->
 
-                        <td{% if item.wo == '간비' or not item.wo %} class="personal-v2-empty-cell"{% endif %}>
-                            {% if item.wo != '간비' and item.wo %}{{ item.wo }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
+                        <td data-copy-value="{% if item.wo != '간비' and item.wo %}{{ item.wo }}{% endif %}"{% if item.wo == '간비' or not item.wo %} class="personal-v2-empty-cell"{% endif %}>
+                            {% if item.wo != '간비' and item.wo %}{{ item.wo }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
                         </td>
 
                         <!-- OP -->
 
-                        <td{% if not item.op %} class="personal-v2-empty-cell"{% endif %}>
-                            {% if item.op %}{{ item.op }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
+                        <td data-copy-value="{{ item.op|default:'' }}"{% if not item.op %} class="personal-v2-empty-cell"{% endif %}>
+                            {% if item.op %}{{ item.op }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
                         </td>
 
                         <!-- INDIRECT CODE -->
 
-                        <td class="personal-v2-indirect-code{% if item.wo != '간비' or not item.desc or item.desc == '0' %} personal-v2-empty-cell{% endif %}">
-                            {% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
+                        <td data-copy-value="{% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% endif %}" class="personal-v2-indirect-code{% if item.wo != '간비' or not item.desc or item.desc == '0' %} personal-v2-empty-cell{% endif %}">
+                            {% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
                         </td>
 
                         <!-- START -->
 
-                        <td class="font-monospace">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
+                        <td data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% endif %}" class="font-monospace">
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
                         </td>
 
                         <!-- END -->
 
-                        <td class="font-monospace">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% else %}<span class="personal-v2-empty-copy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{% endif %}
+                        <td data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}" class="font-monospace">
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
                         </td>
 
                     </tr>

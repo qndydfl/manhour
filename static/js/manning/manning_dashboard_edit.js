@@ -621,12 +621,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const targetGroup = getAreaGroup(position);
         if (!targetGroup) return;
 
-        const headerRow = targetGroup.querySelector(".area-group-header");
-        if (headerRow && headerRow.nextSibling) {
-            targetGroup.insertBefore(row, headerRow.nextSibling);
-        } else {
-            targetGroup.appendChild(row);
-        }
+        targetGroup.appendChild(row);
 
         syncRowPosition(row, position);
         syncAreaOrders();
@@ -640,23 +635,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const fragment = newAreaTemplate.content.cloneNode(true);
         const row = fragment.querySelector("tr");
-        const deleteCheckbox = row.querySelector(".new-area-remove");
-
-        if (deleteCheckbox) {
-            deleteCheckbox.addEventListener("change", () => {
-                const shouldDisable = deleteCheckbox.checked;
-                row.classList.toggle("is-deleted", shouldDisable);
-
-                row.querySelectorAll("input, select, textarea").forEach(
-                    (el) => {
-                        if (el === deleteCheckbox) return;
-                        el.disabled = shouldDisable;
-                    },
-                );
-
-                updateWorkerUsage();
-            });
-        }
 
         const nameInput = row.querySelector("input[name='new_area_name']");
         if (nameInput && values.name) {
@@ -681,12 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const targetGroup = getAreaGroup(positionValue);
         if (!targetGroup) return;
 
-        const headerRow = targetGroup.querySelector(".area-group-header");
-        if (headerRow && headerRow.nextSibling) {
-            targetGroup.insertBefore(row, headerRow.nextSibling);
-        } else {
-            targetGroup.appendChild(row);
-        }
+        targetGroup.appendChild(row);
 
         syncRowPosition(row, positionValue);
         syncAreaOrders();
@@ -695,6 +668,49 @@ document.addEventListener("DOMContentLoaded", () => {
         bindFormControlGuards();
         bindRowTouchGuards();
         updateWorkerUsage();
+    }
+
+    async function confirmAreaDelete(row, button) {
+        if (!row) return;
+
+        const nameInput = row.querySelector(
+            "input[name='area_name'], input[name='new_area_name']",
+        );
+        const areaName =
+            (nameInput?.value || button?.dataset.areaName || "선택한 구역").trim() ||
+            "선택한 구역";
+        const message = `'${areaName}' 구역을 삭제하시겠습니까?`;
+        const confirmed = window.AppDialog
+            ? await window.AppDialog.confirm(message, {
+                  title: "구역 삭제",
+                  variant: "danger",
+                  confirmText: "삭제",
+                  cancelText: "취소",
+              })
+            : window.confirm(message);
+
+        if (!confirmed) return;
+
+        if (row.classList.contains("new-area-row")) {
+            row.remove();
+        } else {
+            const deleteInput = row.querySelector(".area-delete-input");
+            if (!deleteInput) return;
+            deleteInput.checked = true;
+            row.classList.add("is-deleted");
+        }
+
+        syncAreaOrders();
+        updateWorkerUsage();
+    }
+
+    if (formEl) {
+        formEl.addEventListener("click", (event) => {
+            const button = event.target.closest(".area-delete-btn");
+            if (!button || !formEl.contains(button)) return;
+            event.preventDefault();
+            void confirmAreaDelete(button.closest("tr.area-row"), button);
+        });
     }
 
     function destroyAreaSortables() {

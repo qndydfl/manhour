@@ -58,16 +58,20 @@
         </button>
     </div>
 </div>
-{% endblock topbar_right %} {% block css %}
+{% endblock topbar_right %}
+
+{% block css %}
 <link
     rel="stylesheet"
     href="{% static 'css/manning/manning_components.css' %}"
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260829-2"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260831-4"
 />
-{% endblock css %} {% block js %}
+{% endblock css %}
+
+{% block js %}
 <script>
     window.MANNING_WORKER_DIR = {
         updateUrl: "{% url 'manning:update_worker_directory' session.id %}",
@@ -76,10 +80,11 @@
 </script>
 <script
     defer
-    src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20260827-2"
+    src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20260831-5"
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }}
-{{default_worker_names|json_script:"defaultWorkerNames" }} {% endblock js %} 
+{{default_worker_names|json_script:"defaultWorkerNames" }}
+{% endblock js %}
 
 
 {% block content %}
@@ -168,11 +173,20 @@
                                 </td>
                                 <td class="text-center">
                                     <input
-                                        class="form-check-input"
+                                        class="area-delete-input d-none"
                                         type="checkbox"
                                         name="area_delete"
                                         value="{{ area.id }}"
                                     />
+                                    <button
+                                        type="button"
+                                        class="area-delete-btn"
+                                        data-area-name="{{ area.name }}"
+                                        aria-label="{{ area.name }} 구역 삭제"
+                                        title="구역 삭제"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endif %} {% endfor %}
@@ -227,11 +241,20 @@
                                 </td>
                                 <td class="text-center">
                                     <input
-                                        class="form-check-input"
+                                        class="area-delete-input d-none"
                                         type="checkbox"
                                         name="area_delete"
                                         value="{{ area.id }}"
                                     />
+                                    <button
+                                        type="button"
+                                        class="area-delete-btn"
+                                        data-area-name="{{ area.name }}"
+                                        aria-label="{{ area.name }} 구역 삭제"
+                                        title="구역 삭제"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endif %} {% endfor %}
@@ -288,11 +311,20 @@
                                 </td>
                                 <td class="text-center">
                                     <input
-                                        class="form-check-input"
+                                        class="area-delete-input d-none"
                                         type="checkbox"
                                         name="area_delete"
                                         value="{{ area.id }}"
                                     />
+                                    <button
+                                        type="button"
+                                        class="area-delete-btn"
+                                        data-area-name="{{ area.name }}"
+                                        aria-label="{{ area.name }} 구역 삭제"
+                                        title="구역 삭제"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endif %} {% endfor %}
@@ -519,11 +551,14 @@
             ></textarea>
         </td>
         <td class="text-center">
-            <input
-                class="form-check-input new-area-remove"
-                type="checkbox"
-                title="삭제"
-            />
+            <button
+                type="button"
+                class="area-delete-btn"
+                aria-label="새 구역 삭제"
+                title="구역 삭제"
+            >
+                <i class="bi bi-trash3"></i>
+            </button>
         </td>
     </tr>
 </template>

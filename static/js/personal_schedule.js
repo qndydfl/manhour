@@ -740,33 +740,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rows = targetRows
             .map((tr) => getScheduleRowCopyValues(tr))
-            .filter((values) => values.some((value) => value !== ""))
-            .map((values) => values.join("\t"));
+            .filter((values) => values.some((value) => value !== ""));
 
         if (!rows.length) {
             alert("복사할 데이터가 없습니다.");
             return;
         }
 
-        const text = rows.join("\n");
-
         try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                const temp = document.createElement("textarea");
-                temp.value = text;
-                temp.style.position = "fixed";
-                temp.style.left = "-9999px";
-                document.body.appendChild(temp);
-                temp.focus();
-                temp.select();
-                document.execCommand("copy");
-                document.body.removeChild(temp);
-            }
+            await writeScheduleRowsToClipboard(rows);
 
             alert(
-                `📋 ${targetRows.length}개 행이 복사되었습니다. 엑셀 등에 붙여넣기 하세요.`,
+                `📋 ${rows.length}개 행이 5열 형식으로 복사되었습니다.`,
             );
         } catch (err) {
             console.error("복사 실패:", err);
@@ -785,6 +770,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function getScheduleCellCopyText(cell) {
         if (!cell) return "";
 
+        if (cell.hasAttribute("data-copy-value")) {
+            return String(cell.dataset.copyValue || "")
+                .replace(/[\u00A0\u200B]/g, "")
+                .trim();
+        }
+
         if (cell.querySelector(".personal-v2-empty-copy")) {
             return "";
         }
@@ -799,6 +790,82 @@ document.addEventListener("DOMContentLoaded", () => {
         return [...row.querySelectorAll("th, td")].map((cell) =>
             getScheduleCellCopyText(cell),
         );
+    }
+
+    function buildScheduleClipboardHtml(rows) {
+        const bodyRows = rows
+            .map(
+                (values) =>
+                    `<tr>${values
+                        .map(
+                            (value) =>
+                                `<td style="padding:4px 8px;border:1px solid #c7c7cc;white-space:nowrap;">${
+                                    value ? escapeHtml(value) : "&nbsp;"
+                                }</td>`,
+                        )
+                        .join("")}</tr>`,
+            )
+            .join("");
+
+        return `<table style="border-collapse:collapse;"><tbody>${bodyRows}</tbody></table>`;
+    }
+
+    function copyScheduleHtmlFallback(html, plainText) {
+        const container = document.createElement("div");
+        container.contentEditable = "true";
+        container.style.position = "fixed";
+        container.style.left = "-9999px";
+        container.style.top = "0";
+        container.innerHTML = html;
+        document.body.appendChild(container);
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(container);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        const copied = document.execCommand("copy");
+        selection.removeAllRanges();
+        container.remove();
+
+        if (!copied) {
+            const temp = document.createElement("textarea");
+            temp.value = plainText;
+            temp.style.position = "fixed";
+            temp.style.left = "-9999px";
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            temp.remove();
+        }
+    }
+
+    async function writeScheduleRowsToClipboard(rows) {
+        const plainText = rows.map((values) => values.join("\t")).join("\n");
+        const html = buildScheduleClipboardHtml(rows);
+
+        if (
+            navigator.clipboard?.write &&
+            typeof window.ClipboardItem === "function" &&
+            window.isSecureContext
+        ) {
+            try {
+                await navigator.clipboard.write([
+                    new window.ClipboardItem({
+                        "text/plain": new Blob([plainText], {
+                            type: "text/plain",
+                        }),
+                        "text/html": new Blob([html], { type: "text/html" }),
+                    }),
+                ]);
+                return;
+            } catch (error) {
+                console.warn("HTML 클립보드 복사를 지원하지 않아 대체 방식을 사용합니다.", error);
+            }
+        }
+
+        copyScheduleHtmlFallback(html, plainText);
     }
 
     if (copyBtn) {
@@ -825,13 +892,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!selectedRows.length) {
                 const selectedText = selection.toString() || "";
-                if (!/[\u00A0\u200B]/.test(selectedText)) {
+                if (!/[\u00A0\u200B\u00B7]/.test(selectedText)) {
                     return;
                 }
 
                 event.clipboardData.setData(
                     "text/plain",
-                    selectedText.replace(/[\u00A0\u200B]/g, ""),
+                    selectedText.replace(/[\u00A0\u200B\u00B7]/g, ""),
                 );
                 event.preventDefault();
                 return;
@@ -850,6 +917,10 @@ document.addEventListener("DOMContentLoaded", () => {
             event.clipboardData.setData(
                 "text/plain",
                 rows.map((values) => values.join("\t")).join("\n"),
+            );
+            event.clipboardData.setData(
+                "text/html",
+                buildScheduleClipboardHtml(rows),
             );
             event.preventDefault();
         });

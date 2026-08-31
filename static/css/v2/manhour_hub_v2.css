@@ -336,6 +336,25 @@
     font-weight: 750;
 }
 
+.mh-worker-shift {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.mh-worker-shift .mh-worker-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mh-worker-shift .mh-shift {
+    flex: 0 0 auto;
+}
+
 .mh-worker-status {
     padding: 5px 8px;
     display: inline-flex;
@@ -1181,6 +1200,10 @@
 
     .mh-assigned-summary-page .mh-worker-name {
         font-size: 11px;
+    }
+
+    .mh-assigned-summary-page .mh-worker-shift {
+        gap: 4px;
     }
 
     .mh-assigned-summary-page .mh-worker-status,

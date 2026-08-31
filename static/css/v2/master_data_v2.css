@@ -313,7 +313,7 @@
 }
 
 /* =========================================================
-   EDIT INPUTS
+    EDIT INPUTS
 ========================================================= */
 
 .master-v2-table input[type="text"],
@@ -354,7 +354,7 @@
 }
 
 /* =========================================================
-   CHECKBOX
+CHECKBOX
 ========================================================= */
 
 .master-v2-table .form-check-input {
@@ -671,7 +671,7 @@
 
 .master-v2-empty strong {
     display: block;
-    color: #ffffff;
+    color: #0f172a;
 
     font-size: var(--font-size-base);
 }

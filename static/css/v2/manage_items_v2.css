@@ -484,7 +484,7 @@ body.assignment-console-body > .container .manage-header-result-btn {
 }
 
 /* =========================================================
-   ASSIGNED
+    ASSIGNED
 ========================================================= */
 
 #manageItemsTable .col-assign {
@@ -535,8 +535,14 @@ body.assignment-console-body > .container .manage-header-result-btn {
     box-sizing: border-box;
 }
 
+#manageItemsTable .col-wo .table-input {
+    font-size: 14px;
+    font-weight: 800;
+    color: #01091d;
+}
+
 /* =========================================================
-   DRAG HANDLE
+    DRAG HANDLE
 ========================================================= */
 
 #manageItemsTable .drag-handle {
@@ -695,6 +701,15 @@ body.assignment-console-body > .container .manage-header-result-btn {
     box-shadow: 0 20px 65px rgba(15, 23, 42, 0.18) !important;
 }
 
+#pasteDataModal .modal-dialog {
+    width: min(920px, calc(100% - 32px));
+    max-width: none;
+}
+
+#pasteDataModal .modal-content {
+    max-height: calc(100dvh - 32px);
+}
+
 #pasteDataModal .modal-header {
     padding: 17px 20px;
 
@@ -706,10 +721,14 @@ body.assignment-console-body > .container .manage-header-result-btn {
 }
 
 #pasteDataModal .modal-body {
+    padding: 18px !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: #ffffff;
 }
 
 #pasteDataModal .nav-tabs {
+    margin-bottom: 14px !important;
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -729,6 +748,62 @@ body.assignment-console-body > .container .manage-header-result-btn {
     border-bottom: 2px solid #2563eb;
 
     background: transparent;
+}
+
+#pasteDataModal .instruction-box {
+    margin-bottom: 14px !important;
+    padding: 12px !important;
+}
+
+#pasteDataModal #pasteForm .table-responsive {
+    max-height: min(42dvh, 390px);
+    margin-bottom: 14px !important;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+#pasteDataModal #gridTable thead th {
+    padding: 8px 6px;
+}
+
+#pasteDataModal #gridTable tbody td {
+    padding: 3px;
+}
+
+#pasteDataModal #gridTable .input-cell {
+    min-height: 34px !important;
+    height: 34px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    font-size: 14px !important;
+}
+
+#pasteDataModal #pasteForm > .row {
+    --bs-gutter-x: 8px;
+    --bs-gutter-y: 8px;
+}
+
+#pasteDataModal #pasteForm > .row .btn {
+    min-height: 38px;
+    padding-block: 5px;
+    font-size: 13px;
+}
+
+/* Prevent wheel/touch scroll from leaking to the page behind either dialog. */
+html:has(#pasteDataModal.show),
+body.modal-open,
+body.paste-dialog-open,
+body:has(#pasteDataModal.show),
+html:has(#duplicateDataConfirmDialog:not(.d-none)),
+body:has(#duplicateDataConfirmDialog:not(.d-none)) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
+#pasteDataModal,
+#pasteDataModal .modal-dialog,
+#duplicateDataConfirmDialog {
+    overscroll-behavior: contain;
 }
 
 /* =========================================================
@@ -1432,10 +1507,10 @@ body.assignment-console-body > .container .manage-header-result-btn {
     }
 
     #pasteDataModal #gridTable .input-cell {
-        min-height: 27px;
-        height: 27px;
-        padding: 2px 3px;
-        font-size: 11px !important;
+        min-height: 32px !important;
+        height: 32px;
+        padding: 2px 4px;
+        font-size: 16px !important;
     }
 
     #pasteDataModal #pasteForm > .row {
@@ -1452,9 +1527,9 @@ body.assignment-console-body > .container .manage-header-result-btn {
     }
 
     #pasteDataModal #pasteForm > .row .btn {
-        min-height: 30px;
+        min-height: 32px;
         padding: 0 4px;
-        font-size: 9px;
+        font-size: 10px;
     }
 
     #pasteDataModal #masterItemsTab > .d-flex {

@@ -161,13 +161,13 @@
 
 .manning-dashboard-btn-topbar-light {
     border: 1px solid #d6e0ea;
-    background: #eef4fa;
-    color: #0f172a;
+    background: #5d6485;
+    color: #ffffff;
 }
 
 .manning-dashboard-btn-topbar-light:hover {
-    background: #e4edf6;
-    color: #0f172a;
+    background: #4393e2;
+    color: #ffffff;
 }
 
 /* =========================================================

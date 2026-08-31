@@ -340,14 +340,33 @@ body.worker-panel-open .manning-main {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
 }
 
-.area-row .form-check-input {
-    width: 17px;
-    height: 17px;
-    border-color: #e28b98;
+.area-delete-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fff1f2;
+    color: #dc2626;
+    font-size: 15px;
+    transition:
+        border-color 0.16s ease,
+        background-color 0.16s ease,
+        color 0.16s ease,
+        transform 0.16s ease;
 }
 
-.new-area-row.is-deleted {
-    opacity: 0.42;
+.area-delete-btn:hover {
+    border-color: #fca5a5;
+    background: #fee2e2;
+    color: #b91c1c;
+    transform: translateY(-1px);
+}
+
+.area-row.is-deleted {
+    display: none;
 }
 
 .edit-memo-panel {
@@ -610,6 +629,7 @@ body.worker-panel-open .manning-main {
 /* Modal */
 #addAreaModal .modal-content {
     overflow: hidden;
+    max-height: calc(100dvh - 32px);
     border: 1px solid #c7d4e1 !important;
     border-radius: 15px !important;
     background: #ffffff !important;
@@ -624,6 +644,8 @@ body.worker-panel-open .manning-main {
 
 #addAreaModal .modal-body {
     padding: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: #f8fafc !important;
 }
 

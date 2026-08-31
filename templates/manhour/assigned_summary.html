@@ -6,7 +6,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260830-1"
+    href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260831-3"
 />
 {% endblock css %} 
 
@@ -111,23 +111,21 @@
                     {% endif %}
                 >
                     <td class="text-center">
-                        <div class="mh-worker-name">{{ w.worker_name }}</div>
+                        <div class="mh-worker-shift">
+                            <span class="mh-worker-name"
+                                >{{ w.worker_name }}</span
+                            >
 
-                        {% if w.is_night %}
+                            {% if w.is_night %}
 
-                        <span
-                            class="mh-shift mh-shift-night mt-1 d-inline-flex"
-                        >
-                            NIGHT
-                        </span>
+                            <span class="mh-shift mh-shift-night"> NIGHT </span>
 
-                        {% else %}
+                            {% else %}
 
-                        <span class="mh-shift mh-shift-day mt-1 d-inline-flex">
-                            DAY
-                        </span>
+                            <span class="mh-shift mh-shift-day"> DAY </span>
 
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </td>
 
                     <td class="text-center">
