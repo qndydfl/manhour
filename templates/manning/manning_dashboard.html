@@ -1,8 +1,10 @@
-{% extends 'manning/base/manning_v2_base.html' %} {% load static %} {% block
-title %} Aircraft Area Editor | {{ session.aircraft_reg }} {% endblock title %}
-{% block nav_sessions_active %} active {% endblock nav_sessions_active %} {%
-block page_title %} Aircraft Area Editor {% endblock page_title %} {% block
-topbar_right %}
+{% extends 'manning/base/manning_v2_base.html' %} 
+{% load static %} 
+
+{% block title %} Aircraft Area Editor | {{ session.aircraft_reg }} {% endblock title %}
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
+{% block page_title %} Aircraft Area Editor {% endblock page_title %}
+{% block topbar_right %}
 <div class="manning-dashboard-topbar-actions">
     {% if is_same_site %}
     <a
@@ -55,7 +57,9 @@ topbar_right %}
     rel="stylesheet"
     href="{% static 'css/manning/v2/manning_dashboard.css' %}?v=20260831-1"
 />
-{% endblock css %} {% block js %}
+{% endblock css %} 
+
+{% block js %}
 <script>
     const MANNING_CONFIG = {
         csrfToken: "{{ csrf_token }}",
@@ -64,7 +68,10 @@ topbar_right %}
 </script>
 
 <script src="{% static 'js/manning/manning_dashboard.js' %}?v=20260831-1"></script>
-{% endblock js %} {% block content %}
+{% endblock js %} 
+
+
+{% block content %}
 
 <!-- =====================================================
     WARNING
@@ -116,9 +123,7 @@ topbar_right %}
                 </header>
 
                 <div class="manning-zone-list">
-                    {% for area in session_areas %} {% if area.position ==
-                    'LEFT' %} {% include "manning/partials/area_card_v2.html"
-                    with area=area %} {% endif %} {% empty %}
+                    {% for area in session_areas %} {% if area.position == 'LEFT' %} {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 
@@ -142,9 +147,7 @@ topbar_right %}
                 </header>
 
                 <div class="manning-zone-list">
-                    {% for area in session_areas %} {% if area.position ==
-                    'NONE' %} {% include "manning/partials/area_card_v2.html"
-                    with area=area %} {% endif %} {% empty %}
+                    {% for area in session_areas %} {% if area.position == 'NONE' %} {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 
@@ -168,9 +171,7 @@ topbar_right %}
                 </header>
 
                 <div class="manning-zone-list">
-                    {% for area in session_areas %} {% if area.position ==
-                    'RIGHT' %} {% include "manning/partials/area_card_v2.html"
-                    with area=area %} {% endif %} {% empty %}
+                    {% for area in session_areas %} {% if area.position == 'RIGHT' %} {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 

@@ -5,14 +5,18 @@
 
 {% block nav_sessions_active %}active{% endblock nav_sessions_active %} 
 
-{% block page_title %}구역 일괄 편집{% endblock page_title %} {% block sidebar_system %}
+{% block page_title %}구역 일괄 편집{% endblock page_title %} 
+
+{% block sidebar_system %}
 
 <div class="edit-sidebar-meta edit-session-meta">
     <span><i class="bi bi-airplane"></i>{{ session.aircraft_reg }}</span>
     <span><i class="bi bi-briefcase"></i>{{ session.work_package_name }}</span>
     <span><i class="bi bi-clock"></i>{{ session.get_shift_type_display }}</span>
 </div>
-{% endblock sidebar_system %} {% block topbar_right %}
+{% endblock sidebar_system %} 
+
+{% block topbar_right %}
 <div class="edit-topbar-cluster">
     <div class="edit-header-actions">
         <button
