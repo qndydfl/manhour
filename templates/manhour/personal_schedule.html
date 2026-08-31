@@ -1,15 +1,22 @@
-{% extends "manhour/base/result_v2_base.html" %}
+{% extends "manhour/base/result_v2_base.html" %} 
 {% load static %} 
 
-{% block title %} {{ worker_name }} | Personal Schedule {% endblock title %}
+{% block title %} {{ worker_name }} | Personal Schedule {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/personal_schedule_v2.css' %}?v=20260831-3" />
-{% endblock css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/personal_schedule_v2.css' %}?v=20260831-3"
+/>
+{% endblock css %} 
 
 {% block js %}
-<script defer src="{% static 'js/personal_schedule.js' %}?v=20260831-3"></script>
+<script
+    defer
+    src="{% static 'js/personal_schedule.js' %}?v=20260831-4"
+></script>
 {% endblock js %} 
+
 
 {% block content %}
 <header class="assignment-topbar">
@@ -129,50 +136,91 @@
                 </thead>
 
                 <tbody>
-                    {% for item in schedule %} {% if item.wo != 'EMPTY_SLOT' %}
+                    {% for item in schedule %} 
+                    
+                    {% if item.wo != 'EMPTY_SLOT' %}
 
                     <tr
                         class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
                     >
                         <!-- WO -->
 
-                        <td data-copy-value="{% if item.wo != '간비' and item.wo %}{{ item.wo }}{% endif %}"{% if item.wo == '간비' or not item.wo %} class="personal-v2-empty-cell"{% endif %}>
-                            {% if item.wo != '간비' and item.wo %}{{ item.wo }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
+                        <td
+                            data-copy-value="{% if item.wo != '간비' and item.wo %}{{ item.wo }}{% endif %}"
+                            {% if item.wo == '간비' or not item.wo %}
+                            class="personal-v2-empty-cell"
+                            {% endif %}
+                        >
+                            {% if item.wo != '간비' and item.wo %}{{ item.wo }}{% else %}<span
+                                class="personal-v2-empty-copy"
+                                aria-hidden="true"
+                                >·</span
+                            >{% endif %}
                         </td>
 
                         <!-- OP -->
 
-                        <td data-copy-value="{{ item.op|default:'' }}"{% if not item.op %} class="personal-v2-empty-cell"{% endif %}>
-                            {% if item.op %}{{ item.op }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
+                        <td
+                            data-copy-value="{{ item.op|default:'' }}"
+                            {% if not item.op %}
+                            class="personal-v2-empty-cell"
+                            {% endif %}
+                        >
+                            {% if item.op %}{{ item.op }}{% else %}<span
+                                class="personal-v2-empty-copy"
+                                aria-hidden="true"
+                                >·</span
+                            >{% endif %}
                         </td>
 
                         <!-- INDIRECT CODE -->
 
-                        <td data-copy-value="{% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% endif %}" class="personal-v2-indirect-code{% if item.wo != '간비' or not item.desc or item.desc == '0' %} personal-v2-empty-cell{% endif %}">
-                            {% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
+                        <td
+                            data-copy-value="{% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% endif %}"
+                            class="personal-v2-indirect-code{% if item.wo != '간비' or not item.desc or item.desc == '0' %} personal-v2-empty-cell{% endif %}"
+                        >
+                            {% if item.wo == '간비' and item.desc and item.desc != '0' %}{{ item.desc }}{% else %}<span
+                                class="personal-v2-empty-copy"
+                                aria-hidden="true"
+                                >·</span
+                            >{% endif %}
                         </td>
 
                         <!-- START -->
 
-                        <td data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% endif %}" class="font-monospace">
-                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
+                        <td
+                            data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% endif %}"
+                            class="font-monospace"
+                        >
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.start_str }}{% else %}<span
+                                class="personal-v2-empty-copy"
+                                aria-hidden="true"
+                                >·</span
+                            >{% endif %}
                         </td>
 
                         <!-- END -->
 
-                        <td data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}" class="font-monospace personal-v2-end-cell">
-                            {% if item.wo != '간비' or item.desc != '0' %}<span class="personal-v2-cell-value">{{ item.end_str }}</span><span class="personal-v2-selection-tail" aria-hidden="true">&nbsp;</span>{% else %}<span class="personal-v2-empty-copy" aria-hidden="true">·</span>{% endif %}
+                        <td
+                            data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}"
+                            class="font-monospace personal-v2-end-cell"
+                        >
+                            {% if item.wo != '간비' or item.desc != '0' %}<span
+                                class="personal-v2-cell-value"
+                                >{{ item.end_str }}</span
+                            ><span
+                                class="personal-v2-selection-tail"
+                                aria-hidden="true"
+                                >&nbsp;</span
+                            >{% else %}<span
+                                class="personal-v2-empty-copy"
+                                aria-hidden="true"
+                                >·</span
+                            >{% endif %}
                         </td>
-
                     </tr>
 
-                    {% endif %} {% empty %}
-
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            배정된 작업이 없습니다.
-                        </td>
-                    </tr>
+                    {% endif %}
 
                     {% endfor %}
                 </tbody>

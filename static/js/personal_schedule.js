@@ -750,9 +750,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await writeScheduleRowsToClipboard(rows);
 
-            alert(
-                `📋 ${rows.length}개 행이 5열 형식으로 복사되었습니다.`,
-            );
+            alert(`📋 ${rows.length}개 행이 5열 형식으로 복사되었습니다.`);
         } catch (err) {
             console.error("복사 실패:", err);
             alert("복사에 실패했습니다.");
@@ -790,6 +788,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return [...row.querySelectorAll("th, td")].map((cell) =>
             getScheduleCellCopyText(cell),
         );
+    }
+
+    function getSelectedScheduleRowCopyValues(row, range) {
+        return [...row.querySelectorAll("th, td")]
+            .filter((cell) => range.intersectsNode(cell))
+            .map((cell) => getScheduleCellCopyText(cell));
     }
 
     function buildScheduleClipboardHtml(rows) {
@@ -861,7 +865,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 ]);
                 return;
             } catch (error) {
-                console.warn("HTML 클립보드 복사를 지원하지 않아 대체 방식을 사용합니다.", error);
+                console.warn(
+                    "HTML 클립보드 복사를 지원하지 않아 대체 방식을 사용합니다.",
+                    error,
+                );
             }
         }
 
@@ -889,9 +896,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const selectedRows = [...scheduleTable.querySelectorAll("tbody tr")]
                 .filter((row) => row.querySelectorAll("td").length === 5)
                 .filter((row) => range.intersectsNode(row));
+            const selectedText = selection.toString() || "";
 
             if (!selectedRows.length) {
-                const selectedText = selection.toString() || "";
                 if (!/[\u00A0\u200B\u00B7]/.test(selectedText)) {
                     return;
                 }
@@ -905,11 +912,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const rows = selectedRows
-                .map((row) => getScheduleRowCopyValues(row))
+                .map((row) => getSelectedScheduleRowCopyValues(row, range))
                 .filter((values) => values.some((value) => value !== ""));
 
             if (!rows.length) {
-                event.clipboardData.setData("text/plain", "");
+                if (!/[\u00A0\u200B\u00B7]/.test(selectedText)) {
+                    return;
+                }
+
+                event.clipboardData.setData(
+                    "text/plain",
+                    selectedText.replace(/[\u00A0\u200B\u00B7]/g, ""),
+                );
                 event.preventDefault();
                 return;
             }
