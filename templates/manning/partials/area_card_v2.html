@@ -32,9 +32,7 @@
 
             <div class="manning-v2-hour-box">
                 <strong>
-                    {{
-                    manning.display_hours|default_if_none:manning.hours|floatformat:"1"
-                    }}
+                    {{ manning.display_hours|default_if_none:manning.hours|floatformat:"1" }}
                 </strong>
 
                 <span> H </span>
