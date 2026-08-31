@@ -99,6 +99,38 @@
 ====================================================== -->
 
 <div class="manning-dashboard-content-stack">
+    
+    <!-- =====================================================
+        MEMO
+    ====================================================== -->
+    <section class="manning-dashboard-section manning-dashboard-memo-section">
+        <div class="manning-dashboard-section-head">
+            <div>
+                <span class="manning-dashboard-section-label">
+                    SESSION INFORMATION
+                </span>
+
+                <h3 class="manning-dashboard-section-title">Session Memo</h3>
+            </div>
+        </div>
+
+        <article class="manning-dashboard-memo">
+            <div class="manning-dashboard-memo-head">
+                <strong> OPERATION NOTES </strong>
+
+                <i class="bi bi-journal-text"></i>
+            </div>
+
+            <div class="manning-dashboard-memo-body">
+                {% if session.memo %} {{ session.memo|safe }} {% else %}
+
+                <span class="text-muted"> 등록된 메모가 없습니다. </span>
+
+                {% endif %}
+            </div>
+        </article>
+    </section>
+
     <section class="manning-dashboard-section manning-dashboard-area-section">
         <div class="manning-dashboard-section-head">
             <div>
@@ -185,39 +217,7 @@
                 </div>
             </section>
         </div>
-    </section>
-
-    <!-- =====================================================
-    MEMO
-====================================================== -->
-
-    <section class="manning-dashboard-section manning-dashboard-memo-section">
-        <div class="manning-dashboard-section-head">
-            <div>
-                <span class="manning-dashboard-section-label">
-                    SESSION INFORMATION
-                </span>
-
-                <h3 class="manning-dashboard-section-title">Session Memo</h3>
-            </div>
-        </div>
-
-        <article class="manning-dashboard-memo">
-            <div class="manning-dashboard-memo-head">
-                <strong> OPERATION NOTES </strong>
-
-                <i class="bi bi-journal-text"></i>
-            </div>
-
-            <div class="manning-dashboard-memo-body">
-                {% if session.memo %} {{ session.memo|safe }} {% else %}
-
-                <span class="text-muted"> 등록된 메모가 없습니다. </span>
-
-                {% endif %}
-            </div>
-        </article>
-    </section>
+    </section>    
 </div>
 
 {% endblock content %}

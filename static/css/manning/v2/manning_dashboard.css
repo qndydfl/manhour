@@ -363,11 +363,11 @@
 }
 
 .manning-dashboard-area-section {
-    order: 1;
+    order: 2;
 }
 
 .manning-dashboard-memo-section {
-    order: 2;
+    order: 1;
 }
 
 .manning-dashboard-section:first-of-type {
@@ -853,7 +853,6 @@
 }
 
 @media (max-width: 600px) {
-
     .manning-dashboard-hero {
         padding: 22px;
     }
