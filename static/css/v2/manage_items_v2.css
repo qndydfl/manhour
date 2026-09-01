@@ -175,8 +175,7 @@ body.assignment-console-body > .container .manage-header-result-btn {
     font-weight: 750;
 }
 
-.manage-limit-item,
-.manage-action-bar {
+.manage-limit-item {
     height: 100%;
     min-height: 150px;
 }
@@ -244,125 +243,6 @@ body.assignment-console-body > .container .manage-header-result-btn {
     line-height: 1.5;
     white-space: pre-line;
 }
-
-.worker-limit-list {
-    min-width: 0;
-    max-height: 82px;
-    flex: 1 1 auto;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    gap: 6px;
-    overflow-y: auto;
-}
-
-.worker-limit-row {
-    min-height: 32px;
-    padding: 2px 4px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    border: 1px solid #dbe3ec;
-    border-radius: 6px;
-    background: #ffffff;
-    box-shadow: none;
-}
-
-.worker-limit-row.is-custom {
-    border-color: #dbe3ec;
-    background: #ffffff;
-}
-
-.worker-limit-name,
-.worker-limit-value {
-    height: 26px;
-    padding: 1px 3px;
-    border: 0;
-    border-radius: 0;
-    outline: none;
-    background: transparent;
-    color: #172033;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.worker-limit-name {
-    width: 68px;
-    color: #334155;
-}
-
-.worker-limit-value {
-    width: 42px;
-    color: #0f172a;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-}
-
-.worker-limit-name:focus,
-.worker-limit-value:focus {
-    background: #ffffff;
-    box-shadow: inset 0 -1px 0 #93b9e4;
-}
-
-.worker-limit-separator,
-.worker-limit-unit {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.worker-limit-remove {
-    width: 22px;
-    height: 22px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: #94a3b8;
-    font-size: 11px;
-}
-
-.worker-limit-remove:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-}
-
-.worker-limit-add {
-    min-height: 32px;
-    padding: 0 9px;
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: 1px solid #d5dee8;
-    border-radius: 7px;
-    background: #ffffff;
-    color: #334155;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.worker-limit-add:hover {
-    border-color: #94a3b8;
-    background: #f8fafc;
-    color: #0f172a;
-}
-
-.worker-limit-empty {
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    color: #64748b;
-    font-size: var(--font-size-xs);
-}
-
-/* =========================================================
-   MAIN TABLE CARD
-========================================================= */
 
 #manage-form .card.shadow-sm.border-0.mb-4 {
     grid-column: 1 / -1;
@@ -588,109 +468,6 @@ body.assignment-console-body > .container .manage-header-result-btn {
    ACTION CARD
 ========================================================= */
 
-.manage-action-bar {
-    position: sticky;
-    z-index: 20;
-    top: 12px;
-    align-self: start;
-    min-width: 0;
-}
-
-.manage-action-inner {
-    height: 100%;
-    min-height: 150px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: space-between;
-    gap: 16px;
-    border: 1px solid var(--assignment-border);
-    border-radius: 14px;
-    background: #ffffff;
-    box-shadow: 0 7px 22px rgba(15, 23, 42, 0.06);
-}
-
-.manage-action-copy {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-bottom: 13px;
-    border-bottom: 1px solid var(--assignment-border);
-}
-
-.manage-action-copy > span:last-child {
-    color: #64748b;
-    font-size: var(--font-size-xs);
-    line-height: 1.55;
-}
-
-.manage-action-buttons {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-}
-
-.manage-action-btn {
-    width: 100%;
-    min-height: 42px;
-    padding: 0 15px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    font: inherit;
-    font-size: var(--font-size-sm);
-    font-weight: 750;
-    line-height: 1;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.manage-action-cancel {
-    border-color: #c8d3df;
-    background: #f8fafc;
-    color: #475569;
-}
-
-.manage-action-cancel:hover {
-    background: #eef2f7;
-    color: #1e293b;
-}
-
-.manage-action-clear {
-    border-color: #fecaca;
-    background: #fff1f2;
-    color: #b91c1c;
-}
-
-.manage-action-clear:hover {
-    border-color: #dc2626;
-    background: #dc2626;
-    color: #ffffff;
-}
-
-.manage-action-save {
-    border-color: #2563eb;
-    background: #2563eb;
-    color: #ffffff;
-    box-shadow: 0 7px 17px rgba(37, 99, 235, 0.22);
-}
-
-.manage-action-save:hover {
-    border-color: #1d4ed8;
-    background: #1d4ed8;
-    color: #ffffff;
-}
-
-/* =========================================================
-   PASTE DATA MODAL
-========================================================= */
-
 #pasteDataModal .modal-content {
     overflow: hidden;
 
@@ -913,16 +690,9 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         grid-template-columns: 1fr;
     }
 
-    .manage-action-bar {
-        position: static;
-        height: auto;
-        min-height: 0;
-    }
 
-    .manage-action-inner {
-        height: auto;
-        min-height: 0;
-    }
+
+
 
     .manage-limit-item {
         height: auto;
@@ -944,34 +714,17 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         flex-direction: column;
     }
 
-    .worker-limit-list {
-        width: 100%;
-        max-height: none;
-    }
 
-    .worker-limit-add {
-        width: 100%;
-    }
 
-    .worker-limit-row {
-        width: 100%;
-    }
 
-    .worker-limit-name {
-        flex: 1 1 auto;
-        width: auto;
-    }
 
-    .manage-action-inner {
-        padding: 10px;
-    }
 
-    .manage-action-btn {
-        width: 100%;
-        padding: 0 6px;
-        gap: 4px;
-        font-size: var(--font-size-xs);
-    }
+
+
+
+
+
+
 
     .manage-config-note {
         font-size: var(--font-size-micro);
@@ -1044,14 +797,12 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
     }
 
     .manage-limit-item,
-    .manage-action-bar,
-    #manage-form .manage-limit-card {
+#manage-form .manage-limit-card {
         height: auto;
         min-height: 0;
     }
 
-    #manage-form .manage-config-card,
-    .manage-action-inner {
+    #manage-form .manage-config-card {
         border-radius: 8px !important;
         box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
     }
@@ -1078,113 +829,35 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         gap: 4px;
     }
 
-    .worker-limit-list {
-        width: auto;
-        max-height: 32px;
-        flex-wrap: nowrap;
-        align-items: center;
-        gap: 4px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scrollbar-width: thin;
-    }
 
-    .worker-limit-row {
-        width: auto;
-        min-width: max-content;
-        min-height: 28px;
-        padding: 1px 3px 1px 5px;
-        gap: 2px;
-        border-radius: 6px;
-    }
 
-    #manage-form .worker-limit-name,
-    #manage-form .worker-limit-value {
-        height: 24px;
-        min-height: 24px !important;
-        padding: 1px 3px;
-        border-radius: 4px;
-        font-size: 11px !important;
-    }
 
-    #manage-form .worker-limit-name {
-        width: 62px;
-        flex: 0 0 62px;
-    }
 
-    #manage-form .worker-limit-value {
-        width: 39px;
-    }
 
-    .worker-limit-separator,
-    .worker-limit-unit {
-        font-size: 9px;
-    }
 
-    .worker-limit-remove {
-        width: 23px;
-        height: 23px;
-        min-height: 23px;
-        font-size: 9px;
-    }
 
-    .worker-limit-add {
-        width: auto;
-        min-width: 29px;
-        min-height: 28px;
-        padding: 0 7px;
-        gap: 3px;
-        border-radius: 6px;
-        font-size: 9px;
-        white-space: nowrap;
-    }
 
-    .manage-action-bar {
-        position: static;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
 
-    #manage-form .manage-action-inner {
-        min-height: 0;
-        padding: 3px 5px;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto auto;
-        align-items: center;
-        gap: 4px;
-    }
 
-    .manage-action-copy {
-        grid-column: 1;
-        display: flex;
-        padding: 0;
-        border: 0;
-    }
 
-    .manage-action-copy .manage-config-title {
-        white-space: nowrap;
-    }
 
-    .manage-action-copy > span:last-child {
-        display: none;
-    }
 
-    .manage-action-buttons {
-        grid-column: 1;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 3px;
-    }
 
-    .manage-action-btn {
-        min-height: 30px;
-        padding: 0 3px;
-        gap: 2px;
-        border-radius: 6px;
-        font-size: 9px;
-        white-space: nowrap;
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     #manage-form .card.shadow-sm.border-0.mb-4 {
         position: relative;

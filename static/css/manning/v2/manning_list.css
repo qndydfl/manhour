@@ -2,43 +2,6 @@
    MANNING LIST V2
 ========================================================= */
 
-.manning-list-hero {
-    margin-bottom: 28px;
-
-    display: flex;
-
-    align-items: flex-end;
-
-    justify-content: space-between;
-
-    gap: 30px;
-}
-
-
-.manning-list-label {
-    margin-bottom: 7px;
-
-    color: var(--manning-blue);
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 800;
-
-    letter-spacing: 0.16em;
-}
-
-
-.manning-list-title {
-    margin: 0;
-
-    font-size: var(--font-size-page-title);
-
-    font-weight: 700;
-
-    letter-spacing: -0.045em;
-}
-
-
 .manning-primary-button {
     min-height: 44px;
 
@@ -83,97 +46,6 @@
 
 /* =========================================================
    SUMMARY
-========================================================= */
-
-.manning-list-summary {
-    margin-bottom: 24px;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
-    gap: 14px;
-}
-
-
-.manning-summary-card {
-    min-height: 104px;
-
-    padding:
-        19px 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 20px;
-
-    border:
-        1px solid var(--manning-border-soft);
-
-    border-radius:
-        var(--manning-radius);
-
-    background:
-        var(--manning-surface);
-
-    box-shadow:
-        0 5px 20px rgba(15, 23, 42, 0.035);
-}
-
-
-.manning-summary-card span {
-    display: block;
-
-    color:
-        var(--manning-text-3);
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 800;
-
-    letter-spacing: 0.12em;
-}
-
-
-.manning-summary-card strong {
-    display: block;
-
-    margin-top: 8px;
-
-    font-size: 30px;
-
-    line-height: 1;
-
-    letter-spacing: -0.04em;
-}
-
-
-.manning-summary-icon {
-    width: 42px;
-    height: 42px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 11px;
-
-    background: #f1f5f9;
-
-    color: var(--manning-text-2);
-
-    font-size: 17px;
-}
-
-
-/* =========================================================
-   SESSION GRID
 ========================================================= */
 
 .manning-session-grid {
@@ -515,16 +387,10 @@
 
 @media (max-width: 760px) {
 
-    .manning-list-hero {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
 
 
-    .manning-list-summary {
-        grid-template-columns: 1fr;
-    }
+
+
 
 
     .manning-session-grid {

@@ -42,15 +42,15 @@ class WorkplaceIsolationTests(TestCase):
             [self.site_a_session.id, self.site_b_session.id],
         )
 
-    def test_mobile_list_renders_collapsible_session_summary(self):
+    def test_mobile_list_renders_expanded_session_cards(self):
         self.site_a_session.aircraft_reg = "HL1234"
         self.site_a_session.work_package_name = "A-Check"
         self.site_a_session.save(update_fields=["aircraft_reg", "work_package_name"])
 
         response = self.client.get(reverse("manning:manning_list"))
 
-        self.assertContains(response, "data-mobile-fold")
-        self.assertContains(response, 'data-mobile-fold-title="HL1234 · A-Check"')
+        self.assertContains(response, '<article class="manning-session-card">', count=2)
+        self.assertNotContains(response, 'data-mobile-fold-title="HL1234 · A-Check"')
 
     def test_dashboard_allows_reading_session_from_another_workplace(self):
         response = self.client.get(

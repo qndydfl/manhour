@@ -6,122 +6,6 @@
    HERO / SESSION HEADER
 ========================================================= */
 
-.manning-dashboard-hero {
-    position: relative;
-
-    margin-bottom: 24px;
-
-    padding: 30px;
-
-    overflow: hidden;
-
-    border-radius: 20px;
-
-    background:
-        radial-gradient(
-            circle at 90% 15%,
-            rgba(37, 99, 235, 0.28),
-            transparent 30%
-        ),
-        linear-gradient(135deg, #08111f 0%, #0b1729 100%);
-
-    color: #ffffff;
-}
-
-.manning-dashboard-hero::after {
-    content: "";
-
-    position: absolute;
-
-    width: 360px;
-    height: 360px;
-
-    right: -120px;
-    bottom: -180px;
-
-    border-radius: 50%;
-
-    border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.manning-dashboard-hero-inner {
-    position: relative;
-
-    z-index: 2;
-
-    display: flex;
-
-    align-items: flex-end;
-
-    gap: 30px;
-}
-
-.manning-dashboard-eyebrow {
-    margin-bottom: 9px;
-
-    color: #60a5fa;
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 800;
-
-    letter-spacing: 0.17em;
-}
-
-.manning-dashboard-aircraft {
-    margin: 0;
-
-    font-size: 42px;
-
-    font-weight: 700;
-
-    line-height: 1;
-
-    letter-spacing: -0.045em;
-}
-
-.manning-dashboard-package {
-    margin-top: 11px;
-
-    color: #cbd5e1;
-
-    font-size: 15px;
-
-    font-weight: 500;
-}
-
-.manning-dashboard-meta {
-    margin-top: 18px;
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 8px;
-}
-
-.manning-dashboard-meta-item {
-    min-height: 31px;
-
-    padding: 0 11px;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    border-radius: 8px;
-
-    background: rgba(255, 255, 255, 0.07);
-
-    border: 1px solid rgba(255, 255, 255, 0.07);
-
-    color: #cbd5e1;
-
-    font-size: var(--font-size-xs);
-}
-
 .manning-dashboard-sidebar-meta {
     margin-top: 12px;
     display: grid;
@@ -272,85 +156,6 @@
 
 /* =========================================================
    KPI
-========================================================= */
-
-.manning-dashboard-kpi {
-    margin-bottom: 24px;
-
-    display: grid;
-
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-
-    gap: 14px;
-}
-
-.manning-kpi-card {
-    min-height: 112px;
-
-    padding: 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 20px;
-
-    border: 1px solid var(--manning-border-soft);
-
-    border-radius: 15px;
-
-    background: #ffffff;
-
-    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.035);
-}
-
-.manning-kpi-copy span {
-    display: block;
-
-    color: var(--manning-text-3);
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 800;
-
-    letter-spacing: 0.13em;
-}
-
-.manning-kpi-copy strong {
-    display: block;
-
-    margin-top: 9px;
-
-    font-size: 30px;
-
-    line-height: 1;
-
-    letter-spacing: -0.04em;
-}
-
-.manning-kpi-icon {
-    width: 43px;
-    height: 43px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 11px;
-
-    background: #f1f5f9;
-
-    color: #475569;
-
-    font-size: 17px;
-}
-
-/* =========================================================
-   DASHBOARD SECTION
 ========================================================= */
 
 .manning-dashboard-section {
@@ -809,9 +614,7 @@
 ========================================================= */
 
 @media (max-width: 1250px) {
-    .manning-dashboard-kpi {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+
 
     .manning-zone-grid {
         grid-template-columns: 1fr;
@@ -819,13 +622,9 @@
 }
 
 @media (max-width: 800px) {
-    .manning-dashboard-hero-inner {
-        align-items: flex-start;
-    }
 
-    .manning-dashboard-aircraft {
-        font-size: 34px;
-    }
+
+
 }
 
 @media (max-width: 700px) {
@@ -853,13 +652,9 @@
 }
 
 @media (max-width: 600px) {
-    .manning-dashboard-hero {
-        padding: 22px;
-    }
 
-    .manning-dashboard-kpi {
-        grid-template-columns: 1fr;
-    }
+
+
 
     .manning-v2-worker-grid {
         grid-template-columns: 1fr;

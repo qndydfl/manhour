@@ -193,6 +193,7 @@
 
 #scheduleTable .personal-v2-empty-cell {
     user-select: text;
+    font-weight: 800;
 }
 
 #scheduleTable .personal-v2-empty-copy {
@@ -202,9 +203,9 @@
     align-items: center;
     justify-content: center;
     overflow: visible;
-    color: #aeaeb2;
+    color:#000;
     cursor: text;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: 0;
     line-height: 1;
     white-space: nowrap;

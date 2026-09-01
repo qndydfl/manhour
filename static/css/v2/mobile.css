@@ -63,10 +63,8 @@ iframe {
         max-width: none;
     }
 
-    .manage-action-bar,
     .master-edit-savebar,
-    .template-editor-savebar,
-    .edit-action-bar {
+.edit-action-bar {
         bottom: 8px;
     }
 }
@@ -208,11 +206,9 @@ iframe {
         font-size: 11px;
     }
 
-    .assignment-hero,
-    .manning-dashboard-hero,
     .mh-create-panel-body,
-    .workforce-editor-panel-body,
-    .manning-form-panel-body {
+.workforce-editor-panel-body,
+.manning-form-panel-body {
         padding: 11px;
     }
 
@@ -227,14 +223,11 @@ iframe {
     }
 
     .mh-page-header,
-    .mh-create-header,
-    .master-v2-header,
-    .personal-v2-header,
-    .workforce-editor-hero,
-    .manning-list-hero,
-    .manning-form-header,
-    .template-editor-header,
-    .edit-header {
+.master-v2-header,
+.personal-v2-header,
+.workforce-editor-hero,
+.manning-form-header,
+.edit-header {
         margin-bottom: 10px;
     }
 
@@ -248,35 +241,27 @@ iframe {
         border-radius: 10px;
     }
 
-    .assignment-hero h2,
     .mh-page-title,
-    .mh-create-title,
-    .workforce-editor-hero h1,
-    .manning-form-title,
-    .manning-list-title,
-    .template-editor-title,
-    .edit-header h2 {
+.workforce-editor-hero h1,
+.manning-form-title,
+.edit-header h2 {
         font-size: clamp(18px, 5.5vw, 21px);
         line-height: 1.2;
     }
 
     .assignment-section-head,
-    .mh-page-header,
-    .mh-history-toolbar,
-    .master-v2-header,
-    .personal-v2-header-inner,
-    .manning-list-hero,
-    .manning-form-header,
-    .template-editor-header,
-    .edit-header {
+.mh-page-header,
+.mh-history-toolbar,
+.master-v2-header,
+.personal-v2-header-inner,
+.manning-form-header,
+.edit-header {
         gap: 8px;
     }
 
     .mh-page-desc,
-    .assignment-hero p,
-    .manning-form-description,
-    .template-editor-description,
-    .edit-session-meta {
+.manning-form-description,
+.edit-session-meta {
         line-height: 1.6;
     }
 
@@ -525,16 +510,9 @@ iframe {
         padding-bottom: 14px;
     }
 
-    .mh-create-header {
-        margin-bottom: 10px;
-        gap: 8px;
-    }
 
-    .mh-create-back {
-        min-height: 34px;
-        padding-inline: 10px;
-        font-size: 12px;
-    }
+
+
 
     .mh-create-layout {
         gap: 10px;
@@ -668,10 +646,8 @@ iframe {
         width: 100%;
     }
 
-    .manage-action-inner,
     .master-edit-savebar,
-    .template-editor-savebar,
-    .edit-action-bar {
+.edit-action-bar {
         padding: 10px;
     }
 
@@ -707,11 +683,10 @@ iframe {
     }
 
     .mh-page-desc,
-    .master-v2-description,
-    .personal-v2-sub,
-    .workforce-editor-hero p,
-    .manning-form-description,
-    .template-editor-description {
+.master-v2-description,
+.personal-v2-sub,
+.workforce-editor-hero p,
+.manning-form-description {
         font-size: 11.5px;
     }
 
@@ -903,38 +878,23 @@ iframe {
     }
 
     /* Manning compact mode: summary first, details on demand. */
-    .manning-list-hero,
     .manning-form-header,
-    .edit-header {
+.edit-header {
         margin-bottom: 10px;
     }
 
-    .manning-list-label,
-    .manning-dashboard-eyebrow,
     .manning-session-type,
-    .manning-form-panel-head small {
+.manning-form-panel-head small {
         display: none;
     }
 
-    .manning-list-summary {
-        margin-bottom: 10px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
 
-    .manning-list-summary .manning-summary-card {
-        min-height: 0;
-        padding: 10px;
-    }
 
-    .manning-list-summary .manning-summary-card:nth-child(3) {
-        display: none;
-    }
 
-    .manning-summary-icon,
-    .manning-kpi-icon {
-        display: none;
-    }
+
+
+
+
 
     .manning-session-grid {
         gap: 10px;
@@ -954,28 +914,15 @@ iframe {
         padding: 10px 12px;
     }
 
-    .manning-dashboard-hero {
-        margin-bottom: 10px;
-        padding: 13px;
-    }
 
-    .manning-dashboard-aircraft {
-        font-size: 22px;
-    }
 
-    .manning-dashboard-package {
-        margin-top: 4px;
-    }
 
-    .manning-dashboard-meta {
-        margin-top: 8px;
-        gap: 7px 12px;
-    }
 
-    .manning-dashboard-meta-item:nth-child(1),
-    .manning-dashboard-meta-item:nth-child(3) {
-        display: none;
-    }
+
+
+
+
+
 
     .manning-dashboard-actions,
     .edit-header-actions {
@@ -996,26 +943,13 @@ iframe {
         grid-column: auto;
     }
 
-    .manning-dashboard-kpi {
-        margin-bottom: 14px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 6px;
-    }
 
-    .manning-kpi-card {
-        min-height: 54px;
-        padding: 6px 5px;
-    }
 
-    .manning-kpi-copy span {
-        font-size: 9px;
-        line-height: 1.2;
-    }
 
-    .manning-kpi-copy strong {
-        margin-top: 3px;
-        font-size: 17px;
-    }
+
+
+
+
 
     .manning-dashboard-section {
         margin-bottom: 9px;
@@ -1093,15 +1027,12 @@ iframe {
     }
 
     .portal-brand-copy,
-    .portal-release-meta,
-    .mh-eyebrow,
-    .mh-create-eyebrow,
-    .manning-form-eyebrow,
-    .template-editor-eyebrow,
-    .edit-eyebrow,
-    .edit-action-copy,
-    .template-save-info,
-    .manage-config-note {
+.portal-release-meta,
+.mh-eyebrow,
+.manning-form-eyebrow,
+.edit-eyebrow,
+.edit-action-copy,
+.manage-config-note {
         display: none;
     }
 
@@ -1129,15 +1060,12 @@ iframe {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .portal-hero-title {
-        font-size: 22px;
-    }
 
-    .portal-hero-description,
+
     .portal-section-head p,
-    .manning-dashboard-section-description,
-    .mh-create-guide:not(.mh-create-guide-dark),
-    .workforce-guide:not(.workforce-guide-dark) {
+.manning-dashboard-section-description,
+.mh-create-guide:not(.mh-create-guide-dark),
+.workforce-guide:not(.workforce-guide-dark) {
         display: none;
     }
 
@@ -1287,25 +1215,21 @@ iframe {
     }
 
     .mh-page-title,
-    .mh-create-title,
-    .master-v2-title,
-    .workforce-editor-hero h1,
-    .manning-list-title,
-    .manning-form-title,
-    .template-editor-title,
-    .edit-header h2 {
+.master-v2-title,
+.workforce-editor-hero h1,
+.manning-form-title,
+.edit-header h2 {
         font-size: 20px;
         line-height: 1.25;
     }
 
     .mh-page-desc,
-    .master-v2-description,
-    .personal-v2-sub,
-    .workforce-editor-hero p,
-    .manning-form-description,
-    .template-editor-description,
-    .edit-session-meta,
-    .portal-section-head p {
+.master-v2-description,
+.personal-v2-sub,
+.workforce-editor-hero p,
+.manning-form-description,
+.edit-session-meta,
+.portal-section-head p {
         font-size: 12.5px;
         line-height: 1.55;
     }
@@ -1360,13 +1284,9 @@ iframe {
         font-size: 9px;
     }
 
-    .manning-kpi-copy span {
-        font-size: 10.5px;
-    }
 
-    .manning-kpi-copy strong {
-        font-size: 18px;
-    }
+
+
 
     .mobile-fold-toggle-copy strong {
         font-size: 13px;
@@ -1376,9 +1296,7 @@ iframe {
         font-size: 11px;
     }
 
-    body.assignment-console-body.manage-items-body .manage-action-btn {
-        font-size: 10.5px;
-    }
+
 
     body.assignment-console-body.manage-items-body
         #manageItemsTable

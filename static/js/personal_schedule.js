@@ -790,12 +790,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
-    function getSelectedScheduleRowCopyValues(row, range) {
-        return [...row.querySelectorAll("th, td")]
-            .filter((cell) => range.intersectsNode(cell))
-            .map((cell) => getScheduleCellCopyText(cell));
-    }
-
     function buildScheduleClipboardHtml(rows) {
         const bodyRows = rows
             .map(
@@ -912,7 +906,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const rows = selectedRows
-                .map((row) => getSelectedScheduleRowCopyValues(row, range))
+                .map((row) => getScheduleRowCopyValues(row))
                 .filter((values) => values.some((value) => value !== ""));
 
             if (!rows.length) {

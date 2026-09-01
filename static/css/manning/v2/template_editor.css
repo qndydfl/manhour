@@ -11,47 +11,6 @@
    PAGE HEADER
 ========================================================= */
 
-.template-editor-header {
-    margin-bottom: 28px;
-
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-
-    gap: 30px;
-}
-
-.template-editor-eyebrow {
-    margin-bottom: 7px;
-
-    color: var(--manning-blue);
-
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-
-    letter-spacing: 0.17em;
-}
-
-.template-editor-title {
-    margin: 0;
-
-    font-size: var(--font-size-page-title);
-    font-weight: 700;
-
-    letter-spacing: -0.045em;
-}
-
-.template-editor-description {
-    max-width: 680px;
-
-    margin: 10px 0 0;
-
-    color: var(--manning-text-2);
-
-    font-size: var(--font-size-base);
-    line-height: 1.7;
-}
-
 .template-editor-header-actions {
     display: flex;
     gap: 8px;
@@ -690,49 +649,6 @@
    SAVE BAR
 ========================================================= */
 
-.template-editor-savebar {
-    position: sticky;
-
-    bottom: 18px;
-
-    z-index: 20;
-
-    margin-top: 22px;
-
-    padding: 14px 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 20px;
-
-    border: 1px solid var(--manning-border-soft);
-
-    border-radius: 13px;
-
-    background: rgba(255, 255, 255, 0.94);
-
-    backdrop-filter: blur(14px);
-
-    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.1);
-}
-
-.template-save-info {
-    display: flex;
-    align-items: center;
-
-    gap: 9px;
-
-    color: var(--manning-text-2);
-
-    font-size: var(--font-size-xs);
-}
-
-.template-save-info i {
-    color: var(--manning-blue);
-}
-
 .template-save-btn {
     min-height: 42px;
 
@@ -790,15 +706,9 @@
 }
 
 @media (max-width: 760px) {
-    .template-editor-header {
-        align-items: flex-start;
 
-        flex-direction: column;
-    }
 
-    .template-editor-title {
-        font-size: 28px;
-    }
+
 
     .template-editor-summary {
         grid-template-columns: 1fr;
@@ -808,11 +718,7 @@
         grid-template-columns: 1fr;
     }
 
-    .template-editor-savebar {
-        align-items: stretch;
 
-        flex-direction: column;
-    }
 
     .template-save-btn {
         width: 100%;

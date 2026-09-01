@@ -90,6 +90,14 @@ def get_current_workplace(request) -> str:
     return set_workplace_in_session(request, normalized)
 
 
+class WorkplaceScopedQuerysetMixin:
+    """현재 로그인 그룹의 데이터만 조회하는 공통 필터."""
+
+    def get_queryset(self):
+        workplace = get_current_workplace(self.request)
+        return super().get_queryset().filter(site=workplace)
+
+
 def get_session_or_404(request, session_id: int, **kwargs):
     workplace = get_current_workplace(request)
     if "is_active" not in kwargs:
@@ -773,15 +781,11 @@ class EditSessionView(SimpleLoginRequiredMixin, View):
         return redirect("manhour:result_view", session_id=session.id)
 
 
-class ResultView(SimpleLoginRequiredMixin, DetailView):
+class ResultView(WorkplaceScopedQuerysetMixin, SimpleLoginRequiredMixin, DetailView):
     model = WorkSession
     template_name = "manhour/result_view.html"
     context_object_name = "session"
     pk_url_kwarg = "session_id"
-
-    def get_queryset(self):
-        workplace = get_current_workplace(self.request)
-        return super().get_queryset().filter(site=workplace)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2471,15 +2475,13 @@ class AssignedSummaryView(SimpleLoginRequiredMixin, View):
         )
 
 
-class PersonalScheduleView(SimpleLoginRequiredMixin, DetailView):
+class PersonalScheduleView(
+    WorkplaceScopedQuerysetMixin, SimpleLoginRequiredMixin, DetailView
+):
     model = WorkSession
     template_name = "manhour/personal_schedule.html"
     context_object_name = "session"
     pk_url_kwarg = "session_id"
-
-    def get_queryset(self):
-        workplace = get_current_workplace(self.request)
-        return super().get_queryset().filter(site=workplace)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -3015,13 +3017,11 @@ class CheckWxMetarApiView(View):
         return JsonResponse({"stations": stations})
 
 
-class TaskMasterDeleteView(SimpleLoginRequiredMixin, DeleteView):
+class TaskMasterDeleteView(
+    WorkplaceScopedQuerysetMixin, SimpleLoginRequiredMixin, DeleteView
+):
     model = TaskMaster
     success_url = reverse_lazy("manhour:paste_data")  # 기본값
-
-    def get_queryset(self):
-        workplace = get_current_workplace(self.request)
-        return super().get_queryset().filter(site=workplace)
 
     def form_valid(self, form):
         self.object = self.get_object()

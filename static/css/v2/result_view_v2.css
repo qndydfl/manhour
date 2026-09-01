@@ -256,99 +256,6 @@ body.assignment-console-body
    HERO
 ========================================================= */
 
-.assignment-hero {
-    position: relative;
-
-    margin-bottom: 20px;
-
-    padding: 28px;
-
-    overflow: hidden;
-
-    border-radius: 18px;
-
-    background:
-        radial-gradient(
-            circle at 88% 15%,
-            rgba(37, 99, 235, 0.28),
-            transparent 28%
-        ),
-        linear-gradient(135deg, #07111f, #0b1729);
-
-    color: #ffffff;
-}
-
-.assignment-hero-inner {
-    position: relative;
-
-    z-index: 2;
-
-    display: flex;
-
-    align-items: flex-end;
-
-    justify-content: space-between;
-
-    gap: 30px;
-}
-
-.assignment-hero-eyebrow {
-    margin-bottom: 8px;
-
-    color: #60a5fa;
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 800;
-
-    letter-spacing: 0.17em;
-}
-
-.assignment-hero h2 {
-    margin: 0;
-
-    color: #ffffff !important;
-
-    font-size: var(--font-size-page-title);
-
-    font-weight: 700;
-
-    letter-spacing: -0.04em;
-}
-
-.assignment-session-state {
-    margin-top: 13px;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    padding: 6px 10px;
-
-    border-radius: 8px;
-
-    background: rgba(255, 255, 255, 0.07);
-
-    color: #cbd5e1;
-
-    font-size: var(--font-size-xs);
-}
-
-.assignment-session-state-dot {
-    width: 7px;
-    height: 7px;
-
-    border-radius: 50%;
-
-    background: #22c55e;
-}
-
-.assignment-session-state.finished .assignment-session-state-dot {
-    background: #94a3b8;
-}
-
 .result-view-container > .card {
     border: 1px solid var(--assignment-border-soft) !important;
 
@@ -643,11 +550,7 @@ body.assignment-console-body
 ========================================================= */
 
 @media (max-width: 900px) {
-    .assignment-hero-inner {
-        align-items: flex-start;
 
-        flex-direction: column;
-    }
 
     .assignment-section-head {
         align-items: flex-start;
@@ -693,13 +596,9 @@ body.assignment-console-body
         padding: 0;
     }
 
-    .assignment-hero {
-        padding: 21px;
-    }
 
-    .assignment-hero h2 {
-        font-size: 27px;
-    }
+
+
 
     .table-custom {
         min-width: 800px;

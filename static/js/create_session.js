@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const gibunInput = document.getElementById("gibunInput");
     const gibunError = document.getElementById("gibunError");
     const realGibunField = document.getElementById("realGibunField");
-    const gibunWarning = document.getElementById("gibunWarning");
 
     const sessionInput = document.querySelector('input[name="session_name"]');
     const workerInput = document.querySelector('textarea[name="worker_names"]');
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let gibunList = [];
     let isProcessing = false;
-    let warningTimer = null;
 
     gibunContainer.addEventListener("click", (e) => {
         if (!e.target.closest(".remove-tag")) {
@@ -138,11 +136,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 gibunList.push(cleanText);
                 updateRealField();
                 renderTags();
-                hideWarning();
             }
         } catch (err) {
             console.error("[check_gibun] 요청 실패:", err);
-            hideWarning();
         } finally {
             isProcessing = false;
             gibunInput.disabled = false;
@@ -193,15 +189,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateRealField() {
         realGibunField.value = gibunList.join(",");
-    }
-
-    function showWarning(message) {
-        return;
-    }
-
-    function hideWarning() {
-        if (!gibunWarning) return;
-        gibunWarning.style.display = "none";
     }
 
     function checkFormValidity() {
