@@ -13,7 +13,7 @@
 {% block js %}
 <script
     defer
-    src="{% static 'js/personal_schedule.js' %}?v=20260901-5"
+    src="{% static 'js/personal_schedule.js' %}?v=20260902-2"
 ></script>
 {% endblock js %} 
 
@@ -101,9 +101,12 @@
                         type="button"
                         id="copy-schedule-btn"
                         class="personal-v2-btn"
+                        data-night-copy-phase="before-midnight"
                     >
                         <i class="bi bi-clipboard-check"></i>
-                        Copy
+                        <span id="copy-schedule-label">
+                            {% if session.shift_type == 'NIGHT' %}Copy 24:00까지{% else %}Copy{% endif %}
+                        </span>
                     </button>
 
                     <button
@@ -142,6 +145,8 @@
 
                     <tr
                         class="{% if item.wo == '간비' %}row-break{% else %}row-work{% endif %}"
+                        data-start-min="{{ item.start_min|default_if_none:'' }}"
+                        data-end-min="{{ item.end_min|default_if_none:'' }}"
                     >
                         <!-- WO -->
 
@@ -205,14 +210,7 @@
                             data-copy-value="{% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% endif %}"
                             class="font-monospace personal-v2-end-cell"
                         >
-                            {% if item.wo != '간비' or item.desc != '0' %}<span
-                                class="personal-v2-cell-value"
-                                >{{ item.end_str }}</span
-                            ><span
-                                class="personal-v2-selection-tail"
-                                aria-hidden="true"
-                                >&nbsp;</span
-                            >{% else %}<span
+                            {% if item.wo != '간비' or item.desc != '0' %}{{ item.end_str }}{% else %}<span
                                 class="personal-v2-empty-copy"
                                 aria-hidden="true"
                                 >·</span

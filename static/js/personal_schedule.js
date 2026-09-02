@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("personal-schedule-root");
     const copyBtn = document.getElementById("copy-schedule-btn");
+    const copyBtnLabel = document.getElementById("copy-schedule-label");
     const manualModal = document.getElementById("manualInputModal");
     const modalBody = document.getElementById("modal-rows-body");
     const workerCheckboxArea = document.getElementById("worker-checkbox-area");
@@ -729,9 +730,18 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const targetRows = [...table.querySelectorAll("tbody tr")].filter(
+        let targetRows = [...table.querySelectorAll("tbody tr")].filter(
             (row) => row.querySelectorAll("td").length === 5,
         );
+
+        let nightCopyPhase = "";
+        if (SHIFT_TYPE === "NIGHT") {
+            nightCopyPhase =
+                copyBtn?.dataset.nightCopyPhase || "before-midnight";
+            targetRows = targetRows.filter(
+                (row) => getNightCopyPhase(row) === nightCopyPhase,
+            );
+        }
 
         if (!targetRows.length) {
             alert("복사할 행이 없습니다.");
@@ -750,7 +760,29 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await writeScheduleRowsToClipboard(rows);
 
-            alert(`📋 ${rows.length}개 행이 5열 형식으로 복사되었습니다.`);
+            if (SHIFT_TYPE === "NIGHT" && copyBtn) {
+                if (nightCopyPhase === "before-midnight") {
+                    copyBtn.dataset.nightCopyPhase = "after-midnight";
+                    if (copyBtnLabel) {
+                        copyBtnLabel.textContent = "Copy 00:00 이후";
+                    }
+                    alert(
+                        `📋 24:00까지 ${rows.length}개 행이 복사되었습니다.\n다음 Copy는 00:00 이후 구간입니다.`,
+                    );
+                } else {
+                    copyBtn.dataset.nightCopyPhase = "before-midnight";
+                    if (copyBtnLabel) {
+                        copyBtnLabel.textContent = "Copy 24:00까지";
+                    }
+                    alert(
+                        `📋 00:00 이후 ${rows.length}개 행이 복사되었습니다.`,
+                    );
+                }
+            } else {
+                alert(
+                    `📋 ${rows.length}개 행이 5열 형식으로 복사되었습니다.`,
+                );
+            }
         } catch (err) {
             console.error("복사 실패:", err);
             alert("복사에 실패했습니다.");
@@ -785,9 +817,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getScheduleRowCopyValues(row) {
-        return [...row.querySelectorAll("th, td")].map((cell) =>
+        const values = [...row.querySelectorAll("th, td")].map((cell) =>
             getScheduleCellCopyText(cell),
         );
+
+        return [...values.slice(0, 5), "", "", "", "", ""].slice(0, 5);
+    }
+
+    function getNightCopyPhase(row) {
+        const rawStart = Number.parseInt(row.dataset.startMin || "", 10);
+
+        if (Number.isFinite(rawStart)) {
+            return rawStart >= 1440 || rawStart < 12 * 60
+                ? "after-midnight"
+                : "before-midnight";
+        }
+
+        const startText = getScheduleCellCopyText(
+            row.querySelectorAll("td")[3],
+        );
+        const hour = Number.parseInt(startText.split(":", 1)[0], 10);
+
+        return Number.isFinite(hour) && hour < 12
+            ? "after-midnight"
+            : "before-midnight";
+    }
+
+    function buildSchedulePlainText(rows) {
+        return rows.map((values) => values.join("\t")).join("\r\n");
     }
 
     function buildScheduleClipboardHtml(rows) {
@@ -840,7 +897,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function writeScheduleRowsToClipboard(rows) {
-        const plainText = rows.map((values) => values.join("\t")).join("\n");
+        const plainText = buildSchedulePlainText(rows);
         const html = buildScheduleClipboardHtml(rows);
 
         if (
@@ -875,7 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const scheduleTable = document.getElementById("scheduleTable");
     if (scheduleTable) {
-        scheduleTable.addEventListener("copy", (event) => {
+        document.addEventListener("copy", (event) => {
             const selection = window.getSelection();
 
             if (
@@ -887,6 +944,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const range = selection.getRangeAt(0);
+            if (!range.intersectsNode(scheduleTable)) {
+                return;
+            }
+
             const selectedRows = [...scheduleTable.querySelectorAll("tbody tr")]
                 .filter((row) => row.querySelectorAll("td").length === 5)
                 .filter((row) => range.intersectsNode(row));
@@ -922,14 +983,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            event.clipboardData.setData(
-                "text/plain",
-                rows.map((values) => values.join("\t")).join("\n"),
-            );
-            event.clipboardData.setData(
-                "text/html",
-                buildScheduleClipboardHtml(rows),
-            );
+            // 마우스 선택 복사는 구형 사내 프로그램도 읽을 수 있도록
+            // HTML 없이 5열 TSV와 Windows 줄바꿈만 전달한다.
+            event.clipboardData.clearData();
+            event.clipboardData.setData("text/plain", buildSchedulePlainText(rows));
             event.preventDefault();
         });
     }

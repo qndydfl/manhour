@@ -4,61 +4,32 @@
 {% block title %} AIR OPS Login {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/login_v2.css' %}" />
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/login_v2.css' %}?v=20260902-1"
+/>
 {% endblock css %}
 
 {% block content %}
 
 <main class="login-v2">
-    <!-- =====================================================
-         BRAND
-    ====================================================== -->
-
-    <section class="login-v2-brand">
-        <div class="login-v2-grid"></div>
-
-        <div class="login-v2-brand-content">
-            <div class="login-v2-logo">
-                <div class="login-v2-logo-icon">
-                    <i class="bi bi-airplane-engines"></i>
-                </div>
-
-                <div>
-                    <strong> AIR OPS </strong>
-
-                    <span> Maintenance Operations </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="login-v2-copy">
-            <div class="login-v2-eyebrow">AIRCRAFT MAINTENANCE OPERATIONS</div>
-
-            <h1>
-                Workforce.<br />
-                Manhour.<br />
-                Operations.
-            </h1>
-
-            <p>
-                Aircraft maintenance workforce planning, manhour analysis and
-                operational management in a unified workspace.
-            </p>
-        </div>
-
-        <div class="login-v2-footer">Maintenance Operations Platform</div>
-    </section>
-
-    <!-- =====================================================
-         LOGIN
-    ====================================================== -->
-
-    <section class="login-v2-form-side">
+    <section class="login-v2-form-side" aria-labelledby="login-title">
         <div class="login-v2-card">
-            <header class="login-v2-card-head">
-                <span> SECURE ACCESS </span>
+            <div class="login-v2-card-brand">
+                <span class="login-v2-logo-icon" aria-hidden="true">
+                    <i class="bi bi-airplane-engines"></i>
+                </span>
 
-                <h2>Sign in</h2>
+                <span class="login-v2-brand-copy">
+                    <strong>AIR OPS</strong>
+                    <small>Maintenance Operations</small>
+                </span>
+            </div>
+
+            <header class="login-v2-card-head">
+                <span>SECURE ACCESS</span>
+
+                <h1 id="login-title">Sign in</h1>
 
                 <p>근무지를 선택하고 비밀번호를 입력하세요.</p>
             </header>
@@ -123,7 +94,7 @@
                             type="password"
                             name="password"
                             placeholder="비밀번호 입력"
-                            autocomplete="new-password"
+                            autocomplete="current-password"
                             required
                         />
                     </div>

@@ -1073,26 +1073,6 @@ iframe {
         margin-bottom: 14px;
     }
 
-    .login-v2 {
-        min-height: 100dvh;
-        grid-template-columns: 1fr;
-        background: #f4f7fb;
-    }
-
-    .login-v2-brand {
-        display: none;
-    }
-
-    .login-v2-form-side {
-        min-height: 100dvh;
-        padding: 16px 12px;
-    }
-
-    .login-v2-card {
-        width: 100%;
-        padding: 18px 14px;
-    }
-
     .portal-card-body,
     .mh-session-card,
     .mh-history-item,
