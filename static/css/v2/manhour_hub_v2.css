@@ -625,11 +625,21 @@
     background: #f8fafc;
 }
 
-.mh-session-list-page .mh-session-grid-single .mh-session-card,
-.mh-session-list-page .mh-session-grid > .mh-session-card:only-child {
-    grid-column: 1 / -1;
-    width: calc((100% - (var(--mh-session-grid-gap) * 3)) / 4);
-    justify-self: center;
+.mh-session-list-page .mh-session-grid.mh-session-grid-single,
+.mh-session-list-page
+    .mh-session-grid:has(> article.mh-session-card:only-of-type) {
+    width: min(100%, 406px);
+    margin-inline: auto;
+    grid-template-columns: minmax(0, 370px);
+    justify-content: center;
+}
+
+.mh-session-list-page .mh-session-grid-single > .mh-session-card,
+.mh-session-list-page
+    .mh-session-grid:has(> article.mh-session-card:only-of-type)
+    > .mh-session-card {
+    width: 100%;
+    max-width: 370px;
 }
 
 .mh-session-list-page .mh-session-card {
@@ -957,9 +967,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .mh-session-list-page .mh-session-grid-single .mh-session-card,
-    .mh-session-list-page .mh-session-grid > .mh-session-card:only-child {
-        width: calc((100% - var(--mh-session-grid-gap)) / 2);
+    .mh-session-list-page .mh-session-grid.mh-session-grid-single,
+    .mh-session-list-page
+        .mh-session-grid:has(> article.mh-session-card:only-of-type) {
+        grid-template-columns: minmax(0, 370px);
     }
 }
 
@@ -1026,9 +1037,18 @@
         gap: 14px;
     }
 
-    .mh-session-list-page .mh-session-grid-single .mh-session-card,
-    .mh-session-list-page .mh-session-grid > .mh-session-card:only-child {
+    .mh-session-list-page .mh-session-grid.mh-session-grid-single,
+    .mh-session-list-page
+        .mh-session-grid:has(> article.mh-session-card:only-of-type) {
         width: 100%;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .mh-session-list-page .mh-session-grid-single > .mh-session-card,
+    .mh-session-list-page
+        .mh-session-grid:has(> article.mh-session-card:only-of-type)
+        > .mh-session-card {
+        max-width: none;
     }
 }
 
