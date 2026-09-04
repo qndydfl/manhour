@@ -58,15 +58,7 @@
 <main class="mh-page mh-assigned-summary-page">
     <section class="mh-page-header mh-page-header-summary">
         <div class="assignment-topbar-btn">
-                <i class="bi bi-activity"></i>
-            <span>
-                SESSION {% if session.is_active %}ACTIVE{% else %}COMPLETED{% endif %}
-            </span>
-        </div>
-
-        <div class="assignment-topbar-btn">
-            <i class="bi bi-clock"></i>
-            <span>WORK LIMIT DAY 10.5 / NIGHT 11.0</span>
+            <i class="bi bi-activity"></i>{{ session.name }}
         </div>
         
         <div class="text-end">

@@ -107,6 +107,7 @@
 }
 
 .mh-page-header-summary .assignment-topbar-btn {
+    font-size: var(--font-size-sm);
     min-height: 38px;
     padding: 0 14px;
     border: 1px solid #c9d9ea;

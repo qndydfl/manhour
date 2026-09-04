@@ -1,5 +1,5 @@
 /* =========================================================
-   PERSONAL SCHEDULE V2
+    PERSONAL SCHEDULE V2
 ========================================================= */
 
 .personal-v2-page {
@@ -10,7 +10,7 @@
 }
 
 /* =========================================================
-   HERO
+    HERO
 ========================================================= */
 
 .personal-v2-header {
@@ -142,7 +142,7 @@
 }
 
 /* =========================================================
-   TABLE
+    TABLE
 ========================================================= */
 
 .personal-v2-table-card {
@@ -253,7 +253,7 @@
 }
 
 /* =========================================================
-   MANUAL INPUT MODAL
+    MANUAL INPUT MODAL
 ========================================================= */
 
 #manualInputModal .modal-content,
@@ -296,7 +296,7 @@
 }
 
 /* =========================================================
-   RESPONSIVE
+    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 720px) {
@@ -307,6 +307,10 @@
     .personal-v2-header-inner {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .personal-v2-header-inner .personal-v2-eyebrow {
+        font-size: 10px !important;
     }
 
     .personal-v2-header-tools {
@@ -327,8 +331,64 @@
         overflow-x: auto;
     }
 
+    .personal-v2-btn {
+        display: none;
+    }
+
     #scheduleTable {
-        min-width: 620px;
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+        font-size: 10px;
+    }
+
+    #scheduleTable thead th,
+    #scheduleTable tbody td {
+        overflow: hidden;
+        padding: 6px 3px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #scheduleTable thead th {
+        font-size: 9px;
+        letter-spacing: 0;
+    }
+
+    #scheduleTable tbody td {
+        font-size: 10px;
+    }
+
+    #scheduleTable th:nth-child(1),
+    #scheduleTable td:nth-child(1) {
+        width: 27%;
+    }
+
+    #scheduleTable th:nth-child(2),
+    #scheduleTable td:nth-child(2) {
+        width: 13%;
+    }
+
+    #scheduleTable th:nth-child(3),
+    #scheduleTable td:nth-child(3) {
+        width: 18%;
+    }
+
+    #scheduleTable th:nth-child(4),
+    #scheduleTable td:nth-child(4),
+    #scheduleTable th:nth-child(5),
+    #scheduleTable td:nth-child(5) {
+        width: 21%;
+    }
+
+    #scheduleTable .mh-shift {
+        padding: 3px 4px;
+        font-size: 8px;
+    }
+
+    .personal-v2-table-footer {
+        padding: 8px 7px;
+        font-size: 10px;
     }
 
     #manualInputModal .modal-dialog {

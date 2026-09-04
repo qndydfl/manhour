@@ -195,6 +195,24 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertFalse(self.site_a_session.is_active)
         self.assertIsNotNone(self.site_a_session.finished_at)
 
+    def test_result_view_worker_status_is_always_visible(self):
+        Worker.objects.create(
+            session=self.site_a_session,
+            name="Alice",
+            used_mh=7.6,
+            limit_mh=9.5,
+        )
+
+        response = self.client.get(
+            reverse("manhour:result_view", args=[self.site_a_session.id])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<details class="card')
+        self.assertContains(response, "worker-status-panel")
+        self.assertContains(response, "worker-used-mh")
+        self.assertContains(response, "worker-limit-mh")
+
     def test_index_renders_mobile_workspace_accordions_and_hidden_sections(self):
         response = self.client.get(reverse("manhour:index"))
 
