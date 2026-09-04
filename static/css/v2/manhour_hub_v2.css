@@ -88,7 +88,7 @@
     border-radius: 999px;
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     color: #1d4ed8;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: 800;
     letter-spacing: 0.02em;
     white-space: nowrap;
@@ -1270,38 +1270,27 @@
 
     .mh-assigned-summary-page .mh-worker-table th {
         padding: 7px 6px;
-        font-size: 10px;
+        font-size: 12px;
         letter-spacing: 0.03em;
         white-space: nowrap;
     }
 
     .mh-assigned-summary-page .mh-worker-table td {
         padding: 6px;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .mh-assigned-summary-page .mh-worker-name {
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .mh-assigned-summary-page .mh-worker-shift {
         gap: 4px;
     }
-
-    .mh-assigned-summary-page .mh-worker-status,
-    .mh-assigned-summary-page .mh-shift {
-        padding: 4px 6px;
-        font-size: 9px;
-    }
-
-    .mh-assigned-summary-page .mh-progress-legend {
-        margin-top: 4px;
-        font-size: 10px;
-    }
-
+    
     .mh-assigned-summary-page .mh-worker-table .mh-btn {
         min-height: 32px;
         padding: 6px 8px;
-        font-size: 11px;
+        font-size: 12px;
     }
 }

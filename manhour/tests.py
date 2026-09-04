@@ -390,6 +390,7 @@ class AuthorizationAndScopeTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="assignment-console-body manage-items-body"')
         self.assertContains(response, ">Alice: 8, Bob: 7.5</textarea>")
 
         save_response = self.client.post(

@@ -1,7 +1,7 @@
 /* =========================================================
-   SHARED MOBILE FOUNDATION
-   Loaded after page styles so every screen follows the same
-   spacing, touch-target, form and overflow rules.
+    SHARED MOBILE FOUNDATION
+    Loaded after page styles so every screen follows the same
+    spacing, touch-target, form and overflow rules.
 ========================================================= */
 
 html,
@@ -64,7 +64,7 @@ iframe {
     }
 
     .master-edit-savebar,
-.edit-action-bar {
+    .edit-action-bar {
         bottom: 8px;
     }
 }
@@ -207,8 +207,8 @@ iframe {
     }
 
     .mh-create-panel-body,
-.workforce-editor-panel-body,
-.manning-form-panel-body {
+    .workforce-editor-panel-body,
+    .manning-form-panel-body {
         padding: 11px;
     }
 
@@ -223,11 +223,11 @@ iframe {
     }
 
     .mh-page-header,
-.master-v2-header,
-.personal-v2-header,
-.workforce-editor-hero,
-.manning-form-header,
-.edit-header {
+    .master-v2-header,
+    .personal-v2-header,
+    .workforce-editor-hero,
+    .manning-form-header,
+    .edit-header {
         margin-bottom: 10px;
     }
 
@@ -242,26 +242,26 @@ iframe {
     }
 
     .mh-page-title,
-.workforce-editor-hero h1,
-.manning-form-title,
-.edit-header h2 {
+    .workforce-editor-hero h1,
+    .manning-form-title,
+    .edit-header h2 {
         font-size: clamp(18px, 5.5vw, 21px);
         line-height: 1.2;
     }
 
     .assignment-section-head,
-.mh-page-header,
-.mh-history-toolbar,
-.master-v2-header,
-.personal-v2-header-inner,
-.manning-form-header,
-.edit-header {
+    .mh-page-header,
+    .mh-history-toolbar,
+    .master-v2-header,
+    .personal-v2-header-inner,
+    .manning-form-header,
+    .edit-header {
         gap: 8px;
     }
 
     .mh-page-desc,
-.manning-form-description,
-.edit-session-meta {
+    .manning-form-description,
+    .edit-session-meta {
         line-height: 1.6;
     }
 
@@ -408,10 +408,6 @@ iframe {
         padding-bottom: 14px;
     }
 
-
-
-
-
     .mh-create-layout {
         gap: 10px;
     }
@@ -545,7 +541,7 @@ iframe {
     }
 
     .master-edit-savebar,
-.edit-action-bar {
+    .edit-action-bar {
         padding: 10px;
     }
 
@@ -581,10 +577,10 @@ iframe {
     }
 
     .mh-page-desc,
-.master-v2-description,
-.personal-v2-sub,
-.workforce-editor-hero p,
-.manning-form-description {
+    .master-v2-description,
+    .personal-v2-sub,
+    .workforce-editor-hero p,
+    .manning-form-description {
         font-size: 11.5px;
     }
 
@@ -777,22 +773,14 @@ iframe {
 
     /* Manning compact mode: summary first, details on demand. */
     .manning-form-header,
-.edit-header {
+    .edit-header {
         margin-bottom: 10px;
     }
 
     .manning-session-type,
-.manning-form-panel-head small {
+    .manning-form-panel-head small {
         display: none;
     }
-
-
-
-
-
-
-
-
 
     .manning-session-grid {
         gap: 10px;
@@ -812,16 +800,6 @@ iframe {
         padding: 10px 12px;
     }
 
-
-
-
-
-
-
-
-
-
-
     .manning-dashboard-actions,
     .edit-header-actions {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -840,14 +818,6 @@ iframe {
     .edit-toolbar-btn-light {
         grid-column: auto;
     }
-
-
-
-
-
-
-
-
 
     .manning-dashboard-section {
         margin-bottom: 9px;
@@ -925,12 +895,12 @@ iframe {
     }
 
     .portal-brand-copy,
-.portal-release-meta,
-.mh-eyebrow,
-.manning-form-eyebrow,
-.edit-eyebrow,
-.edit-action-copy,
-.manage-config-note {
+    .portal-release-meta,
+    .mh-eyebrow,
+    .manning-form-eyebrow,
+    .edit-eyebrow,
+    .edit-action-copy,
+    .manage-config-note {
         display: none;
     }
 
@@ -961,9 +931,9 @@ iframe {
 
 
     .portal-section-head p,
-.manning-dashboard-section-description,
-.mh-create-guide:not(.mh-create-guide-dark),
-.workforce-guide:not(.workforce-guide-dark) {
+    .manning-dashboard-section-description,
+    .mh-create-guide:not(.mh-create-guide-dark),
+    .workforce-guide:not(.workforce-guide-dark) {
         display: none;
     }
 
@@ -1000,8 +970,8 @@ iframe {
 }
 
 /* =========================================================
-   PHONE PORTRAIT BASELINE
-   Final readability layer for common 360px-430px phones.
+    PHONE PORTRAIT BASELINE
+    Final readability layer for common 360px-430px phones.
 ========================================================= */
 
 @media (max-width: 576px) {
@@ -1093,21 +1063,21 @@ iframe {
     }
 
     .mh-page-title,
-.master-v2-title,
-.workforce-editor-hero h1,
-.manning-form-title,
-.edit-header h2 {
+    .master-v2-title,
+    .workforce-editor-hero h1,
+    .manning-form-title,
+    .edit-header h2 {
         font-size: 20px;
         line-height: 1.25;
     }
 
     .mh-page-desc,
-.master-v2-description,
-.personal-v2-sub,
-.workforce-editor-hero p,
-.manning-form-description,
-.edit-session-meta,
-.portal-section-head p {
+    .master-v2-description,
+    .personal-v2-sub,
+    .workforce-editor-hero p,
+    .manning-form-description,
+    .edit-session-meta,
+    .portal-section-head p {
         font-size: 12.5px;
         line-height: 1.55;
     }

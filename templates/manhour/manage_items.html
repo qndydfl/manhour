@@ -5,6 +5,8 @@
 
 {% block title %} Manage Items | Manhour {% endblock title %}
 
+{% block body_class %}manage-items-body{% endblock body_class %}
+
 {% block css %}
 <link
     rel="stylesheet"
@@ -12,7 +14,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/manage_items_v2.css' %}?v=20260831-2"
+    href="{% static 'css/v2/manage_items_v2.css' %}?v=20260904-1"
 />
 {% endblock css %} 
 
@@ -28,6 +30,15 @@
     window.lastMhPercent = "{{ lastMhPercent|default:'0'|escapejs }}";
     window.adjustedMhCustomIds =
         "{{ lastAdjustedCustomIds|join:','|escapejs }}";
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const pasteModal = document.getElementById("pasteDataModal");
+        if (pasteModal) {
+            document.body.appendChild(pasteModal);
+        }
+    });
 </script>
 
 <script defer src="{% static 'js/paste_data.js' %}?v=20260831-1"></script>
@@ -238,7 +249,7 @@
                                     <div
                                         class="d-flex align-items-center justify-content-between flex-wrap gap-2"
                                     >
-                                        <div class="fw-bold text-dark fs-6">
+                                        <div class="fw-bold text-dark">
                                             <i
                                                 class="bi bi-airplane-engines-fill me-2"
                                             ></i>
@@ -262,7 +273,7 @@
                                                 title="기번 아래로 이동"
                                             >
                                                 <i
-                                                    class="bi bi-arrow-down-circle-fill fs-5"
+                                                    class="bi bi-arrow-down-circle-fill"
                                                 ></i>
                                             </a>
                                         </div>
@@ -638,13 +649,6 @@
 
 {% include "manhour/partials/data_confirm_dialog.html" %}
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const pasteModal = document.getElementById("pasteDataModal");
-        if (pasteModal) {
-            document.body.appendChild(pasteModal);
-        }
-    });
-</script>
+{% endblock content %} 
 
-{% endblock content %} {% block footer %}{% endblock footer %}
+{% block footer %}{% endblock footer %}

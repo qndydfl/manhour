@@ -1,0 +1,3300 @@
+
+
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <meta name="theme-color" content="#08111f" />
+
+        <title>
+             Manage Items | Manhour 
+        </title>
+
+        <link
+            rel="stylesheet"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
+        />
+
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        />
+
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        />
+
+        <link rel="stylesheet" href="/static/css/v2/tokens.css" />
+
+        <link
+            rel="icon"
+            href="/static/favicon.svg"
+            type="image/svg+xml"
+        />
+
+        <link
+            rel="stylesheet"
+            href="/static/css/v2/result_view_v2.css?v=20260904-3"
+        />
+
+        <link rel="stylesheet" href="/static/css/v2/loader_v2.css" />
+        <link rel="stylesheet" href="/static/css/v2/app_dialog.css" />
+
+        <script defer src="/static/js/v2_loader.js"></script>
+        <script defer src="/static/js/app_dialog.js"></script>
+
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        ></script>
+
+        
+<script>
+    const PASTE_DATA_POST_URL = "/session/13/paste-items/";
+    window.PASTE_DATA_ALLOW_DUPLICATES = true;
+    const MASTER_DATA_LIST_URL = "/session/13/manage/";
+    const REORDER_ITEMS_URL = "/session/13/reorder-items/";
+    const MASTER_ITEMS_URL = "/session/13/master-items/";
+    const DUPLICATE_MASTER_ITEMS_URL =
+        "/session/13/master-items/duplicate/";
+    window.lastMhPercent = "0";
+    window.adjustedMhCustomIds =
+        "";
+</script>
+
+<script defer src="/static/js/paste_data.js?v=20260831-1"></script>
+<script defer src="/static/js/manage_items.js?v=20260830-1"></script>
+
+
+        <link
+            rel="stylesheet"
+            href="/static/css/v2/ios_theme.css?v=20260831-6"
+        />
+
+        
+<link
+    rel="stylesheet"
+    href="/static/css/v2/dialog_v2.css?v=20260827-1"
+/>
+<link
+    rel="stylesheet"
+    href="/static/css/v2/manage_items_v2.css?v=20260904-1"
+/>
+
+
+        <link
+            rel="stylesheet"
+            href="/static/css/v2/mobile.css?v=20260904-1"
+        />
+    </head>
+
+    <body
+        class="assignment-console-body manage-items-body"
+    >
+        <div id="common-loader" class="v2-loader" hidden>
+    <div class="v2-loader-card">
+        <div class="v2-loader-symbol">
+            <i class="bi bi-airplane-engines"></i>
+        </div>
+
+        <div class="v2-loader-progress">
+            <span></span>
+        </div>
+
+        <h3 id="loader-title">Processing</h3>
+
+        <p id="loader-text">잠시만 기다려 주세요.</p>
+    </div>
+</div>
+  
+<header class="assignment-topbar manage-items-topbar">
+    <div class="assignment-topbar-inner">
+        <a
+            href="/session/13/manage/"
+            class="assignment-brand"
+        >
+            <div class="assignment-brand-icon">
+                <i class="bi bi-sliders2"></i>
+            </div>
+            <div>
+                <strong>DATA OPERATIONS</strong>
+                <span>HL7620 a check · Integrated Work Item Control</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
+            <button
+                type="button"
+                class="assignment-topbar-btn assignment-topbar-btn-danger d-none"
+                id="btn-delete-selected"
+                title="선택 항목 삭제"
+            >
+                <i class="bi bi-trash3"></i>
+                <span>선택 삭제</span>
+            </button>
+            <button
+                type="button"
+                class="assignment-topbar-btn"
+                id="btn-clear-assigned"
+                title="이름 전체 삭제"
+            >
+                <i class="bi bi-person-x"></i>
+                <span>이름 전체 삭제</span>
+            </button>
+            <a
+                href="/session/13/"
+                class="assignment-topbar-btn"
+                title="취소"
+            >
+                <i class="bi bi-x-lg"></i>
+                <span>취소</span>
+            </a>
+            <button
+                type="submit"
+                form="manage-form"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+                title="저장"
+            >
+                <i class="bi bi-check-lg"></i>
+                <span>저장</span>
+            </button>
+            <button
+                type="button"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#pasteDataModal"
+                title="데이터 등록"
+            >
+                <i class="bi bi-clipboard-plus"></i>
+                <span>데이터 등록</span>
+            </button>
+            <a
+                href="/session/13/"
+                class="assignment-topbar-btn"
+                title="결과 보기"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span>배정 현황</span>
+            </a>
+            <a
+                href="/"
+                class="assignment-topbar-btn"
+                title="홈"
+            >
+                <i class="bi bi-house"></i>
+                <span>홈</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="container rounded-3">
+    <form
+        method="POST"
+        id="manage-form"
+        data-loading
+        data-loading-title="데이터 저장 중"
+        data-loading-text="잠시만 기다려 주세요."
+        action="/session/13/manage/"
+    >
+        <input type="hidden" name="csrfmiddlewaretoken" value="KkMb4as8HIxFjQTwWu1uoHdB6YqeDlkTk4jfTTdzh1vF5dHPCTXs0cRVsiylQWWE"> <input type="hidden" name="form-TOTAL_FORMS" value="22" id="id_form-TOTAL_FORMS"><input type="hidden" name="form-INITIAL_FORMS" value="22" id="id_form-INITIAL_FORMS"><input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS"><input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS">
+        <input type="hidden" name="submit_intent" id="submit-intent" value="" />
+
+        <div class="manage-config-grid">
+            <div class="manage-config-item manage-limit-item">
+                <div class="card manage-config-card manage-limit-card">
+                    <div class="card-header manage-config-header">
+                        <span class="manage-config-title">
+                            <i class="bi bi-person-gear"></i>
+                            작업자 : 근무 한도
+                        </span>
+                        <span class="manage-config-note"> 직비에만 적용 </span>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div
+                            class="worker-limit-editor worker-limit-editor-direct"
+                        >
+                            <textarea
+                                name="worker_names_str"
+                                class="worker-limit-direct-input"
+                                data-worker-limit-source
+                                spellcheck="false"
+                                placeholder="예: 홍길동: 8, 김철수: 7.5, 이영희: 6"
+                            >박광수: 9.5, 박교태: 9.5, 박동호: 9.5, 박부성: 9.5, 박상현: 9.5, 박성구: 9.5, 박시영: 9.5, 박재윤: 9.5, 반기윤: 9.5, 변희성: 9.5, 서영호: 9.5, 손경섭: 9.5, 송인욱: 9.5, 송지환: 9.5, 신영우: 9.5, 신홍규: 9.5, 신효성: 9.5, 안치훈: 9.5, 양대웅: 9.5, 오규일: 9.5, 오재준: 9.5, 유석윤: 9.5, 이선학: 9.5, 이안호: 9.5, 이양욱: 9.5, 이재훈: 9.5, 장태규: 9.5</textarea>
+                        </div>
+                        <div class="worker-limit-help-text">
+                            쉼표로 구분하여 옆으로 입력하세요. 줄바꿈도 사용할 수
+                            있으며 형식은 이름 또는 이름: 시간입니다.
+                        </div>
+                        <div
+                            class="worker-limit-duplicate-notice d-none"
+                            data-worker-limit-duplicate-notice
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table
+                        id="manageItemsTable"
+                        class="table table-hover mb-0 align-middle text-center"
+                    >
+                        <colgroup>
+                            <col style="width: 80px" />
+                            <col style="width: 52px" />
+                            <col style="width: 92px" />
+                            <col style="width: 128px" />
+                            <col style="width: 78px" />
+                            <col style="width: 380px" />
+                            <col style="width: 92px" />
+                            <col style="width: 124px" />
+                            <col />
+                        </colgroup>
+
+                        <thead
+                            class="table-light sticky-top"
+                            style="z-index: 4"
+                        >
+                            <tr class="text-secondary small">
+                                <th class="col-delete text-danger">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </th>
+                                <th class="col-order">순서</th>
+                                <th class="col-gibun">기번</th>
+                                <th class="col-wo">W/O</th>
+                                <th class="col-op">OP</th>
+                                <th class="col-desc">작업 내용</th>
+                                <th class="col-mh">Plan M/H</th>
+                                <th class="col-mh-adjust">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center gap-2"
+                                    >
+                                        <select
+                                            class="form-select form-select-sm mh-adjust-select text-primary fw-bold"
+                                            name="mh_percent"
+                                            style="
+                                                min-width: 100px;
+                                                display: inline-block;
+                                            "
+                                        >
+                                            <option value="0">원래값</option>
+                                            <option value="10">+10%</option>
+                                            <option value="20">+20%</option>
+                                            <option value="30">+30%</option>
+                                            <option value="custom">
+                                                개별수정
+                                            </option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th
+                                    class="bg-primary bg-opacity-10 text-primary col-assign"
+                                >
+                                    고정 배정 (이름)
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                             
+                            <tr
+                                class="table-secondary border-bottom border-secondary group-header"
+                                data-gibun="HL7620"
+                            >
+                                <td colspan="9" class="text-start py-2 px-3">
+                                    <div
+                                        class="d-flex align-items-center justify-content-between flex-wrap gap-2"
+                                    >
+                                        <div class="fw-bold text-dark fs-6">
+                                            <i
+                                                class="bi bi-airplane-engines-fill me-2"
+                                            ></i>
+                                            HL7620
+                                        </div>
+
+                                        <div>
+                                            <a
+                                                href="/reorder-gibun/13/HL7620/up/"
+                                                class="btn btn-sm btn-outline-secondary border-0 p-0 me-1"
+                                                title="기번 위로 이동"
+                                            >
+                                                <i
+                                                    class="bi bi-arrow-up-circle-fill fs-5"
+                                                ></i>
+                                            </a>
+
+                                            <a
+                                                href="/reorder-gibun/13/HL7620/down/"
+                                                class="btn btn-sm btn-outline-secondary border-0 p-0"
+                                                title="기번 아래로 이동"
+                                            >
+                                                <i
+                                                    class="bi bi-arrow-down-circle-fill fs-5"
+                                                ></i>
+                                            </a>
+                                        </div>
+
+                                        <div
+                                            class="form-check form-switch mb-0"
+                                        >
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="chk_group_1"
+                                                data-gibun="HL7620"
+                                                onclick="
+                                                    toggleGroupDelete(this)
+                                                "
+                                                aria-label="그룹 전체 삭제 토글"
+                                            />
+                                            <label
+                                                class="form-check-label small fw-bold text-danger"
+                                                for="chk_group_1"
+                                            >
+                                                그룹 전체 삭제
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="196"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-0-id" value="196" id="id_form-0-id">  <input type="hidden" name="form-0-id" value="196" id="id_form-0-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-0-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-0-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-0-DELETE" id="id_form-0-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-0-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-0-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-0-work_order" value="4006029874" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-0-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-0-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-0-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-0-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-0-description">
+코디</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-0-work_mh" value="8.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-0-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-0-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-0-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="198"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-1-id" value="198" id="id_form-1-id">  <input type="hidden" name="form-1-id" value="198" id="id_form-1-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-1-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-1-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-1-DELETE" id="id_form-1-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-1-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-1-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-1-work_order" value="4006029874" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-1-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-1-op" value="9000" class="table-input" placeholder="OP" maxlength="50" id="id_form-1-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-1-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-1-description">
+2a block check</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-1-work_mh" value="170.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-1-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-1-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-1-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="199"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-2-id" value="199" id="id_form-2-id">  <input type="hidden" name="form-2-id" value="199" id="id_form-2-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-2-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-2-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-2-DELETE" id="id_form-2-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-2-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-2-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-2-work_order" value="4006029875" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-2-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-2-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-2-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-2-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-2-description">
+op</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-2-work_mh" value="2.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-2-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-2-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-2-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="200"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-3-id" value="200" id="id_form-3-id">  <input type="hidden" name="form-3-id" value="200" id="id_form-3-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-3-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-3-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-3-DELETE" id="id_form-3-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-3-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-3-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-3-work_order" value="4006029876" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-3-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-3-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-3-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-3-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-3-description">
+both</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-3-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-3-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-3-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-3-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="201"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-4-id" value="201" id="id_form-4-id">  <input type="hidden" name="form-4-id" value="201" id="id_form-4-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-4-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-4-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-4-DELETE" id="id_form-4-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-4-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-4-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-4-work_order" value="4006029877" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-4-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-4-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-4-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-4-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-4-description">
+blg</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-4-work_mh" value="2.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-4-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-4-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-4-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="202"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-5-id" value="202" id="id_form-5-id">  <input type="hidden" name="form-5-id" value="202" id="id_form-5-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-5-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-5-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-5-DELETE" id="id_form-5-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-5-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-5-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-5-work_order" value="4006030103" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-5-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-5-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-5-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-5-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-5-description">
+eng linet</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-5-work_mh" value="4.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-5-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-5-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-5-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="203"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-6-id" value="203" id="id_form-6-id">  <input type="hidden" name="form-6-id" value="203" id="id_form-6-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-6-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-6-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-6-DELETE" id="id_form-6-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-6-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-6-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-6-work_order" value="4006030104" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-6-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-6-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-6-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-6-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-6-description">
+logo</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-6-work_mh" value="4.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-6-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-6-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-6-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="204"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-7-id" value="204" id="id_form-7-id">  <input type="hidden" name="form-7-id" value="204" id="id_form-7-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-7-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-7-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-7-DELETE" id="id_form-7-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-7-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-7-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-7-work_order" value="4006030110" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-7-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-7-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-7-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-7-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-7-description">
+nose l/g</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-7-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-7-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-7-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-7-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="205"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-8-id" value="205" id="id_form-8-id">  <input type="hidden" name="form-8-id" value="205" id="id_form-8-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-8-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-8-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-8-DELETE" id="id_form-8-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-8-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-8-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-8-work_order" value="4006030111" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-8-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-8-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-8-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-8-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-8-description">
+left body</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-8-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-8-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-8-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-8-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="206"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-9-id" value="206" id="id_form-9-id">  <input type="hidden" name="form-9-id" value="206" id="id_form-9-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-9-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-9-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-9-DELETE" id="id_form-9-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-9-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-9-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-9-work_order" value="4006030112" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-9-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-9-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-9-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-9-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-9-description">
+right body</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-9-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-9-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-9-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-9-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="207"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-10-id" value="207" id="id_form-10-id">  <input type="hidden" name="form-10-id" value="207" id="id_form-10-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-10-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-10-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-10-DELETE" id="id_form-10-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-10-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-10-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-10-work_order" value="4006030113" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-10-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-10-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-10-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-10-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-10-description">
+lef wing</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-10-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-10-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-10-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-10-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="208"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-11-id" value="208" id="id_form-11-id">  <input type="hidden" name="form-11-id" value="208" id="id_form-11-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-11-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-11-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-11-DELETE" id="id_form-11-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-11-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-11-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-11-work_order" value="4006030114" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-11-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-11-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-11-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-11-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-11-description">
+right wing</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-11-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-11-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-11-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-11-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="209"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-12-id" value="209" id="id_form-12-id">  <input type="hidden" name="form-12-id" value="209" id="id_form-12-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-12-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-12-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-12-DELETE" id="id_form-12-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-12-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-12-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-12-work_order" value="4006030115" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-12-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-12-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-12-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-12-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-12-description">
+mii</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-12-work_mh" value="4.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-12-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-12-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-12-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="210"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-13-id" value="210" id="id_form-13-id">  <input type="hidden" name="form-13-id" value="210" id="id_form-13-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-13-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-13-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-13-DELETE" id="id_form-13-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-13-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-13-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-13-work_order" value="4006030116" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-13-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-13-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-13-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-13-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-13-description">
+all flap down</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-13-work_mh" value="8.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-13-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-13-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-13-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="211"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-14-id" value="211" id="id_form-14-id">  <input type="hidden" name="form-14-id" value="211" id="id_form-14-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-14-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-14-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-14-DELETE" id="id_form-14-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-14-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-14-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-14-work_order" value="4006030117" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-14-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-14-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-14-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-14-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-14-description">
+all flap down</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-14-work_mh" value="8.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-14-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-14-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-14-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="212"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-15-id" value="212" id="id_form-15-id">  <input type="hidden" name="form-15-id" value="212" id="id_form-15-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-15-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-15-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-15-DELETE" id="id_form-15-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-15-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-15-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-15-work_order" value="4006030118" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-15-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-15-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-15-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-15-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-15-description">
+no.2 eng</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-15-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-15-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-15-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-15-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="213"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-16-id" value="213" id="id_form-16-id">  <input type="hidden" name="form-16-id" value="213" id="id_form-16-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-16-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-16-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-16-DELETE" id="id_form-16-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-16-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-16-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-16-work_order" value="4006030119" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-16-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-16-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-16-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-16-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-16-description">
+no.3 eng</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-16-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-16-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-16-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-16-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="214"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-17-id" value="214" id="id_form-17-id">  <input type="hidden" name="form-17-id" value="214" id="id_form-17-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-17-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-17-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-17-DELETE" id="id_form-17-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-17-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-17-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-17-work_order" value="4006030120" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-17-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-17-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-17-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-17-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-17-description">
+no.4 eng</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-17-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-17-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-17-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-17-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="215"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-18-id" value="215" id="id_form-18-id">  <input type="hidden" name="form-18-id" value="215" id="id_form-18-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-18-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-18-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-18-DELETE" id="id_form-18-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-18-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-18-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-18-work_order" value="4006030121" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-18-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-18-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-18-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-18-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-18-description">
+no.1 eng</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-18-work_mh" value="1.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-18-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-18-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-18-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="216"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-19-id" value="216" id="id_form-19-id">  <input type="hidden" name="form-19-id" value="216" id="id_form-19-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-19-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-19-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-19-DELETE" id="id_form-19-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-19-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-19-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-19-work_order" value="4006030122" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-19-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-19-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-19-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-19-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-19-description">
+cf6 tod</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-19-work_mh" value="2.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-19-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-19-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-19-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="217"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-20-id" value="217" id="id_form-20-id">  <input type="hidden" name="form-20-id" value="217" id="id_form-20-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-20-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-20-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-20-DELETE" id="id_form-20-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-20-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-20-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-20-work_order" value="4006030123" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-20-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-20-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-20-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-20-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-20-description">
+corrosion</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-20-work_mh" value="4.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-20-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-20-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-20-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                             
+
+                            <tr
+                                class=" sortable-row"
+                                data-item-id="218"
+                                data-gibun="HL7620"
+                                data-original-gibun="HL7620"
+                            >
+                                <td class="text-danger col-delete">
+                                    <div class="d-none">
+                                        <input type="hidden" name="form-21-id" value="218" id="id_form-21-id">  <input type="hidden" name="form-21-id" value="218" id="id_form-21-id"> 
+                                        <input
+                                            type="hidden"
+                                            name="form-21-ordering"
+                                            value="0"
+                                            class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="form-21-adjusted_mh"
+                                            value=""
+                                            class="adjusted-mh-hidden"
+                                        />
+                                    </div>
+
+                                    
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <div class="d-none">
+                                            <input type="checkbox" name="form-21-DELETE" id="id_form-21-DELETE">
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input delete-trigger"
+                                            data-gibun="HL7620"
+                                            onchange="toggleDeleteRow(this)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="row-delete-btn"
+                                            data-row-delete
+                                            title="이 항목 삭제"
+                                            aria-label="이 항목 삭제"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="text-danger col-order">
+                                    
+                                    <div
+                                        class="d-flex flex-column align-items-center lh-1"
+                                    >
+                                        <span
+                                            class="drag-handle text-muted mb-1"
+                                            role="button"
+                                            title="여기를 잡아 드래그하세요"
+                                            style="cursor: grab"
+                                        >
+                                            <i
+                                                class="bi bi-grip-vertical fs-4"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    
+                                </td>
+
+                                <td class="col-gibun">
+                                    <input type="text" name="form-21-gibun_input" value="HL7620" class="table-input fw-bold gibun-current-input" placeholder="기번" maxlength="50" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-21-gibun_input">
+                                    <div class="mt-1">
+                                        <span
+                                            class="badge bg-warning text-dark original-gibun-badge d-none"
+                                            data-original-gibun-badge
+                                        >
+                                            원래: HL7620
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-wo">
+                                    <input type="text" name="form-21-work_order" value="4006030640" class="table-input font-monospace" placeholder="WO" maxlength="100" id="id_form-21-work_order">
+                                </td>
+
+                                <td class="col-op">
+                                    <input type="text" name="form-21-op" value="0010" class="table-input" placeholder="OP" maxlength="50" id="id_form-21-op">
+                                </td>
+
+                                <td class="col-desc">
+                                    <textarea name="form-21-description" cols="40" rows="1" class="table-input text-start desc-one-line" placeholder="작업 내용" id="id_form-21-description">
+spoiler</textarea>
+                                </td>
+
+                                <td class="col-mh">
+                                    <input type="number" name="form-21-work_mh" value="15.0" class="table-input text-end fw-bold text-primary plan-mh-input" step="0.1" style="width: 80px;" aria-readonly="true" tabindex="-1" readonly="readonly" id="id_form-21-work_mh">
+                                </td>
+
+                                <td class="col-mh-adjust">
+                                    <input
+                                        type="text"
+                                        class="form-control text-end fw-bold text-success adjusted-mh-input"
+                                        value=""
+                                        readonly
+                                        tabindex="-1"
+                                        aria-readonly="true"
+                                        style="
+                                            background: #0a2186;
+                                            pointer-events: none;
+                                        "
+                                    />
+                                </td>
+
+                                <td
+                                    class="bg-primary bg-opacity-10 col-assign mb-0"
+                                >
+                                    <textarea name="form-21-assigned_text" cols="40" rows="1" class="table-input fw-bold text-dark bg-transparent js-assigned-text" placeholder="이름 입력" id="id_form-21-assigned_text">
+</textarea>
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="pasteDataModal" tabindex="-1" aria-hidden="true">
+    <div
+        class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
+    >
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">📋 데이터 일괄 등록</h5>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link active"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pasteTab"
+                            type="button"
+                            role="tab"
+                        >
+                            데이터 넣기
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link"
+                            data-bs-toggle="tab"
+                            data-bs-target="#masterItemsTab"
+                            type="button"
+                            role="tab"
+                        >
+                            등록된 데이터
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div
+                        class="tab-pane fade show active"
+                        id="pasteTab"
+                        role="tabpanel"
+                    >
+                        <div
+                            class="instruction-box p-3 rounded-3 mb-4 bg-light border"
+                        >
+                            <h6 class="fw-bold text-primary mb-2">
+                                <i class="bi bi-info-circle me-1"></i>데이터 순서 (엑셀 컬럼)
+                            </h6>
+                            <div
+                                class="d-flex flex-wrap gap-2 font-monospace small text-dark align-items-center"
+                            >
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                >
+                                    1. 기번 (HLxxxx)
+                                </span>
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                >
+                                    2. Work Order
+                                </span>
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                >
+                                    3. OP
+                                </span>
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                >
+                                    4. Description
+                                </span>
+                                <i class="bi bi-arrow-right text-muted"></i>
+                                <span
+                                    class="badge bg-white text-dark border shadow-sm px-2 py-1"
+                                >
+                                    5. Work (M/H)
+                                </span>
+                            </div>
+                        </div>
+
+                        <form id="pasteForm">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="KkMb4as8HIxFjQTwWu1uoHdB6YqeDlkTk4jfTTdzh1vF5dHPCTXs0cRVsiylQWWE">
+
+                            <div class="table-responsive mb-4 border rounded-3">
+                                <table
+                                    class="table table-bordered text-center align-middle mb-0 smart-table"
+                                    id="gridTable"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 15%">기번</th>
+                                            <th style="width: 15%">WO</th>
+                                            <th style="width: 10%">OP</th>
+                                            <th style="width: 45%">
+                                                작업 내용
+                                            </th>
+                                            <th style="width: 15%">M/H</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <button
+                                        type="button"
+                                        onclick="addRow()"
+                                        class="btn btn-light w-100 fw-bold border text-muted rounded-pill"
+                                    >
+                                        <i class="bi bi-plus-lg"></i> 줄 추가
+                                    </button>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <button
+                                        type="reset"
+                                        class="btn btn-light w-100 fw-bold text-secondary rounded-pill"
+                                    >
+                                        초기화
+                                    </button>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <button
+                                        type="button"
+                                        onclick="saveData()"
+                                        class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm"
+                                    >
+                                        <i class="bi bi-save me-1"></i> 저장
+                                        하기
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div
+                        class="tab-pane fade"
+                        id="masterItemsTab"
+                        role="tabpanel"
+                    >
+                        <div
+                            class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
+                        >
+                            <div class="input-group" style="max-width: 320px">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="masterItemsSearch"
+                                    placeholder="등록 데이터 검색..."
+                                />
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                id="masterItemsAddBtn"
+                            >
+                                선택 추가
+                            </button>
+                        </div>
+
+                        <div
+                            class="table-responsive border rounded-3 text-center"
+                        >
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40px">
+                                            <input
+                                                type="checkbox"
+                                                id="masterItemsSelectAll"
+                                            />
+                                        </th>
+                                        <th style="width: 12%">기번</th>
+                                        <th style="width: 14%">WO</th>
+                                        <th style="width: 10%">OP</th>
+                                        <th>작업 내용</th>
+                                        <th style="width: 10%">M/H</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="masterItemsTableBody">
+                                    <tr>
+                                        <td
+                                            colspan="6"
+                                            class="text-center text-muted py-4"
+                                        >
+                                            불러오는 중...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    id="duplicateDataConfirmDialog"
+    class="duplicate-confirm-overlay d-none"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="duplicateConfirmTitle"
+    aria-describedby="duplicateConfirmMessage"
+>
+    <div class="duplicate-confirm-card" role="document">
+        <div
+            class="duplicate-confirm-icon"
+            id="customConfirmIcon"
+            aria-hidden="true"
+        >
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h4 id="duplicateConfirmTitle" class="fw-bold mb-2">
+            중복 데이터 확인
+        </h4>
+        <p id="duplicateConfirmMessage" class="mb-3 text-secondary"></p>
+        <div class="duplicate-confirm-list-wrap" id="duplicateConfirmListWrap">
+            <div class="small fw-bold text-danger-emphasis mb-2">
+                중복 항목 (기번 / WO / OP)
+            </div>
+            <ul id="duplicateConfirmList" class="duplicate-confirm-list mb-0"></ul>
+        </div>
+        <div class="duplicate-confirm-actions">
+            <button
+                type="button"
+                class="btn btn-light border fw-bold px-4"
+                id="duplicateConfirmCancelBtn"
+            >
+                <i class="bi bi-x-lg me-1"></i>취소
+            </button>
+            <button
+                type="button"
+                class="btn btn-danger fw-bold px-4 shadow-sm"
+                id="duplicateConfirmProceedBtn"
+            >
+                <i class="bi bi-check-lg me-1"></i>확인
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const pasteModal = document.getElementById("pasteDataModal");
+        if (pasteModal) {
+            document.body.appendChild(pasteModal);
+        }
+    });
+</script>
+
+ 
+        <div
+    id="appDialog"
+    class="app-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="appDialogTitle"
+    aria-describedby="appDialogMessage"
+    hidden
+>
+    <div class="app-dialog-card" role="document">
+        <div class="app-dialog-icon" id="appDialogIcon" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+
+        <h3 class="app-dialog-title" id="appDialogTitle">확인</h3>
+        <p class="app-dialog-message" id="appDialogMessage"></p>
+
+        <div class="app-dialog-actions">
+            <button
+                type="button"
+                class="app-dialog-btn app-dialog-btn-cancel"
+                id="appDialogCancel"
+            >
+                취소
+            </button>
+            <button
+                type="button"
+                class="app-dialog-btn app-dialog-btn-confirm"
+                id="appDialogConfirm"
+            >
+                확인
+            </button>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -705,23 +705,16 @@ body.assignment-console-body
     border-radius: 10px !important;
 }
 
-.worker-status-panel .worker-card-compact .fw-bold {
-    font-size: 0.83rem;
-}
-
-.worker-status-panel .worker-used-mh {
-    font-size: 0.95rem !important;
-}
-
 .worker-status-panel .worker-card-compact .small {
     font-size: 0.72rem !important;
 }
 
 .worker-status-panel .worker-card-compact input.worker-limit-mh {
     width: 46px !important;
-    min-height: 24px;
-    height: 24px;
-    font-size: 0.95rem !important;
+    min-height: 24px !important;
+    height: 24px !important;
+    font-size: 0.95rem;
+    text-align: center !important;
 }
 
 .worker-status-panel .worker-card-compact .progress {
@@ -934,7 +927,6 @@ body.assignment-console-body
         min-height: 48px;
         padding: 4px !important;
         border-radius: 6px !important;
-        font-size: 10px;
     }
 
     .worker-status-panel .worker-card .mb-2 {
@@ -946,17 +938,15 @@ body.assignment-console-body
     }
 
     .worker-status-panel .worker-card .small {
-        font-size: 10px !important;
-    }
-
-    .worker-status-panel .worker-card .worker-used-mh {
         font-size: 13px !important;
     }
 
-    .worker-status-panel .worker-card input.worker-limit-mh {
+    .worker-status-panel .worker-card .worker-used-mh {
+        font-size: 14px !important;
+    }
+
+    .worker-status-panel .worker-card-compact input.worker-limit-mh {
         width: 38px !important;
-        min-height: 24px !important;
-        height: 24px;
         font-size: 12px !important;
     }
 
@@ -1121,9 +1111,10 @@ body.assignment-console-body
     }
 
     .work-detail-panel .work-mh-badge {
-        min-width: 0;
-        padding: 3px 2px;
-        font-size: 12px;
+        min-width: 0 !important;
+        padding: 3px 2px !important;
+        font-size: 12px !important;
+        color: #f38406 !important;
     }
 
     .work-detail-panel .table-custom tbody tr.work-detail-row .col-assign {

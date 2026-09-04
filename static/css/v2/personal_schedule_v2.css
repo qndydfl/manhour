@@ -339,7 +339,7 @@
         width: 100%;
         min-width: 0;
         table-layout: fixed;
-        font-size: 10px;
+        font-size: 13px;
     }
 
     #scheduleTable thead th,
@@ -351,12 +351,12 @@
     }
 
     #scheduleTable thead th {
-        font-size: 9px;
+        font-size: 13px;
         letter-spacing: 0;
     }
 
     #scheduleTable tbody td {
-        font-size: 10px;
+        font-size: 13px;
     }
 
     #scheduleTable th:nth-child(1),
@@ -383,12 +383,12 @@
 
     #scheduleTable .mh-shift {
         padding: 3px 4px;
-        font-size: 8px;
+        font-size: 13px;
     }
 
     .personal-v2-table-footer {
         padding: 8px 7px;
-        font-size: 10px;
+        font-size: 13px;
     }
 
     #manualInputModal .modal-dialog {
