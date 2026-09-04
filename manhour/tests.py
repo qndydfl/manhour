@@ -1,7 +1,9 @@
 import json
+from datetime import date, datetime, timedelta
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from manning.models import WorkSession as ManningWorkSession
 
@@ -20,9 +22,60 @@ from .workplaces import (
     rename_workplace_code,
 )
 from .workplace_config import get_default_workplace_choices
+from .shift_rotation import get_operational_work_date, get_rotation_status
 
 
 class WorkplaceSyncTests(TestCase):
+    def test_operational_work_date_changes_at_eight_in_the_morning(self):
+        before_eight = timezone.make_aware(datetime(2026, 9, 5, 7, 59))
+        at_eight = timezone.make_aware(datetime(2026, 9, 5, 8, 0))
+
+        self.assertEqual(
+            get_operational_work_date(before_eight),
+            date(2026, 9, 4),
+        )
+        self.assertEqual(
+            get_operational_work_date(at_eight),
+            date(2026, 9, 5),
+        )
+
+    def test_rotation_patterns_cover_day_night_and_post_night_each_date(self):
+        anchor = date(2026, 9, 4)
+        workplaces = [
+            Workplace.objects.create(
+                code="ROT-D",
+                label="주간 시작조",
+                rotation_anchor_date=anchor,
+                rotation_pattern=Workplace.ROTATION_DAY_FIRST,
+            ),
+            Workplace.objects.create(
+                code="ROT-N",
+                label="야간 시작조",
+                rotation_anchor_date=anchor,
+                rotation_pattern=Workplace.ROTATION_NIGHT_FIRST,
+            ),
+            Workplace.objects.create(
+                code="ROT-O",
+                label="야퇴 시작조",
+                rotation_anchor_date=anchor,
+                rotation_pattern=Workplace.ROTATION_OFF_FIRST,
+            ),
+        ]
+
+        for day_offset in range(15):
+            target = anchor + timedelta(days=day_offset)
+            statuses = {
+                get_rotation_status(workplace, target) for workplace in workplaces
+            }
+            self.assertEqual(
+                statuses,
+                {
+                    WorkSession.SCHEDULE_DAY,
+                    WorkSession.SCHEDULE_NIGHT,
+                    WorkSession.SCHEDULE_POST_NIGHT,
+                },
+            )
+
     def test_rename_workplace_code_updates_related_site_values(self):
         workplace = Workplace.objects.create(code="TEST-OLD", label="테스트 근무지")
         WorkSession.objects.create(name="주간", site="TEST-OLD")
@@ -115,6 +168,33 @@ class AuthorizationAndScopeTests(TestCase):
             WorkSession.objects.filter(id=self.site_a_session.id).exists()
         )
 
+    def test_finish_session_is_admin_only_and_redirects_to_history(self):
+        finish_url = reverse(
+            "manhour:finish_session", args=[self.site_a_session.id]
+        )
+
+        regular_list = self.client.get(reverse("manhour:session_list"))
+        self.assertNotContains(regular_list, finish_url)
+
+        denied_response = self.client.post(finish_url)
+        self.assertRedirects(denied_response, reverse("manhour:index"))
+        self.site_a_session.refresh_from_db()
+        self.assertTrue(self.site_a_session.is_active)
+
+        browser_session = self.client.session
+        browser_session["user_role"] = "admin"
+        browser_session.save()
+
+        admin_list = self.client.get(reverse("manhour:session_list"))
+        self.assertContains(admin_list, finish_url)
+        self.assertContains(admin_list, "작업 완료")
+
+        completed_response = self.client.post(finish_url)
+        self.assertRedirects(completed_response, reverse("manhour:history"))
+        self.site_a_session.refresh_from_db()
+        self.assertFalse(self.site_a_session.is_active)
+        self.assertIsNotNone(self.site_a_session.finished_at)
+
     def test_index_renders_mobile_workspace_accordions_and_hidden_sections(self):
         response = self.client.get(reverse("manhour:index"))
 
@@ -124,6 +204,41 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertContains(response, "portal-workspace-mobile-title")
         self.assertContains(response, "portal-home-layout")
         self.assertContains(response, "portal-favorites-aside")
+
+    def test_index_header_displays_today_rotation_status(self):
+        workplace = Workplace.objects.get(code="SITE-A")
+        workplace.rotation_anchor_date = timezone.localdate()
+        workplace.rotation_pattern = Workplace.ROTATION_NIGHT_FIRST
+        workplace.save(
+            update_fields=["rotation_anchor_date", "rotation_pattern"]
+        )
+
+        response = self.client.get(reverse("manhour:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "portal-shift-badge--night")
+        self.assertContains(response, "오늘 근무")
+        self.assertContains(response, ">야간</strong>")
+
+    def test_history_displays_saved_schedule_status_badge(self):
+        session = WorkSession.objects.create(
+            name="야간 완료 작업",
+            site="SITE-A",
+            is_active=False,
+            shift_type=WorkSession.SHIFT_NIGHT,
+            work_date=timezone.localdate(),
+            schedule_status=WorkSession.SCHEDULE_NIGHT,
+            finished_at=timezone.now(),
+        )
+
+        response = self.client.get(reverse("manhour:history"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, session.name)
+        self.assertContains(response, "mh-history-shift-night")
+        self.assertContains(response, session.work_date.strftime("%Y-%m-%d"))
+        self.assertContains(response, "야간")
+        self.assertContains(response, "생성")
 
     def test_edit_session_textarea_starts_with_first_worker_name(self):
         Worker.objects.create(session=self.site_a_session, name="김정비")
@@ -184,6 +299,30 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertContains(response, "createWorkerDuplicateWarning")
         self.assertContains(response, "worker_duplicate_warning")
 
+    def test_create_session_uses_workplace_rotation_as_snapshot(self):
+        workplace = Workplace.objects.get(code="SITE-A")
+        workplace.rotation_anchor_date = get_operational_work_date()
+        workplace.rotation_pattern = Workplace.ROTATION_DAY_FIRST
+        workplace.save(
+            update_fields=["rotation_anchor_date", "rotation_pattern"]
+        )
+
+        response = self.client.post(
+            reverse("manhour:create_session"),
+            {
+                "session_name": "자동 교대",
+                "worker_names": "Alice",
+                "shift_type": "NIGHT",
+                "gibun_input": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        session = WorkSession.objects.get(name="자동 교대")
+        self.assertEqual(session.shift_type, WorkSession.SHIFT_DAY)
+        self.assertEqual(session.schedule_status, WorkSession.SCHEDULE_DAY)
+        self.assertEqual(session.work_date, get_operational_work_date())
+
     def test_settings_textarea_starts_with_first_default_worker_name(self):
         browser_session = self.client.session
         browser_session["user_role"] = "admin"
@@ -194,6 +333,35 @@ class AuthorizationAndScopeTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, ">박정비</textarea>")
+
+    def test_settings_can_apply_selected_rotation_from_today(self):
+        browser_session = self.client.session
+        browser_session["user_role"] = "admin"
+        browser_session.save()
+        workplace = Workplace.objects.get(code="SITE-A")
+
+        response = self.client.post(
+            reverse("manhour:settings"),
+            {
+                "action": "workplace_update",
+                "workplace_id": workplace.id,
+                "code": workplace.code,
+                "label": workplace.label,
+                "sort_order": workplace.sort_order,
+                "is_active": "1",
+                "rotation_anchor_date": "2020-01-01",
+                "rotation_pattern": Workplace.ROTATION_OFF_FIRST,
+                "rotation_anchor_mode": "today",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        workplace.refresh_from_db()
+        self.assertEqual(workplace.rotation_anchor_date, timezone.localdate())
+        self.assertEqual(
+            get_rotation_status(workplace, timezone.localdate()),
+            WorkSession.SCHEDULE_POST_NIGHT,
+        )
 
     def test_manage_items_renders_and_saves_horizontal_worker_limits(self):
         Worker.objects.create(session=self.site_a_session, name="Alice", limit_mh=8)

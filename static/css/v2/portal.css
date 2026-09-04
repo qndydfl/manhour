@@ -157,6 +157,51 @@ body.portal-body {
     gap: 24px;
 }
 
+.portal-shift-badge {
+    min-height: 36px;
+    padding: 0 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+
+.portal-shift-badge i {
+    font-size: 14px;
+}
+
+.portal-shift-caption {
+    color: #94a3b8;
+    font-size: var(--font-size-micro);
+}
+
+.portal-shift-badge strong {
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+}
+
+.portal-shift-badge--day {
+    border-color: rgba(251, 191, 36, 0.35);
+    background: rgba(245, 158, 11, 0.14);
+    color: #fde68a;
+}
+
+.portal-shift-badge--night {
+    border-color: rgba(129, 140, 248, 0.35);
+    background: rgba(79, 70, 229, 0.16);
+    color: #c7d2fe;
+}
+
+.portal-shift-badge--post_night {
+    border-color: rgba(34, 211, 238, 0.3);
+    background: rgba(8, 145, 178, 0.15);
+    color: #a5f3fc;
+}
+
 .portal-release-meta {
     min-height: 34px;
     padding: 0 12px;
@@ -326,6 +371,20 @@ body.portal-body {
 
     .portal-account-copy strong {
         max-width: 92px;
+    }
+
+    .portal-header-right {
+        gap: 6px;
+    }
+
+    .portal-shift-badge {
+        min-height: 34px;
+        padding: 0 8px;
+        gap: 5px;
+    }
+
+    .portal-shift-caption {
+        display: none;
     }
 }
 

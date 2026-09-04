@@ -127,9 +127,9 @@ urlpatterns = [
         name="add_single_item",
     ),
     path(
-        "session/<int:session_id>/reset/",
-        views.ResetSessionView.as_view(),
-        name="reset_session",
+        "session/<int:session_id>/finish/",
+        views.FinishSessionView.as_view(),
+        name="finish_session",
     ),
     path("reset_all/", views.ResetAllSessionsView.as_view(), name="reset_all_sessions"),
     path("api/check_gibun/", views.CheckGibunView.as_view(), name="check_gibun"),

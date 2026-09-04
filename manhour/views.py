@@ -2,7 +2,7 @@ import json
 import logging
 import math
 import re
-from datetime import timedelta
+from datetime import date, timedelta
 import requests
 
 logger = logging.getLogger(__name__)
@@ -51,6 +51,11 @@ from .forms import (
     TaskMasterForm,
 )
 from .services import run_auto_assign, refresh_worker_totals, run_sync_schedule
+from .shift_rotation import (
+    get_operational_work_date,
+    get_rotation_status,
+    get_rotation_status_label,
+)
 
 # -----------------------------------------------------------
 # 공용 헬퍼 함수
@@ -173,15 +178,6 @@ def get_default_worker_limit_mh(workplace: str) -> float:
         return (int(value) / 10.0) if value is not None else DEFAULT_WORKER_LIMIT_MH
     except (TypeError, ValueError):
         return DEFAULT_WORKER_LIMIT_MH
-
-
-def get_navbar_toggle_position(workplace: str) -> str:
-    value = (
-        AppSetting.objects.filter(key="navbar_toggle_position", site=workplace)
-        .values_list("int_value", flat=True)
-        .first()
-    )
-    return "right" if value == 1 else "left"
 
 
 def auto_archive_expired_sessions(workplace: str) -> None:
@@ -330,6 +326,9 @@ class IndexView(SimpleLoginRequiredMixin, MasterDataBaseMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         workplace = get_current_workplace(self.request)
+        today = get_operational_work_date()
+        workplace_record = Workplace.objects.filter(code=workplace).first()
+        today_schedule_status = get_rotation_status(workplace_record, today)
 
         # 활성 세션 통계
         active_qs = WorkSession.objects.filter(is_active=True, site=workplace)
@@ -358,7 +357,11 @@ class IndexView(SimpleLoginRequiredMixin, MasterDataBaseMixin, TemplateView):
 
         context.update(
             {
-                "today": timezone.localdate(),
+                "today": today,
+                "today_schedule_status": today_schedule_status,
+                "today_schedule_status_label": get_rotation_status_label(
+                    today_schedule_status
+                ),
                 "active_count": active_count,
                 "day_count": active_qs.filter(shift_type="DAY").count(),
                 "night_count": active_qs.filter(shift_type="NIGHT").count(),
@@ -391,6 +394,25 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         default_worker_count = len(default_worker_names)
         ensure_default_workplaces()
         workplaces = list(Workplace.objects.all().order_by("sort_order", "id"))
+        today = timezone.localdate()
+        for workplace_item in workplaces:
+            status = get_rotation_status(workplace_item, today)
+            workplace_item.today_rotation_status = status
+            workplace_item.today_rotation_status_label = (
+                get_rotation_status_label(status) if status else "자동 설정 안 함"
+            )
+        rotation_groups = {}
+        for item in workplaces:
+            if not item.is_active or not item.today_rotation_status:
+                continue
+            group_key = item.code.rsplit("-", 1)[0]
+            rotation_groups.setdefault(group_key, []).append(
+                item.today_rotation_status
+            )
+        rotation_status_conflict = any(
+            len(statuses) >= 3 and len(statuses) != len(set(statuses))
+            for statuses in rotation_groups.values()
+        )
         return render(
             request,
             "manhour/settings.html",
@@ -399,10 +421,12 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "history_visibility_hours": get_history_visibility_hours(),
                 "taskmaster_retention_hours": get_taskmaster_retention_hours(),
                 "default_worker_limit_mh": get_default_worker_limit_mh(workplace),
-                "navbar_toggle_position": get_navbar_toggle_position(workplace),
                 "default_worker_names": ", ".join(default_worker_names),
                 "default_worker_count": default_worker_count,
                 "workplaces": workplaces,
+                "rotation_pattern_choices": Workplace.ROTATION_PATTERN_CHOICES,
+                "today": today,
+                "rotation_status_conflict": rotation_status_conflict,
             },
         )
 
@@ -414,12 +438,42 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             label = (request.POST.get("label") or "").strip()
             raw_sort_order = (request.POST.get("sort_order") or "").strip()
             is_active = request.POST.get("is_active") == "1"
+            rotation_pattern = (
+                request.POST.get("rotation_pattern") or ""
+            ).strip()
+            raw_rotation_anchor_date = (
+                request.POST.get("rotation_anchor_date") or ""
+            ).strip()
+            if request.POST.get("rotation_anchor_mode") == "today":
+                raw_rotation_anchor_date = timezone.localdate().isoformat()
             sort_order = 0
             if raw_sort_order:
                 try:
                     sort_order = int(raw_sort_order)
                 except ValueError:
                     sort_order = 0
+
+            rotation_anchor_date = None
+            valid_rotation_patterns = {
+                value for value, _label in Workplace.ROTATION_PATTERN_CHOICES
+            }
+            if rotation_pattern or raw_rotation_anchor_date:
+                if (
+                    rotation_pattern not in valid_rotation_patterns
+                    or not raw_rotation_anchor_date
+                ):
+                    messages.error(
+                        request,
+                        "교대 기준일과 시작 패턴을 모두 선택해주세요.",
+                    )
+                    return redirect("manhour:settings")
+                try:
+                    rotation_anchor_date = date.fromisoformat(
+                        raw_rotation_anchor_date
+                    )
+                except ValueError:
+                    messages.error(request, "올바른 교대 기준일을 입력해주세요.")
+                    return redirect("manhour:settings")
 
             if action == "workplace_add":
                 if not code or not label:
@@ -433,6 +487,8 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                     label=label,
                     sort_order=sort_order,
                     is_active=is_active,
+                    rotation_anchor_date=rotation_anchor_date,
+                    rotation_pattern=rotation_pattern,
                 )
                 return redirect("manhour:settings")
 
@@ -468,8 +524,17 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 workplace.code = code
                 workplace.sort_order = sort_order
                 workplace.is_active = is_active
+                workplace.rotation_anchor_date = rotation_anchor_date
+                workplace.rotation_pattern = rotation_pattern
                 workplace.save(
-                    update_fields=["code", "label", "sort_order", "is_active"]
+                    update_fields=[
+                        "code",
+                        "label",
+                        "sort_order",
+                        "is_active",
+                        "rotation_anchor_date",
+                        "rotation_pattern",
+                    ]
                 )
                 if old_code != code:
                     rename_workplace_code(old_code, code)
@@ -488,15 +553,10 @@ class SettingsView(SimpleLoginRequiredMixin, View):
         ).strip()
         raw_default_limit = request.POST.get("default_worker_limit_mh", "").strip()
         raw_default_workers = request.POST.get("default_worker_names", "")
-        navbar_toggle_position = (
-            request.POST.get("navbar_toggle_position") or ""
-        ).strip()
         workplace = get_current_workplace(request)
         if not workplace:
             messages.error(request, "근무지를 선택해주세요.")
             return redirect("manhour:settings")
-        if navbar_toggle_position not in {"left", "right"}:
-            navbar_toggle_position = "left"
         try:
             hours = int(raw_hours)
             if hours <= 0:
@@ -533,11 +593,6 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             key="default_worker_limit_mh_tenths",
             site=workplace,
             defaults={"int_value": int(round(default_limit * 10))},
-        )
-        AppSetting.objects.update_or_create(
-            key="navbar_toggle_position",
-            site=workplace,
-            defaults={"int_value": 1 if navbar_toggle_position == "right" else 0},
         )
         normalized_default_workers = raw_default_workers.replace("\r", "").replace(
             "\n", ","
@@ -606,12 +661,30 @@ class SessionListView(SimpleLoginRequiredMixin, ListView):
 class CreateSessionView(SimpleLoginRequiredMixin, View):
     def get(self, request):
         slot_name = request.GET.get("slot", "")
+        work_date = get_operational_work_date()
+        workplace_code = get_current_workplace(request)
+        workplace = Workplace.objects.filter(code=workplace_code).first()
+        schedule_status = get_rotation_status(workplace, work_date)
         return render(
             request,
             "manhour/create_session.html",
             # navbar
             {
                 "slot": slot_name,
+                "work_date": work_date,
+                "schedule_status": schedule_status,
+                "schedule_status_label": get_rotation_status_label(
+                    schedule_status
+                ),
+                "auto_shift_type": (
+                    schedule_status
+                    if schedule_status
+                    in {WorkSession.SCHEDULE_DAY, WorkSession.SCHEDULE_NIGHT}
+                    else ""
+                ),
+                "is_post_night": (
+                    schedule_status == WorkSession.SCHEDULE_POST_NIGHT
+                ),
             },
         )
 
@@ -619,8 +692,28 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
         session_name = request.POST.get("session_name", "").strip()
         worker_names = request.POST.get("worker_names", "")
         gibun_input = request.POST.get("gibun_input", "")
-        shift_type = request.POST.get("shift_type", "DAY")
         workplace = get_current_workplace(request)
+        work_date = get_operational_work_date()
+        workplace_record = Workplace.objects.filter(code=workplace).first()
+        schedule_status = get_rotation_status(workplace_record, work_date)
+
+        if schedule_status == WorkSession.SCHEDULE_POST_NIGHT:
+            messages.error(
+                request,
+                "오늘은 야퇴 일정이므로 작업 세션을 생성할 수 없습니다.",
+            )
+            return redirect("manhour:create_session")
+
+        if schedule_status in {
+            WorkSession.SCHEDULE_DAY,
+            WorkSession.SCHEDULE_NIGHT,
+        }:
+            shift_type = schedule_status
+        else:
+            shift_type = request.POST.get("shift_type", "")
+            if shift_type not in {WorkSession.SHIFT_DAY, WorkSession.SHIFT_NIGHT}:
+                messages.error(request, "근무 형태를 선택해주세요.")
+                return redirect("manhour:create_session")
 
         if not session_name:
             session_name = "Session (이름 없음)"
@@ -637,6 +730,8 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
             session = WorkSession.objects.create(
                 name=final_name,
                 shift_type=shift_type,
+                work_date=work_date,
+                schedule_status=schedule_status,
                 is_active=True,
                 site=workplace,
             )
@@ -2785,16 +2880,13 @@ class AddSingleItemView(SimpleLoginRequiredMixin, View):
         return redirect("manhour:manage_items", session_id=session_id)
 
 
-class ResetSessionView(SimpleLoginRequiredMixin, View):
+class FinishSessionView(SimpleAdminRequiredMixin, View):
     def post(self, request, session_id):
-        if request.session.get("user_role") != "admin":
-            messages.error(request, "관리자 권한이 필요합니다.")
-            return redirect("manhour:index")
-
         session = get_session_or_404(request, session_id)
         session.is_active = False
-        session.save()
-        return redirect("manhour:index")
+        session.finished_at = timezone.now()
+        session.save(update_fields=["is_active", "finished_at"])
+        return redirect("manhour:history")
 
 
 class ResetAllSessionsView(SimpleAdminRequiredMixin, View):

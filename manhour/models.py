@@ -7,11 +7,27 @@ DEFAULT_WORKPLACE_CHOICES = get_default_workplace_choices()
 
 
 class Workplace(models.Model):
+    ROTATION_DAY_FIRST = "DAY_FIRST"
+    ROTATION_NIGHT_FIRST = "NIGHT_FIRST"
+    ROTATION_OFF_FIRST = "OFF_FIRST"
+    ROTATION_PATTERN_CHOICES = [
+        (ROTATION_DAY_FIRST, "주간 시작 (주간 5일)"),
+        (ROTATION_NIGHT_FIRST, "야간 시작 (야간/야퇴 교대)"),
+        (ROTATION_OFF_FIRST, "야퇴 시작 (야퇴/야간 교대)"),
+    ]
+
     config_key = models.CharField(max_length=50, unique=True, null=True, blank=True)
     code = models.CharField(max_length=50, unique=True)
     label = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     sort_order = models.PositiveIntegerField(default=0)
+    rotation_anchor_date = models.DateField(null=True, blank=True)
+    rotation_pattern = models.CharField(
+        max_length=20,
+        choices=ROTATION_PATTERN_CHOICES,
+        blank=True,
+        default="",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -49,8 +65,18 @@ class WorkSession(models.Model):
         (SHIFT_NIGHT, "야간 (20:00 ~ 익일 08:00)"),
     ]
 
+    SCHEDULE_DAY = "DAY"
+    SCHEDULE_NIGHT = "NIGHT"
+    SCHEDULE_POST_NIGHT = "POST_NIGHT"
+    SCHEDULE_STATUS_CHOICES = [
+        (SCHEDULE_DAY, "주간"),
+        (SCHEDULE_NIGHT, "야간"),
+        (SCHEDULE_POST_NIGHT, "야퇴"),
+    ]
+
     name = models.CharField(max_length=100, verbose_name="세션 이름")
     created_at = models.DateTimeField(auto_now_add=True)
+    work_date = models.DateField(null=True, blank=True, verbose_name="작업 날짜")
     finished_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     site = models.CharField(
@@ -64,6 +90,13 @@ class WorkSession(models.Model):
         choices=SHIFT_CHOICES,
         default=SHIFT_DAY,
         verbose_name="근무 형태",
+    )
+    schedule_status = models.CharField(
+        max_length=16,
+        choices=SCHEDULE_STATUS_CHOICES,
+        blank=True,
+        default="",
+        verbose_name="교대 패턴 상태",
     )
 
     @property

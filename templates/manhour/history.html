@@ -4,7 +4,7 @@
 {% block title %} Manhour History {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260828-1" />
+<link rel="stylesheet" href="{% static 'css/v2/manhour_hub_v2.css' %}?v=20260904-3" />
 {% endblock css %}
 
 {% block content %}
@@ -28,7 +28,7 @@
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-stopwatch"></i>
-                <span>Sessions</span>
+                <span>Session</span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
@@ -72,6 +72,22 @@
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     <h3 class="mh-history-name">{{ session.name }}</h3>
 
+                    <span
+                        class="mh-history-shift mh-history-shift-{% if session.schedule_status %}{{ session.schedule_status|lower }}{% else %}{{ session.shift_type|lower }}{% endif %}"
+                    >
+                        {% if session.work_date %}
+                            {{ session.work_date|date:"Y-m-d" }}
+                        {% else %}
+                            {{ session.created_at|date:"Y-m-d" }}
+                        {% endif %}
+                        <span aria-hidden="true">·</span>
+                        {% if session.schedule_status %}
+                            {{ session.get_schedule_status_display }}
+                        {% else %}
+                            {{ session.get_shift_type_display }}
+                        {% endif %}
+                    </span>
+
                     {% if not session.is_active %}
 
                     <span class="badge bg-secondary"> COMPLETED </span>
@@ -81,9 +97,8 @@
 
                 <div class="mh-history-meta">
                     <span>
-                        <i class="bi bi-calendar3 me-1"></i>
-
-                        {{ session.finished_at|default:session.created_at|date:"Y-m-d H:i" }}
+                        <i class="bi bi-clock-history me-1"></i>
+                        생성 {{ session.created_at|date:"Y-m-d H:i" }}
                     </span>
 
                     <span>

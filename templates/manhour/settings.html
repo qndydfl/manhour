@@ -1,49 +1,77 @@
-{% extends "manhour/base/base.html" %} 
-{% load static %} 
+{% extends "manhour/base/result_v2_base.html" %}
+{% load static %}
 
-{% block title %}설정 | manhour System{% endblock %} 
+{% block title %}설정 | manhour System{% endblock %}
+
+{% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/v2/settings_v2.css' %}?v=20260904-1"
+/>
+{% endblock css %}
 
 {% block content %}
-<div class="container settings-page" style="max-width: 1000px">
-    <div class="card my-4 p-4">
-        <div
-            class="d-flex align-items-center justify-content-between gap-3 mb-4 flex-wrap"
-        >
-            <div>
-                <h1 class="h4 fw-bold mb-2">UI 설정</h1>
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'manhour:settings' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-gear"></i>
             </div>
 
-            <div
-                class="d-flex gap-2 justify-content-between align-items-center"
+            <div>
+                <strong>SYSTEM SETTINGS</strong>
+                <span>Manhour Configuration</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
+            <button
+                type="submit"
+                class="assignment-topbar-btn assignment-topbar-btn-primary"
+                form="settings-form"
             >
-                <button
-                    type="submit"
-                    class="btn btn-primary btn-sm rounded-pill px-3 py-2 fw-bold"
-                    form="settings-form"
-                >
-                    저장 하기
-                </button>
-                <a
-                    href="{% url 'manhour:index' %}"
-                    class="btn btn-outline-dark btn-sm rounded-pill px-3 py-2 fw-bold"
-                >
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="d-none d-md-inline">이전 화면으로</span>
-                </a>
+                <i class="bi bi-check2"></i>
+                <span>설정 저장</span>
+            </button>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>홈</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="settings-v2-page">
+    <section class="settings-v2-shell">
+        <div class="settings-v2-heading">
+            <span class="settings-v2-heading-icon">
+                <i class="bi bi-sliders"></i>
+            </span>
+            <div>
+                <span class="settings-v2-eyebrow">CONFIGURATION</span>
+                <h1>System Settings</h1>
+                <p>근무지별 명단과 Manhour 운영 기준을 관리합니다.</p>
             </div>
         </div>
-        <div class="alert alert-info mb-4" role="alert">
-            <p class="text-danger fw-bold small mb-1">
-                일부 설정은 서버에 저장되며 전체 사용자에게 적용됩니다.
-            </p>
-            <div class="text-primary fw-bold small mb-0">
-                자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본 근무
-                한도는 통합 관리 화면의 기본값에 적용됩니다.
+
+        <div class="settings-v2-notice" role="note">
+            <i class="bi bi-info-circle-fill"></i>
+            <div>
+                <p class="text-danger fw-bold small mb-1">
+                    일부 설정은 서버에 저장되며 전체 사용자에게 적용됩니다.
+                </p>
+                <div class="text-primary fw-bold small mb-0">
+                    자동 아카이브와 작업 이력 표시 시간에 모두 적용됩니다. 기본
+                    근무 한도는 통합 관리 화면의 기본값에 적용됩니다.
+                </div>
             </div>
         </div>
-        <div class="accordion mb-4" id="settings-accordion">
+
+        <section class="settings-v2-section settings-v2-workplace-section">
             <h2 class="h6 fw-bold mb-3">1. 근무지 설정</h2>
-            <div class="accordion-item">
+            <div class="accordion" id="settings-accordion">
+                <div class="accordion-item">
                 <h2 class="accordion-header" id="workplace-heading">
                     <button
                         class="accordion-button collapsed"
@@ -68,6 +96,26 @@
                             있습니다. 코드가 바뀌면 관련 데이터의 근무지 값도
                             함께 새 코드로 변경됩니다.
                         </p>
+
+                        <div class="settings-rotation-guide">
+                            <strong>3조 2교대 자동 계산</strong>
+                            <span>
+                                세 근무지에 같은 기준일을 입력하고 각각 주간 시작,
+                                야간 시작, 야퇴 시작을 지정하세요. 각 패턴은 15일
+                                동안 주간 5회·야간 5회·야퇴 5회로 반복됩니다.
+                            </span>
+                        </div>
+
+                        {% if rotation_status_conflict %}
+                        <div class="settings-rotation-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>
+                                오늘의 교대 상태가 중복됩니다. 세 조에 같은 기준일을
+                                사용하고 주간 시작·야간 시작·야퇴 시작을 각각 한
+                                번씩 지정해 주세요.
+                            </span>
+                        </div>
+                        {% endif %}
 
                         <form
                             method="POST"
@@ -115,8 +163,41 @@
                                     name="sort_order"
                                     class="form-control"
                                     type="number"
-                                    value="0"
+                                    placeholder="자동"
                                 />
+                            </div>
+
+                            <div class="col-12 col-sm-3">
+                                <label
+                                    class="form-label"
+                                    for="workplace-rotation-date"
+                                    >교대 기준일</label
+                                >
+                                <input
+                                    id="workplace-rotation-date"
+                                    name="rotation_anchor_date"
+                                    class="form-control"
+                                    type="date"
+                                    value="{{ today|date:'Y-m-d' }}"
+                                />
+                            </div>
+
+                            <div class="col-12 col-sm-4">
+                                <label
+                                    class="form-label"
+                                    for="workplace-rotation-pattern"
+                                    >기준일 패턴</label
+                                >
+                                <select
+                                    id="workplace-rotation-pattern"
+                                    name="rotation_pattern"
+                                    class="form-control"
+                                >
+                                    <option value="">교대 자동 설정 안 함</option>
+                                    {% for value, label in rotation_pattern_choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
 
                             <div class="col-12 col-sm-2">
@@ -175,6 +256,12 @@
                                         >비활성</span
                                     >
                                     {% endif %}
+                                    <span
+                                        class="badge {% if workplace.today_rotation_status == 'DAY' %}text-bg-warning{% elif workplace.today_rotation_status == 'NIGHT' %}text-bg-dark{% elif workplace.today_rotation_status == 'POST_NIGHT' %}text-bg-info{% else %}text-bg-light{% endif %}"
+                                    >
+                                        {{ today|date:"Y-m-d" }}:
+                                        {{ workplace.today_rotation_status_label }}
+                                    </span>
                                 </div>
                                 <form
                                     method="POST"
@@ -228,6 +315,40 @@
                                         />
                                     </div>
 
+                                    <div class="col-12 col-sm-3">
+                                        <label class="form-label small"
+                                            >교대 기준일 (세 조 동일)</label
+                                        >
+                                        <input
+                                            name="rotation_anchor_date"
+                                            class="form-control form-control-sm"
+                                            type="date"
+                                            value="{{ workplace.rotation_anchor_date|date:'Y-m-d' }}"
+                                        />
+                                    </div>
+
+                                    <div class="col-12 col-sm-4">
+                                        <label class="form-label small"
+                                            >기준일 패턴</label
+                                        >
+                                        <select
+                                            name="rotation_pattern"
+                                            class="form-control form-control-sm"
+                                        >
+                                            <option value="">
+                                                교대 자동 설정 안 함
+                                            </option>
+                                            {% for value, label in rotation_pattern_choices %}
+                                            <option
+                                                value="{{ value }}"
+                                                {% if workplace.rotation_pattern == value %}selected{% endif %}
+                                            >
+                                                {{ label }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
                                     <div class="col-12 col-sm-2">
                                         <div class="form-check mt-sm-4">
                                             <input
@@ -258,6 +379,17 @@
                                             class="btn btn-outline-primary btn-sm w-100"
                                         >
                                             저장
+                                        </button>
+                                    </div>
+
+                                    <div class="col-12 col-sm-3">
+                                        <button
+                                            type="submit"
+                                            name="rotation_anchor_mode"
+                                            value="today"
+                                            class="btn btn-outline-success btn-sm w-100"
+                                        >
+                                            선택 패턴을 오늘 기준으로 적용
                                         </button>
                                     </div>
                                 </form>
@@ -307,14 +439,17 @@
                         </div>
 
                         <div class="form-text text-primary mt-2">
+                            같은 기준일에 세 근무지를 각각 주간 시작, 야간 시작,
+                            야퇴 시작으로 지정하면 15일 주기가 자동 계산됩니다.
                             비활성화한 근무지는 로그인 목록에서 숨겨집니다.
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <form method="POST" class="" id="settings-form">
+        <form method="POST" class="settings-v2-form" id="settings-form">
             {% csrf_token %}
 
             <h2 class="h6 fw-bold mb-3">2. 기본 작업자 명단</h2>
@@ -403,49 +538,7 @@
                 </div>
             </div>
 
-            <h2 class="h6 fw-bold mb-3">6. 위치 이동</h2>
-            <div class="mb-0">
-                <h2 class="h6 mb-3">Navbar 토글 버튼 위치</h2>
-                <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="radio"
-                                name="navbar_toggle_position"
-                                id="navbar-toggle-left"
-                                value="left"
-                                data-setting="navbarTogglePosition"
-                                {% if navbar_toggle_position == "left" %}checked{% endif %}
-                            />
-                            <label
-                                class="form-check-label"
-                                for="navbar-toggle-left"
-                            >
-                                좌측
-                            </label>
-                        </div>
-
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="radio"
-                                name="navbar_toggle_position"
-                                id="navbar-toggle-right"
-                                value="right"
-                                data-setting="navbarTogglePosition"
-                                {% if navbar_toggle_position == "right" %}checked{% endif %}
-                            />
-                            <label
-                                class="form-check-label"
-                                for="navbar-toggle-right"
-                            >
-                                우측
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </form>
-    </div>
-</div>
+    </section>
+</main>
 {% endblock content %}

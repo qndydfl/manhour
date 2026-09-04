@@ -194,6 +194,16 @@ document.addEventListener("DOMContentLoaded", function () {
     function checkFormValidity() {
         if (!submitBtn) return;
 
+        if (submitBtn.dataset.scheduleBlocked === "true") {
+            submitBtn.disabled = true;
+            if (reqText) {
+                reqText.innerHTML = `<i class="bi bi-moon-fill me-1"></i>오늘은 야퇴 일정입니다.`;
+                reqText.classList.remove("text-success");
+                reqText.classList.add("text-danger");
+            }
+            return;
+        }
+
         const isShiftSelected = Array.from(shiftInputs).some(
             (input) => input.checked,
         );

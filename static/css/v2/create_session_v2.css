@@ -147,6 +147,36 @@
    SHIFT
 ========================================================= */
 
+.mh-auto-shift-status {
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: var(--font-size-sm);
+}
+
+.mh-auto-shift-status-off {
+    border-color: #fed7aa;
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.mh-post-night-notice {
+    margin-bottom: 10px;
+    color: #b91c1c;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.mh-shift-option input:disabled + .mh-shift-card {
+    cursor: default;
+}
+
 .mh-shift-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

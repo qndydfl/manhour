@@ -13,6 +13,24 @@
         </a>
 
         <div class="portal-header-right">
+            <div
+                class="portal-shift-badge portal-shift-badge--{{ today_schedule_status|default:'unset'|lower }}"
+                aria-label="오늘 근무 형태"
+                title="{{ today|date:'Y-m-d' }} 오늘 근무 형태"
+            >
+                {% if today_schedule_status == 'DAY' %}
+                <i class="bi bi-sun-fill"></i>
+                {% elif today_schedule_status == 'NIGHT' %}
+                <i class="bi bi-moon-stars-fill"></i>
+                {% elif today_schedule_status == 'POST_NIGHT' %}
+                <i class="bi bi-moon-fill"></i>
+                {% else %}
+                <i class="bi bi-calendar-minus"></i>
+                {% endif %}
+                <span class="portal-shift-caption">오늘 근무</span>
+                <strong>{{ today_schedule_status_label }}</strong>
+            </div>
+
             {% if request.session.is_authenticated and request.session.user_role == "admin" %}
             <div class="portal-release-meta" aria-label="사이트 배포 정보">
                 <strong>Revision {{ site_revision }}</strong>
