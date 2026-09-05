@@ -80,7 +80,7 @@ body.assignment-console-body
 }
 
 /* =========================================================
-   TOPBAR
+    TOPBAR
 ========================================================= */
 
 .assignment-topbar {
@@ -239,7 +239,7 @@ body.assignment-console-body
 }
 
 /* =========================================================
-   PAGE
+    PAGE
 ========================================================= */
 
 .result-view-container {
@@ -253,7 +253,7 @@ body.assignment-console-body
 }
 
 /* =========================================================
-   HERO
+    HERO
 ========================================================= */
 
 .result-view-container > .card {
@@ -269,7 +269,7 @@ body.assignment-console-body
 }
 
 /* =========================================================
-   WORKER SECTION
+    WORKER SECTION
 ========================================================= */
 
 .worker-card {
@@ -550,8 +550,6 @@ body.assignment-console-body
 ========================================================= */
 
 @media (max-width: 900px) {
-
-
     .assignment-section-head {
         align-items: flex-start;
 
@@ -596,17 +594,13 @@ body.assignment-console-body
         padding: 0;
     }
 
-
-
-
-
     .table-custom {
         min-width: 800px;
     }
 }
 
 /* =========================================================
-   RESULT VIEW PAGE OVERRIDES (UNIFIED)
+    RESULT VIEW PAGE OVERRIDES (UNIFIED)
 ========================================================= */
 
 :root {
@@ -822,14 +816,6 @@ body.assignment-console-body
     font-weight: 700;
 }
 
-.unassigned-badge {
-    padding: 6px 10px;
-    border: 1px solid #fda4af;
-    background: #ffe4e6;
-    color: #9f1239;
-    font-weight: 800;
-}
-
 .progress {
     background-color: rgba(0, 0, 0, 0.05);
     border-radius: 10px;
@@ -910,7 +896,7 @@ body.assignment-console-body
     }
 
     .worker-status-panel > .card-header h5 {
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .worker-status-panel > .card-body {
@@ -936,18 +922,25 @@ body.assignment-console-body
     .worker-status-panel .worker-card .progress {
         height: 2px !important;
     }
-
-    .worker-status-panel .worker-card .small {
-        font-size: 13px !important;
-    }
-
+    
     .worker-status-panel .worker-card .worker-used-mh {
         font-size: 14px !important;
+        line-height: 1;
+        width: 34px !important;
     }
 
-    .worker-status-panel .worker-card-compact input.worker-limit-mh {
-        width: 38px !important;
+    
+    .worker-status-panel .worker-card .worker-mh-divider {
+        font-size: 12px;
+        line-height: 1;
+    }
+    
+    .worker-status-panel .worker-card input.worker-limit-mh {
         font-size: 12px !important;
+        line-height: 1 !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        width: 34px !important;
     }
 
     .work-detail-assignees-text {
@@ -1052,30 +1045,6 @@ body.assignment-console-body
         min-width: 0;
         color: #0f172a;
         line-height: 1.25;
-    }
-
-    .work-detail-assignees {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 3px;
-    }
-
-    .work-detail-assignees .d-inline-block {
-        width: 100%;
-        margin: 0 !important;
-    }
-
-    .work-detail-assignees .d-inline-block > .badge {
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding: 4px 3px;
-        font-size: 11px;
-    }
-
-    .work-detail-assignees .d-inline-block > .badge .badge {
-        font-size: inherit;
     }
 
     .work-detail-panel .table-custom tbody tr.work-detail-row {

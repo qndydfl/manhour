@@ -1,11 +1,11 @@
-{% extends 'manning/base/manning_v2_base.html' %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %} Maintenance Sessions | Manning {% endblock title %} 
 
 {% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block page_title %} Sessions {% endblock page_title %}
+{% block page_title %} Sessions {% endblock page_title %} 
 
 {% block topbar_right %}
 <a href="{% url 'manning:create_session' %}" class="manning-primary-button">
@@ -15,13 +15,12 @@
 {% endblock topbar_right %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/manning/v2/manning_list.css' %}" />
+<link rel="stylesheet" href="{% static 'css/manning/manning_list.css' %}" />
 {% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/manning/manning_list.js' %}"></script>
 {% endblock js %} 
-
 
 {% block content %}
 

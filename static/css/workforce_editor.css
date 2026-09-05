@@ -11,84 +11,6 @@
 }
 
 /* =========================================================
-   HERO
-========================================================= */
-
-.workforce-editor-hero {
-    margin-bottom: 24px;
-
-    display: flex;
-
-    align-items: flex-end;
-
-    justify-content: space-between;
-
-    gap: 30px;
-}
-
-.workforce-editor-eyebrow {
-    margin-bottom: 7px;
-
-    color: #2563eb;
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 800;
-
-    letter-spacing: 0.17em;
-}
-
-.workforce-editor-hero h1 {
-    margin: 0;
-
-    font-size: var(--font-size-page-title);
-
-    font-weight: 700;
-
-    letter-spacing: -0.045em;
-}
-
-.workforce-editor-hero p {
-    margin: 8px 0 0;
-
-    color: #64748b;
-
-    font-size: var(--font-size-base);
-}
-
-.workforce-back-button {
-    min-height: 40px;
-
-    padding: 0 14px;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-    border: 1px solid #d3dce6;
-
-    border-radius: 9px;
-
-    background: var(--assignment-white);
-
-    color: #0f172a;
-
-    text-decoration: none;
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 700;
-}
-
-.workforce-back-button:hover {
-    background: #eaf1f8;
-
-    color: #0f172a;
-}
-
-/* =========================================================
    LAYOUT
 ========================================================= */
 
@@ -275,72 +197,6 @@
 }
 
 /* =========================================================
-   ACTIONS
-========================================================= */
-
-.workforce-editor-actions {
-    margin-top: 28px;
-
-    display: flex;
-
-    justify-content: flex-end;
-
-    gap: 8px;
-}
-
-.workforce-action {
-    min-height: 42px;
-
-    padding: 0 17px;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 7px;
-
-    border: 0;
-
-    border-radius: 9px;
-
-    text-decoration: none;
-
-    font-family: inherit;
-
-    font-size: var(--font-size-xs);
-
-    font-weight: 700;
-}
-
-.workforce-action-light {
-    border: 1px solid #e2e8f0;
-
-    background: #ffffff;
-
-    color: #334155;
-}
-
-.workforce-action-light:hover {
-    background: #f8fafc;
-
-    color: #334155;
-}
-
-.workforce-action-primary {
-    min-width: 140px;
-
-    background: #2563eb;
-
-    color: #ffffff;
-}
-
-.workforce-action-primary:hover {
-    background: #1d4ed8;
-}
-
-/* =========================================================
     SIDE
 ========================================================= */
 
@@ -470,20 +326,6 @@
 @media (max-width: 650px) {
     .workforce-editor-page {
         width: calc(100% - 28px);
-    }
-
-    .workforce-editor-hero {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .workforce-editor-actions {
-        flex-direction: column-reverse;
-    }
-
-    .workforce-action {
-        width: 100%;
     }
 
     .workforce-editor-side {

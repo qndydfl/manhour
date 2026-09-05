@@ -1,4 +1,4 @@
-{% extends "manhour/base/result_v2_base.html" %} 
+{% extends "manhour/base/result_base.html" %} 
 {% load static %} 
 
 {% block title %} Edit Master Data | Manhour {% endblock title %} 
@@ -6,12 +6,12 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/master_data_v2.css' %}?v=20260829-1"
+    href="{% static 'css/master_data.css' %}?v=20260829-1"
 />
 {% endblock css %} 
 
 {% block js %}
-<script defer src="{% static 'js/master_data_edit.js' %}"></script>
+<script defer src="{% static 'js/master_data_edit.js' %}?v=20260829-1"></script>
 {% endblock js %}
 
 

@@ -30,7 +30,11 @@ body {
     place-items: center;
     padding: 32px 20px;
     background:
-        radial-gradient(circle at 50% 8%, rgba(59, 130, 246, 0.16), transparent 34%),
+        radial-gradient(
+            circle at 50% 8%,
+            rgba(59, 130, 246, 0.16),
+            transparent 34%
+        ),
         linear-gradient(145deg, #eef3f8 0%, #e3eaf2 100%);
 }
 
@@ -225,41 +229,4 @@ body {
     text-align: center;
     font-size: var(--font-size-xs);
     line-height: 1.5;
-}
-
-@media (max-width: 520px) {
-    .login-v2 {
-        padding: 18px 14px;
-    }
-
-    .login-v2-card {
-        padding: 28px 22px;
-        border-radius: 18px;
-    }
-
-    .login-v2-card-brand {
-        padding-bottom: 21px;
-    }
-
-    .login-v2-card-head {
-        margin: 23px 0 22px;
-    }
-
-    .login-v2-card-head h1 {
-        font-size: 27px;
-    }
-}
-
-@media (max-height: 650px) and (min-width: 521px) {
-    .login-v2 {
-        padding-block: 18px;
-    }
-
-    .login-v2-card {
-        padding-block: 28px;
-    }
-
-    .login-v2-card-head {
-        margin-block: 20px;
-    }
 }

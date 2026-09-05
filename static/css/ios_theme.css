@@ -478,7 +478,7 @@ body:has(.app-dialog:not([hidden])) {
             .form-select
         ) {
         min-height: 42px;
-        font-size: 16px !important;
+        font-size: 16px;
     }
 
     :is(
@@ -517,17 +517,16 @@ body:has(.app-dialog:not([hidden])) {
     table form :is(input, select, textarea, .form-control, .form-select),
     table :is(input, select, textarea, .form-control, .form-select) {
         min-height: 34px;
-        font-size: 14px !important;
     }
 
-    .master-v2-edit-page .master-v2-table th,
+    /* .master-v2-edit-page .master-v2-table th,
     .master-v2-edit-page .master-v2-table td {
         padding: 5px 3px;
     }
 
     .master-v2-edit-page .master-v2-table thead th,
     .master-v2-edit-page .master-v2-table tbody td {
-        font-size: 12px;
+        font-size: 12px !important;
     }
 
     .master-v2-edit-page
@@ -536,8 +535,8 @@ body:has(.app-dialog:not([hidden])) {
         min-height: 34px !important;
         padding: 3px 5px;
         border-radius: 7px !important;
-        font-size: 16px !important;
-    }
+        font-size: 12px !important;
+    } */
 }
 
 @media (prefers-reduced-motion: reduce) {

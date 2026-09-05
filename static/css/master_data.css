@@ -10,100 +10,6 @@
 }
 
 /* =========================================================
-   PAGE HEADER
-========================================================= */
-
-.master-v2-header {
-    margin-bottom: 24px;
-
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-
-    gap: 30px;
-}
-
-.master-v2-eyebrow {
-    margin-bottom: 7px;
-
-    color: #2563eb;
-
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-
-    letter-spacing: 0.17em;
-}
-
-.master-v2-title {
-    margin: 0;
-
-    font-size: var(--font-size-page-title);
-    font-weight: 700;
-
-    letter-spacing: -0.045em;
-}
-
-.master-v2-description {
-    max-width: 680px;
-
-    margin: 9px 0 0;
-
-    color: #64748b;
-
-    font-size: var(--font-size-sm);
-    line-height: 1.7;
-}
-
-.master-v2-actions {
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 8px;
-}
-
-.master-v2-header-tools {
-    display: grid;
-    justify-items: end;
-    gap: 9px;
-}
-
-.master-total-records {
-    min-height: 42px;
-    padding: 7px 11px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid #bfdbfe;
-    border-radius: 9px;
-    background: #eff6ff;
-    color: #2563eb;
-}
-
-.master-total-records > i {
-    font-size: 15px;
-}
-
-.master-total-records span,
-.master-total-records strong {
-    display: block;
-    white-space: nowrap;
-}
-
-.master-total-records span {
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
-.master-total-records strong {
-    margin-top: 1px;
-    color: #0f172a;
-    font-size: var(--font-size-sm);
-    letter-spacing: normal;
-}
-
-/* =========================================================
    BUTTON
 ========================================================= */
 
@@ -156,22 +62,8 @@
     color: #ffffff;
 }
 
-.master-btn-danger {
-    border-color: #ef4444;
-
-    background: #ef4444;
-
-    color: #ffffff;
-}
-
-.master-btn-danger:hover {
-    background: #dc2626;
-
-    color: #ffffff;
-}
-
 /* =========================================================
-   DATA PANEL
+    DATA PANEL
 ========================================================= */
 
 .master-v2-panel {
@@ -204,17 +96,13 @@
 
 .master-v2-panel-head strong {
     display: block;
-
     font-size: var(--font-size-base);
 }
 
 .master-v2-panel-head span {
     display: block;
-
     margin-top: 3px;
-
     color: #94a3b8;
-
     font-size: var(--font-size-xs);
 }
 
@@ -240,7 +128,7 @@
 }
 
 /* =========================================================
-   TABLE
+    TABLE
 ========================================================= */
 
 .master-v2-table-wrap {
@@ -412,7 +300,7 @@ CHECKBOX
 }
 
 /* =========================================================
-   PANEL FOOTER
+    PANEL FOOTER
 ========================================================= */
 
 .master-v2-panel-footer {
@@ -430,7 +318,7 @@ CHECKBOX
 }
 
 /* =========================================================
-   IMPORT HERO
+    IMPORT HERO
 ========================================================= */
 
 .master-import-hero {
@@ -489,7 +377,7 @@ CHECKBOX
 }
 
 /* =========================================================
-   IMPORT GUIDE
+    IMPORT GUIDE
 ========================================================= */
 
 .master-import-guide {
@@ -509,7 +397,7 @@ CHECKBOX
 
     color: #1e3a8a;
 
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
 
     font-weight: 800;
 }
@@ -547,7 +435,7 @@ CHECKBOX
 }
 
 /* =========================================================
-   GRID INPUT
+    GRID INPUT
 ========================================================= */
 
 .master-import-table {
@@ -722,164 +610,219 @@ CHECKBOX
 }
 
 /* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 900px) {
-    .master-v2-header {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .master-v2-header-tools {
-        width: 100%;
-        justify-items: start;
-    }
-}
+    MOBILE
+========================================================== */
 
 @media (max-width: 700px) {
+    /* =====================================================
+        PAGE
+    ====================================================== */
+
     .master-v2-page {
-        width: calc(100% - 28px);
+        width: calc(100% - 12px);
     }
 
-    .master-v2-edit-page .master-v2-header > div:first-child {
-        display: none;
+    .master-v2-edit-page {
+        padding-top: 10px;
+        padding-bottom: 30px;
     }
 
-    .master-v2-edit-page .master-v2-header {
-        margin-bottom: 8px;
-    }
+    /* =====================================================
+        PANEL
+    ====================================================== */
 
-    .master-v2-edit-page .master-v2-header-tools {
-        width: 100%;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1fr));
-        align-items: center;
-        gap: 4px;
-    }
-
-    .master-v2-edit-page .master-total-records {
-        min-width: 0;
-        min-height: 34px;
-        padding: 4px 5px;
-        gap: 4px;
-        border-radius: 7px;
-    }
-
-    .master-v2-edit-page .master-total-records > i {
-        display: none;
-    }
-
-    .master-v2-edit-page .master-total-records span {
-        overflow: hidden;
-        font-size: 8px;
-        text-overflow: ellipsis;
-    }
-
-    .master-v2-edit-page .master-total-records strong {
-        font-size: 11px;
-    }
-
-    .master-v2-edit-page .master-v2-actions {
-        display: contents;
-    }
-
-    .master-v2-edit-page .master-v2-actions .master-btn {
-        width: 100%;
-        min-width: 0;
-        min-height: 34px;
-        padding: 0 4px;
-        gap: 3px;
-        border-radius: 7px;
-        font-size: 9px;
-        white-space: nowrap;
-    }
-
-    .master-v2-edit-page .master-v2-panel-head > div span,
-    .master-v2-edit-page .master-v2-panel-head > i,
-    .master-v2-edit-page .master-v2-panel-footer {
-        display: none;
+    .master-v2-edit-page .master-v2-panel {
+        border-radius: 8px;
     }
 
     .master-v2-edit-page .master-v2-panel-head {
-        min-height: 38px;
+        min-height: 40px;
         padding: 5px 8px;
     }
 
+    .master-v2-edit-page .master-v2-panel-head > div span,
+    .master-v2-edit-page .master-v2-panel-head > i {
+        display: none;
+    }
+
     .master-v2-edit-page .master-v2-panel-head strong {
+        font-size: 14px;
+    }
+
+    /* =====================================================
+        COUNT BADGE
+    ====================================================== */
+
+    .master-v2-edit-page .master-v2-count-badge {
+        margin-top: 0;
+        padding: 4px 8px;
         font-size: 12px;
     }
 
+    /* =====================================================
+        TABLE WRAPPER
+    ====================================================== */
+
     .master-v2-edit-page .master-v2-table-wrap {
+        width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior-inline: contain;
     }
+
+    /* =====================================================
+        TABLE
+    ====================================================== */
 
     .master-v2-edit-page .master-v2-table {
-        width: 560px;
-        min-width: 560px;
+        width: 760px;
+        min-width: 760px;
         table-layout: fixed;
-        font-size: 8px;
+        font-size: 12px;
     }
 
-    .master-v2-edit-page .master-v2-table th,
-    .master-v2-edit-page .master-v2-table td {
-        min-width: 0;
-        padding: 4px 2px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    /* =====================================================
+        COLUMN WIDTH
+    ====================================================== */
+
+    /* Checkbox */
+    .master-v2-edit-page .master-v2-table col:nth-child(1) {
+        width: 36px !important;
     }
+
+    /* Delete */
+    .master-v2-edit-page .master-v2-table col:nth-child(2) {
+        width: 42px !important;
+    }
+
+    /* Aircraft */
+    .master-v2-edit-page .master-v2-table col:nth-child(3) {
+        width: 90px !important;
+    }
+
+    /* Work Order */
+    .master-v2-edit-page .master-v2-table col:nth-child(4) {
+        width: 125px !important;
+    }
+
+    /* OP */
+    .master-v2-edit-page .master-v2-table col:nth-child(5) {
+        width: 65px !important;
+    }
+
+    /* Description */
+    .master-v2-edit-page .master-v2-table col:nth-child(6) {
+        width: 300px !important;
+    }
+
+    /* M/H */
+    .master-v2-edit-page .master-v2-table col:nth-child(7) {
+        width: 80px !important;
+    }
+
+    /* =====================================================
+        TABLE HEADER
+    ====================================================== */
 
     .master-v2-edit-page .master-v2-table thead th {
-        font-size: 8px;
+        padding: 6px 4px;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.2;
         letter-spacing: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+
+    /* =====================================================
+        TABLE BODY
+    ====================================================== */
 
     .master-v2-edit-page .master-v2-table tbody td {
-        font-size: 8px;
+        min-width: 0;
+        padding: 3px;
+        vertical-align: middle;
+        font-size: 12px;
+        overflow: hidden;
     }
 
-    .master-v2-edit-page .master-v2-table th:nth-child(1),
-    .master-v2-edit-page .master-v2-table td:nth-child(1) {
-        width: 8%;
-    }
-
-    .master-v2-edit-page .master-v2-table th:nth-child(2),
-    .master-v2-edit-page .master-v2-table td:nth-child(2) {
-        width: 18%;
-    }
-
-    .master-v2-edit-page .master-v2-table th:nth-child(3),
-    .master-v2-edit-page .master-v2-table td:nth-child(3) {
-        width: 22%;
-    }
-
-    .master-v2-edit-page .master-v2-table th:nth-child(4),
-    .master-v2-edit-page .master-v2-table td:nth-child(4) {
-        width: 10%;
-    }
-
-    .master-v2-edit-page .master-v2-table th:nth-child(5),
-    .master-v2-edit-page .master-v2-table td:nth-child(5) {
-        width: 30%;
-    }
-
-    .master-v2-edit-page .master-v2-table th:nth-child(6),
-    .master-v2-edit-page .master-v2-table td:nth-child(6) {
-        width: 12%;
-    }
+    /* =====================================================
+        INPUT
+    ====================================================== */
 
     .master-v2-edit-page .master-v2-table input[type="text"],
     .master-v2-edit-page .master-v2-table input[type="number"],
     .master-v2-edit-page .master-v2-table textarea,
     .master-v2-edit-page .master-v2-table select {
-        min-height: 30px;
-        padding: 3px 4px;
+        width: 100%;
+        min-width: 0 ;
+        min-height: 24px;
+        padding: 4px 5px;
         border-radius: 5px;
-        font-size: 8px;
+        font-size: 12px;
+        line-height: 1.25;
     }
+
+    /* =====================================================
+        TEXTAREA
+    ====================================================== */
+
+    .master-v2-edit-page .master-v2-table textarea {
+        resize: none;
+    }
+
+    /* =====================================================
+        CHECKBOX
+    ====================================================== */
+
+    .master-v2-edit-page .master-v2-table .form-check-input {
+        width: 16px;
+        /* height: 16px; */
+        margin: 0;
+        cursor: pointer;
+    }
+
+    /* =====================================================
+        DELETE COLUMN
+    ====================================================== */
+
+    .master-v2-edit-page .master-v2-action-col {
+        width: 42px;
+    }
+
+    /* =====================================================
+        DELETE BUTTON
+    ====================================================== */
+
+    .master-v2-edit-page .master-row-delete-btn {
+        width: 28px;
+        /* height: 28px; */
+        padding: 0;
+        border-radius: 6px;
+        font-size: 12px;
+    }
+
+    /* =====================================================
+        PANEL FOOTER
+    ====================================================== */
+
+    .master-v2-edit-page .master-v2-panel-footer {
+        display: none;
+    }
+
+    /* =====================================================
+        FORM ERROR
+    ====================================================== */
+
+    .master-v2-edit-page .alert {
+        margin: 3px;
+        padding: 5px 7px;
+        font-size: 10px;
+    }
+
+
+
 
     .master-import-actions {
         grid-template-columns: 1fr;
@@ -889,75 +832,6 @@ CHECKBOX
         width: 100%;
     }
 
-    .master-edit-savebar {
-        align-items: stretch;
-
-        flex-direction: column;
-    }
-
-    .master-edit-savebar-actions {
-        flex-direction: column;
-    }
-
-    .master-edit-savebar-actions .master-btn {
-        width: 100%;
-    }
-
-    /* Master Data list: phone-friendly summary cards. */
-    .master-v2-list-page .master-v2-eyebrow,
-    .master-v2-list-page .master-v2-description {
-        display: none;
-    }
-
-    .master-v2-list-page .master-v2-header {
-        gap: 7px;
-    }
-
-    .master-v2-list-page .master-v2-header-tools {
-        width: 100%;
-        gap: 6px;
-    }
-
-    .master-v2-list-page .master-total-records {
-        min-height: 32px;
-        padding: 4px 7px;
-        gap: 5px;
-        border-radius: 7px;
-    }
-
-    .master-v2-list-page .master-total-records > i {
-        font-size: 12px;
-    }
-
-    .master-v2-list-page .master-total-records span {
-        font-size: 8px;
-    }
-
-    .master-v2-list-page .master-total-records strong {
-        font-size: 11px;
-    }
-
-    .master-v2-list-page .master-v2-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 4px;
-    }
-
-    .master-v2-list-page .master-v2-actions form {
-        min-width: 0;
-    }
-
-    .master-v2-list-page .master-v2-actions .master-btn {
-        width: 100%;
-        min-height: 32px;
-        padding: 0 4px;
-        gap: 3px;
-        border-radius: 7px;
-        font-size: 9px;
-        white-space: nowrap;
-    }
-
     .master-v2-list-page .master-v2-panel-head {
         min-height: 40px;
         padding: 5px 8px;
@@ -965,12 +839,12 @@ CHECKBOX
     }
 
     .master-v2-list-page .master-v2-panel-head strong {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .master-v2-list-page .master-v2-panel-head span {
         margin-top: 1px;
-        font-size: 9px;
+        font-size: 12px;
     }
 
     .master-v2-list-page .master-v2-table-wrap {
@@ -1017,7 +891,7 @@ CHECKBOX
         border: 0;
         border-right: 1px solid #edf1f5;
         background: transparent;
-        font-size: 10px;
+        font-size: 12px;
         line-height: 1.25;
         text-align: left !important;
         overflow-wrap: anywhere;
@@ -1028,7 +902,7 @@ CHECKBOX
         margin-bottom: 2px;
         color: #94a3b8;
         font-family: Pretendard, sans-serif;
-        font-size: 7px;
+        font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.05em;
     }
@@ -1109,7 +983,7 @@ CHECKBOX
     }
 
     .master-v2-import-page .master-v2-panel-head strong {
-        font-size: 11px;
+        font-size: 14px;
     }
 
     .master-v2-import-page .master-v2-panel-head span,
@@ -1138,7 +1012,7 @@ CHECKBOX
 
     .master-v2-import-page #gridTable thead th {
         padding: 7px 5px;
-        font-size: 11px;
+        font-size: 13px;
         line-height: 1.2;
         letter-spacing: -0.02em;
         white-space: nowrap;
@@ -1146,6 +1020,7 @@ CHECKBOX
 
     .master-v2-import-page #gridTable tbody td {
         padding: 3px;
+        font-size: 11px;
     }
 
     .master-v2-import-page #gridTable .input-cell {

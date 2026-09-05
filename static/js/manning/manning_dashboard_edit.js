@@ -50,14 +50,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const MOBILE_MEDIA_QUERY = "(max-width: 991.98px)";
     const areaSortables = [];
 
-    const isTouchDevice = () =>
-        window.matchMedia?.("(pointer: coarse)").matches ||
-        "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0;
-
     const isMobileDevice = () =>
-        (window.matchMedia && window.matchMedia(MOBILE_MEDIA_QUERY).matches) ||
-        isTouchDevice();
+        window.matchMedia && window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+
+    const editTopbar = document.querySelector(".manning-topbar");
+    if (editTopbar) {
+        const syncTopbarHeight = () => {
+            document.body.style.setProperty(
+                "--edit-topbar-height",
+                `${Math.ceil(editTopbar.getBoundingClientRect().height)}px`,
+            );
+        };
+        syncTopbarHeight();
+        if (window.ResizeObserver) {
+            new ResizeObserver(syncTopbarHeight).observe(editTopbar);
+        } else {
+            window.addEventListener("resize", syncTopbarHeight);
+        }
+    }
 
     if (!workerDataEl || !workerCountEl) {
         return;
@@ -677,8 +687,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "input[name='area_name'], input[name='new_area_name']",
         );
         const areaName =
-            (nameInput?.value || button?.dataset.areaName || "선택한 구역").trim() ||
-            "선택한 구역";
+            (
+                nameInput?.value ||
+                button?.dataset.areaName ||
+                "선택한 구역"
+            ).trim() || "선택한 구역";
         const message = `'${areaName}' 구역을 삭제하시겠습니까?`;
         const confirmed = window.AppDialog
             ? await window.AppDialog.confirm(message, {
@@ -762,10 +775,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function stopRowDragFromControl(event) {
-        if (!isMobileDevice()) return;
-        event.stopPropagation();
-    }
+    // function stopRowDragFromControl(event) {
+    //     if (!isMobileDevice()) return;
+    //     event.stopPropagation();
+    // }
 
     function bindFormControlGuards() {
         const controls = document.querySelectorAll(`
@@ -780,15 +793,9 @@ document.addEventListener("DOMContentLoaded", () => {
         controls.forEach((el) => {
             if (el.dataset.mobileGuardBound === "true") return;
 
-            el.addEventListener("touchstart", stopRowDragFromControl, {
-                passive: true,
-            });
-            el.addEventListener("pointerdown", stopRowDragFromControl);
-            el.addEventListener("mousedown", stopRowDragFromControl);
             el.addEventListener("dragstart", (event) => {
                 if (isMobileDevice()) {
                     event.preventDefault();
-                    event.stopPropagation();
                 }
             });
 
@@ -802,26 +809,9 @@ document.addEventListener("DOMContentLoaded", () => {
         rows.forEach((row) => {
             if (row.dataset.rowTouchGuardBound === "true") return;
 
-            row.addEventListener(
-                "touchstart",
-                (event) => {
-                    if (isMobileDevice()) {
-                        event.stopPropagation();
-                    }
-                },
-                { passive: true },
-            );
-
-            row.addEventListener("pointerdown", (event) => {
-                if (isMobileDevice()) {
-                    event.stopPropagation();
-                }
-            });
-
             row.addEventListener("dragstart", (event) => {
                 if (isMobileDevice()) {
                     event.preventDefault();
-                    event.stopPropagation();
                 }
             });
 

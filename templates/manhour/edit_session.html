@@ -1,13 +1,13 @@
-{% extends "manhour/base/result_v2_base.html" %} 
+{% extends "manhour/base/result_base.html" %} 
 {% load static %} 
 
 {% block title %} Workforce Editor | {{ session.name }} {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/v2/workforce_editor.css' %}" />
+<link rel="stylesheet" href="{% static 'css/workforce_editor.css' %}" />
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/worker_duplicate_warning.css' %}?v=20260830-1"
+    href="{% static 'css/worker_duplicate_warning.css' %}?v=20260830-1"
 />
 {% endblock css %} 
 

@@ -1,12 +1,15 @@
-{% extends 'manning/base/manning_v2_base.html' %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %}구역 일괄 편집 | {{ session.aircraft_reg }}{% endblock %} 
 
 {% block nav_sessions_active %}active{% endblock nav_sessions_active %} 
 
-{% block page_title %}구역 일괄 편집{% endblock page_title %} {% block sidebar_system %}
+{% block page_title %}구역 일괄 편집{% endblock page_title %} 
 
+{% block body_class %}manning-dashboard-edit-body{% endblock %}
+
+{% block sidebar_system %}
 <div class="edit-sidebar-meta edit-session-meta">
     <span><i class="bi bi-airplane"></i>{{ session.aircraft_reg }}</span>
     <span><i class="bi bi-briefcase"></i>{{ session.work_package_name }}</span>
@@ -20,47 +23,56 @@
         <button
             type="button"
             id="loadWorkersBtn"
-            class="edit-toolbar-btn edit-toolbar-btn-warning"
+            class="edit-toolbar-btn edit-toolbar-btn-warning edit-toolbar-btn-mobile-icon"
             data-bs-toggle="offcanvas"
             data-bs-target="#loadWorkersPanel"
+            aria-label="작업자 명단"
         >
-            <i class="bi bi-people"></i> 작업자 명단
+            <i class="bi bi-people"></i>
+            <span class="edit-toolbar-label">작업자 명단</span>
         </button>
 
         <button
             type="button"
             id="addAreaRowBtn"
-            class="edit-toolbar-btn edit-toolbar-btn-primary"
+            class="edit-toolbar-btn edit-toolbar-btn-primary
+            edit-toolbar-btn-mobile-icon"
             data-bs-toggle="modal"
         >
-            <i class="bi bi-plus-circle"></i> 행 추가
+            <i class="bi bi-plus-circle"></i>
+            <span class="edit-toolbar-label"> 행 추가</span>
         </button>
 
         <a
             href="{% url 'manning:manning_dashboard' session.id %}"
             class="edit-toolbar-btn edit-toolbar-btn-light"
         >
-            <i class="bi bi-x-lg"></i> 취소
+            <i class="bi bi-x-lg"></i> 
+            <span class="edit-toolbar-label">취소</span>
         </a>
 
         <button
             type="button"
-            class="edit-toolbar-btn edit-toolbar-btn-danger"
+            class="edit-toolbar-btn edit-toolbar-btn-danger edit-toolbar-btn-mobile-icon"
             id="btn-clear-assigned"
+            aria-label="전체 이름 삭제"
         >
-            <i class="bi bi-person-x"></i> 전체 이름 삭제
+            <i class="bi bi-person-x"></i>
+            <span class="edit-toolbar-label">전체 이름 삭제</span>
         </button>
 
         <button
             type="submit"
-            class="edit-toolbar-btn edit-toolbar-btn-primary"
+            class="edit-toolbar-btn edit-toolbar-btn-primary
+            edit-toolbar-btn-mobile-icon"
             form="areaEditForm"
         >
-            <i class="bi bi-check-lg"></i> 저장
+            <i class="bi bi-check-lg"></i>
+            <span class="edit-toolbar-label">저장</span>
         </button>
     </div>
 </div>
-{% endblock topbar_right %}
+{% endblock topbar_right %} 
 
 {% block css %}
 <link
@@ -69,9 +81,9 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260831-9"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20260905-3"
 />
-{% endblock css %}
+{% endblock css %} 
 
 {% block js %}
 <script>
@@ -82,12 +94,11 @@
 </script>
 <script
     defer
-    src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20260831-5"
+    src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20260905-1"
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }}
-{{default_worker_names|json_script:"defaultWorkerNames" }}
-
-{% endblock js %}
+{{default_worker_names|json_script:"defaultWorkerNames" }} 
+{% endblock js %} 
 
 
 {% block content %}
@@ -127,11 +138,11 @@
 
                         <tbody class="area-group" data-position="LEFT">
                             <tr class="area-group-header">
-                                <th colspan="5">LEFT SIDE</th>
+                                <th colspan="4">LEFT SIDE</th>
                             </tr>
                             {% for area in session_areas %} {% if area.position == "LEFT" %}
                             <tr class="area-row" data-position="LEFT">
-                                <td>
+                                <td data-label="구역 이름">
                                     <input
                                         type="hidden"
                                         name="area_id"
@@ -151,7 +162,7 @@
                                         required
                                     />
                                 </td>
-                                <td>
+                                <td data-label="위치">
                                     <select
                                         name="area_position"
                                         class="form-select"
@@ -165,7 +176,7 @@
                                         <option value="NONE">NONE</option>
                                     </select>
                                 </td>
-                                <td>
+                                <td data-label="작업자 이름">
                                     <textarea
                                         name="area_workers"
                                         class="form-control worker-drop-target auto-resize"
@@ -174,7 +185,7 @@
 {% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
                                     </textarea>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" data-label="삭제">
                                     <input
                                         class="area-delete-input d-none"
                                         type="checkbox"
@@ -197,11 +208,11 @@
 
                         <tbody class="area-group" data-position="RIGHT">
                             <tr class="area-group-header">
-                                <th colspan="5">RIGHT SIDE</th>
+                                <th colspan="4">RIGHT SIDE</th>
                             </tr>
                             {% for area in session_areas %} {% if area.position == "RIGHT" %}
                             <tr class="area-row" data-position="RIGHT">
-                                <td>
+                                <td data-label="구역 이름">
                                     <input
                                         type="hidden"
                                         name="area_id"
@@ -221,7 +232,7 @@
                                         required
                                     />
                                 </td>
-                                <td>
+                                <td data-label="위치">
                                     <select
                                         name="area_position"
                                         class="form-select"
@@ -233,7 +244,7 @@
                                         <option value="NONE">NONE</option>
                                     </select>
                                 </td>
-                                <td>
+                                <td data-label="작업자 이름">
                                     <textarea
                                         name="area_workers"
                                         class="form-control worker-drop-target auto-resize"
@@ -242,7 +253,7 @@
 {% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
                                     </textarea>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" data-label="삭제">
                                     <input
                                         class="area-delete-input d-none"
                                         type="checkbox"
@@ -265,11 +276,11 @@
 
                         <tbody class="area-group" data-position="NONE">
                             <tr class="area-group-header">
-                                <th colspan="5">NONE</th>
+                                <th colspan="4">NONE</th>
                             </tr>
                             {% for area in session_areas %} {% if area.position == "NONE" or area.position == "N/A" %}
                             <tr class="area-row" data-position="NONE">
-                                <td>
+                                <td data-label="구역 이름">
                                     <input
                                         type="hidden"
                                         name="area_id"
@@ -289,7 +300,7 @@
                                         required
                                     />
                                 </td>
-                                <td>
+                                <td data-label="위치">
                                     <select
                                         name="area_position"
                                         class="form-select"
@@ -303,7 +314,7 @@
                                         </option>
                                     </select>
                                 </td>
-                                <td>
+                                <td data-label="작업자 이름">
                                     <textarea
                                         name="area_workers"
                                         class="form-control worker-drop-target auto-resize"
@@ -312,7 +323,7 @@
 {% for manning in area.manning_set.all %}{{ manning.worker_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</textarea
                                     >
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" data-label="삭제">
                                     <input
                                         class="area-delete-input d-none"
                                         type="checkbox"
@@ -525,7 +536,7 @@
 
 <template id="newAreaTemplate">
     <tr class="new-area-row area-row" data-position="LEFT">
-        <td>
+        <td data-label="구역 이름">
             <input
                 type="hidden"
                 name="new_area_order"
@@ -539,21 +550,21 @@
                 required
             />
         </td>
-        <td>
+        <td data-label="위치">
             <select name="new_area_position" class="form-select">
                 <option value="LEFT" selected>LEFT SIDE</option>
                 <option value="RIGHT">RIGHT SIDE</option>
                 <option value="NONE">NONE</option>
             </select>
         </td>
-        <td>
+        <td data-label="작업자 이름">
             <textarea
                 name="new_area_workers"
                 class="form-control worker-drop-target auto-resize"
                 rows="1"
             ></textarea>
         </td>
-        <td class="text-center">
+        <td class="text-center" data-label="삭제">
             <button
                 type="button"
                 class="area-delete-btn"

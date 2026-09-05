@@ -1,11 +1,13 @@
-{% extends 'manning/base/manning_v2_base.html' %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %} New Maintenance Session | Manning {% endblock title %} 
 
 {% block nav_create_active %} active {% endblock nav_create_active %} 
 
-{% block page_title %} Create Session {% endblock page_title %} {% block topbar_right %}
+{% block page_title %} Create Session {% endblock page_title %} 
+
+{% block topbar_right %}
 <div class="manning-form-topbar-actions">
     <a
         href="{% url 'manning:manning_list' %}"
@@ -26,15 +28,16 @@
         <span class="manning-form-topbar-label">저장</span>
     </button>
 </div>
-{% endblock topbar_right %} {% block css %}
+{% endblock topbar_right %} 
+
+{% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/manning_form.css' %}?v=20260829-2"
+    href="{% static 'css/manning/manning_form.css' %}?v=20260829-2"
 />
 {% endblock css %} 
 
-{% block js %} 
-{{ active_shift_combos|json_script:"activeShiftCombos" }}
+{% block js %} {{ active_shift_combos|json_script:"activeShiftCombos" }}
 <script
     defer
     src="{% static 'js/manning/manning_create_session.js' %}?v=20260827-2"
@@ -238,17 +241,9 @@
                                     name="area_template"
                                     id="tpl_{{ tpl.id }}"
                                     value="{{ tpl.key }}"
-                                    {%
-                                    if
-                                    selected_template
-                                    and
-                                    tpl.key|lower=""
-                                    ="selected_template|lower"
-                                    %}
+                                    {% if selected_template and tpl.key|lower == selected_template|lower %}
                                     checked
-                                    {%
-                                    endif
-                                    %}
+                                    {% endif %}
                                 />
 
                                 <label
@@ -301,12 +296,11 @@
                             기본 구성 템플릿을 선택해주세요.
                         </div>
                     </div>
-
                 </section>
             </div>
 
             <!-- =================================================
-                 RIGHT INFORMATION
+                RIGHT INFORMATION
             ================================================== -->
 
             <aside
@@ -357,13 +351,15 @@
                                 작업 종류에 맞는 Area Template을 선택하세요.
                             </span>
                         </li>
-                        
+
                         {% if request.session.user_role == 'admin' or request.user.is_superuser %}
                         <li>
                             <i class="bi bi-check2"></i>
 
                             <span class="text-danger fw-bold">
-                                Work Package에 A-check 선택시 Base Template가 자동 선택되지 않는다면 어드민 페이지에서 Work Package와 Template 연결 여부를 확인하세요.
+                                Work Package에 A-check 선택시 Base Template가
+                                자동 선택되지 않는다면 어드민 페이지에서 Work
+                                Package와 Template 연결 여부를 확인하세요.
                             </span>
                         </li>
                         {% endif %}

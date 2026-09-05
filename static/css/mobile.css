@@ -54,18 +54,12 @@ iframe {
 
     .assignment-toast-area,
     .portal-toast-container,
-    .global-message-container,
-    .manning-form-alert-floating {
+    .global-message-container {
         top: 82px;
         right: 14px;
         left: 14px;
         width: auto;
         max-width: none;
-    }
-
-    .master-edit-savebar,
-    .edit-action-bar {
-        bottom: 8px;
     }
 }
 
@@ -94,7 +88,7 @@ iframe {
     .input-cell,
     .dnd-input,
     .template-items {
-        font-size: 14px !important;
+        font-size: 14px;
     }
 
     button,
@@ -106,7 +100,6 @@ iframe {
     .manning-form-action,
     .manning-primary-button,
     .manning-session-action,
-    .edit-action-btn,
     .edit-toolbar-btn,
     .template-editor-header-btn,
     .template-save-btn {
@@ -223,11 +216,9 @@ iframe {
     }
 
     .mh-page-header,
-    .master-v2-header,
     .personal-v2-header,
-    .workforce-editor-hero,
     .manning-form-header,
-    .edit-header {
+    .workforce-editor-panel {
         margin-bottom: 10px;
     }
 
@@ -236,15 +227,11 @@ iframe {
     .master-v2-panel,
     .personal-v2-table-card,
     .workforce-editor-panel,
-    .manning-form-panel,
-    .template-editor-panel {
+    .manning-form-panel {
         border-radius: 10px;
     }
 
-    .mh-page-title,
-    .workforce-editor-hero h1,
-    .manning-form-title,
-    .edit-header h2 {
+    .manning-form-title {
         font-size: clamp(18px, 5.5vw, 21px);
         line-height: 1.2;
     }
@@ -252,23 +239,17 @@ iframe {
     .assignment-section-head,
     .mh-page-header,
     .mh-history-toolbar,
-    .master-v2-header,
     .personal-v2-header-inner,
-    .manning-form-header,
-    .edit-header {
+    .manning-form-header {
         gap: 8px;
     }
 
-    .mh-page-desc,
     .manning-form-description,
     .edit-session-meta {
         line-height: 1.6;
     }
 
-    .mh-header-actions,
-    .master-v2-header-actions,
     .personal-v2-actions,
-    .manning-dashboard-actions,
     .manning-session-actions,
     .edit-header-actions,
     .template-editor-header-actions {
@@ -278,10 +259,7 @@ iframe {
         gap: 8px;
     }
 
-    .mh-header-actions > *,
-    .master-v2-header-actions > *,
     .personal-v2-actions > *,
-    .manning-dashboard-actions > *,
     .manning-session-actions > *,
     .edit-header-actions > *,
     .template-editor-header-actions > * {
@@ -315,9 +293,23 @@ iframe {
 
     .manning-topbar-title {
         overflow: hidden;
-        font-size: 13px;
+        font-size: 14px;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .manning-nav-link,
+    .manning-brand-copy strong,
+    .manning-form-title,
+    .manning-form-header-back,
+    .manning-form-topbar-action,
+    .manning-dashboard-btn,
+    .template-editor-header-btn,
+    .template-save-btn,
+    .edit-toolbar-btn,
+    .template-editor-section-title,
+    .manning-dashboard-section-title {
+        font-size: 14px;
     }
 
     .manning-content {
@@ -381,7 +373,7 @@ iframe {
 
     .manning-form-label {
         margin-bottom: 5px;
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .manning-form-field input:not([type="radio"]),
@@ -390,6 +382,21 @@ iframe {
         min-height: 42px;
         padding: 8px 10px;
         border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .template-field input,
+    .template-accordion .accordion-button,
+    .new-template-accordion .accordion-button,
+    .area-row input,
+    .area-row textarea,
+    .area-row select,
+    .new-area-row input,
+    .new-area-row textarea,
+    .new-area-row select,
+    .memo-section textarea,
+    .manning-dashboard-memo-body .input-text {
+        font-size: 13px;
     }
 
     .manning-form-actions {
@@ -540,26 +547,6 @@ iframe {
         width: 100%;
     }
 
-    .master-edit-savebar,
-    .edit-action-bar {
-        padding: 10px;
-    }
-
-    .master-edit-savebar-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-
-    .master-edit-savebar > span {
-        display: none;
-    }
-
-    .master-edit-savebar-actions > * {
-        width: 100%;
-    }
-
     #pasteDataModal .modal-body,
     #manualInputModal .modal-body,
     #duplicateTimeModal .modal-body {
@@ -567,19 +554,14 @@ iframe {
     }
 
     .portal-section-title,
-    .master-v2-title,
     .personal-v2-name,
     .assignment-section-title,
-    .manning-dashboard-section-title,
-    .manage-page-header h4 {
+    .manning-dashboard-section-title {
         font-size: 18px;
         line-height: 1.25;
     }
 
-    .mh-page-desc,
-    .master-v2-description,
     .personal-v2-sub,
-    .workforce-editor-hero p,
     .manning-form-description {
         font-size: 11.5px;
     }
@@ -618,46 +600,9 @@ iframe {
         gap: 8px;
     }
 
-    .mh-session-list-page .mh-page-desc,
-    .mh-session-list-page .mh-active-summary,
     .mh-session-list-page .mh-session-panel-heading p,
     .mh-session-list-page .mh-session-panel-count {
         display: none;
-    }
-
-    .mh-session-list-page .mh-header-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: none;
-        grid-auto-flow: column;
-        grid-auto-columns: minmax(0, 1fr);
-        gap: 5px;
-    }
-
-    .mh-session-list-page .mh-header-actions > * {
-        width: 100%;
-        min-width: 0;
-        min-height: 36px;
-        margin: 0;
-        padding: 5px 4px;
-        gap: 3px;
-        font-size: 10.5px;
-        white-space: nowrap;
-    }
-
-    .mh-session-list-page .mh-active-summary {
-        justify-content: center;
-        font-size: 10px;
-    }
-
-    .mh-session-list-page .mh-active-summary > i {
-        display: none;
-    }
-
-    .mh-session-list-page .mh-active-summary strong {
-        min-width: 18px;
-        padding: 2px 5px;
-        font-size: 10px;
     }
 
     .mh-session-list-page .mh-session-panel-heading h2 {
@@ -701,11 +646,6 @@ iframe {
         display: none !important;
     }
 
-    body.assignment-console-body > .container > .manage-page-header {
-        padding: 12px !important;
-        border-radius: 13px;
-    }
-
     .portal-section-head {
         margin-bottom: 9px;
     }
@@ -741,7 +681,6 @@ iframe {
         font-size: 19px;
     }
 
-    .mh-compact-stat,
     .personal-v2-header-stat {
         min-height: 0;
         padding: 7px 8px;
@@ -772,8 +711,7 @@ iframe {
     }
 
     /* Manning compact mode: summary first, details on demand. */
-    .manning-form-header,
-    .edit-header {
+    .manning-form-header {
         margin-bottom: 10px;
     }
 
@@ -793,6 +731,20 @@ iframe {
 
     .manning-session-meta {
         gap: 8px 12px;
+    }
+
+    .manning-session-meta,
+    .manning-session-meta-item,
+    .manning-session-date,
+    .manning-area-count,
+    .edit-table thead th,
+    .template-block .accordion-body th {
+        font-size: 13px;
+    }
+
+    .edit-table tbody td,
+    .template-block .accordion-body td {
+        font-size: 12px;
     }
 
     .manning-dashboard-warning {
@@ -896,10 +848,7 @@ iframe {
 
     .portal-brand-copy,
     .portal-release-meta,
-    .mh-eyebrow,
     .manning-form-eyebrow,
-    .edit-eyebrow,
-    .edit-action-copy,
     .manage-config-note {
         display: none;
     }
@@ -913,22 +862,16 @@ iframe {
         width: calc(100% - 16px);
     }
 
-    .mh-header-actions,
-    .master-v2-header-actions,
     .personal-v2-actions,
-    .manning-dashboard-actions,
     .manning-session-actions,
     .edit-header-actions,
     .template-editor-header-actions {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .manning-dashboard-actions,
     .edit-header-actions {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-
-
 
     .portal-section-head p,
     .manning-dashboard-section-description,
@@ -967,6 +910,27 @@ iframe {
         max-height: calc(100dvh - 16px);
         border-radius: 12px !important;
     }
+
+    .login-v2 {
+        padding: 18px 14px;
+    }
+
+    .login-v2-card {
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+
+    .login-v2-card-brand {
+        padding-bottom: 21px;
+    }
+
+    .login-v2-card-head {
+        margin: 23px 0 22px;
+    }
+
+    .login-v2-card-head h1 {
+        font-size: 27px;
+    }
 }
 
 /* =========================================================
@@ -1004,7 +968,7 @@ iframe {
     }
 
     .manning-form-title {
-        font-size: 20px;
+        font-size: 14px;
     }
 
     .manning-form-panel-head > i {
@@ -1062,19 +1026,46 @@ iframe {
         padding-bottom: 10px;
     }
 
-    .mh-page-title,
-    .master-v2-title,
-    .workforce-editor-hero h1,
+    .manning-topbar-title,
+    .manning-nav-link,
+    .manning-brand-copy strong,
     .manning-form-title,
-    .edit-header h2 {
-        font-size: 20px;
+    .manning-form-header-back,
+    .manning-form-topbar-action,
+    .manning-dashboard-btn,
+    .template-editor-header-btn,
+    .template-save-btn,
+    .edit-toolbar-btn,
+    .template-editor-section-title,
+    .manning-dashboard-section-title {
+        font-size: 14px;
         line-height: 1.25;
     }
 
-    .mh-page-desc,
-    .master-v2-description,
+    .manning-form-label,
+    .manning-form-field input:not([type="radio"]),
+    .manning-form-field select,
+    .manning-form-field textarea,
+    .template-field input,
+    .template-accordion .accordion-button,
+    .new-template-accordion .accordion-button,
+    .area-row input,
+    .area-row textarea,
+    .area-row select,
+    .new-area-row input,
+    .new-area-row textarea,
+    .new-area-row select,
+    .memo-section textarea,
+    .manning-dashboard-memo-body .input-text,
+    .edit-table thead th {
+        font-size: 13px;
+    }
+
+    .edit-table tbody td {
+        font-size: 12px;
+    }
+
     .personal-v2-sub,
-    .workforce-editor-hero p,
     .manning-form-description,
     .edit-session-meta,
     .portal-section-head p {
@@ -1102,24 +1093,10 @@ iframe {
         font-size: 12px;
     }
 
-    .mh-session-list-page .mh-header-actions > * {
-        font-size: 11px;
-    }
-
-    .mh-session-list-page .mh-active-summary,
-    .mh-session-list-page .mh-active-summary strong {
-        font-size: 11px;
-    }
-
     .mh-session-list-page .mh-session-panel-heading p,
     .mh-session-list-page .mh-session-panel-count,
     .mh-session-list-page .mh-session-date {
         font-size: 12px;
-    }
-
-    .master-v2-list-page .master-v2-actions .master-btn {
-        min-height: 34px;
-        font-size: 10.5px;
     }
 
     .master-v2-list-page .master-v2-table tbody td {
@@ -1132,10 +1109,6 @@ iframe {
         font-size: 9px;
     }
 
-
-
-
-
     .mobile-fold-toggle-copy strong {
         font-size: 13px;
     }
@@ -1143,8 +1116,6 @@ iframe {
     .mobile-fold-toggle small {
         font-size: 11px;
     }
-
-
 
     body.assignment-console-body.manage-items-body
         #manageItemsTable
@@ -1158,21 +1129,54 @@ iframe {
         font-size: 12px !important;
     }
 
-    .settings-page {
-        padding-right: 10px;
-        padding-left: 10px;
+    .settings-v2-page {
+        width: calc(100% - 20px);
+        padding-right: 0;
+        padding-left: 0;
     }
 
-    .settings-page > .card {
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        padding: 14px !important;
+    .settings-v2-shell {
+        border-radius: 14px;
+    }
+
+    .settings-v2-heading {
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .settings-v2-heading h1 {
+        font-size: 19px;
+    }
+
+    .settings-v2-notice,
+    .settings-v2-section,
+    .settings-v2-form {
+        margin: 10px;
+        padding: 14px;
+    }
+
+    .settings-v2-page .accordion-body {
+        padding: 12px;
     }
 
     .modal-title,
     .app-dialog-title,
     .duplicate-confirm-title {
         font-size: 16px;
+    }
+}
+
+@media (max-height: 650px) and (min-width: 521px) {
+    .login-v2 {
+        padding-block: 18px;
+    }
+
+    .login-v2-card {
+        padding-block: 28px;
+    }
+
+    .login-v2-card-head {
+        margin-block: 20px;
     }
 }
 

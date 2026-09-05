@@ -1,17 +1,17 @@
-{% extends 'manning/base/manning_v2_base.html' %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %} Edit Maintenance Session | Manning {% endblock title %} 
 
-{% block nav_sessions_active %} active {% endblock nav_sessions_active %}
-{% block page_title %} Edit Session {% endblock page_title %}
-{% block css %}
+{% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
+{% block page_title %} Edit Session {% endblock page_title %} 
+
+{% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/manning_form.css' %}?v=20260827-1"
+    href="{% static 'css/manning/manning_form.css' %}?v=20260827-1"
 />
-
 {% endblock css %} 
 
 {% block js %}
@@ -20,7 +20,6 @@
     src="{% static 'js/manning/manning_create_session.js' %}?v=20260827-2"
 ></script>
 {% endblock js %} 
-
 
 {% block content %}
 
@@ -230,17 +229,9 @@
                                     name="area_template"
                                     id="tpl_{{ tpl.id }}"
                                     value="{{ tpl.key }}"
-                                    {%
-                                    if
-                                    selected_template
-                                    and
-                                    tpl.key|lower=""
-                                    ="selected_template|lower"
-                                    %}
+                                    {% if selected_template and tpl.key|lower == selected_template|lower %}
                                     checked
-                                    {%
-                                    endif
-                                    %}
+                                    {% endif %}
                                 />
 
                                 <label

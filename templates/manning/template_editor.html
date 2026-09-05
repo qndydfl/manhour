@@ -1,4 +1,4 @@
-{% extends 'manning/base/manning_v2_base.html' %} 
+{% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
 {% block title %} Template Configuration | Manning {% endblock title %} 
@@ -8,7 +8,6 @@
 {% block page_title %} Template Configuration {% endblock page_title %} 
 
 {% block topbar_right %}
-
 <div class="template-editor-header-actions">
     <a
         href="{% url 'manning:manning_list' %}"
@@ -36,14 +35,13 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/v2/template_editor.css' %}?v=20260829-1"
+    href="{% static 'css/manning/template_editor.css' %}?v=20260829-1"
 />
 {% endblock css %} 
 
 {% block js %}
 <script defer src="{% static 'js/manning/template_editor.js' %}"></script>
 {% endblock js %} 
-
 
 {% block content %}
 

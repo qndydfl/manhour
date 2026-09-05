@@ -1,5 +1,5 @@
 /* =========================================================
-   MANHOUR SESSION / HISTORY HUB
+    MANHOUR SESSION / HISTORY HUB
 ========================================================= */
 
 .mh-page {
@@ -16,67 +16,11 @@
     gap: 28px;
 }
 
-.mh-eyebrow {
-    margin-bottom: 8px;
-    color: var(--assignment-blue);
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-    letter-spacing: 0.18em;
-}
-
-.mh-page-title {
-    margin: 0;
-    color: var(--assignment-text);
-    font-size: var(--font-size-page-title);
-    font-weight: 750;
-    letter-spacing: -0.045em;
-}
-
-.mh-page-desc {
-    max-width: 660px;
-    margin: 12px 0 0;
-    color: var(--assignment-text-2);
-    font-size: var(--font-size-sm);
-    line-height: 1.75;
-}
-
-.mh-header-actions,
 .mh-session-actions,
 .mh-history-actions {
     display: flex;
     align-items: center;
     gap: 9px;
-}
-
-.mh-active-summary {
-    min-height: 40px;
-    padding: 7px 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border: 1px solid #bbf7d0;
-    border-radius: 9px;
-    background: #f0fdf4;
-    color: #166534;
-    font-size: var(--font-size-xs);
-    font-weight: 750;
-    white-space: nowrap;
-}
-
-.mh-active-summary i {
-    color: var(--assignment-green);
-    font-size: 14px;
-}
-
-.mh-active-summary strong {
-    min-width: 22px;
-    padding: 3px 7px;
-    border-radius: 999px;
-    background: #16a34a;
-    color: #ffffff;
-    font-size: var(--font-size-xs);
-    line-height: 1.25;
-    text-align: center;
 }
 
 .mh-summary-count-badge {
@@ -203,71 +147,6 @@
     border-color: #16a34a;
     background: #16a34a;
     color: #ffffff;
-}
-
-/* Compact assignment summary */
-
-.mh-page-header-summary {
-    align-items: center;
-}
-
-.mh-compact-summary {
-    display: grid;
-    grid-template-columns: repeat(3, max-content);
-    justify-content: end;
-    gap: 8px;
-}
-
-.mh-compact-stat {
-    min-height: 52px;
-    padding: 8px 11px;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    border: 1px solid var(--assignment-border-soft);
-    border-radius: 10px;
-    background: var(--assignment-white);
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
-}
-
-.mh-compact-stat-icon {
-    width: 30px;
-    height: 30px;
-    flex: 0 0 30px;
-    display: grid;
-    place-items: center;
-    border-radius: 8px;
-    background: #e3edf7;
-    color: var(--assignment-blue);
-    font-size: 14px;
-}
-
-.mh-compact-stat span,
-.mh-compact-stat strong {
-    display: block;
-    white-space: nowrap;
-}
-
-.mh-compact-stat span {
-    margin-bottom: 2px;
-    color: var(--assignment-text-3);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
-.mh-compact-stat strong {
-    color: var(--assignment-text);
-    font-size: var(--font-size-sm);
-    line-height: 1.2;
-}
-
-.mh-compact-stat strong.is-active {
-    color: var(--assignment-green);
-}
-
-.mh-work-limit-phone {
-    display: none !important;
 }
 
 /* Worker capacity table */
@@ -1050,23 +929,11 @@
         margin-bottom: 24px;
     }
 
-    .mh-compact-summary {
-        width: 100%;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        justify-content: stretch;
-    }
-
-    .mh-compact-stat-limit {
-        grid-column: 1 / -1;
-    }
-
-    .mh-header-actions,
     .mh-history-actions {
         width: 100%;
         flex-wrap: wrap;
     }
 
-    .mh-header-actions .mh-btn,
     .mh-history-actions .mh-btn,
     .mh-history-actions form {
         flex: 1;
@@ -1112,14 +979,6 @@
 }
 
 @media (max-width: 480px) {
-    .mh-page-title {
-        font-size: 29px;
-    }
-
-    .mh-page-desc {
-        font-size: var(--font-size-sm);
-    }
-
     .mh-session-card,
     .mh-history-item {
         padding: 18px;
@@ -1131,14 +990,6 @@
 
     .mh-history-actions {
         flex-wrap: wrap;
-    }
-
-    .mh-compact-summary {
-        grid-template-columns: 1fr;
-    }
-
-    .mh-compact-stat-limit {
-        grid-column: auto;
     }
 
     .mh-summary-notice {
@@ -1173,56 +1024,6 @@
     .mh-assigned-summary-page .mh-page-header-summary {
         margin-bottom: 8px;
         gap: 8px;
-    }
-
-    .mh-assigned-summary-page .mh-page-desc {
-        display: none;
-    }
-
-    .mh-assigned-summary-page .mh-compact-summary {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        justify-content: stretch;
-        gap: 4px;
-    }
-
-    .mh-assigned-summary-page .mh-compact-stat,
-    .mh-assigned-summary-page .mh-compact-stat-limit {
-        min-width: 0;
-        min-height: 45px;
-        grid-column: auto;
-        padding: 5px 4px;
-        justify-content: center;
-        border-radius: 7px;
-        text-align: center;
-    }
-
-    .mh-assigned-summary-page .mh-compact-stat-icon {
-        display: none;
-    }
-
-    .mh-assigned-summary-page .mh-compact-stat span {
-        margin-bottom: 3px;
-        overflow: hidden;
-        font-size: 9px;
-        letter-spacing: 0.02em;
-        text-overflow: ellipsis;
-    }
-
-    .mh-assigned-summary-page .mh-compact-stat strong {
-        overflow: hidden;
-        font-size: 11.5px;
-        line-height: 1.2;
-        text-overflow: ellipsis;
-    }
-
-    .mh-assigned-summary-page .mh-work-limit-wide {
-        display: none !important;
-    }
-
-    .mh-assigned-summary-page .mh-work-limit-phone {
-        display: block !important;
     }
 
     .mh-assigned-summary-page .mh-summary-notice {
@@ -1270,7 +1071,7 @@
 
     .mh-assigned-summary-page .mh-worker-table th {
         padding: 7px 6px;
-        font-size: 12px;
+        font-size: 13px;
         letter-spacing: 0.03em;
         white-space: nowrap;
     }
@@ -1287,7 +1088,7 @@
     .mh-assigned-summary-page .mh-worker-shift {
         gap: 4px;
     }
-    
+
     .mh-assigned-summary-page .mh-worker-table .mh-btn {
         min-height: 32px;
         padding: 6px 8px;

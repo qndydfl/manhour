@@ -1,4 +1,4 @@
-{% extends "manhour/base/result_v2_base.html" %} 
+{% extends "manhour/base/result_base.html" %} 
 {% load static %} 
 
 {% block title %} Import Master Data | Manhour {% endblock title %} 
@@ -6,12 +6,12 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/dialog_v2.css' %}?v=20260829-1"
+    href="{% static 'css/dialog.css' %}?v=20260829-1"
 />
 
 <link
     rel="stylesheet"
-    href="{% static 'css/v2/master_data_v2.css' %}?v=20260828-3"
+    href="{% static 'css/master_data.css' %}?v=20260828-3"
 />
 {% endblock css %} 
 
@@ -20,13 +20,15 @@
 
 <script>
     const PASTE_DATA_POST_URL = "{% url 'manhour:paste_data' %}";
-
     const MASTER_DATA_LIST_URL = "{% url 'manhour:master_data_list' %}";
 </script>
 
 <script defer src="{% static 'js/paste_data.js' %}"></script>
 
-{% endblock js %} {% block content %}
+{% endblock js %} 
+
+
+{% block content %}
 
 <header class="assignment-topbar">
     <div class="assignment-topbar-inner">
@@ -94,7 +96,7 @@
         <div class="master-import-guide-title">
             <i class="bi bi-info-circle me-1"></i>
 
-            Excel Column Order
+            Data Column Order
         </div>
 
         <div class="master-import-columns">
@@ -125,9 +127,9 @@
     <section class="master-v2-panel">
         <header class="master-v2-panel-head">
             <div>
-                <strong> Data Grid </strong>
+                <strong> 데이터 입력 </strong>
 
-                <span> Paste Excel cells directly into the table. </span>
+                <span> 데이터를 직접 테이블에 붙여넣기 하세요. </span>
             </div>
 
             <i class="bi bi-file-earmark-spreadsheet text-muted"></i>
