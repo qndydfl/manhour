@@ -891,7 +891,7 @@ body.worker-panel-open .manning-main {
     }
 
     .manning-dashboard-edit-body .edit-header-actions {
-        grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) 36px minmax(0, 1fr);
+        grid-template-columns: 36px 36px 50px 36px 36px;
         gap: 5px;
     }
 

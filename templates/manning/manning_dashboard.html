@@ -158,7 +158,7 @@
 
                 <div class="manning-zone-list">
                     {% for area in session_areas %} {% if area.position == 'LEFT' %}
-                    {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
+                    {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 
@@ -184,7 +184,7 @@
                 <div class="manning-zone-list">
                     {% for area in session_areas %}
                     {% if area.position == 'NONE' %}
-                    {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
+                    {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 
@@ -209,7 +209,7 @@
 
                 <div class="manning-zone-list">
                     {% for area in session_areas %}
-                    {% if area.position == 'RIGHT' %} {% include "manning/partials/area_card_v2.html" with area=area %} {% endif %} {% empty %}
+                    {% if area.position == 'RIGHT' %} {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 

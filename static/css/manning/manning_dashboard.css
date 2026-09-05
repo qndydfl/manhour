@@ -1,9 +1,9 @@
 /* =========================================================
-   MANNING DASHBOARD V2
+    MANNING DASHBOARD V2
 ========================================================= */
 
 /* =========================================================
-   HERO / SESSION HEADER
+    HERO / SESSION HEADER
 ========================================================= */
 
 .manning-dashboard-sidebar-meta {
@@ -524,7 +524,7 @@
 }
 
 /* =========================================================
-   MEMO
+    MEMO
 ========================================================= */
 
 .manning-dashboard-memo {
@@ -590,7 +590,7 @@
 }
 
 /* =========================================================
-   EMPTY ZONE
+    EMPTY ZONE
 ========================================================= */
 
 .manning-zone-empty {
@@ -610,21 +610,13 @@
 }
 
 /* =========================================================
-   RESPONSIVE
+    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 1250px) {
-
-
     .manning-zone-grid {
         grid-template-columns: 1fr;
     }
-}
-
-@media (max-width: 800px) {
-
-
-
 }
 
 @media (max-width: 700px) {
@@ -633,13 +625,21 @@
         margin-top: 0;
     }
 
-    .manning-dashboard-area-section {
-        order: 1;
-        margin-top: 16px;
+    .manning-dashboard-memo-head strong {
+        font-size: 14px;
     }
 
+    .manning-dashboard-area-section {
+        order: 1;
+        margin-top: 14px;
+    }
+
+    .manning-dashboard-section-head h3 {
+        font-size: 16px;
+    }
+    
     .manning-v2-worker-info strong {
-        font-size: 11px;
+        font-size: 14px;
     }
 
     .manning-v2-hour-box strong {
@@ -652,10 +652,6 @@
 }
 
 @media (max-width: 600px) {
-
-
-
-
     .manning-v2-worker-grid {
         grid-template-columns: 1fr;
     }
