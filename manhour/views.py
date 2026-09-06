@@ -406,9 +406,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             if not item.is_active or not item.today_rotation_status:
                 continue
             group_key = item.code.rsplit("-", 1)[0]
-            rotation_groups.setdefault(group_key, []).append(
-                item.today_rotation_status
-            )
+            rotation_groups.setdefault(group_key, []).append(item.today_rotation_status)
         rotation_status_conflict = any(
             len(statuses) >= 3 and len(statuses) != len(set(statuses))
             for statuses in rotation_groups.values()
@@ -438,9 +436,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
             label = (request.POST.get("label") or "").strip()
             raw_sort_order = (request.POST.get("sort_order") or "").strip()
             is_active = request.POST.get("is_active") == "1"
-            rotation_pattern = (
-                request.POST.get("rotation_pattern") or ""
-            ).strip()
+            rotation_pattern = (request.POST.get("rotation_pattern") or "").strip()
             raw_rotation_anchor_date = (
                 request.POST.get("rotation_anchor_date") or ""
             ).strip()
@@ -468,9 +464,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                     )
                     return redirect("manhour:settings")
                 try:
-                    rotation_anchor_date = date.fromisoformat(
-                        raw_rotation_anchor_date
-                    )
+                    rotation_anchor_date = date.fromisoformat(raw_rotation_anchor_date)
                 except ValueError:
                     messages.error(request, "올바른 교대 기준일을 입력해주세요.")
                     return redirect("manhour:settings")
@@ -673,18 +667,14 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
                 "slot": slot_name,
                 "work_date": work_date,
                 "schedule_status": schedule_status,
-                "schedule_status_label": get_rotation_status_label(
-                    schedule_status
-                ),
+                "schedule_status_label": get_rotation_status_label(schedule_status),
                 "auto_shift_type": (
                     schedule_status
                     if schedule_status
                     in {WorkSession.SCHEDULE_DAY, WorkSession.SCHEDULE_NIGHT}
                     else ""
                 ),
-                "is_post_night": (
-                    schedule_status == WorkSession.SCHEDULE_POST_NIGHT
-                ),
+                "is_post_night": (schedule_status == WorkSession.SCHEDULE_POST_NIGHT),
             },
         )
 
@@ -1912,6 +1902,25 @@ class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
 
         deleted_count = _reset_manual_for_workers(session, [worker_id])
         return JsonResponse({"status": "success", "deleted": deleted_count}, status=200)
+
+
+class CircuitBreakerOpenListView(SimpleLoginRequiredMixin, TemplateView):
+    template_name = "manhour/cb_open_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["aircraft_models"] = [
+            "A320",
+            "A330",
+            "A350",
+            "A380",
+            "B747",
+            "B767",
+            "B777",
+            "OTHER",
+        ]
+        context["default_aircraft_model"] = ""
+        return context
 
 
 class PasteInputView(SimpleLoginRequiredMixin, View):

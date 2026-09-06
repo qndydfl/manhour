@@ -153,9 +153,7 @@ class AuthorizationAndScopeTests(TestCase):
         response = self.client.post(reverse("manhour:reset_all_sessions"))
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(
-            WorkSession.objects.filter(id=self.site_a_session.id).exists()
-        )
+        self.assertTrue(WorkSession.objects.filter(id=self.site_a_session.id).exists())
 
     def test_regular_user_cannot_clear_history(self):
         self.site_a_session.is_active = False
@@ -164,14 +162,10 @@ class AuthorizationAndScopeTests(TestCase):
         response = self.client.post(reverse("manhour:clear_history"))
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(
-            WorkSession.objects.filter(id=self.site_a_session.id).exists()
-        )
+        self.assertTrue(WorkSession.objects.filter(id=self.site_a_session.id).exists())
 
     def test_finish_session_is_admin_only_and_redirects_to_history(self):
-        finish_url = reverse(
-            "manhour:finish_session", args=[self.site_a_session.id]
-        )
+        finish_url = reverse("manhour:finish_session", args=[self.site_a_session.id])
 
         regular_list = self.client.get(reverse("manhour:session_list"))
         self.assertNotContains(regular_list, finish_url)
@@ -223,13 +217,19 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertContains(response, "portal-home-layout")
         self.assertContains(response, "portal-favorites-aside")
 
+    def test_circuit_breaker_open_list_renders_clipboard_workspace(self):
+        response = self.client.get(reverse("manhour:cb_open_list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CIRCUIT BREAKER OPEN LIST")
+        self.assertContains(response, "cbOpenListPasteSource")
+        self.assertContains(response, "기종 선택")
+
     def test_index_header_displays_today_rotation_status(self):
         workplace = Workplace.objects.get(code="SITE-A")
         workplace.rotation_anchor_date = timezone.localdate()
         workplace.rotation_pattern = Workplace.ROTATION_NIGHT_FIRST
-        workplace.save(
-            update_fields=["rotation_anchor_date", "rotation_pattern"]
-        )
+        workplace.save(update_fields=["rotation_anchor_date", "rotation_pattern"])
 
         response = self.client.get(reverse("manhour:index"))
 
@@ -285,9 +285,7 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertEqual(create_response.status_code, 302)
         self.assertEqual(
             list(
-                created_session.worker_set.order_by("id").values_list(
-                    "name", flat=True
-                )
+                created_session.worker_set.order_by("id").values_list("name", flat=True)
             ),
             ["Alice", "Bob"],
         )
@@ -303,9 +301,7 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertEqual(edit_response.status_code, 302)
         self.assertEqual(
             list(
-                created_session.worker_set.order_by("id").values_list(
-                    "name", flat=True
-                )
+                created_session.worker_set.order_by("id").values_list("name", flat=True)
             ),
             ["Charlie", "Delta"],
         )
@@ -321,9 +317,7 @@ class AuthorizationAndScopeTests(TestCase):
         workplace = Workplace.objects.get(code="SITE-A")
         workplace.rotation_anchor_date = get_operational_work_date()
         workplace.rotation_pattern = Workplace.ROTATION_DAY_FIRST
-        workplace.save(
-            update_fields=["rotation_anchor_date", "rotation_pattern"]
-        )
+        workplace.save(update_fields=["rotation_anchor_date", "rotation_pattern"])
 
         response = self.client.post(
             reverse("manhour:create_session"),
@@ -390,7 +384,9 @@ class AuthorizationAndScopeTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'class="assignment-console-body manage-items-body"')
+        self.assertContains(
+            response, 'class="assignment-console-body manage-items-body"'
+        )
         self.assertContains(response, ">Alice: 8, Bob: 7.5</textarea>")
 
         save_response = self.client.post(

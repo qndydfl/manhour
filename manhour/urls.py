@@ -70,6 +70,11 @@ urlpatterns = [
         views.LegacyUploadRedirectView.as_view(),
         name="legacy_upload_redirect",
     ),
+    path(
+        "cb-open-list/",
+        views.CircuitBreakerOpenListView.as_view(),
+        name="cb_open_list",
+    ),
     # 개별 아이템 및 기능
     path(
         "session/<int:session_id>/reorder-items/",

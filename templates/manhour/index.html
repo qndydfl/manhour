@@ -1,7 +1,7 @@
 {% extends 'manhour/base/portal_base.html' %} 
 {% load static %} 
-
 {% load background_tags %} 
+
 {% block title %} Aviation Operations | Manning System {% endblock title %} 
 
 {% block css %}
@@ -19,15 +19,15 @@
 <script defer src="{% static 'js/index.js' %}?v=20260831-4"></script>
 {% endblock js %} 
 
-
 {% block content %} 
 {% background_config "index_operations_image" as index_operations_image %} 
+
 {% include "manhour/partials/portal_header.html" %}
 
 <main class="portal-content">
     <div class="portal-home-layout">
         <div class="portal-home-main">
-    <!-- =====================================================
+            <!-- =====================================================
         WORKSPACES
     ====================================================== -->
 
@@ -156,7 +156,7 @@
                 </div>
             </section>
 
-    <!-- =====================================================
+            <!-- =====================================================
         STATUS
     ====================================================== -->
 
@@ -249,7 +249,7 @@
                 </div>
             </section>
 
-    <!-- =====================================================
+            <!-- =====================================================
         LIVE OPERATIONS
     ====================================================== -->
 
@@ -420,6 +420,25 @@
             </div>
 
             <div class="portal-links-grid">
+                <a
+                    href="{% url 'manhour:cb_open_list' %}"
+                    class="portal-link-card"
+                >
+                    <div class="portal-link-left">
+                        <div class="portal-link-icon">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </div>
+
+                        <div>
+                            <strong> C/B Open List </strong>
+
+                            <small> Clipboard worksheet </small>
+                        </div>
+                    </div>
+
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
                 <a
                     href="https://login.koreanair.com/"
                     target="_blank"
