@@ -86,9 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
        DOCUMENT FOOTER SETTINGS
        ===================================================== */
 
-    /*
-     * 설정창 입력
-     */
     const issueDateInput = document.getElementById("cbOpenIssueDate");
 
     const companyNameInput = document.getElementById("cbOpenCompanyName");
@@ -97,12 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /*
      * 실제 A4 Footer
-     *
-     * HTML에서 아래 ID 사용 권장:
-     *
-     * cbOpenFooterIssueDate
-     * cbOpenFooterCompany
-     * cbOpenFooterDocumentNumber
      */
     const footerIssueDate = document.getElementById("cbOpenFooterIssueDate");
 
@@ -160,10 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const DEFAULT_ROWS = 12;
 
-    /*
-     * 기존 저장 데이터를 유지하기 위해
-     * storage key 변경하지 않음
-     */
     const STORAGE_KEY = "cb_open_list_workspace_v1";
 
     /*
@@ -308,6 +295,21 @@ document.addEventListener("DOMContentLoaded", () => {
             .trim();
     }
 
+    /*
+     * =============================================
+     * 기종 / 기번 필수 검사
+     * =============================================
+     *
+     * 주의:
+     *
+     * 이 함수는
+     * 1. 문서 저장
+     * 2. 표 데이터 붙여넣기
+     *
+     * 에서 사용합니다.
+     *
+     * "설정 저장"에서는 사용하지 않습니다.
+     */
     function validateRequiredDocumentInfo() {
         const aircraft = cleanText(aircraftModelSelect?.value);
 
@@ -407,12 +409,13 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     function updateHeader() {
-        const aircraft = cleanText(aircraftModelSelect?.value) || "A350";
+        const aircraft = cleanText(aircraftModelSelect?.value);
 
         let gibun = cleanText(gibunInput?.value);
 
         /*
-         * 숫자만
+         * 기번은 숫자만,
+         * 최대 4자리
          */
         gibun = gibun.replace(/\D/g, "").slice(0, 4);
 
@@ -436,7 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (sheetModel) {
-            sheetModel.textContent = `(${aircraft})`;
+            sheetModel.textContent = aircraft ? `(${aircraft})` : "()";
         }
     }
 
@@ -455,7 +458,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cleanText(documentNumberInput?.value) || DEFAULT_DOCUMENT_NUMBER;
 
         /*
-         * 설정 input 값도 정리
+         * 설정 input 값 정리
          */
         if (issueDateInput) {
             issueDateInput.value = issueDate;
@@ -526,7 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function insertPlainText(text) {
         /*
-         * 현재 Chromium / Edge 호환
+         * Chromium / Edge
          */
         if (
             document.queryCommandSupported &&
@@ -568,24 +571,12 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     function updateTableSizing() {
-        /*
-         * 본문 글자
-         */
         const bodyFont = Number(bodyFontInput?.value || 11);
 
-        /*
-         * Header 글자
-         */
         const headerFont = Number(headerFontInput?.value || 10);
 
-        /*
-         * Header padding
-         */
         const headerPadding = Number(headerPaddingInput?.value || 5);
 
-        /*
-         * Row height
-         */
         const rowHeight = Number(rowHeightInput?.value || 34);
 
         /*
@@ -781,6 +772,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ensureRows(DEFAULT_ROWS);
     }
 
+    /*
+     * =============================================
+     * 다음 붙여넣기 시작 행
+     * =============================================
+     *
+     * 기존 데이터가 있는 마지막 행을 찾고
+     * 그 다음 행부터 붙여넣습니다.
+     */
     function getNextPasteRowIndex() {
         const rows = Array.from(tableBody.querySelectorAll("tr"));
 
@@ -932,6 +931,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const lines = text.split("\n").filter((line) => line.trim() !== "");
 
+        /*
+         * 붙여넣을 데이터보다
+         * 현재 행이 부족하면 자동 생성
+         */
         ensureRows(startRow + lines.length);
 
         lines.forEach((line, lineIndex) => {
@@ -943,10 +946,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            /*
+             * =========================================
+             * 붙여넣기 데이터 매핑
+             *
+             * 1열 → PANEL
+             * 2열 → DESCRIPTION
+             * 3열 → FIN
+             * 4열 → C/B LOC'
+             * =========================================
+             */
             PASTE_TARGETS.forEach((field, columnIndex) => {
                 setCellValue(row, field, columns[columnIndex] || "");
             });
 
+            /*
+             * =========================================
+             * SSPC 자동 판별
+             * =========================================
+             *
+             * C/B LOC' 값에
+             * SSPC가 포함되어 있으면
+             *
+             * etc = V
+             *
+             * SSPC가 없으면
+             * etc = 빈칸
+             */
             const cbLocValue = cleanText(columns[3] || "");
 
             const isSSPC = cbLocValue.toUpperCase().includes("SSPC");
@@ -1101,8 +1127,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function collectWorkspaceData() {
         /*
+         * =========================================
          * ROW DATA
+         * =========================================
          */
+
         const rows = Array.from(tableBody.querySelectorAll("tr")).map((row) => {
             const cells = {};
 
@@ -1128,19 +1157,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         /*
+         * =========================================
          * COLUMN WIDTH
+         * =========================================
          */
+
         const columnWidths = {};
 
         Object.keys(DEFAULT_COLUMN_WIDTHS).forEach((key) => {
             columnWidths[key] = getColumnWidth(key);
         });
 
+        /*
+         * =========================================
+         * 전체 workspace 데이터
+         * =========================================
+         */
+
         return {
-            /*
-             * 기존 저장 데이터와
-             * 호환 유지
-             */
             version: 2,
 
             document: {
@@ -1179,10 +1213,109 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
+       SAVE SETTINGS ONLY
+       ===================================================== */
+
+    function saveSettingsOnly() {
+        try {
+            /*
+             * 기존 전체 저장값을 불러옵니다.
+             *
+             * 설정 저장을 눌렀다고 해서
+             * 기존 표 내용 / 기종 / 기번 등을
+             * 삭제하면 안 됩니다.
+             */
+            const raw = localStorage.getItem(STORAGE_KEY);
+
+            let currentData = {};
+
+            if (raw) {
+                try {
+                    currentData = JSON.parse(raw) || {};
+                } catch (parseError) {
+                    console.warn(
+                        "기존 저장 데이터를 읽지 못했습니다.",
+                        parseError,
+                    );
+
+                    currentData = {};
+                }
+            }
+
+            /*
+             * =========================================
+             * TABLE SETTINGS
+             * =========================================
+             */
+
+            currentData.tableSettings = {
+                bodyFont: bodyFontInput?.value || "11",
+
+                headerFont: headerFontInput?.value || "10",
+
+                headerPadding: headerPaddingInput?.value || "5",
+
+                rowHeight: rowHeightInput?.value || "34",
+            };
+
+            /*
+             * =========================================
+             * FOOTER SETTINGS
+             * =========================================
+             */
+
+            currentData.footer = {
+                issueDate: issueDateInput?.value || DEFAULT_ISSUE_DATE,
+
+                company: companyNameInput?.value || DEFAULT_COMPANY_NAME,
+
+                documentNumber:
+                    documentNumberInput?.value || DEFAULT_DOCUMENT_NUMBER,
+            };
+
+            /*
+             * =========================================
+             * COLUMN WIDTH
+             * =========================================
+             */
+
+            const columnWidths = {};
+
+            Object.keys(DEFAULT_COLUMN_WIDTHS).forEach((key) => {
+                columnWidths[key] = getColumnWidth(key);
+            });
+
+            currentData.columnWidths = columnWidths;
+
+            currentData.settingsSavedAt = new Date().toISOString();
+
+            /*
+             * =========================================
+             * localStorage 저장
+             * =========================================
+             */
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
+
+            return true;
+        } catch (error) {
+            console.error("C/B OPEN LIST 설정 저장 실패", error);
+
+            alert("설정 저장 중 오류가 발생했습니다.");
+
+            return false;
+        }
+    }
+
+    /* =====================================================
        SAVE WORKSPACE
        ===================================================== */
 
     function saveWorkspace() {
+        /*
+         * 전체 문서 저장은
+         * 기종 / 기번 필수
+         */
         if (!validateRequiredDocumentInfo()) {
             return false;
         }
@@ -1225,9 +1358,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        /* =============================================
-           DOCUMENT
-           ============================================= */
+        /*
+         * =========================================
+         * DOCUMENT
+         * =========================================
+         */
 
         if (data.document) {
             if (aircraftModelSelect && data.document.aircraft) {
@@ -1244,9 +1379,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        /* =============================================
-           FOOTER
-           ============================================= */
+        /*
+         * =========================================
+         * FOOTER
+         * =========================================
+         */
 
         if (issueDateInput) {
             issueDateInput.value = data.footer?.issueDate || DEFAULT_ISSUE_DATE;
@@ -1262,9 +1399,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 data.footer?.documentNumber || DEFAULT_DOCUMENT_NUMBER;
         }
 
-        /* =============================================
-           TABLE SETTINGS
-           ============================================= */
+        /*
+         * =========================================
+         * TABLE SETTINGS
+         * =========================================
+         */
 
         if (data.tableSettings) {
             if (bodyFontInput) {
@@ -1285,9 +1424,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        /* =============================================
-           COLUMN WIDTH
-           ============================================= */
+        /*
+         * =========================================
+         * COLUMN WIDTH
+         * =========================================
+         */
 
         if (data.columnWidths) {
             Object.entries(data.columnWidths).forEach(([key, width]) => {
@@ -1295,9 +1436,11 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        /* =============================================
-           TABLE ROW
-           ============================================= */
+        /*
+         * =========================================
+         * TABLE ROW
+         * =========================================
+         */
 
         tableBody.innerHTML = "";
 
@@ -1315,8 +1458,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 /*
+                 * =================================
                  * CELL DATA
+                 * =================================
                  */
+
                 if (savedRow.cells) {
                     Object.entries(savedRow.cells).forEach(
                         ([field, cellData]) => {
@@ -1329,7 +1475,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             }
 
                             /*
-                             * 과거 저장 버전
+                             * 과거 저장 버전 호환
+                             *
+                             * 과거에는
+                             * cellData가 문자열일 수 있음
                              */
                             if (typeof cellData === "string") {
                                 editor.innerText = cellData;
@@ -1443,8 +1592,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         /*
-         * AppDialog가 없으면
-         * 브라우저 confirm fallback
+         * fallback
          */
         return window.confirm("작성한 내용과 저장된 내용을 모두 초기화할까요?");
     }
@@ -1460,12 +1608,15 @@ document.addEventListener("DOMContentLoaded", () => {
         deleteSavedWorkspace();
 
         /*
-         * 문서 정보
+         * 기번 초기화
          */
         if (gibunInput) {
             gibunInput.value = "";
         }
 
+        /*
+         * 제목 초기화
+         */
         if (headerTitleInput) {
             headerTitleInput.value = "CIRCUIT BREAKER OPEN LIST";
         }
@@ -1602,9 +1753,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (settingsSaveButton) {
         settingsSaveButton.addEventListener("click", () => {
-            const saved = saveWorkspace();
+            /*
+             * 설정 저장은
+             * 기종 / 기번 검사하지 않음
+             */
+            const saved = saveSettingsOnly();
 
             if (saved) {
+                /*
+                 * 변경된 설정을
+                 * 화면에도 다시 반영
+                 */
+                updateTableSizing();
+
+                updateFooter();
+
+                showSaveMessage("설정이 저장되었습니다.");
+
                 closeSettings();
             }
         });
@@ -1713,7 +1878,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     pasteSource.addEventListener("paste", (event) => {
         /*
-         * 먼저 기종 / 기번 검사
+         * =========================================
+         * 기종 / 기번 검사
+         * =========================================
+         *
+         * 표 데이터 붙여넣기는
+         * 기종 / 기번 입력 후 가능
          */
         if (!validateRequiredDocumentInfo()) {
             event.preventDefault();
@@ -1724,7 +1894,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         /*
-         * 정상일 때 붙여넣기 처리
+         * 브라우저 기본 붙여넣기 방지
          */
         event.preventDefault();
 
@@ -1735,13 +1905,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         /*
-         * 기존 데이터의
-         * 다음 행부터 붙여넣기
+         * =========================================
+         * 기존 데이터 다음 행부터 추가
+         * =========================================
          */
         const startRow = getNextPasteRowIndex();
 
         applyClipboardText(text, startRow);
 
+        /*
+         * 붙여넣기 입력창은
+         * 다시 비워둠
+         */
         pasteSource.value = "";
     });
 
@@ -1765,6 +1940,16 @@ document.addEventListener("DOMContentLoaded", () => {
          * createCellEditor에서 처리
          */
         if (!text.includes("\t")) {
+            return;
+        }
+
+        /*
+         * 다중 열 붙여넣기이면
+         * 기종 / 기번 검사
+         */
+        if (!validateRequiredDocumentInfo()) {
+            event.preventDefault();
+
             return;
         }
 
@@ -1797,7 +1982,7 @@ document.addEventListener("DOMContentLoaded", () => {
     applyDefaultColumnWidths();
 
     /*
-     * 열 너비 input
+     * 열 너비 input 이벤트
      */
     initColumnInputs();
 
@@ -1812,7 +1997,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const restored = restoreWorkspace();
 
     /*
-     * 저장 데이터 없음
+     * 저장 데이터가 없는 경우
      */
     if (!restored) {
         clearTable();
@@ -1824,27 +2009,3 @@ document.addEventListener("DOMContentLoaded", () => {
         updateTableSizing();
     }
 });
-
-function validateRequiredDocumentInfo() {
-    const aircraft = cleanText(aircraftModelSelect?.value);
-
-    const gibun = cleanText(gibunInput?.value);
-
-    if (!aircraft) {
-        alert("기종을 먼저 선택해 주세요.");
-
-        aircraftModelSelect?.focus();
-
-        return false;
-    }
-
-    if (!gibun) {
-        alert("기번을 먼저 입력해 주세요.");
-
-        gibunInput?.focus();
-
-        return false;
-    }
-
-    return true;
-}
