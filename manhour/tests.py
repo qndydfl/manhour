@@ -217,14 +217,6 @@ class AuthorizationAndScopeTests(TestCase):
         self.assertContains(response, "portal-home-layout")
         self.assertContains(response, "portal-favorites-aside")
 
-    def test_circuit_breaker_open_list_renders_clipboard_workspace(self):
-        response = self.client.get(reverse("manhour:cb_open_list"))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "CIRCUIT BREAKER OPEN LIST")
-        self.assertContains(response, "cbOpenListPasteSource")
-        self.assertContains(response, "기종 선택")
-
     def test_index_header_displays_today_rotation_status(self):
         workplace = Workplace.objects.get(code="SITE-A")
         workplace.rotation_anchor_date = timezone.localdate()

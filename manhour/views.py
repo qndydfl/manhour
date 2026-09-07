@@ -1904,25 +1904,6 @@ class ResetWorkerManualInputView(SimpleLoginRequiredMixin, View):
         return JsonResponse({"status": "success", "deleted": deleted_count}, status=200)
 
 
-class CircuitBreakerOpenListView(SimpleLoginRequiredMixin, TemplateView):
-    template_name = "manhour/cb_open_list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["aircraft_models"] = [
-            "A320",
-            "A330",
-            "A350",
-            "A380",
-            "B747",
-            "B767",
-            "B777",
-            "OTHER",
-        ]
-        context["default_aircraft_model"] = ""
-        return context
-
-
 class PasteInputView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id):
         session = get_session_or_404(request, session_id)

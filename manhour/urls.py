@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic.base import RedirectView
 from . import views
 
 app_name = "manhour"
@@ -72,7 +73,7 @@ urlpatterns = [
     ),
     path(
         "cb-open-list/",
-        views.CircuitBreakerOpenListView.as_view(),
+        RedirectView.as_view(pattern_name="bookmarks:cb_open_list", permanent=False),
         name="cb_open_list",
     ),
     # 개별 아이템 및 기능

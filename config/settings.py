@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "manhour",
     "manning",
     "widget_tweaks",
+    'bookmarks',
 ]
 
 MIDDLEWARE = [

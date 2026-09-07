@@ -32,6 +32,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("manhour.urls", namespace="manhour")),
     path("manning/", include("manning.urls")),
+    path("bookmarks/", include("bookmarks.urls")),
 ]
 
 if settings.DEBUG:
