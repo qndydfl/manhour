@@ -49,13 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     /*
-     * 전체 본문 글자 크기
-     */
-    const bodyFontInput = document.getElementById("cbOpenTableBodyFont");
-
-    const bodyFontValue = document.getElementById("cbOpenTableBodyFontValue");
-
-    /*
      * 헤더 글자 크기
      */
     const headerFontInput = document.getElementById("cbOpenTableHeaderFont");
@@ -63,6 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const headerFontValue = document.getElementById(
         "cbOpenTableHeaderFontValue",
     );
+
+    /*
+     * 전체 본문 글자 크기
+     */
+    const bodyFontInput = document.getElementById("cbOpenTableBodyFont");
+
+    const bodyFontValue = document.getElementById("cbOpenTableBodyFontValue");
 
     /*
      * 헤더 여백
@@ -570,10 +570,36 @@ document.addEventListener("DOMContentLoaded", () => {
        TABLE SIZE
        ===================================================== */
 
-    function updateTableSizing() {
-        const bodyFont = Number(bodyFontInput?.value || 11);
+    function collectDocumentFonts() {
+        return Object.fromEntries(Array.from(document.querySelectorAll('[data-document-font]'),
+            (input) => [input.dataset.documentFont, input.value]));
+    }
 
-        const headerFont = Number(headerFontInput?.value || 10);
+    function updateDocumentFonts() {
+        document.querySelectorAll('[data-document-font]').forEach((input) => {
+            const size = Math.max(8, Math.min(32, Number(input.value) || Number(input.defaultValue)));
+            sheet.style.setProperty(`--cb-document-${input.dataset.documentFont}-font`, `${size}px`);
+            const output = document.querySelector(`[data-document-font-value="${input.dataset.documentFont}"]`);
+            if (output) output.textContent = `${size}px`;
+        });
+    }
+
+    function restoreDocumentFonts(saved = {}) {
+        document.querySelectorAll('[data-document-font]').forEach((input) => {
+            input.value = saved?.[input.dataset.documentFont] || input.defaultValue;
+        });
+        updateDocumentFonts();
+    }
+
+    document.querySelectorAll('[data-document-font]').forEach((input) => {
+        input.addEventListener('input', updateDocumentFonts);
+    });
+
+    function updateTableSizing() {
+        updateDocumentFonts();
+        const headerFont = Number(headerFontInput?.value || 12);
+
+        const bodyFont = Number(bodyFontInput?.value || 12);
 
         const headerPadding = Number(headerPaddingInput?.value || 5);
 
@@ -582,9 +608,9 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * CSS Variable 설정
          */
-        sheet.style.setProperty("--cb-body-font", `${bodyFont}px`);
-
         sheet.style.setProperty("--cb-header-font", `${headerFont}px`);
+
+        sheet.style.setProperty("--cb-body-font", `${bodyFont}px`);        
 
         sheet.style.setProperty("--cb-header-padding", `${headerPadding}px`);
 
@@ -593,13 +619,13 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * 표시 값
          */
-        if (bodyFontValue) {
-            bodyFontValue.textContent = `${bodyFont}px`;
-        }
-
         if (headerFontValue) {
             headerFontValue.textContent = `${headerFont}px`;
         }
+
+        if (bodyFontValue) {
+            bodyFontValue.textContent = `${bodyFont}px`;
+        }        
 
         if (headerPaddingValue) {
             headerPaddingValue.textContent = `${headerPadding}px`;
@@ -1176,6 +1202,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return {
             version: 2,
+            documentFonts: collectDocumentFonts(),
 
             document: {
                 aircraft: aircraftModelSelect?.value || "",
@@ -1195,9 +1222,9 @@ document.addEventListener("DOMContentLoaded", () => {
             },
 
             tableSettings: {
-                bodyFont: bodyFontInput?.value || "11",
+                headerFont: headerFontInput?.value || "12",
 
-                headerFont: headerFontInput?.value || "10",
+                bodyFont: bodyFontInput?.value || "12",                
 
                 headerPadding: headerPaddingInput?.value || "5",
 
@@ -1249,9 +1276,9 @@ document.addEventListener("DOMContentLoaded", () => {
              */
 
             currentData.tableSettings = {
-                bodyFont: bodyFontInput?.value || "11",
+                headerFont: headerFontInput?.value || "12",
 
-                headerFont: headerFontInput?.value || "10",
+                bodyFont: bodyFontInput?.value || "12",                
 
                 headerPadding: headerPaddingInput?.value || "5",
 
@@ -1286,6 +1313,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             currentData.columnWidths = columnWidths;
+            currentData.documentFonts = collectDocumentFonts();
 
             currentData.settingsSavedAt = new Date().toISOString();
 
@@ -1405,14 +1433,15 @@ document.addEventListener("DOMContentLoaded", () => {
          * =========================================
          */
 
+        restoreDocumentFonts(data.documentFonts);
         if (data.tableSettings) {
-            if (bodyFontInput) {
-                bodyFontInput.value = data.tableSettings.bodyFont || "11";
+            if (headerFontInput) {
+                headerFontInput.value = data.tableSettings.headerFont || "12";
             }
 
-            if (headerFontInput) {
-                headerFontInput.value = data.tableSettings.headerFont || "10";
-            }
+            if (bodyFontInput) {
+                bodyFontInput.value = data.tableSettings.bodyFont || "12";
+            }            
 
             if (headerPaddingInput) {
                 headerPaddingInput.value =
@@ -1639,13 +1668,14 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * 표 설정
          */
-        if (bodyFontInput) {
-            bodyFontInput.value = "11";
+        if (headerFontInput) {
+            headerFontInput.value = "12";
         }
 
-        if (headerFontInput) {
-            headerFontInput.value = "10";
-        }
+        if (bodyFontInput) {
+            bodyFontInput.value = "12";
+        }        
+        restoreDocumentFonts();
 
         if (headerPaddingInput) {
             headerPaddingInput.value = "5";
@@ -1713,13 +1743,13 @@ document.addEventListener("DOMContentLoaded", () => {
        EVENTS — TABLE SETTINGS
        ===================================================== */
 
-    if (bodyFontInput) {
-        bodyFontInput.addEventListener("input", updateTableSizing);
-    }
-
     if (headerFontInput) {
         headerFontInput.addEventListener("input", updateTableSizing);
     }
+
+    if (bodyFontInput) {
+        bodyFontInput.addEventListener("input", updateTableSizing);
+    }    
 
     if (headerPaddingInput) {
         headerPaddingInput.addEventListener("input", updateTableSizing);

@@ -7,6 +7,26 @@
     ROOT
 ========================================================= */
 
+/* Document typography applies equally to the screen preview and print. */
+#cbOpenSheet .cb-open-aircraft-number {
+    font-size: var(--cb-document-aircraft-font, 18px);
+}
+#cbOpenSheet .cb-open-main-title {
+    font-size: var(--cb-document-title-font, 22px);
+}
+#cbOpenSheet .cb-open-model-title {
+    font-size: var(--cb-document-model-font, 13px);
+}
+#cbOpenSheet .cb-open-footer-left {
+    font-size: var(--cb-document-issue-font, 12px);
+}
+#cbOpenSheet .cb-open-footer-center {
+    font-size: var(--cb-document-company-font, 14px);
+}
+#cbOpenSheet .cb-open-footer-right {
+    font-size: var(--cb-document-number-font, 12px);
+}
+
 :root {
     --cb-bg: var(--surface-page, #e9eff5);
 
@@ -880,12 +900,6 @@ body.cb-open-body {
         #f8fafc !important;
 }
 
-/* 각각 td의 폰트 크기 설정 */
-#cbOpenListBody .cb-open-cell-editor {
-    font-size: 12px;
-}
-
-
 /* =========================================================
    EDITABLE CELL
    ========================================================= */
@@ -1437,7 +1451,8 @@ ROW RESIZER
 }
 
 
-.cb-setting-label-row strong {
+.cb-setting-label-row strong,
+.cb-setting-label-row output[data-document-font-value] {
     min-width: 44px;
 
     padding: 3px 7px;

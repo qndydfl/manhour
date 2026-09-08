@@ -8,14 +8,14 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260907-3"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260908-3"
 />
 {% endblock css %} 
 
 {% block js %}
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260907-4"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260908-2"
 ></script>
 {% endblock js %} 
 
@@ -466,13 +466,13 @@
             ========================================= -->
             <footer class="cb-open-sheet-footer">
                 <!-- 왼쪽 -->
-                <div class="cb-open-footer-left">제정 : 2026.01.05</div>
+                <div class="cb-open-footer-left" id="cbOpenFooterIssueDate">제정 : 2026.01.05</div>
 
                 <!-- 가운데 -->
-                <div class="cb-open-footer-center">ASIANA AIRLINES</div>
+                <div class="cb-open-footer-center" id="cbOpenFooterCompany">ASIANA AIRLINES</div>
 
                 <!-- 오른쪽 -->
-                <div class="cb-open-footer-right">AAR-MX-817-04</div>
+                <div class="cb-open-footer-right" id="cbOpenFooterDocumentNumber">AAR-MX-817-04</div>
             </footer>
         </div>
     </section>
@@ -517,6 +517,39 @@
         SETTINGS BODY
     ================================================= -->
     <div class="offcanvas-body cb-open-settings-body">
+        <section class="cb-setting-section">
+            <div class="cb-setting-section-header">
+                <div class="cb-setting-section-icon"><i class="bi bi-file-earmark-text"></i></div>
+                <div>
+                    <h6>문서 상단 정보</h6>
+                    <small>기번·제목·기종의 글자 크기를 조절합니다. 내용은 문서 상단에서 수정할 수 있습니다.</small>
+                </div>
+            </div>
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbDocumentFont-aircraft">기번 글자 크기</label>
+                    <output for="cbDocumentFont-aircraft" data-document-font-value="aircraft">18px</output>
+                </div>
+                <input id="cbDocumentFont-aircraft" class="form-range" type="range"
+                       min="8" max="32" step="1" value="18" data-document-font="aircraft" />
+            </div>
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbDocumentFont-title">문서 제목 글자 크기</label>
+                    <output for="cbDocumentFont-title" data-document-font-value="title">22px</output>
+                </div>
+                <input id="cbDocumentFont-title" class="form-range" type="range"
+                       min="8" max="32" step="1" value="22" data-document-font="title" />
+            </div>
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbDocumentFont-model">기종 글자 크기</label>
+                    <output for="cbDocumentFont-model" data-document-font-value="model">13px</output>
+                </div>
+                <input id="cbDocumentFont-model" class="form-range" type="range"
+                       min="8" max="32" step="1" value="13" data-document-font="model" />
+            </div>
+        </section>
         <!-- =============================================
             표 기본 설정
         ============================================= -->
@@ -532,43 +565,43 @@
                 </div>
             </div>
 
-            <!-- 본문 글자 크기 -->
-            <div class="cb-setting-field">
-                <div class="cb-setting-label-row">
-                    <label for="cbOpenTableBodyFont"> 본문 글자 크기 </label>
-
-                    <strong id="cbOpenTableBodyFontValue"> 11px </strong>
-                </div>
-
-                <input
-                    id="cbOpenTableBodyFont"
-                    type="range"
-                    class="form-range"
-                    min="8"
-                    max="22"
-                    step="1"
-                    value="11"
-                />
-            </div>
-
             <!-- 헤더 글자 크기 -->
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
                     <label for="cbOpenTableHeaderFont"> 헤더 글자 크기 </label>
 
-                    <strong id="cbOpenTableHeaderFontValue"> 10px </strong>
+                    <strong id="cbOpenTableHeaderFontValue"> 12px </strong>
                 </div>
 
                 <input
                     id="cbOpenTableHeaderFont"
                     type="range"
                     class="form-range"
-                    min="7"
-                    max="16"
+                    min="10"
+                    max="19"
                     step="1"
-                    value="10"
+                    value="12"
                 />
             </div>
+
+            <!-- 본문 글자 크기 -->
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbOpenTableBodyFont"> 본문 글자 크기 </label>
+
+                    <strong id="cbOpenTableBodyFontValue"> 12px </strong>
+                </div>
+
+                <input
+                    id="cbOpenTableBodyFont"
+                    type="range"
+                    class="form-range"
+                    min="10"
+                    max="19"
+                    step="1"
+                    value="12"
+                />
+            </div>            
 
             <!-- 헤더 여백 -->
             <div class="cb-setting-field">
@@ -680,7 +713,7 @@
 
                 <div>
                     <h6>문서 하단 정보</h6>
-                    <small> 인쇄되는 문서 Footer입니다. </small>
+                    <small>하단 문구와 글자 크기를 조절합니다. 인쇄에도 반영됩니다.</small>
                 </div>
             </div>
 
@@ -715,6 +748,30 @@
                     class="form-control"
                     value="AAR-MX-817-04"
                 />
+            </div>
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbDocumentFont-issue">제정일 글자 크기</label>
+                    <output for="cbDocumentFont-issue" data-document-font-value="issue">12px</output>
+                </div>
+                <input id="cbDocumentFont-issue" class="form-range" type="range"
+                       min="8" max="32" step="1" value="12" data-document-font="issue" />
+            </div>
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbDocumentFont-company">회사명 글자 크기</label>
+                    <output for="cbDocumentFont-company" data-document-font-value="company">14px</output>
+                </div>
+                <input id="cbDocumentFont-company" class="form-range" type="range"
+                       min="8" max="32" step="1" value="14" data-document-font="company" />
+            </div>
+            <div class="cb-setting-field">
+                <div class="cb-setting-label-row">
+                    <label for="cbDocumentFont-number">문서 번호 글자 크기</label>
+                    <output for="cbDocumentFont-number" data-document-font-value="number">12px</output>
+                </div>
+                <input id="cbDocumentFont-number" class="form-range" type="range"
+                       min="8" max="32" step="1" value="12" data-document-font="number" />
             </div>
         </section>
 
