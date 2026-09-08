@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import CBTemplate
+
+
+@admin.register(CBTemplate)
+class CBTemplateAdmin(admin.ModelAdmin):
+    list_display = ("name", "aircraft_model", "site", "created_at")
+    list_filter = ("aircraft_model", "site")
+    search_fields = ("name",)

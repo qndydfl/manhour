@@ -946,25 +946,26 @@ document.addEventListener("DOMContentLoaded", () => {
        CLIPBOARD AUTO MAP
        ===================================================== */
 
-    function applyClipboardText(rawText, startRow = 0) {
-        const text = String(rawText || "")
-            .replace(/\r/g, "")
-            .trim();
-
-        if (!text) {
+    function applyClipboardText(rawText, startRow = 0, format = 'auto') {
+        let records;
+        try {
+            records = window.parseCBClipboard(rawText, format);
+        } catch (error) {
+            alert(error.message);
             return;
         }
 
-        const lines = text.split("\n").filter((line) => line.trim() !== "");
+        return applyCBRecords(records, startRow);
+    }
 
+    function applyCBRecords(records, startRow) {
         /*
          * 붙여넣을 데이터보다
          * 현재 행이 부족하면 자동 생성
          */
-        ensureRows(startRow + lines.length);
+        ensureRows(startRow + records.length);
 
-        lines.forEach((line, lineIndex) => {
-            const columns = line.split("\t");
+        records.forEach((record, lineIndex) => {
 
             const row = tableBody.children[startRow + lineIndex];
 
@@ -982,8 +983,8 @@ document.addEventListener("DOMContentLoaded", () => {
              * 4열 → C/B LOC'
              * =========================================
              */
-            PASTE_TARGETS.forEach((field, columnIndex) => {
-                setCellValue(row, field, columns[columnIndex] || "");
+            PASTE_TARGETS.forEach((field) => {
+                setCellValue(row, field, record[field] || "");
             });
 
             /*
@@ -999,12 +1000,13 @@ document.addEventListener("DOMContentLoaded", () => {
              * SSPC가 없으면
              * etc = 빈칸
              */
-            const cbLocValue = cleanText(columns[3] || "");
+            const cbLocValue = cleanText(record.cb_loc || "");
 
             const isSSPC = cbLocValue.toUpperCase().includes("SSPC");
 
             setCellValue(row, "etc", isSSPC ? "V" : "");
         });
+        return records.length;
     }
 
     /* =====================================================
@@ -1906,7 +1908,24 @@ document.addEventListener("DOMContentLoaded", () => {
        PASTE SOURCE
        ===================================================== */
 
+    document.getElementById('cbOpenManualImport')?.addEventListener('click', () => {
+        if (!validateRequiredDocumentInfo()) return;
+        if (!pasteSource.value.trim()) {
+            alert('쉼표로 구분한 데이터를 먼저 입력해 주세요.');
+            return;
+        }
+        const count = applyClipboardText(pasteSource.value, getNextPasteRowIndex(), 'boeing-manual');
+        if (count) {
+            pasteSource.value = '';
+            saveWorkspace();
+        }
+    });
+
     pasteSource.addEventListener("paste", (event) => {
+        const clipboardText = event.clipboardData.getData('text/plain');
+        // Leave comma input in the editor so the user can finish it before saving.
+        if (pasteSource.value.trim() || (!clipboardText.includes('\t') &&
+            !/Row\s+Col(?:umn)?\s+Number\s+Name/i.test(clipboardText))) return;
         /*
          * =========================================
          * 기종 / 기번 검사
@@ -2037,5 +2056,160 @@ document.addEventListener("DOMContentLoaded", () => {
         updateFooter();
 
         updateTableSizing();
+    }
+    initCBTemplates();
+
+    function initCBTemplates() {
+        const panel = document.getElementById('cbTemplatePanel');
+        if (!panel) return;
+        document.body.appendChild(panel);
+        const select = document.getElementById('cbTemplateSelect');
+        const aircraft = document.getElementById('cbTemplateAircraft');
+        const name = document.getElementById('cbTemplateName');
+        const rowsBody = document.getElementById('cbTemplateRows');
+        const fields = document.getElementById('cbTemplateFields');
+        const update = document.getElementById('cbTemplateUpdate');
+        const status = document.getElementById('cbTemplateStatus');
+        const keys = ['panel_loc', 'cb_loc', 'fin', 'description'];
+        let templates = [];
+        let selectedId = '';
+        let currentAircraft = aircraft.value;
+        let dirty = false;
+
+        function addRow(values = {}) {
+            const tr = document.createElement('tr');
+            keys.forEach((key) => {
+                const td = document.createElement('td');
+                const input = document.createElement(key === 'description' ? 'textarea' : 'input');
+                input.className = 'form-control';
+                input.dataset.field = key;
+                input.value = values[key] || '';
+                input.maxLength = 2000;
+                input.setAttribute('aria-label', key);
+                if (key === 'description') input.rows = 2;
+                td.append(input);
+                tr.append(td);
+            });
+            const td = document.createElement('td');
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'btn btn-outline-danger btn-sm';
+            remove.textContent = '삭제';
+            remove.addEventListener('click', () => { tr.remove(); dirty = true; });
+            td.append(remove);
+            tr.append(td);
+            rowsBody.append(tr);
+        }
+        function showEditor(item) {
+            name.value = item?.name || '';
+            rowsBody.replaceChildren();
+            (item?.rows?.length ? item.rows : [{}]).forEach(addRow);
+            selectedId = item ? String(item.id) : '';
+            select.value = selectedId;
+            update.disabled = !selectedId;
+            dirty = false;
+        }
+        function readRows() {
+            const rows = Array.from(rowsBody.children).map((tr) => Object.fromEntries(
+                keys.map((key) => [key, tr.querySelector('[data-field="' + key + '"]').value.trim()]),
+            )).filter((row) => Object.values(row).some(Boolean));
+            if (!rows.length || rows.some((row) => !row.panel_loc || !row.cb_loc || !row.description)) {
+                throw new Error("PANEL, C/B LOC', DESCRIPTION을 입력해 주세요. FIN은 비워둘 수 있습니다.");
+            }
+            return rows;
+        }
+        async function discardDraft() {
+            return !dirty || await window.AppDialog.confirm('저장하지 않은 템플릿 편집 내용을 버리고 이동할까요?', { title: '편집 내용 확인' });
+        }
+        async function refresh(id = '') {
+            fields.disabled = true;
+            status.textContent = '템플릿을 불러오는 중입니다.';
+            try {
+                const response = await fetch(panel.dataset.url + '?aircraft_model=' + encodeURIComponent(aircraft.value));
+                if (!response.ok || response.redirected) throw new Error('템플릿을 불러오지 못했습니다. 로그인 상태를 확인해 주세요.');
+                const data = await response.json();
+                templates = data.templates;
+                select.replaceChildren(new Option('새 템플릿', ''));
+                templates.forEach((item) => select.add(new Option(item.name + ' (' + item.rows.length + '행)', item.id)));
+                showEditor(templates.find((item) => String(item.id) === String(id)));
+                currentAircraft = aircraft.value;
+                status.textContent = templates.length ? '' : '이 기종에 저장된 템플릿이 없습니다. 새로 만들어 주세요.';
+            } catch (error) { status.textContent = error.message; }
+            finally { fields.disabled = false; }
+        }
+        fields.addEventListener('input', (event) => {
+            if (event.target === name || rowsBody.contains(event.target)) dirty = true;
+        });
+        aircraft.addEventListener('change', async () => {
+            if (!await discardDraft()) { aircraft.value = currentAircraft; return; }
+            showEditor();
+            templates = [];
+            select.replaceChildren(new Option('새 템플릿', ''));
+            await refresh();
+        });
+        select.addEventListener('change', async () => {
+            const next = select.value;
+            if (!await discardDraft()) { select.value = selectedId; return; }
+            showEditor(templates.find((item) => String(item.id) === next));
+        });
+        document.getElementById('cbTemplateNew').addEventListener('click', async () => {
+            if (await discardDraft()) showEditor();
+        });
+        document.getElementById('cbTemplateAddRow').addEventListener('click', () => { addRow(); dirty = true; });
+        document.getElementById('cbTemplateCopy').addEventListener('click', async () => {
+            if (aircraftModelSelect.value !== aircraft.value) {
+                alert('현재 문서와 템플릿의 기종을 동일하게 선택해 주세요.');
+                return;
+            }
+            if (!await discardDraft()) return;
+            const rows = Array.from(tableBody.children).map((row) => Object.fromEntries(
+                keys.map((key) => [key, cleanText(row.querySelector('[data-field="' + key + '"]')?.innerText || '')]),
+            )).filter((row) => Object.values(row).some(Boolean));
+            rowsBody.replaceChildren();
+            (rows.length ? rows : [{}]).forEach(addRow);
+            dirty = true;
+        });
+        document.getElementById('cbTemplateLoad').addEventListener('click', () => {
+            try {
+                if (aircraftModelSelect.value !== aircraft.value) throw new Error('현재 문서와 템플릿의 기종을 동일하게 선택해 주세요.');
+                const rows = readRows();
+                applyCBRecords(rows, getNextPasteRowIndex());
+                status.textContent = rows.length + '행을 문서에 추가했습니다. 문서를 보관하려면 상단 저장을 눌러 주세요.';
+            } catch (error) { alert(error.message); }
+        });
+        async function saveTemplate(edit) {
+            if (edit && !selectedId) return;
+            let rows;
+            try {
+                if (!name.value.trim()) throw new Error('템플릿 이름을 입력해 주세요.');
+                rows = readRows();
+            } catch (error) { alert(error.message); return; }
+            fields.disabled = true;
+            const payload = { aircraft_model: aircraft.value, name: name.value.trim(), rows };
+            if (edit) payload.id = Number(selectedId);
+            try {
+                const response = await fetch(panel.dataset.url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': panel.querySelector('[name=csrfmiddlewaretoken]').value },
+                    body: JSON.stringify(payload),
+                });
+                if (response.redirected) throw new Error('로그인 상태를 확인해 주세요.');
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || '템플릿 저장에 실패했습니다.');
+                dirty = false;
+                await refresh(data.id);
+                status.textContent = data.name + (edit ? ' 템플릿을 수정했습니다.' : ' 템플릿을 생성했습니다.');
+            } catch (error) { alert(error.message); }
+            finally { fields.disabled = false; }
+        }
+        document.getElementById('cbTemplateSave').addEventListener('click', () => saveTemplate(false));
+        update.addEventListener('click', () => saveTemplate(true));
+        panel.addEventListener('show.bs.modal', () => {
+            if (dirty) return;
+            if (aircraftModelSelect.value) aircraft.value = aircraftModelSelect.value;
+            refresh(aircraft.value === currentAircraft ? selectedId : '');
+        });
+        // Closing the window keeps its draft available for the next opening.
+        showEditor();
     }
 });

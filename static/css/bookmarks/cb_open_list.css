@@ -27,6 +27,16 @@
     font-size: var(--cb-document-number-font, 12px);
 }
 
+#cbTemplatePanel .modal-content { border-radius: 14px; background: #f4f8fc; }
+#cbTemplatePanel .modal-header { background: #e5eef7; }
+#cbTemplatePanel .cb-template-editor { min-width: 650px; }
+#cbTemplatePanel .cb-template-editor th { white-space: nowrap; font-size: 12px; }
+#cbTemplatePanel .cb-template-editor th:nth-child(4) { width: 40%; }
+#cbTemplatePanel .cb-template-editor .form-control { min-width: 90px; font-size: 14px; }
+#cbTemplatePanel .modal-body { overscroll-behavior: contain; }
+html:has(#cbTemplatePanel.show), body:has(#cbTemplatePanel.show) { overflow: hidden !important; }
+@media print { #cbTemplatePanel, .modal-backdrop { display: none !important; } }
+
 :root {
     --cb-bg: var(--surface-page, #e9eff5);
 
