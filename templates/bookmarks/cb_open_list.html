@@ -16,7 +16,7 @@
 <script defer src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260909-11"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260909-12"
 ></script>
 {% endblock js %} 
 
@@ -44,6 +44,11 @@
             <button type="button" id="cbOpenListAddRow" class="cb-open-top-btn">
                 <i class="bi bi-plus-lg"></i>
                 <span>줄 추가</span>
+            </button>
+
+            <button type="button" id="cbOpenListDeleteRow" class="cb-open-top-btn">
+                <i class="bi bi-dash-lg"></i>
+                <span>줄 삭제</span>
             </button>
 
             <button type="button" id="cbOpenListSave" class="cb-open-top-btn">

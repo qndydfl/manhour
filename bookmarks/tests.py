@@ -36,6 +36,7 @@ class CircuitBreakerOpenListTests(TestCase):
         self.assertTemplateUsed(response, "bookmarks/cb_open_list.html")
         self.assertTemplateUsed(response, "manhour/base/result_base.html")
         self.assertContains(response, "cbOpenListPasteSource")
+        self.assertContains(response, "cbOpenListDeleteRow")
         self.assertContains(response, "cbOpenTemplatePicker")
         self.assertContains(response, reverse("bookmarks:cb_templates"))
         self.assertContains(response, 'data-col-width-input="panel-loc"')

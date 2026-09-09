@@ -121,6 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const addRowButton = document.getElementById("cbOpenListAddRow");
 
+    const deleteRowButton = document.getElementById("cbOpenListDeleteRow");
+
     const saveButton = document.getElementById("cbOpenListSave");
 
     const clearButton = document.getElementById("cbOpenListClear");
@@ -159,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
        CONSTANTS
        ===================================================== */
 
-    const DEFAULT_ROWS = 12;
+    const DEFAULT_ROWS = 16;
 
     const STORAGE_KEY = "cb_open_list_workspace_v1";
 
@@ -827,6 +829,34 @@ document.addEventListener("DOMContentLoaded", () => {
         ensureRows(DEFAULT_ROWS);
     }
 
+    function rowHasData(row) {
+        return Array.from(row.querySelectorAll(".cb-open-cell-editor")).some(
+            (editor) => cleanText(editor.innerText) !== "",
+        );
+    }
+
+    async function deleteLastRow() {
+        const lastRow = tableBody.lastElementChild;
+        if (!lastRow) return;
+        if (tableBody.children.length === 1) {
+            alert("표에는 최소 한 줄이 필요합니다.");
+            return;
+        }
+        if (rowHasData(lastRow)) {
+            const confirmed = await window.AppDialog.confirm(
+                String(tableBody.children.length) + "번 줄에 입력된 내용이 있습니다. 이 줄을 삭제하시겠습니까?",
+                { title: "마지막 줄 삭제", variant: "danger", confirmText: "줄 삭제" },
+            );
+            if (!confirmed) return;
+        }
+        if (selectedEditor && lastRow.contains(selectedEditor)) selectedEditor = null;
+        lastRow.remove();
+        updateRowNumbers();
+        updateTableSizing();
+        scheduleSheetScale();
+        showSaveMessage("마지막 줄을 삭제했습니다.");
+    }
+
     /*
      * =============================================
      * 다음 붙여넣기 시작 행
@@ -1075,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             availableTemplates.forEach((item) => {
                 templateSelect.add(
-                    new Option(`${item.name} · ${item.rows.length}행`, item.id),
+                    new Option(`${item.name}`, item.id),
                 );
             });
             templateLoadButton.disabled = false;
@@ -1936,7 +1966,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (addRowButton) {
         addRowButton.addEventListener("click", () => {
             ensureRows(tableBody.children.length + 1);
+            updateTableSizing();
+            scheduleSheetScale();
         });
+    }
+
+    if (deleteRowButton) {
+        deleteRowButton.addEventListener("click", deleteLastRow);
     }
 
     /* =====================================================

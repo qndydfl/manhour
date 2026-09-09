@@ -2,7 +2,6 @@
    BOOKMARKS — C/B OPEN LIST
    ========================================================= */
 
-
 /* =========================================================
     ROOT
 ========================================================= */
@@ -64,8 +63,6 @@
     --cb-topbar-height: 72px;
 }
 
-
-
 /* =========================================================
    RESET
    ========================================================= */
@@ -74,13 +71,11 @@
     box-sizing: border-box;
 }
 
-
 html,
 body {
     margin: 0;
     padding: 0;
 }
-
 
 body.cb-open-body {
     min-height: 100vh;
@@ -99,8 +94,6 @@ body.cb-open-body {
     color: var(--cb-text);
 }
 
-
-
 /* =========================================================
     TOP BAR
 ========================================================= */
@@ -116,22 +109,16 @@ body.cb-open-body {
 
     z-index: 1000;
 
-    background:
-        rgba(7, 17, 31, 0.97);
+    background: rgba(7, 17, 31, 0.97);
 
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-    box-shadow:
-        0 8px 24px
-        rgba(15, 23, 42, 0.14);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
 
     backdrop-filter: blur(14px);
 
     overflow: hidden;
 }
-
 
 .cb-open-topbar-inner {
     width: 100%;
@@ -154,8 +141,6 @@ body.cb-open-body {
     overflow: hidden;
 }
 
-
-
 /* =========================================================
     BRAND
    ========================================================= */
@@ -174,11 +159,9 @@ body.cb-open-body {
     text-decoration: none;
 }
 
-
 .cb-open-brand:hover {
     color: #ffffff;
 }
-
 
 .cb-open-brand-icon {
     width: 38px;
@@ -193,14 +176,12 @@ body.cb-open-body {
 
     border-radius: 10px;
 
-    background:
-        rgba(96, 165, 250, 0.14);
+    background: rgba(96, 165, 250, 0.14);
 
     color: #93c5fd;
 
     font-size: 18px;
 }
-
 
 .cb-open-brand-text {
     display: flex;
@@ -209,7 +190,6 @@ body.cb-open-body {
 
     line-height: 1.15;
 }
-
 
 .cb-open-brand-text strong {
     color: #ffffff;
@@ -221,7 +201,6 @@ body.cb-open-body {
     letter-spacing: 0.02em;
 }
 
-
 .cb-open-brand-text small {
     margin-top: 3px;
 
@@ -229,8 +208,6 @@ body.cb-open-body {
 
     font-size: 12px;
 }
-
-
 
 /* =========================================================
     TOP ACTIONS
@@ -271,14 +248,11 @@ body.cb-open-body {
 
     gap: 6px;
 
-    border:
-        1px solid
-        rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.18);
 
     border-radius: 9px;
 
-    background:
-        rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.07);
 
     color: #e2e8f0;
 
@@ -299,7 +273,6 @@ body.cb-open-body {
         transform 0.15s ease;
 }
 
-
 .cb-open-top-btn:hover {
     background: #243b58;
 
@@ -308,11 +281,9 @@ body.cb-open-body {
     color: #ffffff;
 }
 
-
 .cb-open-top-btn:active {
     transform: translateY(1px);
 }
-
 
 .cb-open-top-btn.is-active {
     background: #243b58;
@@ -321,7 +292,6 @@ body.cb-open-body {
 
     color: #ffffff;
 }
-
 
 /* 저장 버튼 */
 #cbOpenListSave {
@@ -332,13 +302,11 @@ body.cb-open-body {
     color: #ffffff;
 }
 
-
 #cbOpenListSave:hover {
     background: #1d4ed8;
 
     border-color: #93c5fd;
 }
-
 
 /* 인쇄 */
 .cb-open-top-btn-primary {
@@ -349,7 +317,6 @@ body.cb-open-body {
     color: #ffffff;
 }
 
-
 .cb-open-top-btn-primary:hover {
     background: #1d4ed8;
 
@@ -358,26 +325,20 @@ body.cb-open-body {
     color: #ffffff;
 }
 
-
 /* 초기화 */
 #cbOpenListClear {
     color: #fecaca;
 
-    border-color:
-        rgba(248, 113, 113, 0.4);
+    border-color: rgba(248, 113, 113, 0.4);
 }
 
-
 #cbOpenListClear:hover {
-    background:
-        rgba(127, 29, 29, 0.35);
+    background: rgba(127, 29, 29, 0.35);
 
     border-color: #fca5a5;
 
     color: #fee2e2;
 }
-
-
 
 /* =========================================================
    DOCUMENT INFORMATION BAR
@@ -385,8 +346,7 @@ body.cb-open-body {
    ========================================================= */
 
 .cb-open-document-bar {
-    width:
-        calc(100% - 36px);
+    width: calc(100% - 36px);
 
     max-width: 1564px;
 
@@ -394,17 +354,12 @@ body.cb-open-body {
 
     background: var(--cb-card-soft);
 
-    border:
-        1px solid
-        var(--cb-border);
+    border: 1px solid var(--cb-border);
 
     border-radius: 14px;
 
-    box-shadow:
-        0 6px 20px
-        rgba(15, 23, 42, 0.05);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
 }
-
 
 .cb-open-document-bar-inner {
     padding: 16px;
@@ -421,18 +376,15 @@ body.cb-open-body {
     gap: 12px;
 }
 
-
 .cb-document-field {
     width: 100%;
 
     min-width: 0;
 }
 
-
 .cb-document-title-field {
     width: 100%;
 }
-
 
 .cb-document-field label {
     display: block;
@@ -446,18 +398,15 @@ body.cb-open-body {
     font-weight: 700;
 }
 
-
 .cb-document-field .form-control,
 .cb-document-field .form-select,
 .cb-document-field .input-group-text {
     min-height: 38px;
 
-    border-color:
-        var(--cb-border);
+    border-color: var(--cb-border);
 
     font-size: 14px;
 }
-
 
 .cb-document-field .form-control,
 .cb-document-field .form-select {
@@ -468,16 +417,12 @@ body.cb-open-body {
     box-shadow: none;
 }
 
-
 .cb-document-field .form-control:focus,
 .cb-document-field .form-select:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
-
 
 .cb-document-field .input-group-text {
     background: #edf3f8;
@@ -487,12 +432,9 @@ body.cb-open-body {
     font-weight: 700;
 }
 
-
 .cb-document-title-field input {
     font-weight: 600;
 }
-
-
 
 /* =========================================================
    PAGE
@@ -505,13 +447,8 @@ body.cb-open-body {
 
     margin: 0 auto;
 
-    padding:
-        16px
-        18px
-        24px;
+    padding: 16px 18px 24px;
 }
-
-
 
 /* =========================================================
    PASTE CARD
@@ -527,24 +464,61 @@ body.cb-open-body {
     border: 1px solid #b9cce1;
     border-radius: 12px;
     background: #edf4fb;
-    box-shadow: 0 5px 16px rgba(15, 23, 42, .05);
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.05);
 }
-.cb-open-template-picker[hidden] { display: none !important; }
-.cb-open-template-copy { display: grid; gap: 2px; }
-.cb-open-template-copy strong { color: #1e3a5f; font-size: 14px; }
-.cb-open-template-copy strong i { margin-right: 5px; color: var(--cb-primary); }
-.cb-open-template-copy small { color: #64748b; font-size: 12px; }
-.cb-open-template-actions { min-width: min(520px, 55%); display: flex; align-items: center; gap: 8px; }
-.cb-open-template-actions .form-select { min-width: 0; }
-.cb-open-template-actions .btn { flex: 0 0 auto; }
+.cb-open-template-picker[hidden] {
+    display: none !important;
+}
+.cb-open-template-copy {
+    display: grid;
+    gap: 2px;
+}
+.cb-open-template-copy strong {
+    color: #1e3a5f;
+    font-size: 14px;
+}
+.cb-open-template-copy strong i {
+    margin-right: 5px;
+    color: var(--cb-primary);
+}
+.cb-open-template-copy small {
+    color: #64748b;
+    font-size: 12px;
+}
+.cb-open-template-actions {
+    min-width: min(520px, 55%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cb-open-template-actions .form-select {
+    min-width: 0;
+}
+.cb-open-template-actions .btn {
+    flex: 0 0 auto;
+}
 
 @media (max-width: 767.98px) {
-    .cb-open-template-picker { align-items: stretch; flex-direction: column; gap: 8px; padding: 10px; }
-    .cb-open-template-actions { min-width: 0; width: 100%; }
-    .cb-open-template-copy small { font-size: 11px; }
+    .cb-open-template-picker {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+    }
+    .cb-open-template-actions {
+        min-width: 0;
+        width: 100%;
+    }
+    .cb-open-template-copy small {
+        font-size: 11px;
+    }
 }
 
-@media print { .cb-open-template-picker { display: none !important; } }
+@media print {
+    .cb-open-template-picker {
+        display: none !important;
+    }
+}
 
 .cb-open-paste-card {
     margin-bottom: 14px;
@@ -553,17 +527,12 @@ body.cb-open-body {
 
     background: var(--cb-card-soft);
 
-    border:
-        1px solid
-        var(--cb-border);
+    border: 1px solid var(--cb-border);
 
     border-radius: 13px;
 
-    box-shadow:
-        0 6px 20px
-        rgba(15, 23, 42, 0.05);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
 }
-
 
 .cb-open-paste-head {
     margin-bottom: 9px;
@@ -577,13 +546,11 @@ body.cb-open-body {
     gap: 20px;
 }
 
-
 .cb-open-paste-head > div:first-child {
     display: flex;
 
     flex-direction: column;
 }
-
 
 .cb-open-paste-head strong {
     display: flex;
@@ -599,11 +566,9 @@ body.cb-open-body {
     font-weight: 800;
 }
 
-
 .cb-open-paste-head strong i {
     color: var(--cb-primary);
 }
-
 
 .cb-open-paste-head small {
     margin-top: 3px;
@@ -612,7 +577,6 @@ body.cb-open-body {
 
     font-size: 12px;
 }
-
 
 .cb-open-paste-map {
     display: flex;
@@ -623,7 +587,6 @@ body.cb-open-body {
 
     gap: 5px;
 }
-
 
 .cb-open-paste-map span {
     padding: 4px 7px;
@@ -638,7 +601,6 @@ body.cb-open-body {
 
     font-weight: 600;
 }
-
 
 .cb-open-paste-area {
     min-height: 58px;
@@ -656,16 +618,11 @@ body.cb-open-body {
     box-shadow: none;
 }
 
-
 .cb-open-paste-area:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
-
-
 
 /* =========================================================
    SHEET STAGE
@@ -674,30 +631,22 @@ body.cb-open-body {
 .cb-open-sheet-stage {
     padding: 20px;
     overflow: hidden;
-    border:
-        1px solid
-        #bccad8;
+    border: 1px solid #bccad8;
     border-radius: 14px;
 
     background: #dfe7f0;
     overscroll-behavior-inline: contain;
 }
 
-
 .cb-open-sheet-stage:focus {
     outline: none;
 }
 
-
 .cb-open-sheet-stage:focus-visible {
-    outline:
-        2px solid
-        #2563eb;
+    outline: 2px solid #2563eb;
 
     outline-offset: 2px;
 }
-
-
 
 /* =========================================================
    SHEET
@@ -712,16 +661,10 @@ body.cb-open-body {
 
     background: #ffffff;
 
-    border:
-        1px solid
-        #cbd5e1;
+    border: 1px solid #cbd5e1;
 
-    box-shadow:
-        0 8px 30px
-        rgba(15, 23, 42, 0.08);
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
 }
-
-
 
 /* =========================================================
    DOCUMENT HEADER
@@ -744,7 +687,6 @@ body.cb-open-body {
     align-items: center;
 }
 
-
 .cb-open-aircraft-number {
     display: flex;
 
@@ -757,13 +699,11 @@ body.cb-open-body {
     font-weight: 800;
 }
 
-
 .cb-open-title-group {
     text-align: center;
     display: flex;
     justify-content: center;
 }
-
 
 .cb-open-main-title {
     font-size: 22px;
@@ -771,7 +711,6 @@ body.cb-open-body {
     letter-spacing: 0.05em;
     line-height: 1.15;
 }
-
 
 .cb-open-model-title {
     margin-top: 2px;
@@ -781,29 +720,21 @@ body.cb-open-body {
     padding-left: 8px;
 }
 
-
 .cb-open-header-editable {
     outline: none;
 
     border-radius: 3px;
 }
 
-
 .cb-open-header-editable:hover {
-    background:
-        rgba(239, 246, 255, 0.65);
+    background: rgba(239, 246, 255, 0.65);
 }
-
 
 .cb-open-header-editable:focus {
     background: #eff6ff;
 
-    box-shadow:
-        0 0 0 2px
-        rgba(37, 99, 235, 0.35);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
 }
-
-
 
 /* =========================================================
    TABLE WRAP
@@ -814,8 +745,6 @@ body.cb-open-body {
 
     overflow-x: auto;
 }
-
-
 
 /* =========================================================
    TABLE
@@ -833,18 +762,14 @@ body.cb-open-body {
     font-size: var(--cb-body-font);
 }
 
-
 .cb-open-table col {
     width: auto;
 }
-
 
 .cb-open-table th,
 .cb-open-table td {
     border: 1px solid #111827;
 }
-
-
 
 /* =========================================================
    TABLE HEADER
@@ -853,19 +778,15 @@ body.cb-open-body {
 .cb-open-table thead th {
     position: relative;
 
-    padding:
-        var(--cb-header-padding)
-        3px;
+    padding: var(--cb-header-padding) 3px;
 
-    background:
-        var(--cb-header-bg);
+    background: var(--cb-header-bg);
 
     text-align: center;
 
     vertical-align: middle;
 
-    font-size:
-        var(--cb-header-font);
+    font-size: var(--cb-header-font);
 
     font-weight: 800;
 
@@ -873,7 +794,6 @@ body.cb-open-body {
 
     word-break: break-word;
 }
-
 
 .cb-open-table thead th small {
     display: block;
@@ -885,29 +805,22 @@ body.cb-open-body {
     font-weight: 600;
 }
 
-
 .cb-open-warning-head {
-    background:
-        #fff4cc !important;
+    background: #fff4cc !important;
 }
-
-
 
 /* =========================================================
    TABLE BODY
    ========================================================= */
 
 .cb-open-table tbody tr {
-    min-height:
-        var(--cb-row-height);
+    min-height: var(--cb-row-height);
 }
-
 
 .cb-open-table tbody td {
     position: relative;
 
-    height:
-        var(--cb-row-height);
+    height: var(--cb-row-height);
 
     padding: 0;
 
@@ -916,17 +829,14 @@ body.cb-open-body {
     vertical-align: middle;
 }
 
-
 .cb-open-number-cell {
     text-align: center;
 
-    font-size:
-        var(--cb-body-font);
+    font-size: var(--cb-body-font);
 
     font-weight: 700;
 
-    background:
-        #f8fafc !important;
+    background: #f8fafc !important;
 }
 
 /* =========================================================
@@ -935,37 +845,23 @@ body.cb-open-body {
 
 .cb-open-cell-editor {
     width: 100%;
-
-    min-height:
-        var(--cb-row-height);
-
+    min-height: var(--cb-row-height);
     height: 100%;
-
     padding: 4px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     text-align: center;
-
     white-space: pre-wrap;
-
     overflow-wrap: anywhere;
-
     word-break: break-word;
-
     line-height: 1.15;
 
     font-size: var(--cb-body-font);
-
+    font-weight: 600;
     outline: none;
-
     cursor: text;
 }
-
 
 .cb-open-cell-editor.is-long-text {
     justify-content: flex-start;
@@ -976,30 +872,20 @@ body.cb-open-body {
     text-align: left;
 }
 
-
 .cb-open-cell-editor:hover {
-    background:
-        rgba(239, 246, 255, 0.4);
+    background: rgba(239, 246, 255, 0.4);
 }
-
 
 .cb-open-cell-editor:focus,
 .cb-open-cell-editor.is-selected {
-    background:
-        rgba(219, 234, 254, 0.55);
+    background: rgba(219, 234, 254, 0.55);
 
-    box-shadow:
-        inset 0 0 0 2px
-        rgba(37, 99, 235, 0.72);
+    box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.72);
 }
-
 
 .cb-open-cell-editor.is-pasted {
-    animation:
-        cbPasteFlash
-        0.3s ease;
+    animation: cbPasteFlash 0.3s ease;
 }
-
 
 @keyframes cbPasteFlash {
     0% {
@@ -1011,8 +897,6 @@ body.cb-open-body {
     }
 }
 
-
-
 /* =========================================================
    COLUMN RESIZER
    ========================================================= */
@@ -1020,7 +904,6 @@ body.cb-open-body {
 .cb-open-resizable {
     position: relative;
 }
-
 
 .cb-open-col-resizer {
     position: absolute;
@@ -1036,22 +919,15 @@ body.cb-open-body {
     cursor: col-resize;
 }
 
-
 .cb-open-col-resizer:hover {
-    background:
-        rgba(37, 99, 235, 0.25);
+    background: rgba(37, 99, 235, 0.25);
 }
-
 
 .cb-open-column-resizing {
-    cursor:
-        col-resize !important;
+    cursor: col-resize !important;
 
-    user-select:
-        none !important;
+    user-select: none !important;
 }
-
-
 
 /* =========================================================
 ROW RESIZER
@@ -1071,13 +947,9 @@ ROW RESIZER
     cursor: row-resize;
 }
 
-
 .cb-open-row-resizer:hover {
-    background:
-        rgba(37, 99, 235, 0.2);
+    background: rgba(37, 99, 235, 0.2);
 }
-
-
 
 /* =========================================================
     DOCUMENT FOOTER
@@ -1099,13 +971,11 @@ ROW RESIZER
     line-height: 1.2;
 }
 
-
 /* 왼쪽 */
 .cb-open-footer-left {
     text-align: left;
     font-weight: 500;
 }
-
 
 /* 가운데 */
 .cb-open-footer-center {
@@ -1115,37 +985,27 @@ ROW RESIZER
     letter-spacing: 0.02em;
 }
 
-
 /* 오른쪽 */
 .cb-open-footer-right {
     text-align: right;
     font-weight: 500;
 }
 
-
-
 /* =========================================================
    SETTINGS OFFCANVAS
    ========================================================= */
 
 .cb-open-settings {
-    width:
-        min(440px, 96vw) !important;
+    width: min(440px, 96vw) !important;
 
     background: #eef4f9;
 
-    border-left:
-        1px solid
-        #b9c8d8;
+    border-left: 1px solid #b9c8d8;
 
-    box-shadow:
-        -12px 0 40px
-        rgba(15, 23, 42, 0.16);
+    box-shadow: -12px 0 40px rgba(15, 23, 42, 0.16);
 
     color: var(--cb-text);
 }
-
-
 
 /* =========================================================
    SETTINGS HEADER
@@ -1156,20 +1016,12 @@ ROW RESIZER
 
     padding: 16px 18px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #07111f 0%,
-            #10243d 100%
-        );
+    background: linear-gradient(135deg, #07111f 0%, #10243d 100%);
 
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     color: #ffffff;
 }
-
 
 .cb-open-settings-heading {
     min-width: 0;
@@ -1181,33 +1033,27 @@ ROW RESIZER
     gap: 11px;
 }
 
-
 .cb-open-settings-icon {
     width: 38px;
     height: 38px;
 
-    flex:
-        0 0 38px;
+    flex: 0 0 38px;
 
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    border:
-        1px solid
-        rgba(147, 197, 253, 0.18);
+    border: 1px solid rgba(147, 197, 253, 0.18);
 
     border-radius: 10px;
 
-    background:
-        rgba(96, 165, 250, 0.14);
+    background: rgba(96, 165, 250, 0.14);
 
     color: #93c5fd;
 
     font-size: 17px;
 }
-
 
 .cb-open-settings .offcanvas-title {
     margin: 0;
@@ -1221,7 +1067,6 @@ ROW RESIZER
     letter-spacing: 0.01em;
 }
 
-
 .cb-open-settings-heading small {
     display: block;
 
@@ -1232,19 +1077,15 @@ ROW RESIZER
     font-size: 11px;
 }
 
-
 .cb-open-settings-header .btn-close {
     flex: 0 0 auto;
 
     opacity: 0.8;
 }
 
-
 .cb-open-settings-header .btn-close:hover {
     opacity: 1;
 }
-
-
 
 /* =========================================================
    SETTINGS BODY
@@ -1257,29 +1098,22 @@ ROW RESIZER
 
     scrollbar-width: thin;
 
-    scrollbar-color:
-        #b9c7d5
-        transparent;
+    scrollbar-color: #b9c7d5 transparent;
 }
-
 
 .cb-open-settings-body::-webkit-scrollbar {
     width: 7px;
 }
 
-
 .cb-open-settings-body::-webkit-scrollbar-track {
     background: transparent;
 }
-
 
 .cb-open-settings-body::-webkit-scrollbar-thumb {
     border-radius: 999px;
 
     background: #b9c7d5;
 }
-
-
 
 /* =========================================================
    SETTING SECTION
@@ -1292,28 +1126,33 @@ ROW RESIZER
 
     background: var(--cb-card-light);
 
-    border:
-        1px solid
-        var(--cb-border);
+    border: 1px solid var(--cb-border);
 
     border-radius: 13px;
 
-    box-shadow:
-        0 5px 16px
-        rgba(15, 23, 42, 0.045);
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.045);
 }
-
 
 .cb-setting-section:last-child {
     margin-bottom: 0;
 }
 
-.cb-setting-collapsible > .cb-setting-section-header { cursor: pointer; user-select: none; }
-.cb-setting-collapsible > .cb-setting-section-header .cb-setting-chevron { margin-left: auto; transition: transform .18s ease; }
-.cb-setting-collapsible:not(.is-collapsed) > .cb-setting-section-header .cb-setting-chevron { transform: rotate(180deg); }
-.cb-setting-collapsible.is-collapsed > :not(.cb-setting-section-header) { display: none !important; }
-
-
+.cb-setting-collapsible > .cb-setting-section-header {
+    cursor: pointer;
+    user-select: none;
+}
+.cb-setting-collapsible > .cb-setting-section-header .cb-setting-chevron {
+    margin-left: auto;
+    transition: transform 0.18s ease;
+}
+.cb-setting-collapsible:not(.is-collapsed)
+    > .cb-setting-section-header
+    .cb-setting-chevron {
+    transform: rotate(180deg);
+}
+.cb-setting-collapsible.is-collapsed > :not(.cb-setting-section-header) {
+    display: none !important;
+}
 
 /* =========================================================
    SETTING SECTION HEADER
@@ -1331,13 +1170,11 @@ ROW RESIZER
     gap: 10px;
 }
 
-
 .cb-setting-section-icon {
     width: 32px;
     height: 32px;
 
-    flex:
-        0 0 32px;
+    flex: 0 0 32px;
 
     display: flex;
 
@@ -1353,7 +1190,6 @@ ROW RESIZER
     font-size: 14px;
 }
 
-
 .cb-setting-section-header h6 {
     margin: 0;
 
@@ -1363,7 +1199,6 @@ ROW RESIZER
 
     font-weight: 800;
 }
-
 
 .cb-setting-section-header small {
     display: block;
@@ -1377,12 +1212,9 @@ ROW RESIZER
     line-height: 1.3;
 }
 
-
-
 /* 기존 h6 구조도 호환 */
 .cb-setting-section > h6 {
-    margin:
-        0 0 14px;
+    margin: 0 0 14px;
 
     display: flex;
 
@@ -1397,8 +1229,6 @@ ROW RESIZER
     font-weight: 800;
 }
 
-
-
 /* =========================================================
    SETTING FIELD
    ========================================================= */
@@ -1407,11 +1237,9 @@ ROW RESIZER
     margin-bottom: 16px;
 }
 
-
 .cb-setting-field:last-child {
     margin-bottom: 0;
 }
-
 
 .cb-setting-field > label {
     display: block;
@@ -1425,14 +1253,11 @@ ROW RESIZER
     font-weight: 700;
 }
 
-
 .cb-setting-field .form-control,
 .cb-setting-field .form-select {
     min-height: 38px;
 
-    border:
-        1px solid
-        #c8d3df;
+    border: 1px solid #c8d3df;
 
     border-radius: 8px;
 
@@ -1445,17 +1270,12 @@ ROW RESIZER
     box-shadow: none;
 }
 
-
 .cb-setting-field .form-control:focus,
 .cb-setting-field .form-select:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
-
-
 
 /* =========================================================
    SETTING RANGE LABEL
@@ -1473,7 +1293,6 @@ ROW RESIZER
     gap: 10px;
 }
 
-
 .cb-setting-label-row label {
     margin: 0;
 
@@ -1483,7 +1302,6 @@ ROW RESIZER
 
     font-weight: 700;
 }
-
 
 .cb-setting-label-row strong,
 .cb-setting-label-row output[data-document-font-value] {
@@ -1504,8 +1322,6 @@ ROW RESIZER
     font-weight: 800;
 }
 
-
-
 /* =========================================================
    RANGE
    ========================================================= */
@@ -1516,9 +1332,7 @@ ROW RESIZER
     margin: 0;
 }
 
-
-.cb-open-settings
-.form-range::-webkit-slider-runnable-track {
+.cb-open-settings .form-range::-webkit-slider-runnable-track {
     height: 5px;
 
     border-radius: 999px;
@@ -1526,28 +1340,20 @@ ROW RESIZER
     background: #cbd8e6;
 }
 
-
-.cb-open-settings
-.form-range::-webkit-slider-thumb {
+.cb-open-settings .form-range::-webkit-slider-thumb {
     width: 16px;
     height: 16px;
 
     margin-top: -5px;
 
-    border:
-        2px solid
-        #ffffff;
+    border: 2px solid #ffffff;
 
     background: #2563eb;
 
-    box-shadow:
-        0 1px 5px
-        rgba(37, 99, 235, 0.3);
+    box-shadow: 0 1px 5px rgba(37, 99, 235, 0.3);
 }
 
-
-.cb-open-settings
-.form-range::-moz-range-track {
+.cb-open-settings .form-range::-moz-range-track {
     height: 5px;
 
     border-radius: 999px;
@@ -1555,30 +1361,23 @@ ROW RESIZER
     background: #cbd8e6;
 }
 
-
-.cb-open-settings
-.form-range::-moz-range-thumb {
+.cb-open-settings .form-range::-moz-range-thumb {
     width: 16px;
     height: 16px;
 
-    border:
-        2px solid
-        #ffffff;
+    border: 2px solid #ffffff;
 
     border-radius: 50%;
 
     background: #2563eb;
 }
 
-
-
 /* =========================================================
    SETTING HELP
    ========================================================= */
 
 .cb-setting-help {
-    margin:
-        0 0 10px;
+    margin: 0 0 10px;
 
     color: #64748b;
 
@@ -1586,8 +1385,6 @@ ROW RESIZER
 
     line-height: 1.45;
 }
-
-
 
 /* =========================================================
    SETTING NOTICE
@@ -1604,9 +1401,7 @@ ROW RESIZER
 
     gap: 7px;
 
-    border:
-        1px solid
-        #bfdbfe;
+    border: 1px solid #bfdbfe;
 
     border-radius: 8px;
 
@@ -1619,7 +1414,6 @@ ROW RESIZER
     line-height: 1.45;
 }
 
-
 .cb-setting-notice i {
     margin-top: 1px;
 
@@ -1627,8 +1421,6 @@ ROW RESIZER
 
     color: #2563eb;
 }
-
-
 
 /* =========================================================
    SELECTED CELL BUTTONS
@@ -1644,7 +1436,6 @@ ROW RESIZER
     gap: 7px;
 }
 
-
 .cb-setting-action-btn,
 .cb-cell-button-grid .btn {
     min-height: 38px;
@@ -1658,9 +1449,7 @@ ROW RESIZER
 
     gap: 5px;
 
-    border:
-        1px solid
-        #c6d2df;
+    border: 1px solid #c6d2df;
 
     border-radius: 8px;
 
@@ -1673,7 +1462,6 @@ ROW RESIZER
     font-weight: 700;
 }
 
-
 .cb-setting-action-btn:hover,
 .cb-cell-button-grid .btn:hover {
     background: #edf5fd;
@@ -1682,8 +1470,6 @@ ROW RESIZER
 
     color: #1d4ed8;
 }
-
-
 
 /* =========================================================
    DETAILS / ADVANCED
@@ -1706,18 +1492,14 @@ ROW RESIZER
     user-select: none;
 }
 
-
 .cb-setting-details > summary::-webkit-details-marker,
 .cb-setting-section details > summary::-webkit-details-marker {
     display: none;
 }
 
-
-.cb-setting-details > summary
-.cb-setting-section-header {
+.cb-setting-details > summary .cb-setting-section-header {
     margin-bottom: 0;
 }
-
 
 .cb-setting-chevron {
     flex: 0 0 auto;
@@ -1726,30 +1508,20 @@ ROW RESIZER
 
     font-size: 12px;
 
-    transition:
-        transform
-        0.18s ease;
+    transition: transform 0.18s ease;
 }
 
-
-.cb-setting-details[open]
-.cb-setting-chevron {
-    transform:
-        rotate(180deg);
+.cb-setting-details[open] .cb-setting-chevron {
+    transform: rotate(180deg);
 }
-
 
 .cb-setting-advanced {
     margin-top: 15px;
 
     padding-top: 14px;
 
-    border-top:
-        1px solid
-        #dbe4ed;
+    border-top: 1px solid #dbe4ed;
 }
-
-
 
 /* =========================================================
    COLUMN WIDTH GRID
@@ -1765,7 +1537,6 @@ ROW RESIZER
     gap: 7px;
 }
 
-
 .cb-width-grid label {
     min-width: 0;
 
@@ -1779,15 +1550,12 @@ ROW RESIZER
 
     gap: 5px;
 
-    border:
-        1px solid
-        #d6e0ea;
+    border: 1px solid #d6e0ea;
 
     border-radius: 7px;
 
     background: #ffffff;
 }
-
 
 .cb-width-grid label span {
     overflow: hidden;
@@ -1803,41 +1571,26 @@ ROW RESIZER
     font-weight: 700;
 }
 
-
 .cb-width-grid input {
     width: 66px;
-
     min-height: 30px;
-
     padding: 4px 5px;
-
-    border:
-        1px solid
-        #cbd5e1;
-
+    border: 1px solid #cbd5e1;
     border-radius: 6px;
-
     background: #ffffff;
-
     color: #172033;
-
     font-size: 10px;
-
     text-align: center;
+    font-weight: 700;
 }
-
 
 .cb-width-grid input:focus {
     outline: none;
 
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 2px
-        rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
-
-
 
 /* =========================================================
    COLUMN RESET BUTTON
@@ -1857,9 +1610,7 @@ ROW RESIZER
 
     gap: 6px;
 
-    border:
-        1px solid
-        #d6e0ea;
+    border: 1px solid #d6e0ea;
 
     border-radius: 8px;
 
@@ -1872,7 +1623,6 @@ ROW RESIZER
     font-weight: 700;
 }
 
-
 .cb-setting-reset-btn:hover {
     border-color: #fca5a5;
 
@@ -1880,8 +1630,6 @@ ROW RESIZER
 
     color: #b91c1c;
 }
-
-
 
 /* =========================================================
    OLD GUIDE
@@ -1893,7 +1641,6 @@ ROW RESIZER
 
     gap: 8px;
 }
-
 
 .cb-setting-guide > div {
     padding: 8px 10px;
@@ -1909,19 +1656,15 @@ ROW RESIZER
     background: #f8fafc;
 }
 
-
 .cb-setting-guide strong {
     font-size: 10px;
 }
-
 
 .cb-setting-guide span {
     color: #64748b;
 
     font-size: 10px;
 }
-
-
 
 /* =========================================================
    SETTINGS FOOTER
@@ -1938,17 +1681,12 @@ ROW RESIZER
 
     gap: 12px;
 
-    border-top:
-        1px solid
-        #c8d3df;
+    border-top: 1px solid #c8d3df;
 
     background: #f8fbfe;
 
-    box-shadow:
-        0 -5px 18px
-        rgba(15, 23, 42, 0.045);
+    box-shadow: 0 -5px 18px rgba(15, 23, 42, 0.045);
 }
-
 
 .cb-open-settings-save-info {
     min-width: 0;
@@ -1964,11 +1702,9 @@ ROW RESIZER
     font-size: 9px;
 }
 
-
 .cb-open-settings-save-info i {
     color: #2563eb;
 }
-
 
 .cb-open-settings-save {
     min-height: 38px;
@@ -1982,9 +1718,7 @@ ROW RESIZER
 
     gap: 6px;
 
-    border:
-        1px solid
-        #60a5fa;
+    border: 1px solid #60a5fa;
 
     border-radius: 8px;
 
@@ -1999,7 +1733,6 @@ ROW RESIZER
     white-space: nowrap;
 }
 
-
 .cb-open-settings-save:hover {
     background: #1d4ed8;
 
@@ -2007,8 +1740,6 @@ ROW RESIZER
 
     color: #ffffff;
 }
-
-
 
 /* =========================================================
    SAVE MESSAGE
@@ -2040,14 +1771,11 @@ ROW RESIZER
 
     font-weight: 700;
 
-    box-shadow:
-        0 10px 30px
-        rgba(15, 23, 42, 0.25);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
 
     opacity: 0;
 
-    transform:
-        translateY(10px);
+    transform: translateY(10px);
 
     pointer-events: none;
 
@@ -2056,15 +1784,11 @@ ROW RESIZER
         transform 0.2s ease;
 }
 
-
 .cb-open-save-message.is-visible {
     opacity: 1;
 
-    transform:
-        translateY(0);
+    transform: translateY(0);
 }
-
-
 
 /* =========================================================
    A4 PREVIEW
@@ -2074,38 +1798,28 @@ ROW RESIZER
     background: #9da6b2;
 }
 
-
-.cb-open-preview-mode
-.cb-open-document-bar {
+.cb-open-preview-mode .cb-open-document-bar {
     display: none;
 }
 
-
-.cb-open-preview-mode
-.cb-open-paste-card {
+.cb-open-preview-mode .cb-open-paste-card {
     display: none;
 }
 
-
-.cb-open-preview-mode
-.cb-open-page {
+.cb-open-preview-mode .cb-open-page {
     max-width: none;
 
     padding: 30px;
 }
 
-
-.cb-open-preview-mode
-.cb-open-sheet-stage {
+.cb-open-preview-mode .cb-open-sheet-stage {
     padding: 20px;
     border: 0;
     background: #aab2bd;
     overflow: hidden;
 }
 
-
-.cb-open-preview-mode
-.cb-open-sheet {
+.cb-open-preview-mode .cb-open-sheet {
     width: 297mm;
 
     min-width: 297mm;
@@ -2114,23 +1828,17 @@ ROW RESIZER
 
     padding: 7mm;
 
-    box-shadow:
-        0 15px 45px
-        rgba(0, 0, 0, 0.28);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.28);
 }
-
-
 
 /* =========================================================
    RESPONSIVE — TABLET
    ========================================================= */
 
 @media screen and (max-width: 900px) {
-
     body.cb-open-body {
         --cb-topbar-height: 64px;
     }
-
 
     .cb-open-topbar-inner {
         height: 100%;
@@ -2146,11 +1854,9 @@ ROW RESIZER
         gap: 10px;
     }
 
-
     .cb-open-brand {
         flex: 0 0 auto;
     }
-
 
     .cb-open-top-actions {
         flex: 1 1 auto;
@@ -2173,13 +1879,11 @@ ROW RESIZER
         padding-bottom: 0;
     }
 
-
     .cb-open-top-btn {
         flex: 0 0 auto;
 
         white-space: nowrap;
     }
-
 
     .cb-open-document-bar {
         width: calc(100% - 20px);
@@ -2187,23 +1891,19 @@ ROW RESIZER
         margin-top: 10px;
     }
 
-
     .cb-open-document-bar-inner {
         grid-template-columns:
             1fr
             1fr;
     }
 
-
     .cb-document-title-field {
         grid-column: 1 / -1;
     }
 
-
     .cb-open-page {
         padding: 10px;
     }
-
 
     .cb-open-paste-head {
         align-items: flex-start;
@@ -2213,24 +1913,19 @@ ROW RESIZER
         gap: 8px;
     }
 
-
     .cb-open-sheet-stage {
         padding: 8px;
     }
 }
-
-
 
 /* =========================================================
     RESPONSIVE — MOBILE
    ========================================================= */
 
 @media screen and (max-width: 700px) {
-
     body.cb-open-body {
         --cb-topbar-height: 58px;
     }
-
 
     .cb-open-topbar-inner {
         height: 100%;
@@ -2246,11 +1941,9 @@ ROW RESIZER
         gap: 8px;
     }
 
-
     .cb-open-brand {
         flex: 0 0 auto;
     }
-
 
     .cb-open-brand-icon {
         width: 30px;
@@ -2261,16 +1954,13 @@ ROW RESIZER
         font-size: 15px;
     }
 
-
     .cb-open-brand-text strong {
         font-size: 12px;
     }
 
-
     .cb-open-brand-text small {
         display: none;
     }
-
 
     .cb-open-top-actions {
         flex: 1 1 auto;
@@ -2291,7 +1981,6 @@ ROW RESIZER
         overflow-y: hidden;
     }
 
-
     .cb-open-top-btn {
         flex: 0 0 auto;
 
@@ -2308,7 +1997,6 @@ ROW RESIZER
         white-space: nowrap;
     }
 
-
     .cb-open-document-bar {
         width: calc(100% - 20px);
 
@@ -2317,41 +2005,27 @@ ROW RESIZER
         border-radius: 12px;
     }
 
-
     .cb-open-document-bar-inner {
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
         gap: 10px;
 
         padding: 12px;
     }
 
-
     .cb-document-title-field {
         grid-column: 1 / -1;
     }
 
-
-    .cb-open-body
-    .cb-document-field input,
-
-    .cb-open-body
-    .cb-document-field select,
-
-    .cb-open-body
-    .cb-open-paste-area {
+    .cb-open-body .cb-document-field input,
+    .cb-open-body .cb-document-field select,
+    .cb-open-body .cb-open-paste-area {
         font-size: 16px !important;
     }
-
 
     .cb-open-page {
         padding: 10px;
     }
-
 
     .cb-open-paste-card {
         margin-bottom: 10px;
@@ -2359,61 +2033,47 @@ ROW RESIZER
         padding: 12px;
     }
 
-
     .cb-open-settings {
         width: 100vw !important;
     }
-
 
     .cb-open-settings-header {
         padding: 13px 14px;
     }
 
-
     .cb-open-settings-body {
         padding: 10px;
     }
-
 
     .cb-setting-section {
         padding: 13px;
     }
 
-
     .cb-width-grid {
         grid-template-columns: 1fr;
     }
-
 
     .cb-open-settings-footer {
         padding: 10px;
     }
 }
 
-
-
 /* =========================================================
     SMALL MOBILE
    ========================================================= */
 
 @media screen and (max-width: 480px) {
-
     .cb-open-document-bar-inner {
-        grid-template-columns:
-            1fr;
+        grid-template-columns: 1fr;
     }
-
 
     .cb-document-title-field {
         grid-column: auto;
     }
 
-
     .cb-cell-button-grid {
-        grid-template-columns:
-            1fr;
+        grid-template-columns: 1fr;
     }
-
 
     .cb-open-settings-footer {
         align-items: stretch;
@@ -2421,119 +2081,82 @@ ROW RESIZER
         flex-direction: column;
     }
 
-
     .cb-open-settings-save {
         width: 100%;
     }
 }
-
-
 
 /* =========================================================
    PRINT PAGE
    ========================================================= */
 
 @page {
-    size:
-        A4 landscape;
+    size: A4 landscape;
 
     margin: 6mm;
 }
-
-
 
 /* =========================================================
    PRINT
    ========================================================= */
 
 @media print {
-
     html,
     body {
         width: 100%;
 
-        margin:
-            0 !important;
+        margin: 0 !important;
 
-        padding:
-            0 !important;
+        padding: 0 !important;
 
-        background:
-            #ffffff !important;
+        background: #ffffff !important;
     }
-
 
     body.cb-open-body {
-        padding-top:
-            0 !important;
+        padding-top: 0 !important;
     }
-
 
     /*
      * 화면 UI 숨김
      */
     .cb-open-topbar,
-
     .cb-open-document-bar,
-
     .cb-open-paste-card,
-
     .offcanvas,
-
     .offcanvas-backdrop,
-
     .cb-open-settings,
-
     .cb-open-save-message,
-
     .app-dialog,
-
     .cb-open-col-resizer,
-
     .cb-open-row-resizer {
-        display:
-            none !important;
+        display: none !important;
     }
-
 
     .cb-open-page {
-        width:
-            100% !important;
+        width: 100% !important;
 
-        max-width:
-            none !important;
+        max-width: none !important;
 
-        margin:
-            0 !important;
+        margin: 0 !important;
 
-        padding:
-            0 !important;
+        padding: 0 !important;
     }
-
 
     .cb-open-sheet-stage {
-        margin:
-            0 !important;
+        margin: 0 !important;
 
-        padding:
-            0 !important;
+        padding: 0 !important;
 
-        overflow:
-            visible !important;
+        overflow: visible !important;
 
-        border:
-            0 !important;
+        border: 0 !important;
 
-        border-radius:
-            0 !important;
+        border-radius: 0 !important;
 
-        background:
-            #ffffff !important;
+        background: #ffffff !important;
 
-        outline:
-            none !important;
+        outline: none !important;
     }
-
 
     /*
      * A4 Landscape
@@ -2543,143 +2166,101 @@ ROW RESIZER
      * = 285mm
      */
     .cb-open-sheet {
-        width:
-            285mm !important;
+        width: 285mm !important;
 
-        min-width:
-            0 !important;
+        min-width: 0 !important;
 
-        min-height:
-            0 !important;
+        min-height: 0 !important;
 
-        margin:
-            0 auto !important;
+        margin: 0 auto !important;
 
-        padding:
-            0 !important;
+        padding: 0 !important;
 
-        border:
-            0 !important;
+        border: 0 !important;
 
-        box-shadow:
-            none !important;
+        box-shadow: none !important;
     }
-
 
     .cb-open-sheet-header {
-        margin-bottom:
-            3mm;
+        margin-bottom: 3mm;
     }
-
 
     .cb-open-table-wrap {
-        overflow:
-            visible !important;
+        overflow: visible !important;
     }
-
 
     .cb-open-table {
-        width:
-            100% !important;
+        width: 100% !important;
 
-        table-layout:
-            fixed !important;
+        table-layout: fixed !important;
 
-        border-collapse:
-            collapse !important;
+        border-collapse: collapse !important;
     }
-
 
     /*
      * 페이지가 여러 장일 때
      * table header 반복
      */
     .cb-open-table thead {
-        display:
-            table-header-group;
+        display: table-header-group;
     }
-
 
     /*
      * 행 중간 끊김 방지
      */
     .cb-open-table tr {
-        break-inside:
-            avoid;
+        break-inside: avoid;
 
-        page-break-inside:
-            avoid;
+        page-break-inside: avoid;
     }
-
 
     /*
      * 선택 효과 제거
      */
     .cb-open-cell-editor,
-
     .cb-open-cell-editor:hover,
-
     .cb-open-cell-editor:focus,
-
     .cb-open-cell-editor.is-selected {
-        background:
-            transparent !important;
+        background: transparent !important;
 
-        box-shadow:
-            none !important;
+        box-shadow: none !important;
     }
-
 
     .cb-open-header-editable,
-
     .cb-open-header-editable:hover,
-
     .cb-open-header-editable:focus {
-        background:
-            transparent !important;
+        background: transparent !important;
 
-        box-shadow:
-            none !important;
+        box-shadow: none !important;
     }
-
 
     /*
      * Footer
      */
     .cb-open-sheet-footer {
-        margin-top:
-            3mm;
+        margin-top: 3mm;
 
-        padding-top:
-            1mm;
+        padding-top: 1mm;
 
-        color:
-            #000000;
+        color: #000000;
 
-        font-size:
-            8.5pt;
+        font-size: 8.5pt;
     }
-
 
     .cb-open-footer-center {
         font-weight: 700;
     }
 
-
     /*
      * 컬러 인쇄
      */
     .cb-open-table th,
-
     .cb-open-table td {
         min-width: 0 !important;
         overflow: hidden;
         overflow-wrap: anywhere;
-        -webkit-print-color-adjust:
-            exact;
+        -webkit-print-color-adjust: exact;
 
-        print-color-adjust:
-            exact;
+        print-color-adjust: exact;
     }
-
 }

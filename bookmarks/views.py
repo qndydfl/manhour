@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 from manhour.views import SimpleLoginRequiredMixin, get_current_workplace
 from .models import CBAircraftModel, CBTemplate
 
-AIRCRAFT_MODELS = ["A320", "A330", "A350", "A380", "B747", "B767", "B777", "OTHER"]
+AIRCRAFT_MODELS = ["A320", "A330", "A350", "A380", "B747", "B777", "OTHER"]
 
 
 def get_aircraft_models(request):
