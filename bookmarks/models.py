@@ -1,5 +1,20 @@
 from django.db import models
 
+
+class CBAircraftModel(models.Model):
+    site = models.CharField(max_length=50, verbose_name="근무지")
+    code = models.CharField(max_length=20, verbose_name="기종")
+
+    class Meta:
+        ordering = ["code"]
+        constraints = [models.UniqueConstraint(
+            fields=["site", "code"], name="unique_cb_aircraft_model_per_site",
+        )]
+
+    def __str__(self):
+        return f"{self.code} ({self.site})"
+
+
 class CBTemplate(models.Model):
     site = models.CharField(max_length=50, verbose_name="근무지")
     aircraft_model = models.CharField(max_length=20, verbose_name="기종")

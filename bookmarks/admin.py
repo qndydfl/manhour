@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import CBTemplate
+from .models import CBAircraftModel, CBTemplate
+
+
+@admin.register(CBAircraftModel)
+class CBAircraftModelAdmin(admin.ModelAdmin):
+    list_display = ("code", "site")
+    list_filter = ("site",)
+    search_fields = ("code",)
 
 
 @admin.register(CBTemplate)

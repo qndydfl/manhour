@@ -29,6 +29,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const aircraftModelSelect = document.getElementById("cbOpenAircraftModel");
 
+    const templatePicker = document.getElementById("cbOpenTemplatePicker");
+
+    const templateSelect = document.getElementById("cbOpenTemplateSelect");
+
+    const templateLoadButton = document.getElementById("cbOpenTemplateLoad");
+
+    const templateStatus = document.getElementById("cbOpenTemplateStatus");
+
+    let availableTemplates = [];
+
+    let templateRequestId = 0;
+
     const gibunInput = document.getElementById("cbOpenGibun");
 
     const headerTitleInput = document.getElementById("cbOpenHeaderTitle");
@@ -112,8 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveButton = document.getElementById("cbOpenListSave");
 
     const clearButton = document.getElementById("cbOpenListClear");
-
-    const fitA4Button = document.getElementById("cbOpenListFitA4");
 
     const previewButton = document.getElementById("cbOpenListPreview");
 
@@ -219,9 +229,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         etc: 38,
 
-        "panel-loc": 82,
+        "panel-loc": 55,
 
-        "cb-loc": 115,
+        "cb-loc": 70,
 
         fin: 65,
 
@@ -284,6 +294,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedEditor = null;
 
     let previewMode = false;
+
+    let sheetScaleFrame = 0;
+
+    let printMode = false;
 
     /* =====================================================
        UTIL
@@ -384,6 +398,8 @@ document.addEventListener("DOMContentLoaded", () => {
         col.dataset.width = String(Math.round(nextWidth));
 
         syncColumnInput(key, nextWidth);
+
+        scheduleSheetScale();
     }
 
     function syncColumnInput(key, width) {
@@ -571,33 +587,46 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     function collectDocumentFonts() {
-        return Object.fromEntries(Array.from(document.querySelectorAll('[data-document-font]'),
-            (input) => [input.dataset.documentFont, input.value]));
+        return Object.fromEntries(
+            Array.from(
+                document.querySelectorAll("[data-document-font]"),
+                (input) => [input.dataset.documentFont, input.value],
+            ),
+        );
     }
 
     function updateDocumentFonts() {
-        document.querySelectorAll('[data-document-font]').forEach((input) => {
-            const size = Math.max(8, Math.min(32, Number(input.value) || Number(input.defaultValue)));
-            sheet.style.setProperty(`--cb-document-${input.dataset.documentFont}-font`, `${size}px`);
-            const output = document.querySelector(`[data-document-font-value="${input.dataset.documentFont}"]`);
+        document.querySelectorAll("[data-document-font]").forEach((input) => {
+            const size = Math.max(
+                8,
+                Math.min(32, Number(input.value) || Number(input.defaultValue)),
+            );
+            sheet.style.setProperty(
+                `--cb-document-${input.dataset.documentFont}-font`,
+                `${size}px`,
+            );
+            const output = document.querySelector(
+                `[data-document-font-value="${input.dataset.documentFont}"]`,
+            );
             if (output) output.textContent = `${size}px`;
         });
     }
 
     function restoreDocumentFonts(saved = {}) {
-        document.querySelectorAll('[data-document-font]').forEach((input) => {
-            input.value = saved?.[input.dataset.documentFont] || input.defaultValue;
+        document.querySelectorAll("[data-document-font]").forEach((input) => {
+            input.value =
+                saved?.[input.dataset.documentFont] || input.defaultValue;
         });
         updateDocumentFonts();
     }
 
-    document.querySelectorAll('[data-document-font]').forEach((input) => {
-        input.addEventListener('input', updateDocumentFonts);
+    document.querySelectorAll("[data-document-font]").forEach((input) => {
+        input.addEventListener("input", updateDocumentFonts);
     });
 
     function updateTableSizing() {
         updateDocumentFonts();
-        const headerFont = Number(headerFontInput?.value || 12);
+        const headerFont = Number(headerFontInput?.value || 13);
 
         const bodyFont = Number(bodyFontInput?.value || 12);
 
@@ -610,7 +639,7 @@ document.addEventListener("DOMContentLoaded", () => {
          */
         sheet.style.setProperty("--cb-header-font", `${headerFont}px`);
 
-        sheet.style.setProperty("--cb-body-font", `${bodyFont}px`);        
+        sheet.style.setProperty("--cb-body-font", `${bodyFont}px`);
 
         sheet.style.setProperty("--cb-header-padding", `${headerPadding}px`);
 
@@ -625,7 +654,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (bodyFontValue) {
             bodyFontValue.textContent = `${bodyFont}px`;
-        }        
+        }
 
         if (headerPaddingValue) {
             headerPaddingValue.textContent = `${headerPadding}px`;
@@ -946,7 +975,7 @@ document.addEventListener("DOMContentLoaded", () => {
        CLIPBOARD AUTO MAP
        ===================================================== */
 
-    function applyClipboardText(rawText, startRow = 0, format = 'auto') {
+    function applyClipboardText(rawText, startRow = 0, format = "auto") {
         let records;
         try {
             records = window.parseCBClipboard(rawText, format);
@@ -966,7 +995,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ensureRows(startRow + records.length);
 
         records.forEach((record, lineIndex) => {
-
             const row = tableBody.children[startRow + lineIndex];
 
             if (!row) {
@@ -1007,6 +1035,66 @@ document.addEventListener("DOMContentLoaded", () => {
             setCellValue(row, "etc", isSSPC ? "V" : "");
         });
         return records.length;
+    }
+
+    async function refreshTemplatePicker() {
+        if (
+            !templatePicker ||
+            !templateSelect ||
+            !templateLoadButton ||
+            !templateStatus
+        )
+            return;
+        const aircraft = cleanText(aircraftModelSelect?.value);
+        const requestId = ++templateRequestId;
+        availableTemplates = [];
+        templateSelect.replaceChildren();
+        templateLoadButton.disabled = true;
+        if (!aircraft) {
+            templatePicker.hidden = true;
+            return;
+        }
+        templatePicker.hidden = false;
+        templateStatus.textContent = `${aircraft} 기본 템플릿을 불러오는 중입니다.`;
+        try {
+            const response = await fetch(
+                `${templatePicker.dataset.url}?aircraft_model=${encodeURIComponent(aircraft)}`,
+            );
+            if (!response.ok || response.redirected)
+                throw new Error("기본 템플릿을 불러오지 못했습니다.");
+            const data = await response.json();
+            if (requestId !== templateRequestId) return;
+            availableTemplates = data.templates || [];
+            if (!availableTemplates.length) {
+                templateSelect.add(
+                    new Option(`${aircraft}에 저장된 템플릿 없음`, ""),
+                );
+                templateStatus.textContent =
+                    "이 기종에는 저장된 기본 템플릿이 없습니다.";
+                return;
+            }
+            availableTemplates.forEach((item) => {
+                templateSelect.add(
+                    new Option(`${item.name} · ${item.rows.length}행`, item.id),
+                );
+            });
+            templateLoadButton.disabled = false;
+            templateStatus.textContent = `${availableTemplates.length}개의 템플릿이 있습니다. 선택 후 불러오기를 누르세요.`;
+        } catch (error) {
+            if (requestId !== templateRequestId) return;
+            templateSelect.add(new Option("템플릿을 불러올 수 없음", ""));
+            templateStatus.textContent = error.message;
+        }
+    }
+
+    function loadSelectedTemplate() {
+        const item = availableTemplates.find(
+            (template) => String(template.id) === templateSelect.value,
+        );
+        if (!item) return;
+        const added = applyCBRecords(item.rows, getNextPasteRowIndex());
+        updateTableSizing();
+        showSaveMessage(`${item.name} 템플릿 ${added}행을 불러왔습니다.`);
     }
 
     /* =====================================================
@@ -1060,7 +1148,7 @@ document.addEventListener("DOMContentLoaded", () => {
         columnInputs.forEach((input) => {
             const key = input.dataset.colWidthInput;
 
-            input.addEventListener("change", () => {
+            input.addEventListener("input", () => {
                 setColumnWidth(key, Number(input.value));
             });
         });
@@ -1080,7 +1168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * A4 landscape 기준
          */
-        const targetWidth = 1060;
+        const targetWidth = 1000;
 
         if (totalWidth <= targetWidth) {
             return;
@@ -1093,6 +1181,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
             setColumnWidth(key, current * ratio, false);
         });
+    }
+
+    function scaleSheetToViewport() {
+        const stage = sheet.closest(".cb-open-sheet-stage");
+        sheet.style.removeProperty("zoom");
+        if (!stage) return;
+        const stageStyle = window.getComputedStyle(stage);
+        const horizontalPadding =
+            Number.parseFloat(stageStyle.paddingLeft) +
+            Number.parseFloat(stageStyle.paddingRight);
+        const availableWidth = Math.max(1, stage.clientWidth - horizontalPadding);
+        const naturalWidth = sheet.offsetWidth;
+        const scale = Math.min(1, availableWidth / naturalWidth);
+        sheet.style.zoom = String(scale);
+    }
+
+    function scheduleSheetScale() {
+        if (printMode) return;
+        window.cancelAnimationFrame(sheetScaleFrame);
+        sheetScaleFrame = window.requestAnimationFrame(scaleSheetToViewport);
     }
 
     /* =====================================================
@@ -1116,6 +1224,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (enabled) {
             fitTableToA4();
+            scheduleSheetScale();
+        } else {
+            scheduleSheetScale();
         }
     }
 
@@ -1224,9 +1335,9 @@ document.addEventListener("DOMContentLoaded", () => {
             },
 
             tableSettings: {
-                headerFont: headerFontInput?.value || "12",
+                headerFont: headerFontInput?.value || "13",
 
-                bodyFont: bodyFontInput?.value || "12",                
+                bodyFont: bodyFontInput?.value || "12",
 
                 headerPadding: headerPaddingInput?.value || "5",
 
@@ -1278,9 +1389,9 @@ document.addEventListener("DOMContentLoaded", () => {
              */
 
             currentData.tableSettings = {
-                headerFont: headerFontInput?.value || "12",
+                headerFont: headerFontInput?.value || "13",
 
-                bodyFont: bodyFontInput?.value || "12",                
+                bodyFont: bodyFontInput?.value || "12",
 
                 headerPadding: headerPaddingInput?.value || "5",
 
@@ -1438,12 +1549,12 @@ document.addEventListener("DOMContentLoaded", () => {
         restoreDocumentFonts(data.documentFonts);
         if (data.tableSettings) {
             if (headerFontInput) {
-                headerFontInput.value = data.tableSettings.headerFont || "12";
+                headerFontInput.value = data.tableSettings.headerFont || "13";
             }
 
             if (bodyFontInput) {
                 bodyFontInput.value = data.tableSettings.bodyFont || "12";
-            }            
+            }
 
             if (headerPaddingInput) {
                 headerPaddingInput.value =
@@ -1671,12 +1782,12 @@ document.addEventListener("DOMContentLoaded", () => {
          * 표 설정
          */
         if (headerFontInput) {
-            headerFontInput.value = "12";
+            headerFontInput.value = "13";
         }
 
         if (bodyFontInput) {
             bodyFontInput.value = "12";
-        }        
+        }
         restoreDocumentFonts();
 
         if (headerPaddingInput) {
@@ -1714,7 +1825,64 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     if (aircraftModelSelect) {
-        aircraftModelSelect.addEventListener("change", updateHeader);
+        aircraftModelSelect.addEventListener("change", () => {
+            updateHeader();
+            refreshTemplatePicker();
+        });
+    }
+
+    function initSettingsAccordions() {
+        const accordionTitles = new Set([
+            "문서 상단 정보",
+            "표 기본 설정",
+            "선택한 셀",
+            "문서 하단 정보",
+        ]);
+        const sections = Array.from(
+            document.querySelectorAll(".cb-setting-section"),
+        ).filter((section) =>
+            accordionTitles.has(
+                cleanText(section.querySelector("h6")?.textContent),
+            ),
+        );
+        sections.forEach((section) => {
+            const header = section.querySelector(
+                ":scope > .cb-setting-section-header",
+            );
+            if (!header) return;
+            section.classList.add("cb-setting-collapsible", "is-collapsed");
+            header.setAttribute("role", "button");
+            header.setAttribute("tabindex", "0");
+            header.setAttribute("aria-expanded", "false");
+            header.insertAdjacentHTML(
+                "beforeend",
+                '<i class="bi bi-chevron-down cb-setting-chevron" aria-hidden="true"></i>',
+            );
+            const toggle = () => {
+                const willOpen = section.classList.contains("is-collapsed");
+                sections.forEach((item) => {
+                    item.classList.add("is-collapsed");
+                    item.querySelector(
+                        ":scope > .cb-setting-section-header",
+                    )?.setAttribute("aria-expanded", "false");
+                });
+                if (willOpen) {
+                    section.classList.remove("is-collapsed");
+                    header.setAttribute("aria-expanded", "true");
+                }
+            };
+            header.addEventListener("click", toggle);
+            header.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    toggle();
+                }
+            });
+        });
+    }
+
+    if (templateLoadButton) {
+        templateLoadButton.addEventListener("click", loadSelectedTemplate);
     }
 
     if (gibunInput) {
@@ -1751,7 +1919,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (bodyFontInput) {
         bodyFontInput.addEventListener("input", updateTableSizing);
-    }    
+    }
 
     if (headerPaddingInput) {
         headerPaddingInput.addEventListener("input", updateTableSizing);
@@ -1835,10 +2003,6 @@ document.addEventListener("DOMContentLoaded", () => {
        EVENTS — FIT A4
        ===================================================== */
 
-    if (fitA4Button) {
-        fitA4Button.addEventListener("click", fitTableToA4);
-    }
-
     /* =====================================================
        EVENTS — PREVIEW
        ===================================================== */
@@ -1865,7 +2029,19 @@ document.addEventListener("DOMContentLoaded", () => {
      * Ctrl + P 대응
      */
     window.addEventListener("beforeprint", () => {
+        printMode = true;
+        window.cancelAnimationFrame(sheetScaleFrame);
+        sheet.style.removeProperty("zoom");
         fitTableToA4();
+    });
+
+    window.addEventListener("afterprint", () => {
+        printMode = false;
+        scheduleSheetScale();
+    });
+
+    window.addEventListener("resize", () => {
+        scheduleSheetScale();
     });
 
     /* =====================================================
@@ -1908,24 +2084,34 @@ document.addEventListener("DOMContentLoaded", () => {
        PASTE SOURCE
        ===================================================== */
 
-    document.getElementById('cbOpenManualImport')?.addEventListener('click', () => {
-        if (!validateRequiredDocumentInfo()) return;
-        if (!pasteSource.value.trim()) {
-            alert('쉼표로 구분한 데이터를 먼저 입력해 주세요.');
-            return;
-        }
-        const count = applyClipboardText(pasteSource.value, getNextPasteRowIndex(), 'boeing-manual');
-        if (count) {
-            pasteSource.value = '';
-            saveWorkspace();
-        }
-    });
+    document
+        .getElementById("cbOpenManualImport")
+        ?.addEventListener("click", () => {
+            if (!validateRequiredDocumentInfo()) return;
+            if (!pasteSource.value.trim()) {
+                alert("쉼표로 구분한 데이터를 먼저 입력해 주세요.");
+                return;
+            }
+            const count = applyClipboardText(
+                pasteSource.value,
+                getNextPasteRowIndex(),
+                "boeing-manual",
+            );
+            if (count) {
+                pasteSource.value = "";
+                saveWorkspace();
+            }
+        });
 
     pasteSource.addEventListener("paste", (event) => {
-        const clipboardText = event.clipboardData.getData('text/plain');
+        const clipboardText = event.clipboardData.getData("text/plain");
         // Leave comma input in the editor so the user can finish it before saving.
-        if (pasteSource.value.trim() || (!clipboardText.includes('\t') &&
-            !/Row\s+Col(?:umn)?\s+Number\s+Name/i.test(clipboardText))) return;
+        if (
+            pasteSource.value.trim() ||
+            (!clipboardText.includes("\t") &&
+                !/Row\s+Col(?:umn)?\s+Number\s+Name/i.test(clipboardText))
+        )
+            return;
         /*
          * =========================================
          * 기종 / 기번 검사
@@ -2035,6 +2221,8 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     initColumnInputs();
 
+    initSettingsAccordions();
+
     /*
      * Header drag resize
      */
@@ -2057,159 +2245,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateTableSizing();
     }
-    initCBTemplates();
+    importSelectedTemplate();
+    refreshTemplatePicker();
+    scheduleSheetScale();
 
-    function initCBTemplates() {
-        const panel = document.getElementById('cbTemplatePanel');
-        if (!panel) return;
-        document.body.appendChild(panel);
-        const select = document.getElementById('cbTemplateSelect');
-        const aircraft = document.getElementById('cbTemplateAircraft');
-        const name = document.getElementById('cbTemplateName');
-        const rowsBody = document.getElementById('cbTemplateRows');
-        const fields = document.getElementById('cbTemplateFields');
-        const update = document.getElementById('cbTemplateUpdate');
-        const status = document.getElementById('cbTemplateStatus');
-        const keys = ['panel_loc', 'cb_loc', 'fin', 'description'];
-        let templates = [];
-        let selectedId = '';
-        let currentAircraft = aircraft.value;
-        let dirty = false;
-
-        function addRow(values = {}) {
-            const tr = document.createElement('tr');
-            keys.forEach((key) => {
-                const td = document.createElement('td');
-                const input = document.createElement(key === 'description' ? 'textarea' : 'input');
-                input.className = 'form-control';
-                input.dataset.field = key;
-                input.value = values[key] || '';
-                input.maxLength = 2000;
-                input.setAttribute('aria-label', key);
-                if (key === 'description') input.rows = 2;
-                td.append(input);
-                tr.append(td);
-            });
-            const td = document.createElement('td');
-            const remove = document.createElement('button');
-            remove.type = 'button';
-            remove.className = 'btn btn-outline-danger btn-sm';
-            remove.textContent = '삭제';
-            remove.addEventListener('click', () => { tr.remove(); dirty = true; });
-            td.append(remove);
-            tr.append(td);
-            rowsBody.append(tr);
+    function importSelectedTemplate() {
+        const storageKey = "cb_open_template_import_v1";
+        let pending;
+        try {
+            pending = JSON.parse(sessionStorage.getItem(storageKey));
+        } catch (_error) {
+            sessionStorage.removeItem(storageKey);
+            return;
         }
-        function showEditor(item) {
-            name.value = item?.name || '';
-            rowsBody.replaceChildren();
-            (item?.rows?.length ? item.rows : [{}]).forEach(addRow);
-            selectedId = item ? String(item.id) : '';
-            select.value = selectedId;
-            update.disabled = !selectedId;
-            dirty = false;
+        if (!pending || !Array.isArray(pending.rows) || !pending.rows.length)
+            return;
+        sessionStorage.removeItem(storageKey);
+        if (pending.aircraft_model) {
+            aircraftModelSelect.value = pending.aircraft_model;
+            updateHeader();
         }
-        function readRows() {
-            const rows = Array.from(rowsBody.children).map((tr) => Object.fromEntries(
-                keys.map((key) => [key, tr.querySelector('[data-field="' + key + '"]').value.trim()]),
-            )).filter((row) => Object.values(row).some(Boolean));
-            if (!rows.length || rows.some((row) => !row.panel_loc || !row.cb_loc || !row.description)) {
-                throw new Error("PANEL, C/B LOC', DESCRIPTION을 입력해 주세요. FIN은 비워둘 수 있습니다.");
-            }
-            return rows;
-        }
-        async function discardDraft() {
-            return !dirty || await window.AppDialog.confirm('저장하지 않은 템플릿 편집 내용을 버리고 이동할까요?', { title: '편집 내용 확인' });
-        }
-        async function refresh(id = '') {
-            fields.disabled = true;
-            status.textContent = '템플릿을 불러오는 중입니다.';
-            try {
-                const response = await fetch(panel.dataset.url + '?aircraft_model=' + encodeURIComponent(aircraft.value));
-                if (!response.ok || response.redirected) throw new Error('템플릿을 불러오지 못했습니다. 로그인 상태를 확인해 주세요.');
-                const data = await response.json();
-                templates = data.templates;
-                select.replaceChildren(new Option('새 템플릿', ''));
-                templates.forEach((item) => select.add(new Option(item.name + ' (' + item.rows.length + '행)', item.id)));
-                showEditor(templates.find((item) => String(item.id) === String(id)));
-                currentAircraft = aircraft.value;
-                status.textContent = templates.length ? '' : '이 기종에 저장된 템플릿이 없습니다. 새로 만들어 주세요.';
-            } catch (error) { status.textContent = error.message; }
-            finally { fields.disabled = false; }
-        }
-        fields.addEventListener('input', (event) => {
-            if (event.target === name || rowsBody.contains(event.target)) dirty = true;
-        });
-        aircraft.addEventListener('change', async () => {
-            if (!await discardDraft()) { aircraft.value = currentAircraft; return; }
-            showEditor();
-            templates = [];
-            select.replaceChildren(new Option('새 템플릿', ''));
-            await refresh();
-        });
-        select.addEventListener('change', async () => {
-            const next = select.value;
-            if (!await discardDraft()) { select.value = selectedId; return; }
-            showEditor(templates.find((item) => String(item.id) === next));
-        });
-        document.getElementById('cbTemplateNew').addEventListener('click', async () => {
-            if (await discardDraft()) showEditor();
-        });
-        document.getElementById('cbTemplateAddRow').addEventListener('click', () => { addRow(); dirty = true; });
-        document.getElementById('cbTemplateCopy').addEventListener('click', async () => {
-            if (aircraftModelSelect.value !== aircraft.value) {
-                alert('현재 문서와 템플릿의 기종을 동일하게 선택해 주세요.');
-                return;
-            }
-            if (!await discardDraft()) return;
-            const rows = Array.from(tableBody.children).map((row) => Object.fromEntries(
-                keys.map((key) => [key, cleanText(row.querySelector('[data-field="' + key + '"]')?.innerText || '')]),
-            )).filter((row) => Object.values(row).some(Boolean));
-            rowsBody.replaceChildren();
-            (rows.length ? rows : [{}]).forEach(addRow);
-            dirty = true;
-        });
-        document.getElementById('cbTemplateLoad').addEventListener('click', () => {
-            try {
-                if (aircraftModelSelect.value !== aircraft.value) throw new Error('현재 문서와 템플릿의 기종을 동일하게 선택해 주세요.');
-                const rows = readRows();
-                applyCBRecords(rows, getNextPasteRowIndex());
-                status.textContent = rows.length + '행을 문서에 추가했습니다. 문서를 보관하려면 상단 저장을 눌러 주세요.';
-            } catch (error) { alert(error.message); }
-        });
-        async function saveTemplate(edit) {
-            if (edit && !selectedId) return;
-            let rows;
-            try {
-                if (!name.value.trim()) throw new Error('템플릿 이름을 입력해 주세요.');
-                rows = readRows();
-            } catch (error) { alert(error.message); return; }
-            fields.disabled = true;
-            const payload = { aircraft_model: aircraft.value, name: name.value.trim(), rows };
-            if (edit) payload.id = Number(selectedId);
-            try {
-                const response = await fetch(panel.dataset.url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': panel.querySelector('[name=csrfmiddlewaretoken]').value },
-                    body: JSON.stringify(payload),
-                });
-                if (response.redirected) throw new Error('로그인 상태를 확인해 주세요.');
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || '템플릿 저장에 실패했습니다.');
-                dirty = false;
-                await refresh(data.id);
-                status.textContent = data.name + (edit ? ' 템플릿을 수정했습니다.' : ' 템플릿을 생성했습니다.');
-            } catch (error) { alert(error.message); }
-            finally { fields.disabled = false; }
-        }
-        document.getElementById('cbTemplateSave').addEventListener('click', () => saveTemplate(false));
-        update.addEventListener('click', () => saveTemplate(true));
-        panel.addEventListener('show.bs.modal', () => {
-            if (dirty) return;
-            if (aircraftModelSelect.value) aircraft.value = aircraftModelSelect.value;
-            refresh(aircraft.value === currentAircraft ? selectedId : '');
-        });
-        // Closing the window keeps its draft available for the next opening.
-        showEditor();
+        const added = applyCBRecords(pending.rows, getNextPasteRowIndex());
+        showSaveMessage(
+            `${pending.name || "기본"} 템플릿 ${added}행을 문서에 추가했습니다.`,
+        );
     }
 });

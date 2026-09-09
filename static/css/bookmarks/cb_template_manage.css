@@ -1,0 +1,54 @@
+:root {
+    --cb-template-navy: #102a43;
+    --cb-template-border: #ccd8e5;
+    --cb-template-surface: #f7f9fc;
+}
+
+.cb-template-manage-body { background: #e9eff5; color: #172033; }
+.cb-template-page { min-height: 100vh; padding-inline: clamp(16px, 3vw, 36px); }
+.cb-template-card { max-width: 1320px; margin: 0 auto; padding: clamp(18px, 3vw, 32px); border: 1px solid var(--cb-template-border); border-radius: 18px; background: var(--cb-template-surface); box-shadow: 0 14px 36px rgba(51, 65, 85, .1); }
+.cb-template-heading, .cb-template-table-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.cb-template-heading { padding-bottom: 22px; border-bottom: 1px solid var(--cb-template-border); }
+.assignment-topbar-btn:disabled { opacity: .45; cursor: not-allowed; }
+.cb-aircraft-settings { --bs-offcanvas-width: min(410px, 100vw); background: #111d2d; color: #e5edf7; }
+.cb-aircraft-settings-header { padding: 20px; background: #0b1624; border-bottom: 1px solid rgba(255, 255, 255, .1); }
+.cb-aircraft-settings-header h5 { font-size: 1rem; font-weight: 800; }
+.cb-aircraft-settings-header small { color: #94a3b8; font-size: .78rem; }
+.cb-aircraft-settings-body { padding: 18px; }
+.cb-aircraft-settings-section { padding: 16px; border: 1px solid rgba(148, 163, 184, .2); border-radius: 12px; background: #182638; }
+.cb-aircraft-settings-section + .cb-aircraft-settings-section { margin-top: 12px; }
+.cb-aircraft-settings-section .form-label { color: #dbe7f4; font-size: .82rem; font-weight: 700; }
+.cb-aircraft-settings-section .form-text { color: #8fa2b8; }
+.cb-aircraft-settings-notice { display: flex; gap: 9px; margin-top: 14px; padding: 12px; border-radius: 10px; background: rgba(220, 38, 38, .12); color: #fecaca; font-size: .78rem; line-height: 1.5; }
+.cb-aircraft-settings-status { min-height: 22px; margin: 14px 2px 0; color: #cbd5e1; font-size: .8rem; font-weight: 700; }
+.cb-aircraft-settings-status.is-error { color: #fca5a5; }
+.cb-aircraft-settings-status.is-success { color: #6ee7b7; }
+.cb-template-eyebrow { margin: 0 0 4px; color: #2563eb; font-size: .72rem; font-weight: 800; letter-spacing: .12em; }
+.cb-template-heading h1 { margin: 0; font-size: clamp(1.25rem, 2vw, 1.75rem); }
+.cb-template-heading p:not(.cb-template-eyebrow), .cb-template-table-heading p { margin: 6px 0 0; color: #64748b; font-size: .88rem; }
+.cb-template-controls { padding: 22px 0; }
+
+.cb-template-controls .form-label{ 
+    font-size: .9rem; 
+    font-weight: 700; 
+}
+.cb-template-table-heading { margin-bottom: 10px; }
+.cb-template-table-heading h2 { margin: 0; font-size: 1.05rem; }
+.cb-template-table-wrap { border: 1px solid var(--cb-template-border); border-radius: 12px; background: #fff; }
+.cb-template-editor { min-width: 720px; }
+.cb-template-editor th { padding: 10px; background: #e5edf6; color: #334155; white-space: nowrap; font-size: .88rem; text-align: center; }
+.cb-template-editor th:nth-child(4) { width: 42%; }
+.cb-template-editor td { padding: 7px; background: #fff; }
+.cb-template-editor .form-control { min-width: 90px; font-size: .88rem; }
+.cb-template-editor textarea { min-height: 40px; resize: vertical; }
+
+.cb-template-status { min-height: 24px; margin: 14px 0 0; color: #475569; font-size: .84rem; font-weight: 600; }
+.cb-template-status.is-error { color: #b42318; }
+.cb-template-status.is-success { color: #047857; }
+
+@media (max-width: 767.98px) {
+    .cb-template-page { min-height: 100vh; padding-inline: 12px; }
+    .cb-template-card { padding: 15px; border-radius: 14px; }
+    .cb-template-heading { align-items: flex-start; }
+    .cb-template-heading p:not(.cb-template-eyebrow) { display: none; }
+}
