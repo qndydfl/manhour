@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const aircraftCode = document.getElementById('cbAircraftCode');
     const aircraftStatus = document.getElementById('cbAircraftStatus');
     const name = document.getElementById('cbTemplateName');
+    const pasteSource = document.getElementById('cbTemplatePasteSource');
+    const pasteImportButton = document.getElementById('cbTemplatePasteImport');
     const rowsBody = document.getElementById('cbTemplateRows');
     const fields = document.getElementById('cbTemplateFields');
     const updateButton = document.getElementById('cbTemplateUpdate');
@@ -118,6 +120,33 @@ document.addEventListener('DOMContentLoaded', () => {
         actionCell.append(remove);
         row.append(actionCell);
         rowsBody.append(row);
+    }
+
+    function rowIsEmpty(row) {
+        return keys.every((key) => !row.querySelector('[data-field="' + key + '"]').value.trim());
+    }
+
+    function importPastedRows(text) {
+        if (!text.trim()) {
+            showStatus('붙여넣을 데이터를 입력해 주세요.', 'error');
+            return 0;
+        }
+        try {
+            const isTableData = text.includes('\t') || /Row\s+Col(?:umn)?\s+Number\s+Name/i.test(text);
+            const records = window.parseCBClipboard(text, isTableData ? 'auto' : 'boeing-manual');
+            if (rowsBody.children.length === 1 && rowIsEmpty(rowsBody.firstElementChild)) {
+                rowsBody.replaceChildren();
+            }
+            records.forEach((record) => addRow({
+                ...record,
+            }));
+            dirty = true;
+            showStatus(String(records.length) + '행을 템플릿 표에 불러왔습니다.', 'success');
+            return records.length;
+        } catch (error) {
+            showStatus(error.message, 'error');
+            return 0;
+        }
     }
 
     function showEditor(item) {
@@ -236,6 +265,15 @@ document.addEventListener('DOMContentLoaded', () => {
         addRow();
         dirty = true;
         rowsBody.lastElementChild.querySelector('input, textarea').focus();
+    });
+    pasteSource.addEventListener('paste', (event) => {
+        const text = event.clipboardData.getData('text/plain');
+        if (!text.trim()) return;
+        event.preventDefault();
+        if (importPastedRows(text)) pasteSource.value = '';
+    });
+    pasteImportButton.addEventListener('click', () => {
+        if (importPastedRows(pasteSource.value)) pasteSource.value = '';
     });
     if (aircraftManageSelect && aircraftCode) {
         aircraftManageSelect.addEventListener('change', () => {

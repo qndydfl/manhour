@@ -725,6 +725,13 @@ document.addEventListener("DOMContentLoaded", () => {
             selectEditor(editor);
         });
 
+        if (field === "panel_loc" || field === "cb_loc") {
+            editor.addEventListener("input", () => {
+                const row = editor.closest("tr");
+                if (row) updateAutomaticLocationMarks(row);
+            });
+        }
+
         /*
          * 일반 셀 붙여넣기
          */
@@ -827,6 +834,32 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedEditor = null;
 
         ensureRows(DEFAULT_ROWS);
+    }
+
+    function updateAutomaticLocationMarks(row) {
+        const panelValue = cleanText(
+            row.querySelector('[data-field="panel_loc"]')?.innerText,
+        ).toUpperCase();
+        const cbLocValue = cleanText(
+            row.querySelector('[data-field="cb_loc"]')?.innerText,
+        ).toUpperCase();
+        const aircraft = cleanText(aircraftModelSelect?.value).toUpperCase();
+        const cockpit = row.querySelector('[data-field="cockpit"]');
+        const ee = row.querySelector('[data-field="ee"]');
+        const etc = row.querySelector('[data-field="etc"]');
+        const isSSPC = cbLocValue.includes("SSPC");
+        const isA350OrA380 = aircraft === "A350" || aircraft === "A380";
+
+        if (cockpit) cockpit.textContent = panelValue === "P11" ? "V" : "";
+        if (etc) etc.textContent = isSSPC ? "V" : "";
+        if (ee) {
+            ee.textContent =
+                isA350OrA380 && cbLocValue && !isSSPC ? "V" : "";
+        }
+    }
+
+    function refreshAutomaticLocationMarks() {
+        Array.from(tableBody.children).forEach(updateAutomaticLocationMarks);
     }
 
     function rowHasData(row) {
@@ -1044,25 +1077,7 @@ document.addEventListener("DOMContentLoaded", () => {
             PASTE_TARGETS.forEach((field) => {
                 setCellValue(row, field, record[field] || "");
             });
-
-            /*
-             * =========================================
-             * SSPC 자동 판별
-             * =========================================
-             *
-             * C/B LOC' 값에
-             * SSPC가 포함되어 있으면
-             *
-             * etc = V
-             *
-             * SSPC가 없으면
-             * etc = 빈칸
-             */
-            const cbLocValue = cleanText(record.cb_loc || "");
-
-            const isSSPC = cbLocValue.toUpperCase().includes("SSPC");
-
-            setCellValue(row, "etc", isSSPC ? "V" : "");
+            updateAutomaticLocationMarks(row);
         });
         return records.length;
     }
@@ -1857,6 +1872,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (aircraftModelSelect) {
         aircraftModelSelect.addEventListener("change", () => {
             updateHeader();
+            refreshAutomaticLocationMarks();
             refreshTemplatePicker();
         });
     }
@@ -2282,6 +2298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateTableSizing();
     }
     importSelectedTemplate();
+    refreshAutomaticLocationMarks();
     refreshTemplatePicker();
     scheduleSheetScale();
 

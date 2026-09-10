@@ -27,6 +27,13 @@
 .cb-template-heading h1 { margin: 0; font-size: clamp(1.25rem, 2vw, 1.75rem); }
 .cb-template-heading p:not(.cb-template-eyebrow), .cb-template-table-heading p { margin: 6px 0 0; color: #64748b; font-size: .88rem; }
 .cb-template-controls { padding: 22px 0; }
+.cb-template-paste { margin-bottom: 20px; padding: 14px; border: 1px solid #c7d6e5; border-radius: 12px; background: #edf4fa; }
+.cb-template-paste-heading { margin-bottom: 9px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cb-template-paste-heading > div { display: grid; gap: 2px; }
+.cb-template-paste-heading strong { color: #1e3a5f; font-size: .9rem; }
+.cb-template-paste-heading small, .cb-template-paste-help { color: #64748b; font-size: .76rem; }
+.cb-template-paste textarea { min-height: 76px; resize: vertical; font-size: .84rem; }
+.cb-template-paste-help { display: block; margin-top: 6px; }
 
 .cb-template-controls .form-label{ 
     font-size: .9rem; 
@@ -51,4 +58,5 @@
     .cb-template-card { padding: 15px; border-radius: 14px; }
     .cb-template-heading { align-items: flex-start; }
     .cb-template-heading p:not(.cb-template-eyebrow) { display: none; }
+    .cb-template-paste-heading { align-items: stretch; flex-direction: column; }
 }

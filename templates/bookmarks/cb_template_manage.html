@@ -5,11 +5,12 @@
 {% block body_class %}cb-template-manage-body{% endblock body_class %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260909-3" />
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260910-5" />
 {% endblock css %}
 
 {% block js %}
-<script defer src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260909-3"></script>
+<script defer src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"></script>
+<script defer src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260910-5"></script>
 {% endblock js %}
 
 {% block content %}
@@ -94,6 +95,25 @@
                     <input id="cbTemplateName" class="form-control" maxlength="100" placeholder="예: B777 엔진 작업" />
                 </div>
             </div>
+
+            <section class="cb-template-paste">
+                <div class="cb-template-paste-heading">
+                    <div>
+                        <strong><i class="bi bi-clipboard-plus me-1"></i>표 데이터 붙여넣기</strong>
+                        <small>Airbus 표 또는 Boeing 데이터를 붙여넣으면 템플릿 행으로 바로 변환됩니다.</small>
+                    </div>
+                    <button id="cbTemplatePasteImport" type="button" class="btn btn-primary btn-sm">
+                        <i class="bi bi-arrow-down-square me-1"></i>표로 불러오기
+                    </button>
+                </div>
+                <textarea
+                    id="cbTemplatePasteSource"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Airbus 표를 복사해 붙여넣거나 Boeing 데이터를 PANEL, C/B LOC', FIN, DESCRIPTION 순서로 입력하세요."
+                ></textarea>
+                <small class="cb-template-paste-help">붙여넣는 즉시 변환됩니다. 쉼표 입력은 FIN이 없으면 해당 자리를 비워 주세요.</small>
+            </section>
 
             <div class="cb-template-table-heading">
                 <div>

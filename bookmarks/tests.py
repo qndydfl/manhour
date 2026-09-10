@@ -77,7 +77,8 @@ class CBTemplateTests(TestCase):
         self.assertEqual(self.client.post(self.url, self.payload, content_type="application/json").status_code, 201)
         data = self.client.get(self.url, {"aircraft_model": "B777"}).json()
         self.assertEqual(len(data["templates"]), 2)
-        self.assertEqual(data["templates"][0]["rows"], self.payload["rows"])
+        self.assertEqual(data["templates"][0]["rows"][0]["panel_loc"], "P110")
+        self.assertNotIn("cockpit", data["templates"][0]["rows"][0])
 
     def test_filter_site_and_model(self):
         CBTemplate.objects.create(site="SITE-B", **self.payload)
