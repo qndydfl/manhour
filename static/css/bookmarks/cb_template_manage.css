@@ -130,7 +130,7 @@
 }
 
 .cb-template-editor {
-    min-width: 720px;
+    min-width: 900px;
 }
 
 .cb-template-editor th {
@@ -142,7 +142,7 @@
     text-align: center;
 }
 
-.cb-template-editor th:nth-child(4) {
+.cb-template-editor th:nth-child(7) {
     width: 42%;
 }
 
@@ -159,6 +159,15 @@
 .cb-template-editor textarea {
     min-height: 40px;
     resize: vertical;
+}
+
+.cb-template-editor .cb-template-location-check {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    float: none;
+    cursor: pointer;
+    vertical-align: middle;
 }
 
 .cb-template-status {

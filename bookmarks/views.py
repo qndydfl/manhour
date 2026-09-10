@@ -94,6 +94,23 @@ class CBAircraftModelView(SimpleLoginRequiredMixin, View):
 
 
 class CBTemplateView(SimpleLoginRequiredMixin, View):
+    def delete(self, request):
+        try:
+            data = json.loads(request.body)
+            if not isinstance(data, dict) or type(data.get("id")) is not int or data["id"] < 1:
+                raise ValueError
+            model = clean_aircraft_code(data.get("aircraft_model"))
+        except (ValueError, TypeError, UnicodeDecodeError):
+            return JsonResponse({"error": "삭제할 템플릿을 선택해 주세요."}, status=400)
+        template = CBTemplate.objects.filter(
+            pk=data["id"], site=get_current_workplace(request), aircraft_model=model,
+        ).first()
+        if template is None:
+            return JsonResponse({"error": "삭제할 템플릿을 찾을 수 없습니다."}, status=404)
+        name = template.name
+        template.delete()
+        return JsonResponse({"name": name})
+
     def get(self, request):
         templates = CBTemplate.objects.filter(
             site=get_current_workplace(request),
@@ -131,6 +148,12 @@ class CBTemplateView(SimpleLoginRequiredMixin, View):
                     if not isinstance(value, str) or len(value) > 2000:
                         raise ValueError
                     cleaned[field] = value.strip()
+                for field in ("cockpit", "ee", "etc"):
+                    if field in row:
+                        value = row[field]
+                        if not isinstance(value, str) or value.strip().upper() not in ("", "V"):
+                            raise ValueError
+                        cleaned[field] = value.strip().upper()
                 if not cleaned["panel_loc"] or not cleaned["cb_loc"] or not cleaned["description"]:
                     raise ValueError
                 clean_rows.append(cleaned)

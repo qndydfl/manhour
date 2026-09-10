@@ -8,7 +8,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260910-5"
+    href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260910-6"
 />
 {% endblock css %} 
 
@@ -19,7 +19,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260910-5"
+    src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260910-8"
 ></script>
 {% endblock js %} 
 
@@ -63,6 +63,9 @@
             >
                 <i class="bi bi-floppy"></i><span>수정 내용 저장</span>
             </button>
+            <button id="cbTemplateDelete" type="button" class="assignment-topbar-btn" disabled>
+                <i class="bi bi-trash text-danger"></i><span>템플릿 삭제</span>
+            </button>
             {% if request.session.user_role == "admin" %}
             <button
                 type="button"
@@ -101,7 +104,7 @@
         <div class="cb-template-heading">
             <div>
                 <p class="cb-template-eyebrow">AIRCRAFT TEMPLATE</p>
-                <h1>기본 템플릿 생성 및 수정</h1>
+                <h1>기본 템플릿 생성 · 수정 · 삭제</h1>
                 <p>
                     기종별 PANEL, C/B LOC', FIN, DESCRIPTION을 저장하고 C/B
                     문서에 불러올 수 있습니다.
@@ -186,7 +189,7 @@
             <div class="cb-template-table-heading">
                 <div>
                     <h2>템플릿 데이터</h2>
-                    <p>FIN은 비워둘 수 있으며 나머지 항목은 필수입니다.</p>
+                    <p>PANEL, C/B LOC', DESCRIPTION은 필수입니다. COCKPIT, E/E, ETC를 체크하면 문서에 V로 표시됩니다.</p>
                 </div>
                 <button
                     id="cbTemplateAddRow"
@@ -203,6 +206,9 @@
                 >
                     <thead>
                         <tr>
+                            <th>COCKPIT</th>
+                            <th>E/E</th>
+                            <th>ETC</th>
                             <th>PANEL</th>
                             <th>C/B LOC'</th>
                             <th>FIN (선택)</th>

@@ -85,10 +85,41 @@ class CBTemplateTests(TestCase):
         CBTemplate.objects.create(site="SITE-A", **{**self.payload, "aircraft_model": "A350"})
         self.assertEqual(self.client.get(self.url, {"aircraft_model": "B777"}).json()["templates"], [])
 
+    def test_template_location_marks_round_trip(self):
+        self.payload["rows"][0].update({"cockpit": "V", "ee": "", "etc": "V"})
+        created = self.client.post(self.url, self.payload, content_type="application/json")
+        self.assertEqual(created.status_code, 201)
+        row = self.client.get(self.url, {"aircraft_model": "B777"}).json()["templates"][0]["rows"][0]
+        self.assertEqual([row[key] for key in ("cockpit", "ee", "etc")], ["V", "", "V"])
+        self.payload["id"] = created.json()["id"]
+        self.payload["rows"][0].update({"cockpit": "", "ee": "V", "etc": ""})
+        self.assertEqual(self.client.post(self.url, self.payload, content_type="application/json").status_code, 200)
+        row = self.client.get(self.url, {"aircraft_model": "B777"}).json()["templates"][0]["rows"][0]
+        self.assertEqual([row[key] for key in ("cockpit", "ee", "etc")], ["", "V", ""])
+
     def test_invalid_rows_do_not_save(self):
         self.payload["rows"].append({"panel_loc": "P110"})
         self.assertEqual(self.client.post(self.url, self.payload, content_type="application/json").status_code, 400)
         self.assertFalse(CBTemplate.objects.exists())
+
+    def test_delete_only_selected_template(self):
+        created = self.client.post(self.url, self.payload, content_type="application/json").json()
+        other = CBTemplate.objects.create(site="SITE-A", **{**self.payload, "name": "Other"})
+        response = self.client.delete(self.url, {"id": created["id"], "aircraft_model": "B777"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CBTemplate.objects.filter(pk=created["id"]).exists())
+        self.assertTrue(CBTemplate.objects.filter(pk=other.pk).exists())
+        self.assertIn("B777", self.client.get(self.aircraft_url).json()["aircraft_models"])
+
+    def test_delete_rejects_other_site_or_aircraft(self):
+        template = CBTemplate.objects.create(site="SITE-B", **self.payload)
+        response = self.client.delete(self.url, {"id": template.pk, "aircraft_model": "B777"}, content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+        template.site = "SITE-A"
+        template.save()
+        response = self.client.delete(self.url, {"id": template.pk, "aircraft_model": "B747"}, content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(CBTemplate.objects.filter(pk=template.pk).exists())
 
     def test_update_existing_template(self):
         created = self.client.post(self.url, self.payload, content_type="application/json").json()
@@ -139,3 +170,5 @@ class CBTemplateTests(TestCase):
         csrf_client = Client(enforce_csrf_checks=True)
         csrf_client.cookies = self.client.cookies
         self.assertEqual(csrf_client.post(self.url, self.payload, content_type="application/json").status_code, 403)
+        self.assertEqual(Client().delete(self.url, {}, content_type="application/json").status_code, 302)
+        self.assertEqual(csrf_client.delete(self.url, {}, content_type="application/json").status_code, 403)

@@ -1045,6 +1045,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function updateAutomaticLocationMarks(row) {
+        if (row.dataset.manualLocationMarks === "true") return;
         const panelValue = cleanText(
             row.querySelector('[data-field="panel_loc"]')?.innerText,
         ).toUpperCase();
@@ -1292,6 +1293,12 @@ document.addEventListener("DOMContentLoaded", () => {
             PASTE_TARGETS.forEach((field) => {
                 setCellValue(row, field, record[field] || "");
             });
+            const locationFields = ["cockpit", "ee", "etc"];
+            const hasLocationMarks = locationFields.some((field) => Object.hasOwn(record, field));
+            row.dataset.manualLocationMarks = String(hasLocationMarks);
+            if (hasLocationMarks) {
+                locationFields.forEach((field) => setCellValue(row, field, record[field] || ""));
+            }
             updateAutomaticLocationMarks(row);
         });
         return records.length;
@@ -1475,6 +1482,28 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector(".cb-print-pages")?.remove();
     }
 
+    function withPrintLayout(callback) {
+        // beforeprint can fire before print media becomes active. Apply the same
+        // rules synchronously while measuring, so hidden pages never measure 0px.
+        const measurementStyle = document.createElement("style");
+        const printRules = [];
+        for (const stylesheet of document.styleSheets) {
+            if (!stylesheet.href?.includes("/css/bookmarks/cb_open_list.css")) continue;
+            for (const rule of stylesheet.cssRules) {
+                if (rule.type === CSSRule.MEDIA_RULE && rule.conditionText === "print") {
+                    printRules.push(...Array.from(rule.cssRules, (child) => child.cssText));
+                }
+            }
+        }
+        measurementStyle.textContent = printRules.join("\n");
+        document.head.appendChild(measurementStyle);
+        try {
+            callback();
+        } finally {
+            measurementStyle.remove();
+        }
+    }
+
     function createPrintPageFurniture() {
         removePrintPageFurniture();
         const sourceHeader = sheet.querySelector(".cb-open-sheet-header");
@@ -1482,9 +1511,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!sourceHeader || !sourceFooter) return;
         const rowsPerPage = 16;
         const sourceRows = Array.from(tableBody.children);
-        const pageCount = Math.max(1, Math.ceil(sourceRows.length / rowsPerPage));
+        // Trailing form blanks must not create additional printed pages.
+        // Interior blanks retain their position between actual records.
+        while (sourceRows.length && !rowHasData(sourceRows[sourceRows.length - 1])) {
+            sourceRows.pop();
+        }
         const pages = document.createElement("div");
         pages.className = "cb-print-pages";
+        document.body.appendChild(pages);
         const customProperties = [
             "--cb-document-aircraft-font",
             "--cb-document-title-font",
@@ -1498,7 +1532,8 @@ document.addEventListener("DOMContentLoaded", () => {
             "--cb-row-height",
         ];
 
-        for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+        let sourceIndex = 0;
+        do {
             const page = document.createElement("section");
             page.className = "cb-print-page";
             customProperties.forEach((property) => {
@@ -1511,16 +1546,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const footer = sourceFooter.cloneNode(true);
             printBody.replaceChildren();
 
-            for (let rowIndex = 0; rowIndex < rowsPerPage; rowIndex += 1) {
-                const sourceIndex = pageIndex * rowsPerPage + rowIndex;
-                const row = sourceRows[sourceIndex]
-                    ? sourceRows[sourceIndex].cloneNode(true)
-                    : createRow(rowIndex + 1);
-                const numberCell = row.querySelector(".cb-open-number-cell");
-                if (numberCell) numberCell.textContent = String(rowIndex + 1);
-                printBody.appendChild(row);
-            }
-
             [header, printTable, footer].forEach((element) => {
                 element.querySelectorAll("[id]").forEach((child) => child.removeAttribute("id"));
                 element.querySelectorAll("[contenteditable]").forEach((child) => child.removeAttribute("contenteditable"));
@@ -1528,8 +1553,50 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             page.append(header, printTable, footer);
             pages.appendChild(page);
-        }
-        document.body.appendChild(pages);
+            // Measure at the actual print width, reserving both document headers.
+            const availableTableHeight = () => page.getBoundingClientRect().height
+                - header.getBoundingClientRect().height
+                - parseFloat(getComputedStyle(header).marginBottom || 0)
+                - footer.getBoundingClientRect().height - 2;
+            const fits = () => printTable.getBoundingClientRect().height <= availableTableHeight();
+            const appendRow = (row) => {
+                row.querySelectorAll('[id]').forEach((child) => child.removeAttribute('id'));
+                row.querySelectorAll('[contenteditable]').forEach((child) => child.removeAttribute('contenteditable'));
+                row.querySelectorAll('.cb-open-col-resizer, .cb-open-row-resizer').forEach((child) => child.remove());
+                const numberCell = row.querySelector('.cb-open-number-cell');
+                if (numberCell) numberCell.textContent = String(printBody.children.length + 1);
+                printBody.appendChild(row);
+            };
+            while (sourceIndex < sourceRows.length && printBody.children.length < rowsPerPage) {
+                const row = sourceRows[sourceIndex].cloneNode(true);
+                appendRow(row);
+                if (!fits() && printBody.children.length > 1) {
+                    row.remove();
+                    break;
+                }
+                sourceIndex += 1;
+                if (!fits()) {
+                    // An individual oversized row gets its own page, scaled to fit.
+                    const available = availableTableHeight();
+                    const actual = printTable.getBoundingClientRect().height;
+                    if (available > 0 && actual > 0) {
+                        printTable.style.zoom = String(Math.min(1, available / actual));
+                    }
+                    break;
+                }
+            }
+            // Keep the 16-row form when space permits; never push the footer out.
+            if (!printTable.style.zoom) {
+                while (printBody.children.length < rowsPerPage) {
+                    const blank = createRow(printBody.children.length + 1);
+                    appendRow(blank);
+                    if (!fits()) {
+                        blank.remove();
+                        break;
+                    }
+                }
+            }
+        } while (sourceIndex < sourceRows.length);
     }
 
     /* =====================================================
@@ -1619,6 +1686,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return {
                 height: row.style.height || "",
+                manualLocationMarks: row.dataset.manualLocationMarks === "true",
 
                 cells: cells,
             };
@@ -1920,6 +1988,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (Array.isArray(data.rows) && data.rows.length > 0) {
             data.rows.forEach((savedRow, index) => {
                 const row = createRow(index + 1);
+                row.dataset.manualLocationMarks = String(savedRow.manualLocationMarks === true);
 
                 /*
                  * 저장된 행 높이
@@ -2371,7 +2440,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.cancelAnimationFrame(sheetScaleFrame);
         sheet.style.removeProperty("zoom");
         fitTableToA4();
-        createPrintPageFurniture();
+        withPrintLayout(createPrintPageFurniture);
     });
 
     window.addEventListener("afterprint", () => {

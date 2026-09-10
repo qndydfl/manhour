@@ -13,9 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const rowsBody = document.getElementById('cbTemplateRows');
     const fields = document.getElementById('cbTemplateFields');
     const updateButton = document.getElementById('cbTemplateUpdate');
+    const deleteButton = document.getElementById('cbTemplateDelete');
     const applyButton = document.getElementById('cbTemplateApply');
     const status = document.getElementById('cbTemplateStatus');
-    const keys = ['panel_loc', 'cb_loc', 'fin', 'description'];
+    const locationKeys = ['cockpit', 'ee', 'etc'];
+    const keys = [...locationKeys, 'panel_loc', 'cb_loc', 'fin', 'description'];
     let templates = [];
     let selectedId = '';
     let previousAircraftFilter = aircraftFilter.value;
@@ -25,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function showStatus(message = '', type = '') {
         status.textContent = message;
         status.className = 'cb-template-status' + (type ? ' is-' + type : '');
+        if (message && type === 'error') {
+            void window.AppDialog.alert(message, { title: '확인 필요', variant: 'warning' });
+        }
     }
 
     function showAircraftStatus(message = '', type = '') {
@@ -102,6 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
             input.value = values[key] || '';
             input.maxLength = 2000;
             input.setAttribute('aria-label', key);
+            if (locationKeys.includes(key)) {
+                input.type = 'checkbox';
+                input.className = 'form-check-input cb-template-location-check';
+                input.checked = String(values[key] || '').toUpperCase() === 'V';
+                cell.className = 'text-center';
+            }
             if (key === 'description') input.rows = 1;
             cell.append(input);
             row.append(cell);
@@ -123,7 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function rowIsEmpty(row) {
-        return keys.every((key) => !row.querySelector('[data-field="' + key + '"]').value.trim());
+        return keys.every((key) => !readCell(row, key));
+    }
+
+    function readCell(row, key) {
+        const input = row.querySelector('[data-field="' + key + '"]');
+        return locationKeys.includes(key) ? (input.checked ? 'V' : '') : input.value.trim();
     }
 
     function importPastedRows(text) {
@@ -156,13 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedId = item ? String(item.id) : '';
         select.value = selectedId;
         updateButton.disabled = !selectedId;
+        deleteButton.disabled = !selectedId;
         applyButton.disabled = !selectedId;
         dirty = false;
     }
 
     function readRows() {
         const rows = Array.from(rowsBody.children).map((row) => Object.fromEntries(
-            keys.map((key) => [key, row.querySelector(`[data-field="${key}"]`).value.trim()]),
+            keys.map((key) => [key, readCell(row, key)]),
         )).filter((row) => Object.values(row).some(Boolean));
         if (!rows.length || rows.some((row) => !row.panel_loc || !row.cb_loc || !row.description)) {
             throw new Error("PANEL, C/B LOC', DESCRIPTION을 입력해 주세요. FIN은 비워둘 수 있습니다.");
@@ -192,6 +209,39 @@ document.addEventListener('DOMContentLoaded', () => {
             showStatus(error.message, 'error');
         } finally {
             fields.disabled = false;
+        }
+    }
+
+    async function deleteTemplate() {
+        const item = templates.find((template) => String(template.id) === selectedId);
+        if (!item || deleteButton.disabled) return;
+        const confirmed = await window.AppDialog.confirm(
+            `${item.aircraft_model} / ${item.name} 템플릿을 삭제하시겠습니까? 삭제하면 복구할 수 없습니다.${dirty ? ' 저장하지 않은 편집 내용도 사라집니다.' : ''}`,
+            { title: '템플릿 삭제', variant: 'danger', confirmText: '삭제', cancelText: '취소' },
+        );
+        if (!confirmed) return;
+        deleteButton.disabled = true;
+        fields.disabled = true;
+        try {
+            const response = await fetch(manager.dataset.apiUrl, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ id: item.id, aircraft_model: item.aircraft_model }),
+            });
+            if (response.redirected) throw new Error('로그인 상태를 확인해 주세요.');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || '템플릿 삭제에 실패했습니다.');
+            dirty = false;
+            showEditor();
+            await refresh();
+            const message = `${data.name} 템플릿을 삭제했습니다.`;
+            showStatus(message, 'success');
+            void window.AppDialog.alert(message, { title: '템플릿 삭제 완료', variant: 'success' });
+        } catch (error) {
+            showStatus(error.message, 'error');
+        } finally {
+            fields.disabled = false;
+            deleteButton.disabled = !selectedId;
         }
     }
 
@@ -225,7 +275,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(data.error || '템플릿 저장에 실패했습니다.');
             dirty = false;
             await refresh(data.id);
-            showStatus(`${data.name} 템플릿을 ${isUpdate ? '수정' : '생성'}했습니다.`, 'success');
+            const message = `${data.name} 템플릿을 ${isUpdate ? '수정' : '생성'}했습니다.`;
+            showStatus(message, 'success');
+            void window.AppDialog.alert(message, {
+                title: isUpdate ? '템플릿 수정 완료' : '템플릿 저장 완료',
+                variant: 'success',
+                confirmText: '확인',
+            });
         } catch (error) {
             showStatus(error.message, 'error');
         } finally {
@@ -279,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('cbTemplateSave').addEventListener('click', () => saveTemplate(false));
     updateButton.addEventListener('click', () => saveTemplate(true));
+    deleteButton.addEventListener('click', deleteTemplate);
     applyButton.addEventListener('click', () => {
         const item = templates.find((template) => String(template.id) === selectedId);
         if (!item) return;
