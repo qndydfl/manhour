@@ -4,8 +4,8 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     /* =====================================================
-       ELEMENTS
-       ===================================================== */
+    ELEMENTS
+    ===================================================== */
 
     const table = document.getElementById("cbOpenListTable");
 
@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       DOCUMENT INFORMATION
-       ===================================================== */
+    DOCUMENT INFORMATION
+    ===================================================== */
 
     const aircraftModelSelect = document.getElementById("cbOpenAircraftModel");
 
@@ -59,8 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const sheetModel = document.getElementById("cbOpenSheetModel");
 
     /* =====================================================
-       TABLE SETTINGS
-       ===================================================== */
+    TABLE SETTINGS
+    ===================================================== */
 
     /*
      * 헤더 글자 크기
@@ -97,8 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const rowHeightValue = document.getElementById("cbOpenTableRowHeightValue");
 
     /* =====================================================
-       DOCUMENT FOOTER SETTINGS
-       ===================================================== */
+    DOCUMENT FOOTER SETTINGS
+    ===================================================== */
 
     const issueDateInput = document.getElementById("cbOpenIssueDate");
 
@@ -118,8 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     /* =====================================================
-       BUTTONS
-       ===================================================== */
+    BUTTONS
+    ===================================================== */
 
     const addRowButton = document.getElementById("cbOpenListAddRow");
 
@@ -138,8 +138,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const settingsSaveButton = document.getElementById("cbOpenSettingsSave");
 
     /* =====================================================
-       CELL SETTINGS
-       ===================================================== */
+    CELL SETTINGS
+    ===================================================== */
 
     const fontDownButton = document.getElementById("cbOpenCellFontDown");
 
@@ -150,8 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const rowResetButton = document.getElementById("cbOpenRowHeightReset");
 
     /* =====================================================
-       COLUMN SETTINGS
-       ===================================================== */
+    COLUMN SETTINGS
+    ===================================================== */
 
     const columnResetButton = document.getElementById("cbOpenColumnWidthReset");
 
@@ -160,8 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     /* =====================================================
-       CONSTANTS
-       ===================================================== */
+    CONSTANTS
+    ===================================================== */
 
     const DEFAULT_ROWS = 16;
 
@@ -292,8 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     /* =====================================================
-       STATE
-       ===================================================== */
+    STATE
+    ===================================================== */
 
     let selectedEditor = null;
 
@@ -304,8 +304,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let printMode = false;
 
     /* =====================================================
-       UTIL
-       ===================================================== */
+    UTIL
+    ===================================================== */
 
     function cleanText(value) {
         return String(value ?? "")
@@ -353,8 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       COLUMN UTIL
-       ===================================================== */
+    COLUMN UTIL
+    ===================================================== */
 
     function getColumnElement(key) {
         return table.querySelector(`col[data-col="${key}"]`);
@@ -425,8 +425,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       DOCUMENT HEADER
-       ===================================================== */
+    DOCUMENT HEADER
+    ===================================================== */
 
     function updateHeader() {
         const aircraft = cleanText(aircraftModelSelect?.value);
@@ -464,8 +464,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       DOCUMENT FOOTER
-       ===================================================== */
+    DOCUMENT FOOTER
+    ===================================================== */
 
     function updateFooter() {
         const issueDate =
@@ -509,8 +509,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       HEADER DIRECT EDIT
-       ===================================================== */
+    HEADER DIRECT EDIT
+    ===================================================== */
 
     function bindEditableHeader(element) {
         if (!element) {
@@ -544,8 +544,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       PLAIN TEXT INSERT
-       ===================================================== */
+    PLAIN TEXT INSERT
+    ===================================================== */
 
     function insertPlainText(text) {
         /*
@@ -587,8 +587,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       TABLE SIZE
-       ===================================================== */
+    TABLE SIZE
+    ===================================================== */
 
     function collectDocumentFonts() {
         return Object.fromEntries(
@@ -670,8 +670,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       CELL SELECT
-       ===================================================== */
+    CELL SELECT
+    ===================================================== */
 
     function selectEditor(editor) {
         table
@@ -688,8 +688,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       CREATE CELL
-       ===================================================== */
+    CREATE CELL
+    ===================================================== */
 
     function createCellEditor(field) {
         const editor = document.createElement("div");
@@ -756,27 +756,148 @@ document.addEventListener("DOMContentLoaded", () => {
         return editor;
     }
 
+    document.addEventListener("click", (event) => {
+        if (
+            event.target.closest(".cb-open-number-cell") ||
+            event.target.closest(".cb-open-row-delete-btn")
+        ) {
+            return;
+        }
+
+        tableBody
+            .querySelectorAll(".cb-open-row-delete-btn")
+            .forEach((button) => {
+                button.hidden = true;
+            });
+    });
+
     /* =====================================================
-       CREATE ROW
-       ===================================================== */
+    CREATE ROW
+    ===================================================== */
 
     function createRow(number) {
         const row = document.createElement("tr");
 
         /*
-         * NO
-         */
+        * =====================================================
+        * NO
+        * =====================================================
+        */
         const noCell = document.createElement("td");
 
         noCell.className = "cb-open-number-cell";
-
         noCell.textContent = number;
+        noCell.title = "클릭하면 이 줄을 삭제할 수 있습니다";
+
+        /*
+        * NO 클릭
+        * → 삭제 확인 메시지
+        */
+        noCell.addEventListener("click", async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            /*
+            * 현재 행 번호 다시 계산
+            *
+            * 행이 삭제되거나 추가된 이후에도
+            * 실제 현재 위치를 기준으로 번호 계산
+            */
+            const currentNumber =
+                Array.from(tableBody.children).indexOf(row) + 1;
+
+            /*
+            * 삭제 확인
+            */
+            const confirmed = await window.AppDialog.confirm(
+                `${currentNumber}번 줄을 삭제하시겠습니까?`,
+                {
+                    title: "줄 삭제",
+                    variant: "danger",
+                    confirmText: "삭제",
+                },
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            /*
+            * 현재 선택 중인 editor가
+            * 삭제하는 행 안에 있으면 초기화
+            */
+            if (
+                selectedEditor &&
+                row.contains(selectedEditor)
+            ) {
+                selectedEditor = null;
+            }
+
+            /*
+            * 현재 행 삭제
+            */
+            row.remove();
+
+            /*
+            * 모든 행이 없어졌다면
+            * 최소 1행 생성
+            */
+            if (!tableBody.children.length) {
+                ensureRows(1);
+            }
+
+            /*
+            * 행 번호 다시 정렬
+            *
+            * 예:
+            * 1
+            * 2 ← 삭제
+            * 3
+            * 4
+            *
+            * ↓
+            *
+            * 1
+            * 2
+            * 3
+            */
+            updateRowNumbers();
+
+            /*
+            * 자동 위치 표시 다시 계산
+            */
+            refreshAutomaticLocationMarks();
+
+            /*
+            * 표 크기 다시 계산
+            */
+            updateTableSizing();
+
+            /*
+            * A4 화면 배율 다시 계산
+            */
+            scheduleSheetScale();
+
+            /*
+            * 현재 상태 바로 저장
+            */
+            saveWorkspace();
+
+            /*
+            * 저장 완료 메시지
+            */
+            showSaveMessage(
+                `${currentNumber}번 줄을 삭제했습니다.`,
+            );
+        });
 
         row.appendChild(noCell);
 
         /*
-         * editable cells
-         */
+        * =====================================================
+        * EDITABLE CELLS
+        * =====================================================
+        */
         TABLE_FIELDS.forEach((field) => {
             const td = document.createElement("td");
 
@@ -788,9 +909,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         /*
-         * 마지막 CONFIRM 셀에
-         * 행 높이 조절 handle
-         */
+        * =====================================================
+        * 마지막 CONFIRM 셀에
+        * 행 높이 조절 handle
+        * =====================================================
+        */
         const lastCell = row.lastElementChild;
 
         if (lastCell) {
@@ -807,8 +930,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       ROW MANAGEMENT
-       ===================================================== */
+    ROW MANAGEMENT
+    ===================================================== */
 
     function ensureRows(count) {
         while (tableBody.children.length < count) {
@@ -823,9 +946,27 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateRowNumbers() {
         Array.from(tableBody.children).forEach((row, index) => {
             const numberCell = row.querySelector(".cb-open-number-cell");
+            const numberText = row.querySelector(".cb-open-row-number");
+            const deleteButton = row.querySelector(
+                ".cb-open-row-delete-btn",
+            );
+
+            const number = index + 1;
 
             if (numberCell) {
-                numberCell.textContent = index + 1;
+                numberCell.dataset.rowNumber = number;
+            }
+
+            if (numberText) {
+                numberText.textContent = number;
+            }
+
+            if (deleteButton) {
+                deleteButton.title = `${number}번 줄 삭제`;
+                deleteButton.setAttribute(
+                    "aria-label",
+                    `${number}번 줄 삭제`,
+                );
             }
         });
     }
@@ -930,8 +1071,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       ROW RESIZE
-       ===================================================== */
+    ROW RESIZE
+    ===================================================== */
 
     function bindRowResize(row, handle) {
         handle.addEventListener("pointerdown", (event) => {
@@ -970,8 +1111,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       COLUMN RESIZE
-       ===================================================== */
+    COLUMN RESIZE
+    ===================================================== */
 
     function initColumnResize() {
         const handles = table.querySelectorAll(".cb-open-col-resizer");
@@ -1024,8 +1165,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       SET CELL VALUE
-       ===================================================== */
+    SET CELL VALUE
+    ===================================================== */
 
     function setCellValue(row, field, value) {
         const editor = row.querySelector(`[data-field="${field}"]`);
@@ -1044,8 +1185,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       CLIPBOARD AUTO MAP
-       ===================================================== */
+    CLIPBOARD AUTO MAP
+    ===================================================== */
 
     function applyClipboardText(rawText, startRow = 0, format = "auto") {
         let records;
@@ -1160,8 +1301,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       SELECTED CELL FONT
-       ===================================================== */
+    SELECTED CELL FONT
+    ===================================================== */
 
     function changeSelectedFont(amount) {
         if (!selectedEditor) {
@@ -1384,8 +1525,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       COLLECT WORKSPACE DATA
-       ===================================================== */
+    COLLECT WORKSPACE DATA
+    ===================================================== */
 
     function collectWorkspaceData() {
         /*
@@ -2179,8 +2320,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* =====================================================
-       EVENTS — CELL FONT
-       ===================================================== */
+    EVENTS — CELL FONT
+    ===================================================== */
 
     if (fontDownButton) {
         fontDownButton.addEventListener("click", () => {
@@ -2299,8 +2440,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
     /* =====================================================
-       TABLE DIRECT PASTE
-       ===================================================== */
+    TABLE DIRECT PASTE
+    ===================================================== */
 
     tableBody.addEventListener("paste", (event) => {
         const editor = event.target.closest(".cb-open-cell-editor");
