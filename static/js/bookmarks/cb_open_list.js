@@ -851,18 +851,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const etc = row.querySelector('[data-field="etc"]');
         const isSSPC = cbLocValue.includes("SSPC");
         const isA350OrA380 = aircraft === "A350" || aircraft === "A380";
+        const isBoeing = aircraft.startsWith("B");
 
-        if (cockpit) cockpit.textContent = panelValue === "P11" ? "V" : "";
-        if (etc) etc.textContent = isSSPC ? "V" : "";
-        if (ee) {
-            ee.textContent =
-                isA350OrA380 && cbLocValue && !isSSPC ? "V" : "";
+        if (isBoeing) {
+            if (cockpit) cockpit.textContent = panelValue === "P11" ? "V" : "";
+            if (ee) ee.textContent = panelValue && panelValue !== "P11" ? "V" : "";
+            if (etc) etc.textContent = "";
+        } else {
+            if (cockpit) cockpit.textContent = "";
+            if (etc) etc.textContent = isSSPC ? "V" : "";
+            if (ee) {
+                ee.textContent =
+                    isA350OrA380 && cbLocValue && !isSSPC ? "V" : "";
+            }
         }
     }
 
     function refreshAutomaticLocationMarks() {
         Array.from(tableBody.children).forEach(updateAutomaticLocationMarks);
-    }
+    }    
 
     function rowHasData(row) {
         return Array.from(row.querySelectorAll(".cb-open-cell-editor")).some(
@@ -2003,7 +2010,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (gibunInput) {
-        gibunInput.addEventListener("input", updateHeader);
+        gibunInput.addEventListener("input", () => {
+            updateHeader();
+        });
     }
 
     if (headerTitleInput) {
@@ -2205,80 +2214,89 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    
     /* =====================================================
-       PASTE SOURCE
-       ===================================================== */
+    PASTE SOURCE
+    ===================================================== */
+
+    /*
+    * textarea에 붙여넣을 때는
+    * 아무 작업도 하지 않습니다.
+    *
+    * Ctrl + V → textarea 안에만 데이터 표시
+    * 입력 저장 클릭 → 실제 표에 반영
+    */
 
     document
         .getElementById("cbOpenManualImport")
         ?.addEventListener("click", () => {
-            if (!validateRequiredDocumentInfo()) return;
-            if (!pasteSource.value.trim()) {
-                alert("쉼표로 구분한 데이터를 먼저 입력해 주세요.");
+            /*
+            * =========================================
+            * 기종 / 기번 확인
+            * =========================================
+            */
+            if (!validateRequiredDocumentInfo()) {
                 return;
             }
+
+            const text = pasteSource.value;
+
+            /*
+            * =========================================
+            * 입력 데이터 확인
+            * =========================================
+            */
+            if (!cleanText(text)) {
+                alert("표 데이터를 먼저 붙여넣어 주세요.");
+                pasteSource.focus();
+                return;
+            }
+
+            /*
+            * =========================================
+            * Airbus / Boeing 데이터 자동 판별
+            * =========================================
+            *
+            * TAB이 포함된 복사 표:
+            *   Airbus 표 형식으로 자동 처리
+            *
+            * 쉼표 직접 입력:
+            *   Boeing 수동 입력으로 처리
+            */
+            const isTableData =
+                text.includes("\t") ||
+                /Row\s+Col(?:umn)?\s+Number\s+Name/i.test(text);
+
+            const mode = isTableData
+                ? "auto"
+                : "boeing-manual";
+
+            /*
+            * =========================================
+            * 기존 데이터 다음 행부터 추가
+            * =========================================
+            */
+            const startRow = getNextPasteRowIndex();
+
             const count = applyClipboardText(
-                pasteSource.value,
-                getNextPasteRowIndex(),
-                "boeing-manual",
+                text,
+                startRow,
+                mode,
             );
+
+            /*
+            * =========================================
+            * 정상 입력 완료
+            * =========================================
+            */
             if (count) {
                 pasteSource.value = "";
+
                 saveWorkspace();
+
+                pasteSource.focus();
             }
         });
-
-    pasteSource.addEventListener("paste", (event) => {
-        const clipboardText = event.clipboardData.getData("text/plain");
-        // Leave comma input in the editor so the user can finish it before saving.
-        if (
-            pasteSource.value.trim() ||
-            (!clipboardText.includes("\t") &&
-                !/Row\s+Col(?:umn)?\s+Number\s+Name/i.test(clipboardText))
-        )
-            return;
-        /*
-         * =========================================
-         * 기종 / 기번 검사
-         * =========================================
-         *
-         * 표 데이터 붙여넣기는
-         * 기종 / 기번 입력 후 가능
-         */
-        if (!validateRequiredDocumentInfo()) {
-            event.preventDefault();
-
-            pasteSource.value = "";
-
-            return;
-        }
-
-        /*
-         * 브라우저 기본 붙여넣기 방지
-         */
-        event.preventDefault();
-
-        const text = event.clipboardData.getData("text/plain");
-
-        if (!cleanText(text)) {
-            return;
-        }
-
-        /*
-         * =========================================
-         * 기존 데이터 다음 행부터 추가
-         * =========================================
-         */
-        const startRow = getNextPasteRowIndex();
-
-        applyClipboardText(text, startRow);
-
-        /*
-         * 붙여넣기 입력창은
-         * 다시 비워둠
-         */
-        pasteSource.value = "";
-    });
 
     /* =====================================================
        TABLE DIRECT PASTE

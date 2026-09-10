@@ -16,7 +16,7 @@
 <script defer src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260910-18"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260910-19"
 ></script>
 {% endblock js %} 
 
@@ -200,7 +200,8 @@
                 </strong>
 
                 <small>
-                    Airbus 표는 Ctrl + V로 붙여넣으세요. Boeing은 쉼표로 직접 입력한 후 입력 저장을 누르세요.
+                    Airbus 표 또는 Boeing 데이터를 붙여넣은 후
+                    입력 하기 버튼을 누르면 C/B 표에 추가됩니다.
                 </small>
             </div>
 
@@ -220,9 +221,9 @@
             placeholder="예: P110, P 23, , L ENG T/R CTRL&#10;여러 건은 한 줄에 하나씩 입력하세요."
         ></textarea>
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
-            <small class="text-secondary">FIN이 없으면 쉼표 사이를 비워 주세요. 입력 저장 시 표에 추가하고 이 브라우저에 저장합니다.</small>
+            <small class="text-secondary">FIN이 없으면 쉼표 사이를 비워 주세요. 입력 하기 버튼 클릭시 표에 추가하고 이 브라우저에 저장합니다.</small>
             <button type="button" id="cbOpenManualImport" class="btn btn-primary btn-sm">
-                <i class="bi bi-floppy me-1"></i>입력 저장
+                <i class="bi bi-floppy me-1"></i>입력 하기
             </button>
         </div>
     </section>

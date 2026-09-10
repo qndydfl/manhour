@@ -266,12 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dirty = true;
         rowsBody.lastElementChild.querySelector('input, textarea').focus();
     });
-    pasteSource.addEventListener('paste', (event) => {
-        const text = event.clipboardData.getData('text/plain');
-        if (!text.trim()) return;
-        event.preventDefault();
-        if (importPastedRows(text)) pasteSource.value = '';
-    });
     pasteImportButton.addEventListener('click', () => {
         if (importPastedRows(pasteSource.value)) pasteSource.value = '';
     });
