@@ -8,7 +8,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260909-9"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260910-15"
 />
 {% endblock css %} 
 
@@ -16,7 +16,7 @@
 <script defer src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260910-14"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260910-18"
 ></script>
 {% endblock js %} 
 
@@ -181,6 +181,7 @@
         </div>
         <div class="cb-open-template-actions">
             <select id="cbOpenTemplateSelect" class="form-select form-select-sm" aria-label="기본 템플릿 선택"></select>
+            <span id="cbOpenTemplateCount" class="cb-open-template-count" hidden></span>
             <button id="cbOpenTemplateLoad" type="button" class="btn btn-primary btn-sm" disabled>
                 <i class="bi bi-download me-1"></i>불러오기
             </button>

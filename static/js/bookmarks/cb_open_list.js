@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const templateLoadButton = document.getElementById("cbOpenTemplateLoad");
 
+    const templateCount = document.getElementById("cbOpenTemplateCount");
+
     const templateStatus = document.getElementById("cbOpenTemplateStatus");
 
     let availableTemplates = [];
@@ -1095,6 +1097,10 @@ document.addEventListener("DOMContentLoaded", () => {
         availableTemplates = [];
         templateSelect.replaceChildren();
         templateLoadButton.disabled = true;
+        if (templateCount) {
+            templateCount.hidden = true;
+            templateCount.textContent = "";
+        }
         if (!aircraft) {
             templatePicker.hidden = true;
             return;
@@ -1124,7 +1130,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             });
             templateLoadButton.disabled = false;
-            templateStatus.textContent = `${availableTemplates.length}개의 템플릿이 있습니다. 선택 후 불러오기를 누르세요.`;
+            if (templateCount) {
+                templateCount.textContent = String(availableTemplates.length) + "개";
+                templateCount.hidden = false;
+            }
+            templateStatus.textContent = "사용할 템플릿을 선택한 후 불러오기를 누르세요.";
         } catch (error) {
             if (requestId !== templateRequestId) return;
             templateSelect.add(new Option("템플릿을 불러올 수 없음", ""));
@@ -1246,6 +1256,67 @@ document.addEventListener("DOMContentLoaded", () => {
         if (printMode) return;
         window.cancelAnimationFrame(sheetScaleFrame);
         sheetScaleFrame = window.requestAnimationFrame(scaleSheetToViewport);
+    }
+
+    function removePrintPageFurniture() {
+        document.querySelector(".cb-print-pages")?.remove();
+    }
+
+    function createPrintPageFurniture() {
+        removePrintPageFurniture();
+        const sourceHeader = sheet.querySelector(".cb-open-sheet-header");
+        const sourceFooter = sheet.querySelector(".cb-open-sheet-footer");
+        if (!sourceHeader || !sourceFooter) return;
+        const rowsPerPage = 16;
+        const sourceRows = Array.from(tableBody.children);
+        const pageCount = Math.max(1, Math.ceil(sourceRows.length / rowsPerPage));
+        const pages = document.createElement("div");
+        pages.className = "cb-print-pages";
+        const customProperties = [
+            "--cb-document-aircraft-font",
+            "--cb-document-title-font",
+            "--cb-document-model-font",
+            "--cb-document-issue-font",
+            "--cb-document-company-font",
+            "--cb-document-number-font",
+            "--cb-header-font",
+            "--cb-body-font",
+            "--cb-header-padding",
+            "--cb-row-height",
+        ];
+
+        for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+            const page = document.createElement("section");
+            page.className = "cb-print-page";
+            customProperties.forEach((property) => {
+                page.style.setProperty(property, getComputedStyle(sheet).getPropertyValue(property));
+            });
+            const header = sourceHeader.cloneNode(true);
+            const printTable = table.cloneNode(true);
+            printTable.removeAttribute("id");
+            const printBody = printTable.querySelector("tbody");
+            const footer = sourceFooter.cloneNode(true);
+            printBody.replaceChildren();
+
+            for (let rowIndex = 0; rowIndex < rowsPerPage; rowIndex += 1) {
+                const sourceIndex = pageIndex * rowsPerPage + rowIndex;
+                const row = sourceRows[sourceIndex]
+                    ? sourceRows[sourceIndex].cloneNode(true)
+                    : createRow(rowIndex + 1);
+                const numberCell = row.querySelector(".cb-open-number-cell");
+                if (numberCell) numberCell.textContent = String(rowIndex + 1);
+                printBody.appendChild(row);
+            }
+
+            [header, printTable, footer].forEach((element) => {
+                element.querySelectorAll("[id]").forEach((child) => child.removeAttribute("id"));
+                element.querySelectorAll("[contenteditable]").forEach((child) => child.removeAttribute("contenteditable"));
+                element.querySelectorAll(".cb-open-col-resizer, .cb-open-row-resizer").forEach((child) => child.remove());
+            });
+            page.append(header, printTable, footer);
+            pages.appendChild(page);
+        }
+        document.body.appendChild(pages);
     }
 
     /* =====================================================
@@ -2085,9 +2156,11 @@ document.addEventListener("DOMContentLoaded", () => {
         window.cancelAnimationFrame(sheetScaleFrame);
         sheet.style.removeProperty("zoom");
         fitTableToA4();
+        createPrintPageFurniture();
     });
 
     window.addEventListener("afterprint", () => {
+        removePrintPageFurniture();
         printMode = false;
         scheduleSheetScale();
     });

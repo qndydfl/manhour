@@ -494,6 +494,20 @@ body.cb-open-body {
 .cb-open-template-actions .form-select {
     min-width: 0;
 }
+.cb-open-template-count {
+    flex: 0 0 auto;
+    padding: 5px 9px;
+    border: 1px solid #93b4d5;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.cb-open-template-count[hidden] {
+    display: none !important;
+}
 .cb-open-template-actions .btn {
     flex: 0 0 auto;
 }
@@ -2090,6 +2104,10 @@ ROW RESIZER
    PRINT PAGE
    ========================================================= */
 
+.cb-print-pages {
+    display: none;
+}
+
 @page {
     size: A4 landscape;
 
@@ -2133,13 +2151,38 @@ ROW RESIZER
     }
 
     .cb-open-page {
-        width: 100% !important;
+        display: none !important;
+    }
 
-        max-width: none !important;
+    .cb-print-pages {
+        display: block !important;
+        width: 100%;
+    }
 
-        margin: 0 !important;
+    .cb-print-page {
+        width: 285mm;
+        height: 198mm;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        page-break-after: always;
+        break-after: page;
+        background: #ffffff;
+    }
 
-        padding: 0 !important;
+    .cb-print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
+    .cb-print-page > .cb-open-sheet-header {
+        width: 100%;
+        min-height: 14mm;
+        margin: 0 0 3mm;
+        padding: 1mm 0 1.5mm;
+        border-bottom: 0.2mm solid #7c8794;
+        background: #ffffff;
     }
 
     .cb-open-sheet-stage {
@@ -2181,8 +2224,23 @@ ROW RESIZER
         box-shadow: none !important;
     }
 
-    .cb-open-sheet-header {
-        margin-bottom: 3mm;
+    .cb-open-sheet > .cb-open-sheet-header {
+        display: none !important;
+    }
+
+    .cb-print-page-header-row > th {
+        padding: 0 0 3mm !important;
+        border: 0 !important;
+        background: #ffffff !important;
+    }
+
+    .cb-print-page-header-row .cb-open-sheet-header {
+        width: 100%;
+        min-height: 14mm;
+        margin: 0;
+        padding: 1mm 0 1.5mm;
+        border-bottom: 0.2mm solid #7c8794;
+        background: #ffffff;
     }
 
     .cb-open-table-wrap {
@@ -2237,18 +2295,92 @@ ROW RESIZER
     /*
      * Footer
      */
-    .cb-open-sheet-footer {
-        margin-top: 3mm;
+    .cb-open-sheet > .cb-open-sheet-footer {
+        display: none !important;
+    }
 
-        padding-top: 1mm;
+    .cb-open-table tfoot {
+        display: table-footer-group;
+    }
+
+    .cb-open-table tfoot td {
+        padding: 3mm 0 0 !important;
+        border: 0 !important;
+        background: #ffffff !important;
+    }
+
+    .cb-print-page-footer {
+        width: 100%;
+        min-height: 8mm;
+        margin: 0;
+        padding: 1.5mm 0 0;
+        border-top: 0.2mm solid #7c8794;
+        background: #ffffff;
 
         color: #000000;
 
         font-size: 8.5pt;
     }
 
-    .cb-open-footer-center {
+    .cb-print-page-footer .cb-open-footer-center {
         font-weight: 700;
+    }
+
+    .cb-print-page-header-row .cb-open-aircraft-number {
+        font-size: var(--cb-document-aircraft-font, 18px);
+    }
+
+    .cb-print-page-header-row .cb-open-main-title {
+        font-size: var(--cb-document-title-font, 22px);
+    }
+
+    .cb-print-page-header-row .cb-open-model-title {
+        font-size: var(--cb-document-model-font, 13px);
+    }
+
+    .cb-print-page-footer .cb-open-footer-left {
+        font-size: var(--cb-document-issue-font, 12px);
+    }
+
+    .cb-print-page-footer .cb-open-footer-center {
+        font-size: var(--cb-document-company-font, 14px);
+    }
+
+    .cb-print-page-footer .cb-open-footer-right {
+        font-size: var(--cb-document-number-font, 12px);
+    }
+
+    .cb-print-page > .cb-open-sheet-footer {
+        width: 100%;
+        min-height: 8mm;
+        margin: auto 0 0;
+        padding: 1.5mm 0 0;
+        border-top: 0.2mm solid #7c8794;
+        background: #ffffff;
+    }
+
+    .cb-print-page .cb-open-aircraft-number {
+        font-size: var(--cb-document-aircraft-font, 18px);
+    }
+
+    .cb-print-page .cb-open-main-title {
+        font-size: var(--cb-document-title-font, 22px);
+    }
+
+    .cb-print-page .cb-open-model-title {
+        font-size: var(--cb-document-model-font, 13px);
+    }
+
+    .cb-print-page .cb-open-footer-left {
+        font-size: var(--cb-document-issue-font, 12px);
+    }
+
+    .cb-print-page .cb-open-footer-center {
+        font-size: var(--cb-document-company-font, 14px);
+    }
+
+    .cb-print-page .cb-open-footer-right {
+        font-size: var(--cb-document-number-font, 12px);
     }
 
     /*
