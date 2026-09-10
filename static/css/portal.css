@@ -1118,57 +1118,56 @@ WORKSPACE CARDS
 .portal-link-card {
     min-width: 0;
     padding: 15px 13px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 16px;
-
     border: 1px solid var(--portal-border-soft);
-
     border-radius: 14px;
-
     background: #ffffff;
-
     color: var(--portal-text);
-
     text-decoration: none;
-
     transition: 0.2s ease;
+}
+
+.portal-link-card.first {
+    background: #1f4872;    
+}
+
+.portal-link-card.first strong, 
+.portal-link-card.first small {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.portal-link-card.first i {
+    color: #ffffff !important;
 }
 
 .portal-link-card:hover {
     color: var(--portal-text);
-
     transform: translateY(-3px);
-
     border-color: #cbd5e1;
 }
 
 .portal-link-left {
     display: flex;
-
     align-items: center;
-
     gap: 12px;
 }
 
 .portal-link-icon {
     width: 39px;
     height: 39px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     border-radius: 10px;
-
     background: #f1f5f9;
+}
+
+.portal-link-icon.first {
+    background: #505963;
 }
 
 .portal-link-card strong {
@@ -1184,7 +1183,7 @@ WORKSPACE CARDS
 }
 
 /* =========================================================
-   TOAST
+TOAST
 ========================================================= */
 
 .portal-toast-container {

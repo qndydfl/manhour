@@ -4,59 +4,503 @@
     --cb-template-surface: #f7f9fc;
 }
 
-.cb-template-manage-body { background: #e9eff5; color: #172033; }
-.cb-template-page { min-height: 100vh; padding-inline: clamp(16px, 3vw, 36px); }
-.cb-template-card { max-width: 1320px; margin: 0 auto; padding: clamp(18px, 3vw, 32px); border: 1px solid var(--cb-template-border); border-radius: 18px; background: var(--cb-template-surface); box-shadow: 0 14px 36px rgba(51, 65, 85, .1); }
-.cb-template-heading, .cb-template-table-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.cb-template-heading { padding-bottom: 22px; border-bottom: 1px solid var(--cb-template-border); }
-.assignment-topbar-btn:disabled { opacity: .45; cursor: not-allowed; }
-.cb-aircraft-settings { --bs-offcanvas-width: min(410px, 100vw); background: #111d2d; color: #e5edf7; }
-.cb-aircraft-settings-header { padding: 20px; background: #0b1624; border-bottom: 1px solid rgba(255, 255, 255, .1); }
-.cb-aircraft-settings-header h5 { font-size: 1rem; font-weight: 800; }
-.cb-aircraft-settings-header small { color: #94a3b8; font-size: .78rem; }
-.cb-aircraft-settings-body { padding: 18px; }
-.cb-aircraft-settings-section { padding: 16px; border: 1px solid rgba(148, 163, 184, .2); border-radius: 12px; background: #182638; }
-.cb-aircraft-settings-section + .cb-aircraft-settings-section { margin-top: 12px; }
-.cb-aircraft-settings-section .form-label { color: #dbe7f4; font-size: .82rem; font-weight: 700; }
-.cb-aircraft-settings-section .form-text { color: #8fa2b8; }
-.cb-aircraft-settings-notice { display: flex; gap: 9px; margin-top: 14px; padding: 12px; border-radius: 10px; background: rgba(220, 38, 38, .12); color: #fecaca; font-size: .78rem; line-height: 1.5; }
-.cb-aircraft-settings-status { min-height: 22px; margin: 14px 2px 0; color: #cbd5e1; font-size: .8rem; font-weight: 700; }
-.cb-aircraft-settings-status.is-error { color: #fca5a5; }
-.cb-aircraft-settings-status.is-success { color: #6ee7b7; }
-.cb-template-eyebrow { margin: 0 0 4px; color: #2563eb; font-size: .72rem; font-weight: 800; letter-spacing: .12em; }
-.cb-template-heading h1 { margin: 0; font-size: clamp(1.25rem, 2vw, 1.75rem); }
-.cb-template-heading p:not(.cb-template-eyebrow), .cb-template-table-heading p { margin: 6px 0 0; color: #64748b; font-size: .88rem; }
-.cb-template-controls { padding: 22px 0; }
-.cb-template-paste { margin-bottom: 20px; padding: 14px; border: 1px solid #c7d6e5; border-radius: 12px; background: #edf4fa; }
-.cb-template-paste-heading { margin-bottom: 9px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.cb-template-paste-heading > div { display: grid; gap: 2px; }
-.cb-template-paste-heading strong { color: #1e3a5f; font-size: .9rem; }
-.cb-template-paste-heading small, .cb-template-paste-help { color: #64748b; font-size: .76rem; }
-.cb-template-paste textarea { min-height: 76px; resize: vertical; font-size: .84rem; }
-.cb-template-paste-help { display: block; margin-top: 6px; }
-
-.cb-template-controls .form-label{ 
-    font-size: .9rem; 
-    font-weight: 700; 
+.cb-template-manage-body {
+    background: #e9eff5;
+    color: #172033;
 }
-.cb-template-table-heading { margin-bottom: 10px; }
-.cb-template-table-heading h2 { margin: 0; font-size: 1.05rem; }
-.cb-template-table-wrap { border: 1px solid var(--cb-template-border); border-radius: 12px; background: #fff; }
-.cb-template-editor { min-width: 720px; }
-.cb-template-editor th { padding: 10px; background: #e5edf6; color: #334155; white-space: nowrap; font-size: .88rem; text-align: center; }
-.cb-template-editor th:nth-child(4) { width: 42%; }
-.cb-template-editor td { padding: 7px; background: #fff; }
-.cb-template-editor .form-control { min-width: 90px; font-size: .88rem; }
-.cb-template-editor textarea { min-height: 40px; resize: vertical; }
 
-.cb-template-status { min-height: 24px; margin: 14px 0 0; color: #475569; font-size: .84rem; font-weight: 600; }
-.cb-template-status.is-error { color: #b42318; }
-.cb-template-status.is-success { color: #047857; }
+.cb-template-page {
+    min-height: 100vh;
+    padding-inline: clamp(16px, 3vw, 36px);
+}
+
+.cb-template-card {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: clamp(18px, 3vw, 32px);
+    border: 1px solid var(--cb-template-border);
+    border-radius: 18px;
+    background: var(--cb-template-surface);
+    box-shadow: 0 14px 36px rgba(51, 65, 85, 0.1);
+}
+
+.cb-template-heading,
+.cb-template-table-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.cb-template-heading {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--cb-template-border);
+}
+
+.assignment-topbar-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.cb-template-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.cb-template-heading h1 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.cb-template-heading p:not(.cb-template-eyebrow),
+.cb-template-table-heading p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 0.88rem;
+}
+
+.cb-template-controls {
+    padding: 22px 0;
+}
+
+.cb-template-paste {
+    margin-bottom: 20px;
+    padding: 14px;
+    border: 1px solid #c7d6e5;
+    border-radius: 12px;
+    background: #edf4fa;
+}
+
+.cb-template-paste-heading {
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cb-template-paste-heading > div {
+    display: grid;
+    gap: 2px;
+}
+
+.cb-template-paste-heading strong {
+    color: #1e3a5f;
+    font-size: 0.9rem;
+}
+
+.cb-template-paste-heading small,
+.cb-template-paste-help {
+    color: #64748b;
+    font-size: 0.76rem;
+}
+
+.cb-template-paste textarea {
+    min-height: 76px;
+    resize: vertical;
+    font-size: 0.84rem;
+}
+
+.cb-template-paste-help {
+    display: block;
+    margin-top: 6px;
+}
+
+.cb-template-controls .form-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.cb-template-table-heading {
+    margin-bottom: 10px;
+}
+
+.cb-template-table-heading h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.cb-template-table-wrap {
+    border: 1px solid var(--cb-template-border);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.cb-template-editor {
+    min-width: 720px;
+}
+
+.cb-template-editor th {
+    padding: 10px;
+    background: #e5edf6;
+    color: #334155;
+    white-space: nowrap;
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+.cb-template-editor th:nth-child(4) {
+    width: 42%;
+}
+
+.cb-template-editor td {
+    padding: 7px;
+    background: #fff;
+}
+
+.cb-template-editor .form-control {
+    min-width: 90px;
+    font-size: 0.88rem;
+}
+
+.cb-template-editor textarea {
+    min-height: 40px;
+    resize: vertical;
+}
+
+.cb-template-status {
+    min-height: 24px;
+    margin: 14px 0 0;
+    color: #475569;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.cb-template-status.is-error {
+    color: #b42318;
+}
+
+.cb-template-status.is-success {
+    color: #047857;
+}
 
 @media (max-width: 767.98px) {
-    .cb-template-page { min-height: 100vh; padding-inline: 12px; }
-    .cb-template-card { padding: 15px; border-radius: 14px; }
-    .cb-template-heading { align-items: flex-start; }
-    .cb-template-heading p:not(.cb-template-eyebrow) { display: none; }
-    .cb-template-paste-heading { align-items: stretch; flex-direction: column; }
+    .cb-template-page {
+        min-height: 100vh;
+        padding-inline: 12px;
+    }
+    .cb-template-card {
+        padding: 15px;
+        border-radius: 14px;
+    }
+    .cb-template-heading {
+        align-items: flex-start;
+    }
+    .cb-template-heading p:not(.cb-template-eyebrow) {
+        display: none;
+    }
+    .cb-template-paste-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+/* =========================================================
+AIRCRAFT SETTINGS OFFCANVAS
+cb_open_list 설정 사이드바와 동일한 스타일
+========================================================= */
+
+.cb-aircraft-settings {
+    --bs-offcanvas-width: min(440px, 96vw);
+    background: #eef4f9;
+    border-left: 1px solid #b9c8d8;
+    box-shadow:
+        -12px 0 40px
+        rgba(15, 23, 42, 0.16);
+
+    color: #172033;
+}
+
+
+/* =========================================================
+SETTINGS HEADER
+========================================================= */
+
+.cb-aircraft-settings-header {
+    min-height: 82px;
+    padding: 16px 18px;
+    background:
+        linear-gradient(
+            135deg,
+            #07111f 0%,
+            #10243d 100%
+        );
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.1);
+
+    color: #ffffff;
+}
+
+
+/*
+ * 제목
+ */
+.cb-aircraft-settings-header h5,
+.cb-aircraft-settings-header .offcanvas-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+
+/*
+ * 제목 밑 설명
+ */
+.cb-aircraft-settings-header small {
+    display: block;
+    margin-top: 3px;
+    color: #b6c5d8;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+/*
+ * 닫기 버튼
+ */
+.cb-aircraft-settings-header .btn-close {
+    flex: 0 0 auto;
+    opacity: 0.8;
+}
+
+.cb-aircraft-settings-header .btn-close:hover {
+    opacity: 1;
+}
+
+
+/* =========================================================
+SETTINGS BODY
+========================================================= */
+
+.cb-aircraft-settings-body {
+    padding: 16px;
+    background: #eef4f9;
+    scrollbar-width: thin;
+    scrollbar-color:
+        #b9c7d5
+        transparent;
+}
+
+
+/*
+ * Chrome / Edge scrollbar
+ */
+.cb-aircraft-settings-body::-webkit-scrollbar {
+    width: 7px;
+}
+
+.cb-aircraft-settings-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cb-aircraft-settings-body::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+
+    background: #b9c7d5;
+}
+
+
+/* =========================================================
+SETTINGS SECTION
+========================================================= */
+
+.cb-aircraft-settings-section {
+    margin: 0 0 12px;
+    padding: 16px;
+    background: #ffffff;
+    border:
+        1px solid
+        #ccd8e5;
+
+    border-radius: 13px;
+    box-shadow:
+        0 5px 16px
+        rgba(15, 23, 42, 0.045);
+}
+
+
+/*
+ * 기존 + selector 제거
+ */
+.cb-aircraft-settings-section
++ .cb-aircraft-settings-section {
+    margin-top: 0;
+}
+
+
+.cb-aircraft-settings-section:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+FORM LABEL
+========================================================= */
+
+.cb-aircraft-settings-section .form-label {
+    margin-bottom: 6px;
+    color: #334155;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+INPUT / SELECT
+========================================================= */
+
+.cb-aircraft-settings-section .form-control,
+.cb-aircraft-settings-section .form-select {
+    min-height: 38px;
+    border:
+        1px solid
+        #c7d3df;
+
+    border-radius: 8px;
+    background: #ffffff;
+    color: #172033;
+    font-size: 0.84rem;
+    box-shadow: none;
+}
+
+
+.cb-aircraft-settings-section .form-control:focus,
+.cb-aircraft-settings-section .form-select:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59, 130, 246, 0.12);
+}
+
+
+/* =========================================================
+FORM TEXT
+========================================================= */
+
+.cb-aircraft-settings-section .form-text {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+.cb-aircraft-settings-section button {
+    font-size: 0.82rem;
+    color: #172033;
+}
+
+/* =========================================================
+NOTICE
+========================================================= */
+
+.cb-aircraft-settings-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 14px;
+    padding: 12px;
+    border:
+        1px solid
+        #fecaca;
+
+    border-radius: 10px;
+    background: #fff7f7;
+    color: #b42318;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+
+.cb-aircraft-settings-notice i {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    color: #dc2626;
+}
+
+
+/* =========================================================
+STATUS MESSAGE
+========================================================= */
+
+.cb-aircraft-settings-status {
+    min-height: 22px;
+    margin: 14px 2px 0;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+
+.cb-aircraft-settings-status.is-error {
+    color: #b42318;
+}
+
+
+.cb-aircraft-settings-status.is-success {
+    color: #047857;
+}
+
+
+/* =========================================================
+BUTTONS
+========================================================= */
+
+.cb-aircraft-settings .btn-primary {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+
+.cb-aircraft-settings .btn-primary:hover {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+}
+
+
+.cb-aircraft-settings .btn-outline-danger {
+    border-color: #dc2626;
+    color: #dc2626;
+    font-weight: 700;
+}
+
+
+.cb-aircraft-settings .btn-outline-danger:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+MOBILE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .cb-aircraft-settings {
+        --bs-offcanvas-width: 100vw;
+    }
+
+    .cb-aircraft-settings-header {
+        min-height: 72px;
+
+        padding: 13px 14px;
+    }
+
+    .cb-aircraft-settings-body {
+        padding: 10px;
+    }
+
+    .cb-aircraft-settings-section {
+        padding: 13px;
+    }
 }
