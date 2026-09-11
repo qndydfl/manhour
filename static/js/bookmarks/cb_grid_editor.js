@@ -37,7 +37,10 @@ window.CBGridEditor = class {
         hint.textContent =
             "범위 선택 후 시작·끝 셀을 클릭하세요. 병합하면 왼쪽 위 셀만 표시되며, 해제하면 원래 내용이 복원됩니다.";
         this.toolbar.append(hint);
-        toolbarHost.before(this.toolbar);
+        this.toolbarAnchor = document.createElement("div");
+        this.toolbarAnchor.className = "cb-grid-toolbar-anchor";
+        toolbarHost.before(this.toolbarAnchor);
+        this.toolbarAnchor.after(this.toolbar);
         const topbar = document.querySelector(
             ".cb-open-topbar, .assignment-topbar",
         );
@@ -49,18 +52,50 @@ window.CBGridEditor = class {
                 "--cb-grid-sticky-top",
                 `${offset}px`,
             );
+            return offset;
+        };
+        let stickyFrame = 0;
+        const syncToolbarPinning = () => {
+            stickyFrame = 0;
+            const offset = updateStickyOffset();
+            const anchorRect = this.toolbarAnchor.getBoundingClientRect();
+            const hostRect = toolbarHost.getBoundingClientRect();
+            const toolbarHeight = this.toolbar.offsetHeight;
+            const shouldPin =
+                anchorRect.top <= offset &&
+                hostRect.bottom > offset + toolbarHeight;
+            this.toolbar.classList.toggle("is-fixed", shouldPin);
+            if (shouldPin) {
+                this.toolbar.style.top = `${offset}px`;
+                this.toolbar.style.left = `${anchorRect.left}px`;
+                this.toolbar.style.width = `${anchorRect.width}px`;
+                this.toolbarAnchor.style.height = `${toolbarHeight}px`;
+                return;
+            }
+            this.toolbar.style.removeProperty("top");
+            this.toolbar.style.removeProperty("left");
+            this.toolbar.style.removeProperty("width");
+            this.toolbarAnchor.style.removeProperty("height");
+        };
+        const scheduleToolbarPinning = () => {
+            if (stickyFrame) return;
+            stickyFrame = window.requestAnimationFrame(syncToolbarPinning);
         };
         if (topbar) {
-            this.topbarObserver = new ResizeObserver(updateStickyOffset);
+            this.topbarObserver = new ResizeObserver(scheduleToolbarPinning);
             this.topbarObserver.observe(topbar);
         }
-        this.toolbarObserver = new ResizeObserver(updateStickyOffset);
+        this.toolbarObserver = new ResizeObserver(scheduleToolbarPinning);
         this.toolbarObserver.observe(this.toolbar);
-        window.addEventListener("resize", updateStickyOffset);
-        window.addEventListener("scroll", updateStickyOffset, {
+        this.toolbarObserver.observe(toolbarHost);
+        window.addEventListener("resize", scheduleToolbarPinning);
+        window.addEventListener("scroll", scheduleToolbarPinning, {
             passive: true,
         });
-        updateStickyOffset();
+        window.addEventListener("mousemove", scheduleToolbarPinning, {
+            passive: true,
+        });
+        scheduleToolbarPinning();
         body.addEventListener(
             "click",
             (event) => {
