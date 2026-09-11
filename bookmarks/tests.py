@@ -147,12 +147,20 @@ class CBTemplateTests(TestCase):
         ]["rows"][0]
         self.assertEqual([row[key] for key in ("cockpit", "ee", "etc")], ["", "V", ""])
 
-    def test_invalid_rows_do_not_save(self):
+    def test_partial_rows_can_be_saved_for_merged_layouts(self):
         self.payload["rows"].append({"panel_loc": "P110"})
         self.assertEqual(
             self.client.post(
                 self.url, self.payload, content_type="application/json"
             ).status_code,
+            201,
+        )
+        self.assertEqual(CBTemplate.objects.get().rows[1]["panel_loc"], "P110")
+
+    def test_completely_blank_template_does_not_save(self):
+        self.payload["rows"] = [{"panel_loc": "", "cb_loc": "", "fin": "", "description": ""}]
+        self.assertEqual(
+            self.client.post(self.url, self.payload, content_type="application/json").status_code,
             400,
         )
         self.assertFalse(CBTemplate.objects.exists())
@@ -173,6 +181,14 @@ class CBTemplateTests(TestCase):
         ][0]["rows"]
         self.assertEqual(rows[0]["_merges"], self.payload["rows"][0]["_merges"])
         self.assertEqual(rows[1]["panel_loc"], "")
+
+    def test_interior_blank_template_row_is_preserved(self):
+        self.payload["rows"].insert(0, {"panel_loc": "", "cb_loc": "", "fin": "", "description": ""})
+        response = self.client.post(self.url, self.payload, content_type="application/json")
+        self.assertEqual(response.status_code, 201)
+        rows = self.client.get(self.url, {"aircraft_model": "B777"}).json()["templates"][0]["rows"]
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]["panel_loc"], "")
 
     def test_invalid_merge_ranges_rejected(self):
         for merges in (

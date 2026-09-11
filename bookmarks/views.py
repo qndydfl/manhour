@@ -185,7 +185,7 @@ class CBTemplateView(SimpleLoginRequiredMixin, View):
                 raise ValueError
             if not all(isinstance(row, dict) for row in rows):
                 raise ValueError
-            merge_rows, covered = clean_template_merges(rows)
+            merge_rows, _covered = clean_template_merges(rows)
             clean_rows = []
             for row_index, row in enumerate(rows):
                 if not isinstance(row, dict):
@@ -205,18 +205,19 @@ class CBTemplateView(SimpleLoginRequiredMixin, View):
                         ):
                             raise ValueError
                         cleaned[field] = value.strip().upper()
-                if any(
-                    not cleaned[field] and (row_index, field) not in covered
-                    for field in ("panel_loc", "cb_loc", "description")
-                ):
-                    raise ValueError
                 if merge_rows[row_index]:
                     cleaned["_merges"] = merge_rows[row_index]
                 clean_rows.append(cleaned)
+            if not any(
+                row.get(field, "")
+                for row in clean_rows
+                for field in ("cockpit", "ee", "etc", "panel_loc", "cb_loc", "fin", "description")
+            ):
+                raise ValueError
         except (ValueError, TypeError, UnicodeDecodeError):
             return JsonResponse(
                 {
-                    "error": "기종·템플릿 이름과 PANEL, C/B LOC', DESCRIPTION을 확인해 주세요. 최대 1,000행까지 저장할 수 있습니다."
+                    "error": "기종·템플릿 이름과 셀 데이터를 확인해 주세요. 템플릿에는 데이터가 하나 이상 있어야 하며 최대 1,000행까지 저장할 수 있습니다."
                 },
                 status=400,
             )

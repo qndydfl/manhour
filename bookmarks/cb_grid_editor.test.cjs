@@ -53,6 +53,11 @@ test('template middle insertion, reversible merges and saved merge metadata', as
         await page.getByRole('button', { name: '선택 행 아래에 추가', exact: true }).click();
         assert.equal(await page.locator('#cbTemplateRows tr').count(), 3);
         assert.equal(await page.locator('#cbTemplateRows [data-field="cb_loc"]').nth(2).inputValue(), 'A2');
+        await page.evaluate(() => { window.lastAlert = ''; });
+        await page.click('#cbTemplateUpdate');
+        await page.waitForFunction(() => window.lastAlert?.includes('수정했습니다'));
+        assert.equal(saved().rows.length, 3);
+        assert.equal(saved().rows[1].panel_loc, '');
         await page.locator('#cbTemplateRows [data-field="cb_loc"]').nth(1).fill('NEW');
         await page.locator('#cbTemplateRows [data-field="description"]').nth(1).fill('NEW ITEM');
         await page.getByRole('button', { name: '병합 범위 선택', exact: true }).click();
@@ -61,18 +66,26 @@ test('template middle insertion, reversible merges and saved merge metadata', as
         await page.getByRole('button', { name: '셀 병합', exact: true }).click();
         await page.waitForFunction(() => document.querySelector('#cbTemplateRows [data-field="panel_loc"]').closest('td').rowSpan === 2);
         await page.click('#cbTemplateUpdate');
-        await page.waitForFunction(() => window.lastAlert?.includes('수정했습니다'));
+        await page.waitForTimeout(750);
+        assert.match(await page.evaluate(() => window.lastAlert || document.querySelector('#cbTemplateStatus').textContent), /수정했습니다/);
         assert.deepEqual(saved().rows[0]._merges, [{ field: 'panel_loc', rows: 2, cols: 1 }]);
         assert.equal(await page.locator('#cbTemplateRows td.cb-grid-covered').count(), 1);
         await page.locator('#cbTemplateRows [data-field="panel_loc"]').first().click();
         await page.getByRole('button', { name: '병합 해제', exact: true }).click();
         assert.equal(await page.locator('#cbTemplateRows td.cb-grid-covered').count(), 0);
         assert.equal(await page.locator('#cbTemplateRows [data-field="cb_loc"]').nth(2).inputValue(), 'A2');
+        await page.locator('#cbTemplateRows [data-field="panel_loc"]').nth(1).fill('P12');
         await page.getByRole('button', { name: '병합 범위 선택', exact: true }).click();
         await page.locator('#cbTemplateRows [data-field="fin"]').first().click();
         await page.locator('#cbTemplateRows [data-field="description"]').first().click();
         await page.getByRole('button', { name: '셀 병합', exact: true }).click();
         await page.waitForFunction(() => document.querySelector('#cbTemplateRows [data-field="fin"]').closest('td').colSpan === 2);
+        await page.locator('#cbTemplateRows [data-field="fin"]').first().fill('MERGED TEXT');
+        await page.click('#cbTemplateUpdate');
+        await page.waitForTimeout(750);
+        assert.match(await page.evaluate(() => window.lastAlert || document.querySelector('#cbTemplateStatus').textContent), /수정했습니다/);
+        assert.deepEqual(saved().rows[0]._merges, [{ field: 'fin', rows: 1, cols: 2 }]);
+        assert.equal(saved().rows[0].fin, 'MERGED TEXT');
         await page.getByRole('button', { name: '병합 해제', exact: true }).click();
         assert.equal(await page.locator('#cbTemplateRows [data-field="description"]').first().inputValue(), 'ITEM 1');
         assert.deepEqual(errors, []);
@@ -145,11 +158,19 @@ test('editing toolbar sticks below the header on both pages and screen sizes', a
                 await page.locator('.cb-grid-toolbar').evaluate(el => {
                     window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY + 250);
                 });
-                await page.waitForFunction(() => {
+                try { await page.waitForFunction(() => {
                     const toolbar = document.querySelector('.cb-grid-toolbar').getBoundingClientRect();
                     const header = document.querySelector('.cb-open-topbar, .assignment-topbar').getBoundingClientRect();
                     return Math.abs(toolbar.top - header.bottom) < 2;
-                });
+                }, null, { timeout: 3000 }); } catch (error) {
+                    const metrics = await page.evaluate(() => {
+                        const toolbar = document.querySelector('.cb-grid-toolbar');
+                        const anchor = document.querySelector('.cb-grid-toolbar-anchor');
+                        const header = document.querySelector('.cb-open-topbar, .assignment-topbar');
+                        return { scrollY, toolbar: toolbar.getBoundingClientRect().toJSON(), anchor: anchor.getBoundingClientRect().toJSON(), header: header.getBoundingClientRect().toJSON(), className: toolbar.className, position: getComputedStyle(toolbar).position };
+                    });
+                    throw new Error(name + '/' + width + ': ' + JSON.stringify(metrics));
+                }
             }
             assert.deepEqual(errors, []);
             await page.close();

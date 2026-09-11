@@ -655,32 +655,93 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function readRows() {
-        const elements = Array.from(rowsBody.children);
-        // Keep row indexes stable for merge ranges, trimming only unused tail rows.
-        const merges = grid.merges();
-        const mergeEnd = Math.max(0, ...merges.map((m) => m.r + m.rows));
-        while (elements.length > mergeEnd && rowIsEmpty(elements.at(-1)))
-            elements.pop();
-        const rows = elements.map((row) => ({
-            ...Object.fromEntries(keys.map((key) => [key, readCell(row, key)])),
-            _merges: grid.exportRow(row),
-        }));
-        if (
-            !rows.length ||
-            elements.some((row) =>
-                ["panel_loc", "cb_loc", "description"].some(
-                    (key) =>
-                        !readCell(row, key) &&
-                        !grid
-                            .cell(row, key)
-                            .classList.contains("cb-grid-covered"),
-                ),
-            )
+        const elements =
+            Array.from(rowsBody.children);
+
+        /*
+        * 현재 병합 정보
+        */
+        const merges =
+            grid.merges();
+
+        /*
+        * =====================================================
+        * 마지막 사용 행 계산
+        *
+        * 병합 영역까지는 행을 유지해야 합니다.
+        * =====================================================
+        */
+        const mergeEnd = Math.max(
+            0,
+            ...merges.map(
+                (merge) =>
+                    Number(merge.r || 0) +
+                    Number(merge.rows || 1),
+            ),
+        );
+
+        /*
+        * 마지막의 완전히 빈 행만 제거
+        *
+        * 병합 영역 안의 행은 제거하지 않습니다.
+        */
+        while (
+            elements.length > mergeEnd &&
+            rowIsEmpty(elements.at(-1))
         ) {
+            elements.pop();
+        }
+
+        /*
+        * 템플릿 데이터 생성
+        */
+        const rows = elements.map(
+            (row) => ({
+                ...Object.fromEntries(
+                    keys.map((key) => [
+                        key,
+                        readCell(row, key),
+                    ]),
+                ),
+
+                /*
+                * 해당 행의 병합 정보 저장
+                */
+                _merges: grid.exportRow(row),
+            }),
+        );
+
+        /*
+        * 최소 한 행 필요
+        */
+        if (!rows.length) {
             throw new Error(
-                "PANEL, C/B LOC', DESCRIPTION을 입력해 주세요. FIN은 비워둘 수 있습니다.",
+                "템플릿 데이터를 한 줄 이상 입력해 주세요.",
             );
         }
+
+        /*
+        * =====================================================
+        * REQUIRED FIELD VALIDATION
+        *
+        * 일반 셀:
+        * PANEL / C/B LOC' / DESCRIPTION 필수
+        *
+        * 병합으로 덮인 셀:
+        * 별도 입력 불필요
+        * =====================================================
+        */
+
+        const hasTemplateData = rows.some((row) =>
+            keys.some((key) => Boolean(row[key])),
+        );
+
+        if (!hasTemplateData) {
+            throw new Error(
+                "템플릿 셀에 데이터를 한 개 이상 입력해 주세요.",
+            );
+        }
+
         return rows;
     }
 
