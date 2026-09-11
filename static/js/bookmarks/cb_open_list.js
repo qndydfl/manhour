@@ -758,21 +758,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return editor;
     }
 
-    document.addEventListener("click", (event) => {
-        if (
-            event.target.closest(".cb-open-number-cell") ||
-            event.target.closest(".cb-open-row-delete-btn")
-        ) {
-            return;
-        }
-
-        tableBody
-            .querySelectorAll(".cb-open-row-delete-btn")
-            .forEach((button) => {
-                button.hidden = true;
-            });
-    });
-
     /* =====================================================
     CREATE ROW
     ===================================================== */
@@ -783,35 +768,50 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * =====================================================
          * NO
+         *
+         * 클릭       → 삭제 확인
+         * 드래그     → 행 이동
          * =====================================================
          */
         const noCell = document.createElement("td");
 
         noCell.className = "cb-open-number-cell";
         noCell.textContent = number;
-        noCell.title = "클릭하면 이 줄을 삭제할 수 있습니다";
+        noCell.dataset.rowNumber = number;
+
+        noCell.title = "클릭하면 삭제 / 마우스로 위아래 끌면 줄 이동";
+
+        /*
+         * 클릭과 드래그 구분을 위해
+         * initRowDrag()에서 사용
+         */
+        noCell.dataset.rowDragHandle = "true";
 
         /*
          * =====================================================
-         * NO 클릭
-         * → 현재 행 내용 확인
-         * → 삭제 확인 메시지
+         * NO 클릭 → 행 삭제
+         *
+         * 실제 드래그가 발생한 경우에는
+         * initRowDrag()에서 click 방지
          * =====================================================
          */
         noCell.addEventListener("click", async (event) => {
+            /*
+             * 드래그 후 발생하는 click이면 삭제창 열지 않음
+             */
+            if (row.dataset.justDragged === "true") {
+                row.dataset.justDragged = "false";
+                return;
+            }
+
             event.preventDefault();
             event.stopPropagation();
 
-            /*
-             * 현재 실제 행 번호 계산
-             */
             const currentNumber =
                 Array.from(tableBody.children).indexOf(row) + 1;
 
             /*
-             * =====================================================
-             * 현재 행 데이터 읽기
-             * =====================================================
+             * 현재 행 데이터
              */
             const panelLoc = cleanText(
                 row.querySelector('[data-field="panel_loc"]')?.innerText,
@@ -829,11 +829,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.querySelector('[data-field="description"]')?.innerText,
             );
 
-            /*
-             * =====================================================
-             * 삭제 확인 메시지
-             * =====================================================
-             */
             const message = [
                 `${currentNumber}번 줄을 삭제하시겠습니까?`,
                 "",
@@ -843,110 +838,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 `DESCRIPTION : ${description || "-"}`,
             ].join("\n");
 
-            /*
-             * =====================================================
-             * 삭제 확인
-             * =====================================================
-             */
             const confirmed = await window.AppDialog.confirm(message, {
                 title: "줄 삭제",
                 variant: "danger",
                 confirmText: "삭제",
+                cancelText: "취소",
             });
 
-            /*
-             * 취소
-             */
             if (!confirmed) {
                 return;
             }
 
-            /*
-             * =====================================================
-             * 현재 선택 중인 editor가
-             * 삭제하는 행 안에 있으면 초기화
-             * =====================================================
-             */
             if (selectedEditor && row.contains(selectedEditor)) {
                 selectedEditor = null;
             }
 
             /*
-             * =====================================================
-             * 현재 행 삭제
-             * =====================================================
+             * 행 삭제
              */
-            grid.removeRow(row);
+            row.remove();
 
             /*
-             * =====================================================
-             * 모든 행이 삭제된 경우
-             * 최소 1개의 빈 행 유지
-             * =====================================================
+             * 모든 행이 사라졌다면 최소 1행
              */
             if (!tableBody.children.length) {
                 ensureRows(1);
             }
 
-            /*
-             * =====================================================
-             * 행 번호 다시 정렬
-             *
-             * 예:
-             *
-             * 1
-             * 2
-             * 3
-             * 4
-             * 5 ← 삭제
-             * 6
-             * 7
-             *
-             * ↓
-             *
-             * 1
-             * 2
-             * 3
-             * 4
-             * 5 ← 기존 6번
-             * 6 ← 기존 7번
-             * =====================================================
-             */
             updateRowNumbers();
-
-            /*
-             * =====================================================
-             * 자동 위치 표시 다시 계산
-             * =====================================================
-             */
             refreshAutomaticLocationMarks();
-
-            /*
-             * =====================================================
-             * 표 크기 다시 계산
-             * =====================================================
-             */
             updateTableSizing();
-
-            /*
-             * =====================================================
-             * A4 화면 배율 다시 계산
-             * =====================================================
-             */
             scheduleSheetScale();
 
-            /*
-             * =====================================================
-             * 변경 내용 바로 저장
-             * =====================================================
-             */
             saveWorkspace();
 
-            /*
-             * =====================================================
-             * 완료 메시지
-             * =====================================================
-             */
             showSaveMessage(`${currentNumber}번 줄을 삭제했습니다.`);
         });
 
@@ -963,14 +888,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const editor = createCellEditor(field);
 
             td.appendChild(editor);
-
             row.appendChild(td);
         });
 
         /*
          * =====================================================
-         * 마지막 CONFIRM 셀에
-         * 행 높이 조절 handle
+         * 마지막 CONFIRM 셀
+         * 행 높이 조절
          * =====================================================
          */
         const lastCell = row.lastElementChild;
@@ -1005,24 +929,17 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateRowNumbers() {
         Array.from(tableBody.children).forEach((row, index) => {
             const numberCell = row.querySelector(".cb-open-number-cell");
-            const numberText = row.querySelector(".cb-open-row-number");
-            const deleteButton = row.querySelector(".cb-open-row-delete-btn");
+
+            if (!numberCell) {
+                return;
+            }
 
             const number = index + 1;
 
-            if (numberCell) {
-                numberCell.dataset.rowNumber = number;
-                if (!numberText) numberCell.textContent = String(number);
-            }
+            numberCell.textContent = number;
+            numberCell.dataset.rowNumber = number;
 
-            if (numberText) {
-                numberText.textContent = number;
-            }
-
-            if (deleteButton) {
-                deleteButton.title = `${number}번 줄 삭제`;
-                deleteButton.setAttribute("aria-label", `${number}번 줄 삭제`);
-            }
+            numberCell.title = `${number}번 줄 - 클릭하면 삭제 / 마우스로 끌면 이동`;
         });
     }
 
@@ -1137,6 +1054,290 @@ document.addEventListener("DOMContentLoaded", () => {
         const row = selectedEditor?.closest("tr");
 
         return row && tableBody.contains(row) ? row : null;
+    }
+
+    function initRowDrag() {
+        let draggedRow = null;
+        let pointerId = null;
+        let startY = 0;
+        let dragging = false;
+
+        /*
+        * 클릭과 드래그를 구분하는 최소 이동 거리
+        */
+        const DRAG_THRESHOLD = 5;
+
+        /*
+        * =====================================================
+        * POINTER DOWN
+        *
+        * NO 셀을 마우스로 누르면
+        * 행 이동 준비
+        * =====================================================
+        */
+        tableBody.addEventListener("pointerdown", (event) => {
+            const handle = event.target.closest(
+                '[data-row-drag-handle="true"]',
+            );
+
+            if (!handle) {
+                return;
+            }
+
+            const row = handle.closest("tr");
+
+            if (!row) {
+                return;
+            }
+
+            /*
+            * 마우스는 왼쪽 버튼만 허용
+            */
+            if (
+                event.pointerType === "mouse" &&
+                event.button !== 0
+            ) {
+                return;
+            }
+
+            /*
+            * =====================================================
+            * 병합 셀이 있는 경우 이동 금지
+            *
+            * 중요:
+            * initRowDrag() 시작 시 검사하지 않고
+            * 실제 사용자가 행을 잡을 때 검사해야 합니다.
+            * =====================================================
+            */
+            if (grid.merges().length) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                void window.AppDialog.alert(
+                    "셀 병합이 설정된 상태에서는 줄 순서를 변경할 수 없습니다.\n병합을 해제한 후 다시 시도해 주세요.",
+                    {
+                        title: "줄 이동",
+                        variant: "warning",
+                    },
+                );
+
+                return;
+            }
+
+            draggedRow = row;
+            pointerId = event.pointerId;
+            startY = event.clientY;
+            dragging = false;
+
+            /*
+            * 마우스가 NO 셀 밖으로 나가도
+            * pointer 이벤트를 계속 받음
+            */
+            try {
+                handle.setPointerCapture(
+                    event.pointerId,
+                );
+            } catch (error) {
+                /*
+                * Pointer capture를 지원하지 않는 경우에도
+                * 드래그 자체는 계속 진행
+                */
+            }
+        });
+
+        /*
+        * =====================================================
+        * POINTER MOVE
+        * =====================================================
+        */
+        tableBody.addEventListener("pointermove", (event) => {
+            if (
+                !draggedRow ||
+                event.pointerId !== pointerId
+            ) {
+                return;
+            }
+
+            const distance = Math.abs(
+                event.clientY - startY,
+            );
+
+            /*
+            * 5px 미만은 클릭으로 취급
+            */
+            if (
+                !dragging &&
+                distance < DRAG_THRESHOLD
+            ) {
+                return;
+            }
+
+            /*
+            * =====================================================
+            * 실제 드래그 시작
+            * =====================================================
+            */
+            if (!dragging) {
+                dragging = true;
+
+                draggedRow.classList.add(
+                    "cb-open-row-dragging",
+                );
+
+                document.body.classList.add(
+                    "cb-row-drag-active",
+                );
+            }
+
+            event.preventDefault();
+
+            /*
+            * 현재 마우스 위치에 있는 행 찾기
+            */
+            const target = document
+                .elementFromPoint(
+                    event.clientX,
+                    event.clientY,
+                )
+                ?.closest("#cbOpenListBody > tr");
+
+            if (
+                !target ||
+                target === draggedRow
+            ) {
+                return;
+            }
+
+            const rect =
+                target.getBoundingClientRect();
+
+            /*
+            * 대상 행의 가운데보다 아래인지 확인
+            */
+            const insertAfter =
+                event.clientY >
+                rect.top + rect.height / 2;
+
+            /*
+            * =====================================================
+            * 행 이동
+            * =====================================================
+            */
+            if (insertAfter) {
+                if (
+                    target.nextSibling !== draggedRow
+                ) {
+                    tableBody.insertBefore(
+                        draggedRow,
+                        target.nextSibling,
+                    );
+                }
+            } else {
+                if (
+                    target !==
+                    draggedRow.nextSibling
+                ) {
+                    tableBody.insertBefore(
+                        draggedRow,
+                        target,
+                    );
+                }
+            }
+        });
+
+        /*
+        * =====================================================
+        * DRAG FINISH
+        * =====================================================
+        */
+        const finishDrag = (event) => {
+            if (!draggedRow) {
+                return;
+            }
+
+            if (
+                event &&
+                pointerId !== null &&
+                event.pointerId !== pointerId
+            ) {
+                return;
+            }
+
+            const movedRow = draggedRow;
+
+            /*
+            * 실제로 드래그한 경우
+            */
+            if (dragging) {
+                movedRow.classList.remove(
+                    "cb-open-row-dragging",
+                );
+
+                document.body.classList.remove(
+                    "cb-row-drag-active",
+                );
+
+                /*
+                * 드래그 직후 발생할 수 있는
+                * NO click 이벤트에서
+                * 삭제창이 뜨는 것을 방지
+                */
+                movedRow.dataset.justDragged =
+                    "true";
+
+                /*
+                * 행 번호 다시 정리
+                */
+                updateRowNumbers();
+
+                /*
+                * 위치 V 표시 다시 계산
+                */
+                refreshAutomaticLocationMarks();
+
+                /*
+                * 표 크기 다시 계산
+                */
+                updateTableSizing();
+
+                /*
+                * A4 화면 배율 다시 계산
+                */
+                scheduleSheetScale();
+
+                /*
+                * 현재 순서 저장
+                */
+                saveWorkspace();
+
+                showSaveMessage(
+                    "줄 순서를 변경했습니다.",
+                );
+
+                /*
+                * click이 발생하지 않는 경우를 위한
+                * 자동 초기화
+                */
+                window.setTimeout(() => {
+                    movedRow.dataset.justDragged =
+                        "false";
+                }, 300);
+            }
+
+            draggedRow = null;
+            pointerId = null;
+            dragging = false;
+        };
+
+        tableBody.addEventListener(
+            "pointerup",
+            finishDrag,
+        );
+
+        tableBody.addEventListener(
+            "pointercancel",
+            finishDrag,
+        );
     }
 
     /* =====================================================
@@ -2698,33 +2899,39 @@ document.addEventListener("DOMContentLoaded", () => {
     bindEditableHeader(sheetModel);
 
     /* =====================================================
-       INIT
-       ===================================================== */
+    INIT
+    ===================================================== */
 
     /*
-     * 기본 열 너비
-     */
+    * 기본 열 너비
+    */
     applyDefaultColumnWidths();
 
     /*
-     * 열 너비 input 이벤트
-     */
+    * 열 너비 input 이벤트
+    */
     initColumnInputs();
 
     initSettingsAccordions();
 
     /*
-     * Header drag resize
-     */
+    * Header drag resize
+    */
     initColumnResize();
 
     /*
-     * 저장된 작업 자동 복원
-     */
+    * =====================================================
+    * GRID EDITOR
+    *
+    * 행 이동 기능보다 먼저 생성되어야 합니다.
+    * =====================================================
+    */
     const grid = new window.CBGridEditor({
         body: tableBody,
         fields: TABLE_FIELDS,
-        toolbarHost: document.querySelector(".cb-open-sheet-stage"),
+        toolbarHost: document.querySelector(
+            ".cb-open-sheet-stage",
+        ),
         createRow: () => createRow(1),
         changed: () => {
             updateRowNumbers();
@@ -2733,11 +2940,24 @@ document.addEventListener("DOMContentLoaded", () => {
             saveWorkspace();
         },
     });
+
+    /*
+    * =====================================================
+    * ROW DRAG
+    *
+    * grid가 생성된 다음에 초기화
+    * =====================================================
+    */
+    initRowDrag();
+
+    /*
+    * 저장된 작업 자동 복원
+    */
     const restored = restoreWorkspace();
 
     /*
-     * 저장 데이터가 없는 경우
-     */
+    * 저장 데이터가 없는 경우
+    */
     if (!restored) {
         clearTable();
 
@@ -2747,10 +2967,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateTableSizing();
     }
+
     importSelectedTemplate();
+
     refreshAutomaticLocationMarks();
+
     refreshTemplatePicker();
-    scheduleSheetScale();
+
+scheduleSheetScale();
 
     function importSelectedTemplate() {
         const storageKey = "cb_open_template_import_v1";

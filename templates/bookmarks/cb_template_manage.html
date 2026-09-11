@@ -1,7 +1,9 @@
 {% extends "manhour/base/result_base.html" %} 
 {% load static %} 
 {% block title %}C/B 기본 템플릿 관리{% endblock title %} 
+
 {% block body_class %}cb-template-manage-body{% endblock body_class %} 
+
 {% block css %}
 <link
     rel="stylesheet"
@@ -9,7 +11,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260910-6"
+    href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260910-7"
 />
 {% endblock css %} 
 
@@ -24,7 +26,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260910-9"
+    src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260910-10"
 ></script>
 {% endblock js %} 
 
@@ -226,7 +228,7 @@
                             <th>C/B LOC'</th>
                             <th>FIN (선택)</th>
                             <th>DESCRIPTION</th>
-                            <th>삭제</th>
+                            <th>이동 / 삭제</th>
                         </tr>
                     </thead>
                     <tbody id="cbTemplateRows"></tbody>

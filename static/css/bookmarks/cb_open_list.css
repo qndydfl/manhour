@@ -1208,7 +1208,8 @@ SETTING SECTION HEADER
     margin: 0;
     color: #1e293b;
     font-size: 0.825rem;
-    font-weight: 800;}
+    font-weight: 800;
+}
 
 .cb-setting-section-header small {
     display: block;
@@ -2385,56 +2386,51 @@ PRINT
 }
 
 
-/* =====================================================
-ROW NUMBER / DELETE
-===================================================== */
+/* =========================================================
+ROW DRAG
+========================================================= */
 
 .cb-open-number-cell {
-    position: relative;
-    cursor: pointer;
+    cursor: grab;
     user-select: none;
+    touch-action: none;
+
+    transition:
+        background-color 0.12s ease,
+        color 0.12s ease;
 }
 
-.cb-open-row-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.cb-open-number-cell:hover {
+    background: #e8f1fb;
+    color: #1d4ed8;
 }
 
-.cb-open-row-delete-btn {
-    position: absolute;
-    z-index: 20;
-
-    top: 50%;
-    left: 50%;
-
-    transform: translate(-50%, -50%);
-
-    min-width: 28px;
-    height: 28px;
-
-    padding: 0 7px;
-
-    border: 0;
-    border-radius: 5px;
-
-    background: #dc3545;
-    color: #fff;
-
-    font-size: 13px;
-    line-height: 1;
-
-    cursor: pointer;
-
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+.cb-open-number-cell:active {
+    cursor: grabbing;
 }
 
-.cb-open-row-delete-btn:hover {
-    background: #bb2d3b;
+
+/*
+ * 이동 중인 행
+ */
+.cb-open-table
+tr.cb-open-row-dragging > td {
+    background: #dbeafe !important;
+
+    box-shadow:
+        inset 0 2px 0 #3b82f6,
+        inset 0 -2px 0 #3b82f6;
+
+    opacity: 0.92;
 }
 
-.cb-open-row-delete-btn[hidden] {
-    display: none !important;
+
+/*
+ * 드래그 중에는
+ * 페이지 텍스트 선택 방지
+ */
+body.cb-row-drag-active {
+    user-select: none !important;
+    cursor: grabbing !important;
 }
+

@@ -170,6 +170,11 @@
     vertical-align: middle;
 }
 
+.cb-template-row-actions .btn {
+    min-width: 34px;
+    padding-inline: 0;
+}
+
 .cb-template-status {
     min-height: 24px;
     margin: 14px 0 0;
@@ -216,13 +221,10 @@ cb_open_list 설정 사이드바와 동일한 스타일
     --bs-offcanvas-width: min(440px, 96vw);
     background: #eef4f9;
     border-left: 1px solid #b9c8d8;
-    box-shadow:
-        -12px 0 40px
-        rgba(15, 23, 42, 0.16);
+    box-shadow: -12px 0 40px rgba(15, 23, 42, 0.16);
 
     color: #172033;
 }
-
 
 /* =========================================================
 SETTINGS HEADER
@@ -231,20 +233,12 @@ SETTINGS HEADER
 .cb-aircraft-settings-header {
     min-height: 82px;
     padding: 16px 18px;
-    background:
-        linear-gradient(
-            135deg,
-            #07111f 0%,
-            #10243d 100%
-        );
+    background: linear-gradient(135deg, #07111f 0%, #10243d 100%);
 
-    border-bottom:
-        1px solid
-        rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     color: #ffffff;
 }
-
 
 /*
  * 제목
@@ -258,7 +252,6 @@ SETTINGS HEADER
     letter-spacing: 0.01em;
 }
 
-
 /*
  * 제목 밑 설명
  */
@@ -269,7 +262,6 @@ SETTINGS HEADER
     font-size: 11px;
     font-weight: 500;
 }
-
 
 /*
  * 닫기 버튼
@@ -283,7 +275,6 @@ SETTINGS HEADER
     opacity: 1;
 }
 
-
 /* =========================================================
 SETTINGS BODY
 ========================================================= */
@@ -292,11 +283,8 @@ SETTINGS BODY
     padding: 16px;
     background: #eef4f9;
     scrollbar-width: thin;
-    scrollbar-color:
-        #b9c7d5
-        transparent;
+    scrollbar-color: #b9c7d5 transparent;
 }
-
 
 /*
  * Chrome / Edge scrollbar
@@ -315,7 +303,6 @@ SETTINGS BODY
     background: #b9c7d5;
 }
 
-
 /* =========================================================
 SETTINGS SECTION
 ========================================================= */
@@ -324,30 +311,22 @@ SETTINGS SECTION
     margin: 0 0 12px;
     padding: 16px;
     background: #ffffff;
-    border:
-        1px solid
-        #ccd8e5;
+    border: 1px solid #ccd8e5;
 
     border-radius: 13px;
-    box-shadow:
-        0 5px 16px
-        rgba(15, 23, 42, 0.045);
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.045);
 }
-
 
 /*
  * 기존 + selector 제거
  */
-.cb-aircraft-settings-section
-+ .cb-aircraft-settings-section {
+.cb-aircraft-settings-section + .cb-aircraft-settings-section {
     margin-top: 0;
 }
-
 
 .cb-aircraft-settings-section:last-child {
     margin-bottom: 0;
 }
-
 
 /* =========================================================
 FORM LABEL
@@ -360,7 +339,6 @@ FORM LABEL
     font-weight: 700;
 }
 
-
 /* =========================================================
 INPUT / SELECT
 ========================================================= */
@@ -368,9 +346,7 @@ INPUT / SELECT
 .cb-aircraft-settings-section .form-control,
 .cb-aircraft-settings-section .form-select {
     min-height: 38px;
-    border:
-        1px solid
-        #c7d3df;
+    border: 1px solid #c7d3df;
 
     border-radius: 8px;
     background: #ffffff;
@@ -379,16 +355,12 @@ INPUT / SELECT
     box-shadow: none;
 }
 
-
 .cb-aircraft-settings-section .form-control:focus,
 .cb-aircraft-settings-section .form-select:focus {
     border-color: #60a5fa;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
-
 
 /* =========================================================
 FORM TEXT
@@ -416,9 +388,7 @@ NOTICE
     gap: 9px;
     margin-top: 14px;
     padding: 12px;
-    border:
-        1px solid
-        #fecaca;
+    border: 1px solid #fecaca;
 
     border-radius: 10px;
     background: #fff7f7;
@@ -427,13 +397,11 @@ NOTICE
     line-height: 1.5;
 }
 
-
 .cb-aircraft-settings-notice i {
     flex: 0 0 auto;
     margin-top: 1px;
     color: #dc2626;
 }
-
 
 /* =========================================================
 STATUS MESSAGE
@@ -447,16 +415,13 @@ STATUS MESSAGE
     font-weight: 700;
 }
 
-
 .cb-aircraft-settings-status.is-error {
     color: #b42318;
 }
 
-
 .cb-aircraft-settings-status.is-success {
     color: #047857;
 }
-
 
 /* =========================================================
 BUTTONS
@@ -469,12 +434,10 @@ BUTTONS
     font-weight: 700;
 }
 
-
 .cb-aircraft-settings .btn-primary:hover {
     border-color: #1d4ed8;
     background: #1d4ed8;
 }
-
 
 .cb-aircraft-settings .btn-outline-danger {
     border-color: #dc2626;
@@ -482,19 +445,16 @@ BUTTONS
     font-weight: 700;
 }
 
-
 .cb-aircraft-settings .btn-outline-danger:hover {
     background: #dc2626;
     color: #ffffff;
 }
-
 
 /* =========================================================
 MOBILE
 ========================================================= */
 
 @media (max-width: 767.98px) {
-
     .cb-aircraft-settings {
         --bs-offcanvas-width: 100vw;
     }
@@ -512,4 +472,95 @@ MOBILE
     .cb-aircraft-settings-section {
         padding: 13px;
     }
+}
+
+/* =========================================================
+TEMPLATE ROW DRAG
+========================================================= */
+
+.cb-template-row-action-cell {
+    width: 110px;
+    min-width: 110px;
+}
+
+.cb-template-row-actions {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+}
+
+
+/*
+ * 마우스로 잡는 영역
+ */
+.cb-template-row-drag-handle {
+    min-width: 62px;
+    height: 31px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    padding: 0 8px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 6px;
+
+    background: #f8fafc;
+
+    color: #475569;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: grab;
+
+    user-select: none;
+    touch-action: none;
+}
+
+.cb-template-row-drag-handle:hover {
+    border-color: #93c5fd;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+}
+
+.cb-template-row-drag-handle:active {
+    cursor: grabbing;
+}
+
+
+/*
+ * 이동 중인 행
+ */
+.cb-template-editor
+tr.cb-template-row-dragging > td {
+    background:
+        #dbeafe !important;
+
+    box-shadow:
+        inset 0 2px 0 #3b82f6,
+        inset 0 -2px 0 #3b82f6;
+
+    opacity: 0.92;
+}
+
+
+/*
+ * 공통 drag 상태
+ */
+body.cb-row-drag-active {
+    user-select: none !important;
+
+    cursor: grabbing !important;
 }

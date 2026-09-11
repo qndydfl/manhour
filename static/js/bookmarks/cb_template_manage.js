@@ -116,8 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 action === "create"
                     ? `${data.code} 기종을 추가했습니다.`
                     : action === "rename"
-                      ? `${oldCode} 기종을 ${data.code}(으)로 변경했습니다.`
-                      : `${oldCode} 기종과 관련 템플릿을 삭제했습니다.`,
+                        ? `${oldCode} 기종을 ${data.code}(으)로 변경했습니다.`
+                        : `${oldCode} 기종과 관련 템플릿을 삭제했습니다.`,
                 "success",
             );
         } catch (error) {
@@ -126,44 +126,182 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function addRow(values = {}) {
-        const row = document.createElement("tr");
+        const row =
+            document.createElement("tr");
+
+        /*
+        * =====================================================
+        * DATA CELLS
+        * =====================================================
+        */
         keys.forEach((key) => {
-            const cell = document.createElement("td");
-            const input = document.createElement(
-                key === "description" ? "textarea" : "input",
-            );
-            input.className = "form-control";
+            const cell =
+                document.createElement("td");
+
+            const input =
+                document.createElement(
+                    key === "description"
+                        ? "textarea"
+                        : "input",
+                );
+
+            input.className =
+                "form-control";
+
             input.dataset.field = key;
-            input.value = values[key] || "";
+
+            input.value =
+                values[key] || "";
+
             input.maxLength = 2000;
-            input.setAttribute("aria-label", key);
-            if (locationKeys.includes(key)) {
+
+            input.setAttribute(
+                "aria-label",
+                key,
+            );
+
+            /*
+            * COCKPIT / E/E / ETC
+            */
+            if (
+                locationKeys.includes(key)
+            ) {
                 input.type = "checkbox";
-                input.className = "form-check-input cb-template-location-check";
-                input.checked = String(values[key] || "").toUpperCase() === "V";
-                cell.className = "text-center";
+
+                input.className =
+                    "form-check-input cb-template-location-check";
+
+                input.checked =
+                    String(
+                        values[key] || "",
+                    ).toUpperCase() === "V";
+
+                cell.className =
+                    "text-center";
             }
-            if (key === "description") input.rows = 1;
+
+            if (
+                key === "description"
+            ) {
+                input.rows = 1;
+            }
+
             cell.append(input);
+
             row.append(cell);
         });
-        const actionCell = document.createElement("td");
-        actionCell.className = "text-center";
-        const remove = document.createElement("button");
+
+        /*
+        * =====================================================
+        * ACTION CELL
+        * =====================================================
+        */
+        const actionCell =
+            document.createElement("td");
+
+        actionCell.className =
+            "text-center cb-template-row-action-cell";
+
+        const actionStack =
+            document.createElement("div");
+
+        actionStack.className =
+            "cb-template-row-actions";
+
+        /*
+        * =====================================================
+        * DRAG HANDLE
+        * =====================================================
+        */
+        const moveHandle =
+            document.createElement("button");
+
+        moveHandle.type = "button";
+
+        moveHandle.className =
+            "cb-template-row-drag-handle";
+
+        moveHandle.dataset.templateDragHandle =
+            "true";
+
+        moveHandle.title =
+            "마우스로 잡고 위아래로 이동";
+
+        moveHandle.setAttribute(
+            "aria-label",
+            "행 이동",
+        );
+
+        moveHandle.innerHTML = `
+            <i class="bi bi-grip-vertical"></i>
+            <span>이동</span>
+        `;
+
+        /*
+        * 버튼 기본 click 동작 방지
+        */
+        moveHandle.addEventListener(
+            "click",
+            (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            },
+        );
+
+        /*
+        * =====================================================
+        * DELETE
+        * =====================================================
+        */
+        const remove =
+            document.createElement("button");
+
         remove.type = "button";
-        remove.className = "btn btn-outline-danger btn-sm";
+
+        remove.className =
+            "btn btn-outline-danger btn-sm";
+
         remove.innerHTML =
-            '<i class="bi bi-trash"></i><span class="visually-hidden">행 삭제</span>';
-        remove.addEventListener("click", () => {
-            grid.removeRow(row);
-            if (!rowsBody.children.length) addRow();
-            dirty = true;
-        });
-        actionCell.append(remove);
-        row.append(actionCell);
-        rowsBody.append(row);
+            '<i class="bi bi-trash"></i>' +
+            '<span class="visually-hidden">행 삭제</span>';
+
+        remove.addEventListener(
+            "click",
+            (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                grid.removeRow(row);
+
+                if (
+                    !rowsBody.children.length
+                ) {
+                    addRow();
+                }
+
+                dirty = true;
+            },
+        );
+
+        actionStack.append(
+            moveHandle,
+            remove,
+        );
+
+        actionCell.append(
+            actionStack,
+        );
+
+        row.append(
+            actionCell,
+        );
+
+        rowsBody.append(
+            row,
+        );
+
         return row;
-    }
+}
 
     function rowIsEmpty(row) {
         return keys.every((key) => !readCell(row, key));
@@ -180,6 +318,251 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+
+    function initTemplateRowDrag() {
+        let draggedRow = null;
+        let pointerId = null;
+        let startY = 0;
+        let dragging = false;
+
+        const DRAG_THRESHOLD = 5;
+
+        /* =====================================================
+        POINTER DOWN
+        ===================================================== */
+        rowsBody.addEventListener(
+            "pointerdown",
+            (event) => {
+                const handle =
+                    event.target.closest(
+                        "[data-template-drag-handle]",
+                    );
+
+                if (!handle) {
+                    return;
+                }
+
+                const row = handle.closest("tr");
+
+                if (!row) {
+                    return;
+                }
+
+                /*
+                * 마우스는 왼쪽 버튼만
+                */
+                if (
+                    event.pointerType === "mouse" &&
+                    event.button !== 0
+                ) {
+                    return;
+                }
+
+                /*
+                * =================================================
+                * 병합 상태 검사
+                *
+                * 중요:
+                * initTemplateRowDrag() 시작 시 검사하지 않고
+                * 실제 이동을 시작할 때마다 검사
+                * =================================================
+                */
+                if (grid.merges().length) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    void window.AppDialog.alert(
+                        "셀 병합이 설정된 상태에서는 템플릿 행 순서를 변경할 수 없습니다.\n병합을 해제한 후 다시 시도해 주세요.",
+                        {
+                            title: "행 이동",
+                            variant: "warning",
+                        },
+                    );
+
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                draggedRow = row;
+                pointerId = event.pointerId;
+                startY = event.clientY;
+                dragging = false;
+
+                /*
+                * 포인터가 버튼 밖으로 나가도
+                * 이벤트 계속 수신
+                */
+                try {
+                    handle.setPointerCapture(
+                        event.pointerId,
+                    );
+                } catch (error) {
+                    /*
+                    * Pointer capture를 지원하지 않아도
+                    * 기본 드래그는 계속 사용
+                    */
+                }
+            },
+        );
+
+        /* =====================================================
+        POINTER MOVE
+        ===================================================== */
+        rowsBody.addEventListener(
+            "pointermove",
+            (event) => {
+                if (
+                    !draggedRow ||
+                    event.pointerId !== pointerId
+                ) {
+                    return;
+                }
+
+                const distance = Math.abs(
+                    event.clientY - startY,
+                );
+
+                /*
+                * 5px 미만이면 아직 클릭으로 판단
+                */
+                if (
+                    !dragging &&
+                    distance < DRAG_THRESHOLD
+                ) {
+                    return;
+                }
+
+                /*
+                * 실제 드래그 시작
+                */
+                if (!dragging) {
+                    dragging = true;
+
+                    draggedRow.classList.add(
+                        "cb-template-row-dragging",
+                    );
+
+                    document.body.classList.add(
+                        "cb-row-drag-active",
+                    );
+                }
+
+                event.preventDefault();
+
+                /*
+                * 현재 포인터 아래 행
+                */
+                const target = document
+                    .elementFromPoint(
+                        event.clientX,
+                        event.clientY,
+                    )
+                    ?.closest(
+                        "#cbTemplateRows > tr",
+                    );
+
+                if (
+                    !target ||
+                    target === draggedRow
+                ) {
+                    return;
+                }
+
+                const rect =
+                    target.getBoundingClientRect();
+
+                const after =
+                    event.clientY >
+                    rect.top +
+                        rect.height / 2;
+
+                /*
+                * 아래쪽 절반 → 대상 아래로
+                */
+                if (after) {
+                    if (
+                        target.nextSibling !==
+                        draggedRow
+                    ) {
+                        rowsBody.insertBefore(
+                            draggedRow,
+                            target.nextSibling,
+                        );
+                    }
+                }
+
+                /*
+                * 위쪽 절반 → 대상 위로
+                */
+                else {
+                    if (
+                        target !==
+                        draggedRow.nextSibling
+                    ) {
+                        rowsBody.insertBefore(
+                            draggedRow,
+                            target,
+                        );
+                    }
+                }
+            },
+        );
+
+        /* =====================================================
+        DRAG FINISH
+        ===================================================== */
+        const finishDrag = (event) => {
+            if (!draggedRow) {
+                return;
+            }
+
+            if (
+                event &&
+                pointerId !== null &&
+                event.pointerId !== pointerId
+            ) {
+                return;
+            }
+
+            if (dragging) {
+                draggedRow.classList.remove(
+                    "cb-template-row-dragging",
+                );
+
+                document.body.classList.remove(
+                    "cb-row-drag-active",
+                );
+
+                /*
+                * 저장 필요 상태
+                */
+                dirty = true;
+
+                showStatus(
+                    "템플릿 행 순서를 변경했습니다. 수정 내용 저장을 눌러 주세요.",
+                    "success",
+                );
+            }
+
+            draggedRow = null;
+            pointerId = null;
+            dragging = false;
+        };
+
+        rowsBody.addEventListener(
+            "pointerup",
+            finishDrag,
+        );
+
+        rowsBody.addEventListener(
+            "pointercancel",
+            finishDrag,
+        );
+    }
+
 
     function getPasteTargetRow() {
         const bounds = grid.bounds();
@@ -535,12 +918,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = new window.CBGridEditor({
         body: rowsBody,
         fields: keys,
-        toolbarHost: document.querySelector(".cb-template-table-wrap"),
+        toolbarHost: document.querySelector(
+            ".cb-template-table-wrap",
+        ),
         createRow: () => addRow(),
         changed: () => {
             dirty = true;
         },
     });
+
+    /*
+    * 마우스 행 이동
+    */
+    initTemplateRowDrag();
+
     showEditor();
     refresh();
 });
