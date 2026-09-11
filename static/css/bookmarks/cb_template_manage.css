@@ -130,7 +130,7 @@
 }
 
 .cb-template-editor {
-    min-width: 900px;
+    min-width: 1080px;
 }
 
 .cb-template-editor th {
@@ -142,7 +142,8 @@
     text-align: center;
 }
 
-.cb-template-editor th:nth-child(7) {
+.cb-template-editor th:nth-child(7),
+.cb-template-editor th:nth-child(8) {
     width: 42%;
 }
 

@@ -125,7 +125,9 @@ class CBTemplateTests(TestCase):
         )
 
     def test_template_location_marks_round_trip(self):
-        self.payload["rows"][0].update({"cockpit": "V", "ee": "", "etc": "V"})
+        self.payload["rows"][0].update(
+            {"cockpit": "V", "ee": "", "etc": "V", "warning": "관련 작업 주의사항"}
+        )
         created = self.client.post(
             self.url, self.payload, content_type="application/json"
         )
@@ -134,6 +136,7 @@ class CBTemplateTests(TestCase):
             0
         ]["rows"][0]
         self.assertEqual([row[key] for key in ("cockpit", "ee", "etc")], ["V", "", "V"])
+        self.assertEqual(row["warning"], "관련 작업 주의사항")
         self.payload["id"] = created.json()["id"]
         self.payload["rows"][0].update({"cockpit": "", "ee": "V", "etc": ""})
         self.assertEqual(
@@ -193,7 +196,7 @@ class CBTemplateTests(TestCase):
     def test_invalid_merge_ranges_rejected(self):
         for merges in (
             [{"field": "panel_loc", "rows": 2, "cols": 1}],
-            [{"field": "description", "rows": 1, "cols": 2}],
+            [{"field": "warning", "rows": 1, "cols": 2}],
             [
                 {"field": "panel_loc", "rows": 1, "cols": 2},
                 {"field": "cb_loc", "rows": 1, "cols": 2},

@@ -19,7 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const applyButton = document.getElementById("cbTemplateApply");
     const status = document.getElementById("cbTemplateStatus");
     const locationKeys = ["cockpit", "ee", "etc"];
-    const keys = [...locationKeys, "panel_loc", "cb_loc", "fin", "description"];
+    const keys = [
+        ...locationKeys,
+        "panel_loc",
+        "cb_loc",
+        "fin",
+        "description",
+        "warning",
+    ];
     let templates = [];
     let selectedId = "";
     let previousAircraftFilter = aircraftFilter.value;
@@ -140,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const input =
                 document.createElement(
-                    key === "description"
+                    ["description", "warning"].includes(key)
                         ? "textarea"
                         : "input",
                 );
@@ -181,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (
-                key === "description"
+                ["description", "warning"].includes(key)
             ) {
                 input.rows = 1;
             }

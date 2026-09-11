@@ -1518,6 +1518,9 @@ document.addEventListener("DOMContentLoaded", () => {
             PASTE_TARGETS.forEach((field) => {
                 setCellValue(row, field, record[field] || "");
             });
+            if (Object.hasOwn(record, "warning")) {
+                setCellValue(row, "warning", record.warning || "");
+            }
             const locationFields = ["cockpit", "ee", "etc"];
             const hasLocationMarks = locationFields.some((field) =>
                 Object.hasOwn(record, field),

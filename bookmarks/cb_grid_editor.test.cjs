@@ -60,6 +60,7 @@ test('template middle insertion, reversible merges and saved merge metadata', as
         assert.equal(saved().rows[1].panel_loc, '');
         await page.locator('#cbTemplateRows [data-field="cb_loc"]').nth(1).fill('NEW');
         await page.locator('#cbTemplateRows [data-field="description"]').nth(1).fill('NEW ITEM');
+        await page.locator('#cbTemplateRows [data-field="warning"]').nth(1).fill('CHECK BEFORE WORK');
         await page.getByRole('button', { name: '병합 범위 선택', exact: true }).click();
         await page.locator('#cbTemplateRows [data-field="panel_loc"]').nth(0).click();
         await page.locator('#cbTemplateRows [data-field="panel_loc"]').nth(1).click();
@@ -86,6 +87,7 @@ test('template middle insertion, reversible merges and saved merge metadata', as
         assert.match(await page.evaluate(() => window.lastAlert || document.querySelector('#cbTemplateStatus').textContent), /수정했습니다/);
         assert.deepEqual(saved().rows[0]._merges, [{ field: 'fin', rows: 1, cols: 2 }]);
         assert.equal(saved().rows[0].fin, 'MERGED TEXT');
+        assert.equal(saved().rows[1].warning, 'CHECK BEFORE WORK');
         await page.getByRole('button', { name: '병합 해제', exact: true }).click();
         assert.equal(await page.locator('#cbTemplateRows [data-field="description"]').first().inputValue(), 'ITEM 1');
         assert.deepEqual(errors, []);

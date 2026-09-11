@@ -1,4 +1,6 @@
-TEMPLATE_FIELDS = ("cockpit", "ee", "etc", "panel_loc", "cb_loc", "fin", "description")
+TEMPLATE_FIELDS = (
+    "cockpit", "ee", "etc", "panel_loc", "cb_loc", "fin", "description", "warning",
+)
 
 
 def clean_template_merges(rows):

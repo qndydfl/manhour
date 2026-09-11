@@ -191,7 +191,7 @@ class CBTemplateView(SimpleLoginRequiredMixin, View):
                 if not isinstance(row, dict):
                     raise ValueError
                 cleaned = {}
-                for field in ("panel_loc", "cb_loc", "fin", "description"):
+                for field in ("panel_loc", "cb_loc", "fin", "description", "warning"):
                     value = row.get(field, "")
                     if not isinstance(value, str) or len(value) > 2000:
                         raise ValueError
@@ -211,7 +211,7 @@ class CBTemplateView(SimpleLoginRequiredMixin, View):
             if not any(
                 row.get(field, "")
                 for row in clean_rows
-                for field in ("cockpit", "ee", "etc", "panel_loc", "cb_loc", "fin", "description")
+                for field in ("cockpit", "ee", "etc", "panel_loc", "cb_loc", "fin", "description", "warning")
             ):
                 raise ValueError
         except (ValueError, TypeError, UnicodeDecodeError):
