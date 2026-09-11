@@ -1133,6 +1133,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return lastUsedRowIndex + 1;
     }
 
+    function getPasteTargetRow() {
+        const row = selectedEditor?.closest("tr");
+
+        return row && tableBody.contains(row) ? row : null;
+    }
+
     /* =====================================================
     ROW RESIZE
     ===================================================== */
@@ -1251,7 +1257,12 @@ document.addEventListener("DOMContentLoaded", () => {
     CLIPBOARD AUTO MAP
     ===================================================== */
 
-    function applyClipboardText(rawText, startRow = 0, format = "auto") {
+    function applyClipboardText(
+        rawText,
+        startRow = 0,
+        format = "auto",
+        targetRow = null,
+    ) {
         let records;
         try {
             records = window.parseCBClipboard(rawText, format);
@@ -1260,15 +1271,31 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        return applyCBRecords(records, startRow);
+        return applyCBRecords(records, startRow, targetRow);
     }
 
-    function applyCBRecords(records, startRow) {
-        /*
-         * 붙여넣을 데이터보다
-         * 현재 행이 부족하면 자동 생성
-         */
-        ensureRows(startRow + records.length);
+    function applyCBRecords(records, startRow, targetRow = null) {
+        if (!records.length) {
+            return 0;
+        }
+
+        const targetIndex = targetRow
+            ? Array.from(tableBody.children).indexOf(targetRow)
+            : -1;
+
+        if (targetRow) {
+            if (rowHasData(targetRow)) {
+                grid.insertRows(targetIndex, records.length);
+            } else if (records.length > 1) {
+                grid.insertRows(targetIndex + 1, records.length - 1);
+            }
+        } else {
+            /*
+             * 붙여넣을 데이터보다
+             * 현재 행이 부족하면 자동 생성
+             */
+            ensureRows(startRow + records.length);
+        }
 
         records.forEach((record, lineIndex) => {
             const row = tableBody.children[startRow + lineIndex];
@@ -1303,6 +1330,9 @@ document.addEventListener("DOMContentLoaded", () => {
             updateAutomaticLocationMarks(row);
         });
         grid.importRows(records, startRow);
+        updateRowNumbers();
+        updateTableSizing();
+        scheduleSheetScale();
         return records.length;
     }
 
@@ -2594,9 +2624,12 @@ document.addEventListener("DOMContentLoaded", () => {
              * 기존 데이터 다음 행부터 추가
              * =========================================
              */
-            const startRow = getNextPasteRowIndex();
+            const targetRow = getPasteTargetRow();
+            const startRow = targetRow
+                ? Array.from(tableBody.children).indexOf(targetRow)
+                : getNextPasteRowIndex();
 
-            const count = applyClipboardText(text, startRow, mode);
+            const count = applyClipboardText(text, startRow, mode, targetRow);
 
             /*
              * =========================================
@@ -2735,7 +2768,15 @@ document.addEventListener("DOMContentLoaded", () => {
             aircraftModelSelect.value = pending.aircraft_model;
             updateHeader();
         }
-        const added = applyCBRecords(pending.rows, getNextPasteRowIndex());
+        const targetRow = getPasteTargetRow();
+        const startRow = targetRow
+            ? Array.from(tableBody.children).indexOf(targetRow)
+            : getNextPasteRowIndex();
+        const added = applyCBRecords(pending.rows, startRow, targetRow);
+
+        if (added) {
+            saveWorkspace();
+        }
         showSaveMessage(
             `${pending.name || "기본"} 템플릿 ${added}행을 문서에 추가했습니다.`,
         );

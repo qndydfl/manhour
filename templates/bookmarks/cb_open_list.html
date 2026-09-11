@@ -1,14 +1,11 @@
 {% extends "manhour/base/result_base.html" %} 
 {% load static %} 
-
-{% block title %}Circuit Breaker Open List{% endblock title %} 
-
+{% block title %}Circuit Breaker Open List{% endblock title %}
 {% block body_class %}cb-open-body{% endblock body_class %} 
-
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_grid_editor.css' %}?v=20260911-3"
+    href="{% static 'css/bookmarks/cb_grid_editor.css' %}?v=20260911-5"
 />
 <link
     rel="stylesheet"
@@ -19,7 +16,7 @@
 {% block js %}
 <script
     defer
-    src="{% static 'js/bookmarks/cb_grid_editor.js' %}?v=20260911-4"
+    src="{% static 'js/bookmarks/cb_grid_editor.js' %}?v=20260911-5"
 ></script>
 <script
     defer
@@ -27,7 +24,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260911-2"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260911-3"
 ></script>
 {% endblock js %} 
 

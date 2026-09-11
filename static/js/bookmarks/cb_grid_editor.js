@@ -325,18 +325,26 @@ window.CBGridEditor = class {
         if (!b)
             return this.notify("행을 추가할 위치의 셀을 먼저 클릭해 주세요.");
         const index = after ? b.bottom + 1 : b.top;
-        const merges = this.merges().map((m) => ({
-            ...m,
-            r: m.r >= index ? m.r + 1 : m.r,
-            rows: m.r < index && m.r + m.rows > index ? m.rows + 1 : m.rows,
-        }));
-        const row = this.createRow();
-        this.body.insertBefore(row, this.body.children[index] || null);
+        this.insertRows(index, 1);
+        const row = this.body.children[index];
         this.active = this.cell(row, this.fields[0]);
         this.rangeEnd = null;
-        this.apply(merges);
         this.changed();
         this.active.querySelector("[data-field]")?.focus();
+    }
+    insertRows(index, count = 1) {
+        if (!Number.isInteger(index) || !Number.isInteger(count) || count < 1)
+            return;
+        const merges = this.merges().map((m) => ({
+            ...m,
+            r: m.r >= index ? m.r + count : m.r,
+            rows: m.r < index && m.r + m.rows > index ? m.rows + count : m.rows,
+        }));
+        for (let i = 0; i < count; i++) {
+            const row = this.createRow();
+            this.body.insertBefore(row, this.body.children[index + i] || null);
+        }
+        this.apply(merges);
     }
     removeRow(row) {
         const index = this.rows().indexOf(row);
