@@ -124,13 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
         remove.className = 'btn btn-outline-danger btn-sm';
         remove.innerHTML = '<i class="bi bi-trash"></i><span class="visually-hidden">행 삭제</span>';
         remove.addEventListener('click', () => {
-            row.remove();
+            grid.removeRow(row);
             if (!rowsBody.children.length) addRow();
             dirty = true;
         });
         actionCell.append(remove);
         row.append(actionCell);
         rowsBody.append(row);
+        return row;
     }
 
     function rowIsEmpty(row) {
@@ -169,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         name.value = item?.name || '';
         rowsBody.replaceChildren();
         (item?.rows?.length ? item.rows : [{}]).forEach(addRow);
+        grid.importRows(item?.rows || []);
         selectedId = item ? String(item.id) : '';
         select.value = selectedId;
         updateButton.disabled = !selectedId;
@@ -178,10 +180,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function readRows() {
-        const rows = Array.from(rowsBody.children).map((row) => Object.fromEntries(
-            keys.map((key) => [key, readCell(row, key)]),
-        )).filter((row) => Object.values(row).some(Boolean));
-        if (!rows.length || rows.some((row) => !row.panel_loc || !row.cb_loc || !row.description)) {
+        const elements = Array.from(rowsBody.children);
+        // Keep row indexes stable for merge ranges, trimming only unused tail rows.
+        const merges = grid.merges();
+        const mergeEnd = Math.max(0, ...merges.map(m => m.r + m.rows));
+        while (elements.length > mergeEnd && rowIsEmpty(elements.at(-1))) elements.pop();
+        const rows = elements.map(row => ({
+            ...Object.fromEntries(keys.map(key => [key, readCell(row, key)])),
+            _merges: grid.exportRow(row),
+        }));
+        if (!rows.length || elements.some((row) => ['panel_loc', 'cb_loc', 'description'].some(key =>
+            !readCell(row, key) && !grid.cell(row, key).classList.contains('cb-grid-covered')))) {
             throw new Error("PANEL, C/B LOC', DESCRIPTION을 입력해 주세요. FIN은 비워둘 수 있습니다.");
         }
         return rows;
@@ -351,6 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = manager.dataset.workspaceUrl;
     });
 
+    const grid = new window.CBGridEditor({
+        body: rowsBody, fields: keys,
+        toolbarHost: document.querySelector('.cb-template-table-wrap'),
+        createRow: () => addRow(), changed: () => { dirty = true; },
+    });
     showEditor();
     refresh();
 });

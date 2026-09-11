@@ -29,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const aircraftModelSelect = document.getElementById("cbOpenAircraftModel");
 
+    const documentBar = document.querySelector(".cb-open-document-bar");
+
     const templatePicker = document.getElementById("cbOpenTemplatePicker");
 
     const templateSelect = document.getElementById("cbOpenTemplateSelect");
@@ -779,10 +781,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const row = document.createElement("tr");
 
         /*
-        * =====================================================
-        * NO
-        * =====================================================
-        */
+         * =====================================================
+         * NO
+         * =====================================================
+         */
         const noCell = document.createElement("td");
 
         noCell.className = "cb-open-number-cell";
@@ -790,27 +792,27 @@ document.addEventListener("DOMContentLoaded", () => {
         noCell.title = "클릭하면 이 줄을 삭제할 수 있습니다";
 
         /*
-        * =====================================================
-        * NO 클릭
-        * → 현재 행 내용 확인
-        * → 삭제 확인 메시지
-        * =====================================================
-        */
+         * =====================================================
+         * NO 클릭
+         * → 현재 행 내용 확인
+         * → 삭제 확인 메시지
+         * =====================================================
+         */
         noCell.addEventListener("click", async (event) => {
             event.preventDefault();
             event.stopPropagation();
 
             /*
-            * 현재 실제 행 번호 계산
-            */
+             * 현재 실제 행 번호 계산
+             */
             const currentNumber =
                 Array.from(tableBody.children).indexOf(row) + 1;
 
             /*
-            * =====================================================
-            * 현재 행 데이터 읽기
-            * =====================================================
-            */
+             * =====================================================
+             * 현재 행 데이터 읽기
+             * =====================================================
+             */
             const panelLoc = cleanText(
                 row.querySelector('[data-field="panel_loc"]')?.innerText,
             );
@@ -828,10 +830,10 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             /*
-            * =====================================================
-            * 삭제 확인 메시지
-            * =====================================================
-            */
+             * =====================================================
+             * 삭제 확인 메시지
+             * =====================================================
+             */
             const message = [
                 `${currentNumber}번 줄을 삭제하시겠습니까?`,
                 "",
@@ -842,127 +844,119 @@ document.addEventListener("DOMContentLoaded", () => {
             ].join("\n");
 
             /*
-            * =====================================================
-            * 삭제 확인
-            * =====================================================
-            */
-            const confirmed = await window.AppDialog.confirm(
-                message,
-                {
-                    title: "줄 삭제",
-                    variant: "danger",
-                    confirmText: "삭제",
-                },
-            );
+             * =====================================================
+             * 삭제 확인
+             * =====================================================
+             */
+            const confirmed = await window.AppDialog.confirm(message, {
+                title: "줄 삭제",
+                variant: "danger",
+                confirmText: "삭제",
+            });
 
             /*
-            * 취소
-            */
+             * 취소
+             */
             if (!confirmed) {
                 return;
             }
 
             /*
-            * =====================================================
-            * 현재 선택 중인 editor가
-            * 삭제하는 행 안에 있으면 초기화
-            * =====================================================
-            */
-            if (
-                selectedEditor &&
-                row.contains(selectedEditor)
-            ) {
+             * =====================================================
+             * 현재 선택 중인 editor가
+             * 삭제하는 행 안에 있으면 초기화
+             * =====================================================
+             */
+            if (selectedEditor && row.contains(selectedEditor)) {
                 selectedEditor = null;
             }
 
             /*
-            * =====================================================
-            * 현재 행 삭제
-            * =====================================================
-            */
-            row.remove();
+             * =====================================================
+             * 현재 행 삭제
+             * =====================================================
+             */
+            grid.removeRow(row);
 
             /*
-            * =====================================================
-            * 모든 행이 삭제된 경우
-            * 최소 1개의 빈 행 유지
-            * =====================================================
-            */
+             * =====================================================
+             * 모든 행이 삭제된 경우
+             * 최소 1개의 빈 행 유지
+             * =====================================================
+             */
             if (!tableBody.children.length) {
                 ensureRows(1);
             }
 
             /*
-            * =====================================================
-            * 행 번호 다시 정렬
-            *
-            * 예:
-            *
-            * 1
-            * 2
-            * 3
-            * 4
-            * 5 ← 삭제
-            * 6
-            * 7
-            *
-            * ↓
-            *
-            * 1
-            * 2
-            * 3
-            * 4
-            * 5 ← 기존 6번
-            * 6 ← 기존 7번
-            * =====================================================
-            */
+             * =====================================================
+             * 행 번호 다시 정렬
+             *
+             * 예:
+             *
+             * 1
+             * 2
+             * 3
+             * 4
+             * 5 ← 삭제
+             * 6
+             * 7
+             *
+             * ↓
+             *
+             * 1
+             * 2
+             * 3
+             * 4
+             * 5 ← 기존 6번
+             * 6 ← 기존 7번
+             * =====================================================
+             */
             updateRowNumbers();
 
             /*
-            * =====================================================
-            * 자동 위치 표시 다시 계산
-            * =====================================================
-            */
+             * =====================================================
+             * 자동 위치 표시 다시 계산
+             * =====================================================
+             */
             refreshAutomaticLocationMarks();
 
             /*
-            * =====================================================
-            * 표 크기 다시 계산
-            * =====================================================
-            */
+             * =====================================================
+             * 표 크기 다시 계산
+             * =====================================================
+             */
             updateTableSizing();
 
             /*
-            * =====================================================
-            * A4 화면 배율 다시 계산
-            * =====================================================
-            */
+             * =====================================================
+             * A4 화면 배율 다시 계산
+             * =====================================================
+             */
             scheduleSheetScale();
 
             /*
-            * =====================================================
-            * 변경 내용 바로 저장
-            * =====================================================
-            */
+             * =====================================================
+             * 변경 내용 바로 저장
+             * =====================================================
+             */
             saveWorkspace();
 
             /*
-            * =====================================================
-            * 완료 메시지
-            * =====================================================
-            */
-            showSaveMessage(
-                `${currentNumber}번 줄을 삭제했습니다.`,
-            );
+             * =====================================================
+             * 완료 메시지
+             * =====================================================
+             */
+            showSaveMessage(`${currentNumber}번 줄을 삭제했습니다.`);
         });
 
         row.appendChild(noCell);
 
         /*
-        * =====================================================
-        * EDITABLE CELLS
-        * =====================================================
-        */
+         * =====================================================
+         * EDITABLE CELLS
+         * =====================================================
+         */
         TABLE_FIELDS.forEach((field) => {
             const td = document.createElement("td");
 
@@ -974,11 +968,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         /*
-        * =====================================================
-        * 마지막 CONFIRM 셀에
-        * 행 높이 조절 handle
-        * =====================================================
-        */
+         * =====================================================
+         * 마지막 CONFIRM 셀에
+         * 행 높이 조절 handle
+         * =====================================================
+         */
         const lastCell = row.lastElementChild;
 
         if (lastCell) {
@@ -1012,14 +1006,13 @@ document.addEventListener("DOMContentLoaded", () => {
         Array.from(tableBody.children).forEach((row, index) => {
             const numberCell = row.querySelector(".cb-open-number-cell");
             const numberText = row.querySelector(".cb-open-row-number");
-            const deleteButton = row.querySelector(
-                ".cb-open-row-delete-btn",
-            );
+            const deleteButton = row.querySelector(".cb-open-row-delete-btn");
 
             const number = index + 1;
 
             if (numberCell) {
                 numberCell.dataset.rowNumber = number;
+                if (!numberText) numberCell.textContent = String(number);
             }
 
             if (numberText) {
@@ -1028,10 +1021,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (deleteButton) {
                 deleteButton.title = `${number}번 줄 삭제`;
-                deleteButton.setAttribute(
-                    "aria-label",
-                    `${number}번 줄 삭제`,
-                );
+                deleteButton.setAttribute("aria-label", `${number}번 줄 삭제`);
             }
         });
     }
@@ -1062,7 +1052,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (isBoeing) {
             if (cockpit) cockpit.textContent = panelValue === "P11" ? "V" : "";
-            if (ee) ee.textContent = panelValue && panelValue !== "P11" ? "V" : "";
+            if (ee)
+                ee.textContent = panelValue && panelValue !== "P11" ? "V" : "";
             if (etc) etc.textContent = "";
         } else {
             if (cockpit) cockpit.textContent = "";
@@ -1076,7 +1067,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function refreshAutomaticLocationMarks() {
         Array.from(tableBody.children).forEach(updateAutomaticLocationMarks);
-    }    
+    }
 
     function rowHasData(row) {
         return Array.from(row.querySelectorAll(".cb-open-cell-editor")).some(
@@ -1093,13 +1084,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (rowHasData(lastRow)) {
             const confirmed = await window.AppDialog.confirm(
-                String(tableBody.children.length) + "번 줄에 입력된 내용이 있습니다. 이 줄을 삭제하시겠습니까?",
-                { title: "마지막 줄 삭제", variant: "danger", confirmText: "줄 삭제" },
+                String(tableBody.children.length) +
+                    "번 줄에 입력된 내용이 있습니다. 이 줄을 삭제하시겠습니까?",
+                {
+                    title: "마지막 줄 삭제",
+                    variant: "danger",
+                    confirmText: "줄 삭제",
+                },
             );
             if (!confirmed) return;
         }
-        if (selectedEditor && lastRow.contains(selectedEditor)) selectedEditor = null;
-        lastRow.remove();
+        if (selectedEditor && lastRow.contains(selectedEditor))
+            selectedEditor = null;
+        grid.removeRow(lastRow);
         updateRowNumbers();
         updateTableSizing();
         scheduleSheetScale();
@@ -1294,13 +1291,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 setCellValue(row, field, record[field] || "");
             });
             const locationFields = ["cockpit", "ee", "etc"];
-            const hasLocationMarks = locationFields.some((field) => Object.hasOwn(record, field));
+            const hasLocationMarks = locationFields.some((field) =>
+                Object.hasOwn(record, field),
+            );
             row.dataset.manualLocationMarks = String(hasLocationMarks);
             if (hasLocationMarks) {
-                locationFields.forEach((field) => setCellValue(row, field, record[field] || ""));
+                locationFields.forEach((field) =>
+                    setCellValue(row, field, record[field] || ""),
+                );
             }
             updateAutomaticLocationMarks(row);
         });
+        grid.importRows(records, startRow);
         return records.length;
     }
 
@@ -1345,16 +1347,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             availableTemplates.forEach((item) => {
-                templateSelect.add(
-                    new Option(`${item.name}`, item.id),
-                );
+                templateSelect.add(new Option(`${item.name}`, item.id));
             });
             templateLoadButton.disabled = false;
             if (templateCount) {
-                templateCount.textContent = String(availableTemplates.length) + "개";
+                templateCount.textContent =
+                    String(availableTemplates.length) + "개";
                 templateCount.hidden = false;
             }
-            templateStatus.textContent = "사용할 템플릿을 선택한 후 불러오기를 누르세요.";
+            templateStatus.textContent =
+                "사용할 템플릿을 선택한 후 불러오기를 누르세요.";
         } catch (error) {
             if (requestId !== templateRequestId) return;
             templateSelect.add(new Option("템플릿을 불러올 수 없음", ""));
@@ -1466,7 +1468,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const horizontalPadding =
             Number.parseFloat(stageStyle.paddingLeft) +
             Number.parseFloat(stageStyle.paddingRight);
-        const availableWidth = Math.max(1, stage.clientWidth - horizontalPadding);
+        const availableWidth = Math.max(
+            1,
+            stage.clientWidth - horizontalPadding,
+        );
         const naturalWidth = sheet.offsetWidth;
         const scale = Math.min(1, availableWidth / naturalWidth);
         sheet.style.zoom = String(scale);
@@ -1488,10 +1493,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const measurementStyle = document.createElement("style");
         const printRules = [];
         for (const stylesheet of document.styleSheets) {
-            if (!stylesheet.href?.includes("/css/bookmarks/cb_open_list.css")) continue;
+            if (!stylesheet.href?.includes("/css/bookmarks/cb_open_list"))
+                continue;
             for (const rule of stylesheet.cssRules) {
-                if (rule.type === CSSRule.MEDIA_RULE && rule.conditionText === "print") {
-                    printRules.push(...Array.from(rule.cssRules, (child) => child.cssText));
+                if (
+                    rule.type === CSSRule.MEDIA_RULE &&
+                    rule.conditionText === "print"
+                ) {
+                    printRules.push(
+                        ...Array.from(rule.cssRules, (child) => child.cssText),
+                    );
                 }
             }
         }
@@ -1510,12 +1521,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const sourceFooter = sheet.querySelector(".cb-open-sheet-footer");
         if (!sourceHeader || !sourceFooter) return;
         const rowsPerPage = 16;
-        const sourceRows = Array.from(tableBody.children);
+        const allRows = Array.from(tableBody.children);
+        const mergeRanges = grid.merges();
         // Trailing form blanks must not create additional printed pages.
         // Interior blanks retain their position between actual records.
-        while (sourceRows.length && !rowHasData(sourceRows[sourceRows.length - 1])) {
-            sourceRows.pop();
+        let usedEnd = allRows.length;
+        while (usedEnd && !rowHasData(allRows[usedEnd - 1])) usedEnd -= 1;
+        for (let i = 0; i < usedEnd; i++) {
+            mergeRanges
+                .filter((m) => m.r === i)
+                .forEach((m) => {
+                    usedEnd = Math.max(usedEnd, m.r + m.rows);
+                });
         }
+        const sourceRows = allRows.slice(0, usedEnd);
         const pages = document.createElement("div");
         pages.className = "cb-print-pages";
         document.body.appendChild(pages);
@@ -1537,7 +1556,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const page = document.createElement("section");
             page.className = "cb-print-page";
             customProperties.forEach((property) => {
-                page.style.setProperty(property, getComputedStyle(sheet).getPropertyValue(property));
+                page.style.setProperty(
+                    property,
+                    getComputedStyle(sheet).getPropertyValue(property),
+                );
             });
             const header = sourceHeader.cloneNode(true);
             const printTable = table.cloneNode(true);
@@ -1547,40 +1569,86 @@ document.addEventListener("DOMContentLoaded", () => {
             printBody.replaceChildren();
 
             [header, printTable, footer].forEach((element) => {
-                element.querySelectorAll("[id]").forEach((child) => child.removeAttribute("id"));
-                element.querySelectorAll("[contenteditable]").forEach((child) => child.removeAttribute("contenteditable"));
-                element.querySelectorAll(".cb-open-col-resizer, .cb-open-row-resizer").forEach((child) => child.remove());
+                element
+                    .querySelectorAll("[id]")
+                    .forEach((child) => child.removeAttribute("id"));
+                element
+                    .querySelectorAll("[contenteditable]")
+                    .forEach((child) =>
+                        child.removeAttribute("contenteditable"),
+                    );
+                element
+                    .querySelectorAll(
+                        ".cb-open-col-resizer, .cb-open-row-resizer",
+                    )
+                    .forEach((child) => child.remove());
             });
             page.append(header, printTable, footer);
             pages.appendChild(page);
             // Measure at the actual print width, reserving both document headers.
-            const availableTableHeight = () => page.getBoundingClientRect().height
-                - header.getBoundingClientRect().height
-                - parseFloat(getComputedStyle(header).marginBottom || 0)
-                - footer.getBoundingClientRect().height - 2;
-            const fits = () => printTable.getBoundingClientRect().height <= availableTableHeight();
+            const availableTableHeight = () =>
+                page.getBoundingClientRect().height -
+                header.getBoundingClientRect().height -
+                parseFloat(getComputedStyle(header).marginBottom || 0) -
+                footer.getBoundingClientRect().height -
+                2;
+            const fits = () =>
+                printTable.getBoundingClientRect().height <=
+                availableTableHeight();
             const appendRow = (row) => {
-                row.querySelectorAll('[id]').forEach((child) => child.removeAttribute('id'));
-                row.querySelectorAll('[contenteditable]').forEach((child) => child.removeAttribute('contenteditable'));
-                row.querySelectorAll('.cb-open-col-resizer, .cb-open-row-resizer').forEach((child) => child.remove());
-                const numberCell = row.querySelector('.cb-open-number-cell');
-                if (numberCell) numberCell.textContent = String(printBody.children.length + 1);
+                row.querySelectorAll("[id]").forEach((child) =>
+                    child.removeAttribute("id"),
+                );
+                row.querySelectorAll("[contenteditable]").forEach((child) =>
+                    child.removeAttribute("contenteditable"),
+                );
+                row.querySelectorAll(
+                    ".cb-open-col-resizer, .cb-open-row-resizer",
+                ).forEach((child) => child.remove());
+                const numberCell = row.querySelector(".cb-open-number-cell");
+                if (numberCell)
+                    numberCell.textContent = String(
+                        printBody.children.length + 1,
+                    );
                 printBody.appendChild(row);
             };
-            while (sourceIndex < sourceRows.length && printBody.children.length < rowsPerPage) {
-                const row = sourceRows[sourceIndex].cloneNode(true);
-                appendRow(row);
-                if (!fits() && printBody.children.length > 1) {
-                    row.remove();
+            while (
+                sourceIndex < sourceRows.length &&
+                printBody.children.length < rowsPerPage
+            ) {
+                // Keep vertically merged rows together so no continuation loses
+                // its anchor cell or shifts into the wrong column.
+                let groupEnd = sourceIndex + 1;
+                for (let i = sourceIndex; i < groupEnd; i++) {
+                    mergeRanges
+                        .filter((m) => m.r === i)
+                        .forEach((m) => {
+                            groupEnd = Math.max(groupEnd, m.r + m.rows);
+                        });
+                }
+                const previousCount = printBody.children.length;
+                if (
+                    previousCount &&
+                    previousCount + groupEnd - sourceIndex > rowsPerPage
+                )
+                    break;
+                const group = sourceRows
+                    .slice(sourceIndex, groupEnd)
+                    .map((row) => row.cloneNode(true));
+                group.forEach(appendRow);
+                if (!fits() && previousCount) {
+                    group.forEach((row) => row.remove());
                     break;
                 }
-                sourceIndex += 1;
+                sourceIndex = groupEnd;
                 if (!fits()) {
                     // An individual oversized row gets its own page, scaled to fit.
                     const available = availableTableHeight();
                     const actual = printTable.getBoundingClientRect().height;
                     if (available > 0 && actual > 0) {
-                        printTable.style.zoom = String(Math.min(1, available / actual));
+                        printTable.style.zoom = String(
+                            Math.min(1, available / actual),
+                        );
                     }
                     break;
                 }
@@ -1687,6 +1755,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return {
                 height: row.style.height || "",
                 manualLocationMarks: row.dataset.manualLocationMarks === "true",
+                _merges: grid.exportRow(row),
 
                 cells: cells,
             };
@@ -1875,27 +1944,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* =====================================================
-       RESTORE WORKSPACE
-       ===================================================== */
-
-    function restoreWorkspace() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-
-        if (!raw) {
-            return false;
-        }
-
-        let data;
-
-        try {
-            data = JSON.parse(raw);
-        } catch (error) {
-            console.error("저장 데이터 읽기 실패", error);
-
-            return false;
-        }
-
+    function applyWorkspaceData(data) {
         /*
          * =========================================
          * DOCUMENT
@@ -1917,12 +1966,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        /*
-         * =========================================
-         * FOOTER
-         * =========================================
-         */
-
         if (issueDateInput) {
             issueDateInput.value = data.footer?.issueDate || DEFAULT_ISSUE_DATE;
         }
@@ -1936,12 +1979,6 @@ document.addEventListener("DOMContentLoaded", () => {
             documentNumberInput.value =
                 data.footer?.documentNumber || DEFAULT_DOCUMENT_NUMBER;
         }
-
-        /*
-         * =========================================
-         * TABLE SETTINGS
-         * =========================================
-         */
 
         restoreDocumentFonts(data.documentFonts);
         if (data.tableSettings) {
@@ -1963,23 +2000,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        /*
-         * =========================================
-         * COLUMN WIDTH
-         * =========================================
-         */
-
         if (data.columnWidths) {
             Object.entries(data.columnWidths).forEach(([key, width]) => {
                 setColumnWidth(key, Number(width), false);
             });
         }
-
-        /*
-         * =========================================
-         * TABLE ROW
-         * =========================================
-         */
 
         tableBody.innerHTML = "";
 
@@ -1988,20 +2013,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (Array.isArray(data.rows) && data.rows.length > 0) {
             data.rows.forEach((savedRow, index) => {
                 const row = createRow(index + 1);
-                row.dataset.manualLocationMarks = String(savedRow.manualLocationMarks === true);
+                row.dataset.manualLocationMarks = String(
+                    savedRow.manualLocationMarks === true,
+                );
 
-                /*
-                 * 저장된 행 높이
-                 */
                 if (savedRow.height) {
                     row.style.height = savedRow.height;
                 }
-
-                /*
-                 * =================================
-                 * CELL DATA
-                 * =================================
-                 */
 
                 if (savedRow.cells) {
                     Object.entries(savedRow.cells).forEach(
@@ -2014,12 +2032,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 return;
                             }
 
-                            /*
-                             * 과거 저장 버전 호환
-                             *
-                             * 과거에는
-                             * cellData가 문자열일 수 있음
-                             */
                             if (typeof cellData === "string") {
                                 editor.innerText = cellData;
 
@@ -2041,15 +2053,49 @@ document.addEventListener("DOMContentLoaded", () => {
             ensureRows(DEFAULT_ROWS);
         }
 
+        grid.importRows(data.rows || []);
         updateRowNumbers();
-
         updateHeader();
-
         updateFooter();
-
         updateTableSizing();
-
         return true;
+    }
+
+    /* =====================================================
+       RESTORE WORKSPACE
+       ===================================================== */
+
+    function restoreWorkspace() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+
+        if (!raw) {
+            return false;
+        }
+
+        let data;
+
+        try {
+            data = JSON.parse(raw);
+        } catch (error) {
+            console.error("저장 데이터 읽기 실패", error);
+
+            return false;
+        }
+
+        return applyWorkspaceData(data);
+    }
+
+    function shouldForceNewWorkspace() {
+        try {
+            if (sessionStorage.getItem(FORCE_NEW_KEY) !== "1") {
+                return false;
+            }
+            sessionStorage.removeItem(FORCE_NEW_KEY);
+            return true;
+        } catch (error) {
+            console.warn("새 문서 시작 플래그를 읽지 못했습니다.", error);
+            return false;
+        }
     }
 
     /* =====================================================
@@ -2489,27 +2535,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    
     /* =====================================================
     PASTE SOURCE
     ===================================================== */
 
     /*
-    * textarea에 붙여넣을 때는
-    * 아무 작업도 하지 않습니다.
-    *
-    * Ctrl + V → textarea 안에만 데이터 표시
-    * 입력 저장 클릭 → 실제 표에 반영
-    */
+     * textarea에 붙여넣을 때는
+     * 아무 작업도 하지 않습니다.
+     *
+     * Ctrl + V → textarea 안에만 데이터 표시
+     * 입력 저장 클릭 → 실제 표에 반영
+     */
 
     document
         .getElementById("cbOpenManualImport")
         ?.addEventListener("click", () => {
             /*
-            * =========================================
-            * 기종 / 기번 확인
-            * =========================================
-            */
+             * =========================================
+             * 기종 / 기번 확인
+             * =========================================
+             */
             if (!validateRequiredDocumentInfo()) {
                 return;
             }
@@ -2517,10 +2562,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const text = pasteSource.value;
 
             /*
-            * =========================================
-            * 입력 데이터 확인
-            * =========================================
-            */
+             * =========================================
+             * 입력 데이터 확인
+             * =========================================
+             */
             if (!cleanText(text)) {
                 alert("표 데이터를 먼저 붙여넣어 주세요.");
                 pasteSource.focus();
@@ -2528,42 +2573,36 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             /*
-            * =========================================
-            * Airbus / Boeing 데이터 자동 판별
-            * =========================================
-            *
-            * TAB이 포함된 복사 표:
-            *   Airbus 표 형식으로 자동 처리
-            *
-            * 쉼표 직접 입력:
-            *   Boeing 수동 입력으로 처리
-            */
+             * =========================================
+             * Airbus / Boeing 데이터 자동 판별
+             * =========================================
+             *
+             * TAB이 포함된 복사 표:
+             *   Airbus 표 형식으로 자동 처리
+             *
+             * 쉼표 직접 입력:
+             *   Boeing 수동 입력으로 처리
+             */
             const isTableData =
                 text.includes("\t") ||
                 /Row\s+Col(?:umn)?\s+Number\s+Name/i.test(text);
 
-            const mode = isTableData
-                ? "auto"
-                : "boeing-manual";
+            const mode = isTableData ? "auto" : "boeing-manual";
 
             /*
-            * =========================================
-            * 기존 데이터 다음 행부터 추가
-            * =========================================
-            */
+             * =========================================
+             * 기존 데이터 다음 행부터 추가
+             * =========================================
+             */
             const startRow = getNextPasteRowIndex();
 
-            const count = applyClipboardText(
-                text,
-                startRow,
-                mode,
-            );
+            const count = applyClipboardText(text, startRow, mode);
 
             /*
-            * =========================================
-            * 정상 입력 완료
-            * =========================================
-            */
+             * =========================================
+             * 정상 입력 완료
+             * =========================================
+             */
             if (count) {
                 pasteSource.value = "";
 
@@ -2649,6 +2688,18 @@ document.addEventListener("DOMContentLoaded", () => {
     /*
      * 저장된 작업 자동 복원
      */
+    const grid = new window.CBGridEditor({
+        body: tableBody,
+        fields: TABLE_FIELDS,
+        toolbarHost: document.querySelector(".cb-open-sheet-stage"),
+        createRow: () => createRow(1),
+        changed: () => {
+            updateRowNumbers();
+            updateTableSizing();
+            scheduleSheetScale();
+            saveWorkspace();
+        },
+    });
     const restored = restoreWorkspace();
 
     /*

@@ -8,15 +8,26 @@
 {% block css %}
 <link
     rel="stylesheet"
+    href="{% static 'css/bookmarks/cb_grid_editor.css' %}?v=20260911-3"
+/>
+<link
+    rel="stylesheet"
     href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260910-16"
 />
 {% endblock css %} 
 
 {% block js %}
-<script defer src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260910-23"
+    src="{% static 'js/bookmarks/cb_grid_editor.js' %}?v=20260911-3"
+></script>
+<script
+    defer
+    src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"
+></script>
+<script
+    defer
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260911-2"
 ></script>
 {% endblock js %} 
 
@@ -46,7 +57,11 @@
                 <span>줄 추가</span>
             </button>
 
-            <button type="button" id="cbOpenListDeleteRow" class="cb-open-top-btn">
+            <button
+                type="button"
+                id="cbOpenListDeleteRow"
+                class="cb-open-top-btn"
+            >
                 <i class="bi bi-dash-lg"></i>
                 <span>줄 삭제</span>
             </button>
@@ -110,16 +125,16 @@
         <div class="cb-document-field">
             <label for="cbOpenAircraftModel"> 기종 </label>
 
-            <select id="cbOpenAircraftModel" required class="form-select form-select-sm">
-                <option value="">
-                    기종 선택
-                </option>
-                
+            <select
+                id="cbOpenAircraftModel"
+                required
+                class="form-select form-select-sm"
+            >
+                <option value="">기종 선택</option>
+
                 {% for aircraft_model in aircraft_models %}
 
-                <option
-                    value="{{ aircraft_model }}"
-                >
+                <option value="{{ aircraft_model }}">
                     {{ aircraft_model }}
                 </option>
 
@@ -177,12 +192,27 @@
     >
         <div class="cb-open-template-copy">
             <strong><i class="bi bi-collection"></i> 기본 템플릿</strong>
-            <small id="cbOpenTemplateStatus">선택한 기종의 저장된 템플릿을 확인합니다.</small>
+            <small id="cbOpenTemplateStatus"
+                >선택한 기종의 저장된 템플릿을 확인합니다.</small
+            >
         </div>
         <div class="cb-open-template-actions">
-            <select id="cbOpenTemplateSelect" class="form-select form-select-sm" aria-label="기본 템플릿 선택"></select>
-            <span id="cbOpenTemplateCount" class="cb-open-template-count" hidden></span>
-            <button id="cbOpenTemplateLoad" type="button" class="btn btn-primary btn-sm" disabled>
+            <select
+                id="cbOpenTemplateSelect"
+                class="form-select form-select-sm"
+                aria-label="기본 템플릿 선택"
+            ></select>
+            <span
+                id="cbOpenTemplateCount"
+                class="cb-open-template-count"
+                hidden
+            ></span>
+            <button
+                id="cbOpenTemplateLoad"
+                type="button"
+                class="btn btn-primary btn-sm"
+                disabled
+            >
                 <i class="bi bi-download me-1"></i>불러오기
             </button>
         </div>
@@ -200,8 +230,8 @@
                 </strong>
 
                 <small>
-                    Airbus 표 또는 Boeing 데이터를 붙여넣은 후
-                    입력 하기 버튼을 누르면 C/B 표에 추가됩니다.
+                    Airbus 표 또는 Boeing 데이터를 붙여넣은 후 입력 하기 버튼을
+                    누르면 C/B 표에 추가됩니다.
                 </small>
             </div>
 
@@ -220,9 +250,18 @@
             rows="2"
             placeholder="예: P110, P 23, , L ENG T/R CTRL&#10;여러 건은 한 줄에 하나씩 입력하세요."
         ></textarea>
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
-            <small class="text-secondary">FIN이 없으면 쉼표 사이를 비워 주세요. 입력 하기 버튼 클릭시 표에 추가하고 이 브라우저에 저장합니다.</small>
-            <button type="button" id="cbOpenManualImport" class="btn btn-primary btn-sm">
+        <div
+            class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2"
+        >
+            <small class="text-secondary"
+                >FIN이 없으면 쉼표 사이를 비워 주세요. 입력 하기 버튼 클릭시
+                표에 추가하고 이 브라우저에 저장합니다.</small
+            >
+            <button
+                type="button"
+                id="cbOpenManualImport"
+                class="btn btn-primary btn-sm"
+            >
                 <i class="bi bi-floppy me-1"></i>입력 하기
             </button>
         </div>
@@ -493,13 +532,22 @@
             ========================================= -->
             <footer class="cb-open-sheet-footer">
                 <!-- 왼쪽 -->
-                <div class="cb-open-footer-left" id="cbOpenFooterIssueDate">제정 : 2026.01.05</div>
+                <div class="cb-open-footer-left" id="cbOpenFooterIssueDate">
+                    제정 : 2026.01.05
+                </div>
 
                 <!-- 가운데 -->
-                <div class="cb-open-footer-center" id="cbOpenFooterCompany">ASIANA AIRLINES</div>
+                <div class="cb-open-footer-center" id="cbOpenFooterCompany">
+                    ASIANA AIRLINES
+                </div>
 
                 <!-- 오른쪽 -->
-                <div class="cb-open-footer-right" id="cbOpenFooterDocumentNumber">AAR-MX-817-04</div>
+                <div
+                    class="cb-open-footer-right"
+                    id="cbOpenFooterDocumentNumber"
+                >
+                    AAR-MX-817-04
+                </div>
             </footer>
         </div>
     </section>
@@ -546,13 +594,20 @@
     <div class="offcanvas-body cb-open-settings-body">
         <section class="cb-setting-section">
             <div class="cb-setting-section-header">
-                <div class="cb-setting-section-icon"><i class="bi bi-collection"></i></div>
+                <div class="cb-setting-section-icon">
+                    <i class="bi bi-collection"></i>
+                </div>
                 <div>
                     <h6>기본 템플릿</h6>
-                    <small>기종별 C/B 기본 데이터를 생성하거나 수정합니다.</small>
+                    <small
+                        >기종별 C/B 기본 데이터를 생성하거나 수정합니다.</small
+                    >
                 </div>
             </div>
-            <a href="{% url 'bookmarks:cb_template_manage' %}" class="btn cb-setting-action-btn w-100">
+            <a
+                href="{% url 'bookmarks:cb_template_manage' %}"
+                class="btn cb-setting-action-btn w-100"
+            >
                 <i class="bi bi-box-arrow-up-right"></i>
                 기본 템플릿 관리
             </a>
@@ -560,35 +615,78 @@
 
         <section class="cb-setting-section">
             <div class="cb-setting-section-header">
-                <div class="cb-setting-section-icon"><i class="bi bi-file-earmark-text"></i></div>
+                <div class="cb-setting-section-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
                 <div>
                     <h6>문서 상단 정보</h6>
-                    <small>기번·제목·기종의 글자 크기를 조절합니다. 내용은 문서 상단에서 수정할 수 있습니다.</small>
+                    <small
+                        >기번·제목·기종의 글자 크기를 조절합니다. 내용은 문서
+                        상단에서 수정할 수 있습니다.</small
+                    >
                 </div>
             </div>
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
                     <label for="cbDocumentFont-aircraft">기번 글자 크기</label>
-                    <output for="cbDocumentFont-aircraft" data-document-font-value="aircraft">18px</output>
+                    <output
+                        for="cbDocumentFont-aircraft"
+                        data-document-font-value="aircraft"
+                        >18px</output
+                    >
                 </div>
-                <input id="cbDocumentFont-aircraft" class="form-range" type="range"
-                    min="8" max="32" step="1" value="18" data-document-font="aircraft" />
+                <input
+                    id="cbDocumentFont-aircraft"
+                    class="form-range"
+                    type="range"
+                    min="8"
+                    max="32"
+                    step="1"
+                    value="18"
+                    data-document-font="aircraft"
+                />
             </div>
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
-                    <label for="cbDocumentFont-title">문서 제목 글자 크기</label>
-                    <output for="cbDocumentFont-title" data-document-font-value="title">22px</output>
+                    <label for="cbDocumentFont-title"
+                        >문서 제목 글자 크기</label
+                    >
+                    <output
+                        for="cbDocumentFont-title"
+                        data-document-font-value="title"
+                        >22px</output
+                    >
                 </div>
-                <input id="cbDocumentFont-title" class="form-range" type="range"
-                    min="8" max="32" step="1" value="22" data-document-font="title" />
+                <input
+                    id="cbDocumentFont-title"
+                    class="form-range"
+                    type="range"
+                    min="8"
+                    max="32"
+                    step="1"
+                    value="22"
+                    data-document-font="title"
+                />
             </div>
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
                     <label for="cbDocumentFont-model">기종 글자 크기</label>
-                    <output for="cbDocumentFont-model" data-document-font-value="model">13px</output>
+                    <output
+                        for="cbDocumentFont-model"
+                        data-document-font-value="model"
+                        >13px</output
+                    >
                 </div>
-                <input id="cbDocumentFont-model" class="form-range" type="range"
-                    min="8" max="32" step="1" value="13" data-document-font="model" />
+                <input
+                    id="cbDocumentFont-model"
+                    class="form-range"
+                    type="range"
+                    min="8"
+                    max="32"
+                    step="1"
+                    value="13"
+                    data-document-font="model"
+                />
             </div>
         </section>
         <!-- =============================================
@@ -642,7 +740,7 @@
                     step="1"
                     value="12"
                 />
-            </div>            
+            </div>
 
             <!-- 헤더 여백 -->
             <div class="cb-setting-field">
@@ -754,7 +852,10 @@
 
                 <div>
                     <h6>문서 하단 정보</h6>
-                    <small>하단 문구와 글자 크기를 조절합니다. 인쇄에도 반영됩니다.</small>
+                    <small
+                        >하단 문구와 글자 크기를 조절합니다. 인쇄에도
+                        반영됩니다.</small
+                    >
                 </div>
             </div>
 
@@ -793,26 +894,64 @@
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
                     <label for="cbDocumentFont-issue">제정일 글자 크기</label>
-                    <output for="cbDocumentFont-issue" data-document-font-value="issue">12px</output>
+                    <output
+                        for="cbDocumentFont-issue"
+                        data-document-font-value="issue"
+                        >12px</output
+                    >
                 </div>
-                <input id="cbDocumentFont-issue" class="form-range" type="range"
-                    min="8" max="32" step="1" value="12" data-document-font="issue" />
+                <input
+                    id="cbDocumentFont-issue"
+                    class="form-range"
+                    type="range"
+                    min="8"
+                    max="32"
+                    step="1"
+                    value="12"
+                    data-document-font="issue"
+                />
             </div>
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
                     <label for="cbDocumentFont-company">회사명 글자 크기</label>
-                    <output for="cbDocumentFont-company" data-document-font-value="company">14px</output>
+                    <output
+                        for="cbDocumentFont-company"
+                        data-document-font-value="company"
+                        >14px</output
+                    >
                 </div>
-                <input id="cbDocumentFont-company" class="form-range" type="range"
-                    min="8" max="32" step="1" value="14" data-document-font="company" />
+                <input
+                    id="cbDocumentFont-company"
+                    class="form-range"
+                    type="range"
+                    min="8"
+                    max="32"
+                    step="1"
+                    value="14"
+                    data-document-font="company"
+                />
             </div>
             <div class="cb-setting-field">
                 <div class="cb-setting-label-row">
-                    <label for="cbDocumentFont-number">문서 번호 글자 크기</label>
-                    <output for="cbDocumentFont-number" data-document-font-value="number">12px</output>
+                    <label for="cbDocumentFont-number"
+                        >문서 번호 글자 크기</label
+                    >
+                    <output
+                        for="cbDocumentFont-number"
+                        data-document-font-value="number"
+                        >12px</output
+                    >
                 </div>
-                <input id="cbDocumentFont-number" class="form-range" type="range"
-                    min="8" max="32" step="1" value="12" data-document-font="number" />
+                <input
+                    id="cbDocumentFont-number"
+                    class="form-range"
+                    type="range"
+                    min="8"
+                    max="32"
+                    step="1"
+                    value="12"
+                    data-document-font="number"
+                />
             </div>
         </section>
 
@@ -841,21 +980,141 @@
                         cb-width-grid 내용을 그대로 여기에 둡니다. -->
 
                     <div class="cb-width-grid">
-                        <label><span>NO</span><input type="number" min="26" max="160" value="38" data-col-width-input="no" /></label>
-                        <label><span>COCKPIT</span><input type="number" min="30" max="160" value="42" data-col-width-input="cockpit" /></label>
-                        <label><span>E&amp;E</span><input type="number" min="28" max="160" value="38" data-col-width-input="ee" /></label>
-                        <label><span>ETC</span><input type="number" min="28" max="160" value="38" data-col-width-input="etc" /></label>
-                        <label><span>PANEL</span><input type="number" min="55" max="300" value="55" data-col-width-input="panel-loc" /></label>
-                        <label><span>C/B LOC'</span><input type="number" min="70" max="350" value="70" data-col-width-input="cb-loc" /></label>
-                        <label><span>FIN</span><input type="number" min="48" max="240" value="65" data-col-width-input="fin" /></label>
-                        <label><span>DESCRIPTION</span><input type="number" min="90" max="500" value="150" data-col-width-input="description" /></label>
-                        <label><span>WARNING</span><input type="number" min="110" max="500" value="205" data-col-width-input="warning" /></label>
-                        <label><span>OPEN DATE</span><input type="number" min="50" max="240" value="67" data-col-width-input="open-date" /></label>
-                        <label><span>OPEN SHOP</span><input type="number" min="50" max="240" value="67" data-col-width-input="open-shop" /></label>
-                        <label><span>OPEN MECH</span><input type="number" min="50" max="240" value="67" data-col-width-input="open-mech" /></label>
-                        <label><span>CLOSE DATE</span><input type="number" min="50" max="240" value="67" data-col-width-input="close-date" /></label>
-                        <label><span>CLOSE MECH</span><input type="number" min="50" max="240" value="67" data-col-width-input="close-mech" /></label>
-                        <label><span>CONFIRM</span><input type="number" min="52" max="240" value="72" data-col-width-input="confirm" /></label>
+                        <label
+                            ><span>NO</span
+                            ><input
+                                type="number"
+                                min="26"
+                                max="160"
+                                value="38"
+                                data-col-width-input="no"
+                        /></label>
+                        <label
+                            ><span>COCKPIT</span
+                            ><input
+                                type="number"
+                                min="30"
+                                max="160"
+                                value="42"
+                                data-col-width-input="cockpit"
+                        /></label>
+                        <label
+                            ><span>E&amp;E</span
+                            ><input
+                                type="number"
+                                min="28"
+                                max="160"
+                                value="38"
+                                data-col-width-input="ee"
+                        /></label>
+                        <label
+                            ><span>ETC</span
+                            ><input
+                                type="number"
+                                min="28"
+                                max="160"
+                                value="38"
+                                data-col-width-input="etc"
+                        /></label>
+                        <label
+                            ><span>PANEL</span
+                            ><input
+                                type="number"
+                                min="55"
+                                max="300"
+                                value="55"
+                                data-col-width-input="panel-loc"
+                        /></label>
+                        <label
+                            ><span>C/B LOC'</span
+                            ><input
+                                type="number"
+                                min="70"
+                                max="350"
+                                value="70"
+                                data-col-width-input="cb-loc"
+                        /></label>
+                        <label
+                            ><span>FIN</span
+                            ><input
+                                type="number"
+                                min="48"
+                                max="240"
+                                value="65"
+                                data-col-width-input="fin"
+                        /></label>
+                        <label
+                            ><span>DESCRIPTION</span
+                            ><input
+                                type="number"
+                                min="90"
+                                max="500"
+                                value="150"
+                                data-col-width-input="description"
+                        /></label>
+                        <label
+                            ><span>WARNING</span
+                            ><input
+                                type="number"
+                                min="110"
+                                max="500"
+                                value="205"
+                                data-col-width-input="warning"
+                        /></label>
+                        <label
+                            ><span>OPEN DATE</span
+                            ><input
+                                type="number"
+                                min="50"
+                                max="240"
+                                value="67"
+                                data-col-width-input="open-date"
+                        /></label>
+                        <label
+                            ><span>OPEN SHOP</span
+                            ><input
+                                type="number"
+                                min="50"
+                                max="240"
+                                value="67"
+                                data-col-width-input="open-shop"
+                        /></label>
+                        <label
+                            ><span>OPEN MECH</span
+                            ><input
+                                type="number"
+                                min="50"
+                                max="240"
+                                value="67"
+                                data-col-width-input="open-mech"
+                        /></label>
+                        <label
+                            ><span>CLOSE DATE</span
+                            ><input
+                                type="number"
+                                min="50"
+                                max="240"
+                                value="67"
+                                data-col-width-input="close-date"
+                        /></label>
+                        <label
+                            ><span>CLOSE MECH</span
+                            ><input
+                                type="number"
+                                min="50"
+                                max="240"
+                                value="67"
+                                data-col-width-input="close-mech"
+                        /></label>
+                        <label
+                            ><span>CONFIRM</span
+                            ><input
+                                type="number"
+                                min="52"
+                                max="240"
+                                value="72"
+                                data-col-width-input="confirm"
+                        /></label>
                     </div>
 
                     <button
