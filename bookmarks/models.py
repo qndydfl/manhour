@@ -2,17 +2,26 @@ from django.db import models
 
 
 class CBAircraftModel(models.Model):
-    site = models.CharField(max_length=50, verbose_name="근무지")
-    code = models.CharField(max_length=20, verbose_name="기종")
+    code = models.CharField(
+        max_length=20,
+        unique=True,
+        verbose_name="기종",
+    )
+
+    image = models.ImageField(
+        upload_to="images/bookmarks/aircraft/",
+        blank=True,
+        null=True,
+        verbose_name="기종 이미지",
+    )
 
     class Meta:
         ordering = ["code"]
-        constraints = [models.UniqueConstraint(
-            fields=["site", "code"], name="unique_cb_aircraft_model_per_site",
-        )]
+        verbose_name = "C/B Aircraft Model"
+        verbose_name_plural = "C/B Aircraft Models"
 
     def __str__(self):
-        return f"{self.code} ({self.site})"
+        return self.code
 
 
 class CBTemplate(models.Model):
@@ -22,11 +31,18 @@ class CBTemplate(models.Model):
     rows = models.JSONField(default=list, verbose_name="기본 데이터")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
     class Meta:
         ordering = ["aircraft_model", "name"]
-        constraints = [models.UniqueConstraint(
-            fields=["site", "aircraft_model", "name"], name="unique_cb_template_per_site",
-        )]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["site", "aircraft_model", "name"],
+                name="unique_cb_template_per_site",
+            )
+        ]
 
     def __str__(self):
         return f"{self.aircraft_model} · {self.name} ({self.site})"

@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteButton = document.getElementById("cbTemplateDelete");
     const applyButton = document.getElementById("cbTemplateApply");
     const status = document.getElementById("cbTemplateStatus");
+    const pageTitle = document.getElementById("cbTemplatePageTitle");
+    const gridToolsToggle = document.getElementById("cbTemplateGridToolsToggle");
+    const deleteSelectedButton = document.getElementById("cbTemplateDeleteSelected");
+
     const locationKeys = ["cockpit", "ee", "etc"];
     const keys = [
         ...locationKeys,
@@ -32,6 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let previousAircraftFilter = aircraftFilter.value;
     let dirty = false;
     const csrfToken = manager.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    function setDirty(value) {
+        dirty = Boolean(value);
+        updateButton.disabled = !selectedId || !dirty;
+    }
 
     function showStatus(message = "", type = "") {
         status.textContent = message;
@@ -136,6 +145,74 @@ document.addEventListener("DOMContentLoaded", () => {
         const row =
             document.createElement("tr");
 
+        /* =====================================================
+        NO
+        - 클릭: 삭제할 행 선택
+        - 드래그: 행 이동
+        ===================================================== */
+
+        const numberCell =
+            document.createElement("td");
+
+        numberCell.className =
+            "cb-template-number-cell";
+
+        const number =
+            rowsBody.children.length + 1;
+
+        numberCell.textContent =
+            String(number);
+
+        numberCell.dataset.rowNumber =
+            String(number);
+
+        /*
+        * NO 자체를 드래그 핸들로 사용
+        */
+        numberCell.dataset.templateDragHandle =
+            "true";
+
+        numberCell.title =
+            `${number}번 행 - 클릭하여 선택 / 위아래로 드래그하여 이동`;
+
+        numberCell.setAttribute(
+            "draggable",
+            "false",
+        );
+
+
+        /*
+        * 클릭 → 선택
+        */
+        numberCell.addEventListener(
+            "click",
+            (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                /*
+                * 드래그 직후 발생하는 click 방지
+                */
+                if (
+                    row.dataset.justDragged === "true"
+                ) {
+                    row.dataset.justDragged =
+                        "false";
+
+                    return;
+                }
+
+                row.classList.toggle(
+                    "cb-template-row-selected",
+                );
+
+                updateBulkSelectionState();
+            },
+        );
+
+        row.appendChild(numberCell);
+
+
         /*
         * =====================================================
         * DATA CELLS
@@ -155,17 +232,20 @@ document.addEventListener("DOMContentLoaded", () => {
             input.className =
                 "form-control";
 
-            input.dataset.field = key;
+            input.dataset.field =
+                key;
 
             input.value =
                 values[key] || "";
 
-            input.maxLength = 2000;
+            input.maxLength =
+                2000;
 
             input.setAttribute(
                 "aria-label",
                 key,
             );
+
 
             /*
             * COCKPIT / E/E / ETC
@@ -173,7 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (
                 locationKeys.includes(key)
             ) {
-                input.type = "checkbox";
+                input.type =
+                    "checkbox";
 
                 input.className =
                     "form-check-input cb-template-location-check";
@@ -187,128 +268,156 @@ document.addEventListener("DOMContentLoaded", () => {
                     "text-center";
             }
 
+
             if (
                 ["description", "warning"].includes(key)
             ) {
-                input.rows = 1;
+                input.rows =
+                    1;
             }
+
 
             cell.append(input);
 
             row.append(cell);
         });
 
-        /*
-        * =====================================================
-        * ACTION CELL
-        * =====================================================
-        */
-        const actionCell =
-            document.createElement("td");
 
-        actionCell.className =
-            "text-center cb-template-row-action-cell";
+        rowsBody.append(row);
 
-        const actionStack =
-            document.createElement("div");
+        updateRowNumbers();
 
-        actionStack.className =
-            "cb-template-row-actions";
-
-        /*
-        * =====================================================
-        * DRAG HANDLE
-        * =====================================================
-        */
-        const moveHandle =
-            document.createElement("button");
-
-        moveHandle.type = "button";
-
-        moveHandle.className =
-            "cb-template-row-drag-handle";
-
-        moveHandle.dataset.templateDragHandle =
-            "true";
-
-        moveHandle.title =
-            "마우스로 잡고 위아래로 이동";
-
-        moveHandle.setAttribute(
-            "aria-label",
-            "행 이동",
-        );
-
-        moveHandle.innerHTML = `
-            <i class="bi bi-grip-vertical"></i>
-            <span>이동</span>
-        `;
-
-        /*
-        * 버튼 기본 click 동작 방지
-        */
-        moveHandle.addEventListener(
-            "click",
-            (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-            },
-        );
-
-        /*
-        * =====================================================
-        * DELETE
-        * =====================================================
-        */
-        const remove =
-            document.createElement("button");
-
-        remove.type = "button";
-
-        remove.className =
-            "btn btn-outline-danger btn-sm";
-
-        remove.innerHTML =
-            '<i class="bi bi-trash"></i>' +
-            '<span class="visually-hidden">행 삭제</span>';
-
-        remove.addEventListener(
-            "click",
-            (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                grid.removeRow(row);
-
-                if (
-                    !rowsBody.children.length
-                ) {
-                    addRow();
-                }
-
-                dirty = true;
-            },
-        );
-
-        actionStack.append(
-            moveHandle,
-            remove,
-        );
-
-        actionCell.append(
-            actionStack,
-        );
-
-        row.append(
-            actionCell,
-        );
-
-        rowsBody.append(
-            row,
-        );
+        updateBulkSelectionState();
 
         return row;
-}
+    }
+
+    function updateRowNumbers() {
+        Array.from(
+            rowsBody.children,
+        ).forEach(
+            (row, index) => {
+                const number =
+                    index + 1;
+
+                const numberCell =
+                    row.querySelector(
+                        ".cb-template-number-cell",
+                    );
+
+                if (!numberCell) {
+                    return;
+                }
+
+                numberCell.textContent =
+                    String(number);
+
+                numberCell.dataset.rowNumber =
+                    String(number);
+
+                numberCell.title =
+                    `${number}번 행 - 클릭하여 선택 / 위아래로 드래그하여 이동`;
+            },
+        );
+    }
+
+
+    function selectedRows() {
+        return Array.from(
+            rowsBody.querySelectorAll(
+                "tr.cb-template-row-selected",
+            ),
+        );
+    }
+
+    function updateBulkSelectionState() {
+        if (!deleteSelectedButton) {
+                return;
+        }
+
+        const count =
+            selectedRows().length;
+
+        deleteSelectedButton.disabled =
+            count === 0;
+
+        deleteSelectedButton.innerHTML =
+            count
+                ? `<i class="bi bi-trash3"></i> 선택 삭제 (${count})`
+                : '<i class="bi bi-trash3"></i> 선택 삭제';
+    }
+
+    async function deleteSelectedRows() {
+        const targets =
+            selectedRows();
+
+        if (!targets.length) {
+            return;
+        }
+
+        const confirmed =
+            await window.AppDialog.confirm(
+                `선택한 ${targets.length}개 행을 삭제하시겠습니까?`,
+                {
+                    title: "선택 행 삭제",
+                    variant: "danger",
+                    confirmText: "선택 삭제",
+                },
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        /*
+        * 아래쪽부터 삭제
+        */
+        const orderedRows =
+            targets
+                .map((row) => ({
+                    row,
+
+                    index:
+                        Array.from(
+                            rowsBody.children,
+                        ).indexOf(row),
+                }))
+                .sort(
+                    (a, b) =>
+                        b.index - a.index,
+                );
+
+
+        orderedRows.forEach(
+            ({ row }) => {
+                grid.removeRow(row);
+            },
+        );
+
+
+        /*
+        * 최소 1행 유지
+        */
+        if (
+            !rowsBody.children.length
+        ) {
+            addRow();
+        }
+
+
+        updateRowNumbers();
+
+        updateBulkSelectionState();
+
+        setDirty(true);
+
+
+        showStatus(
+            `${targets.length}개의 행을 삭제했습니다. 수정 내용 저장을 눌러 주세요.`,
+            "success",
+        );
+    }
 
     function rowIsEmpty(row) {
         return keys.every((key) => !readCell(row, key));
@@ -366,16 +475,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                /*
-                * =================================================
-                * 병합 상태 검사
-                *
-                * 중요:
-                * initTemplateRowDrag() 시작 시 검사하지 않고
-                * 실제 이동을 시작할 때마다 검사
-                * =================================================
-                */
-                if (grid.merges().length) {
+                const hasVerticalMerge =
+                    grid
+                        .merges()
+                        .some(
+                            (merge) =>
+                                merge.rows > 1,
+                        );
+
+                if (hasVerticalMerge) {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -539,14 +647,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     "cb-template-row-dragging",
                 );
 
+                draggedRow.dataset.justDragged = "true";
+
                 document.body.classList.remove(
                     "cb-row-drag-active",
                 );
 
-                /*
-                * 저장 필요 상태
-                */
-                dirty = true;
+                updateRowNumbers();
+
+                setDirty(true);
 
                 showStatus(
                     "템플릿 행 순서를 변경했습니다. 수정 내용 저장을 눌러 주세요.",
@@ -585,67 +694,251 @@ document.addEventListener("DOMContentLoaded", () => {
             : input.value.trim();
     }
 
+
     function importPastedRows(text) {
         if (!text.trim()) {
-            showStatus("붙여넣을 데이터를 입력해 주세요.", "error");
+            showStatus(
+                "붙여넣을 데이터를 입력해 주세요.",
+                "error",
+            );
+
             return 0;
         }
+
+
         try {
-            const isTableData =
-                text.includes("\t") ||
-                /Row\s+Col(?:umn)?\s+Number\s+Name/i.test(text);
-            const records = window.parseCBClipboard(
-                text,
-                isTableData ? "auto" : "boeing-manual",
-            );
-            const targetRow = getPasteTargetRow();
-            if (targetRow) {
-                const targetIndex = Array.from(rowsBody.children).indexOf(
-                    targetRow,
-                );
-                if (rowIsEmpty(targetRow)) {
-                    applyRecordToRow(targetRow, records[0]);
-                    if (records.length > 1) {
-                        grid.insertRows(targetIndex + 1, records.length - 1);
-                        records.slice(1).forEach((record, index) => {
-                            applyRecordToRow(
-                                rowsBody.children[targetIndex + 1 + index],
-                                record,
-                            );
-                        });
-                    }
-                } else {
-                    grid.insertRows(targetIndex, records.length);
-                    records.forEach((record, index) => {
-                        applyRecordToRow(
-                            rowsBody.children[targetIndex + index],
-                            record,
-                        );
-                    });
-                }
-            } else {
-                if (
-                    rowsBody.children.length === 1 &&
-                    rowIsEmpty(rowsBody.firstElementChild)
-                ) {
-                    rowsBody.replaceChildren();
-                }
-                records.forEach((record) =>
-                    addRow({
-                        ...record,
-                    }),
+            /* =================================================
+            COMMON CLIPBOARD PARSER
+            ================================================= */
+
+            if (
+                typeof window.parseCBClipboard !==
+                "function"
+            ) {
+                throw new Error(
+                    "C/B 붙여넣기 파서를 불러오지 못했습니다. cb_clipboard_parser.js 로딩 순서를 확인해 주세요.",
                 );
             }
-            dirty = true;
+
+
+            const records =
+                window.parseCBClipboard(
+                    text,
+                    "auto",
+                );
+
+
+            if (!records.length) {
+                showStatus(
+                    "불러올 C/B 데이터가 없습니다.",
+                    "error",
+                );
+
+                return 0;
+            }
+
+
+            /* =================================================
+            TARGET ROW
+            ================================================= */
+
+            const targetRow =
+                getPasteTargetRow();
+
+
+            let insertionStart =
+                0;
+
+
+            /* =================================================
+            선택한 행이 있는 경우
+            ================================================= */
+
+            if (targetRow) {
+                const targetIndex =
+                    Array.from(
+                        rowsBody.children,
+                    ).indexOf(
+                        targetRow,
+                    );
+
+
+                insertionStart =
+                    targetIndex;
+
+
+                /*
+                * 선택 행이 비어 있으면
+                * 첫 번째 record를 현재 행에 사용
+                */
+                if (
+                    rowIsEmpty(
+                        targetRow,
+                    )
+                ) {
+                    applyRecordToRow(
+                        targetRow,
+                        records[0],
+                    );
+
+
+                    /*
+                    * 나머지 행 추가
+                    */
+                    for (
+                        let index = 1;
+                        index < records.length;
+                        index += 1
+                    ) {
+                        const row =
+                            addRow();
+
+                        /*
+                        * 방금 생성한 행을
+                        * 원하는 위치로 이동
+                        */
+                        rowsBody.insertBefore(
+                            row,
+                            rowsBody.children[
+                                targetIndex + index
+                            ] || null,
+                        );
+
+
+                        applyRecordToRow(
+                            row,
+                            records[index],
+                        );
+                    }
+                }
+
+
+                /*
+                * 선택 행에 기존 데이터가 있으면
+                * 해당 행 위에 새 행 삽입
+                */
+                else {
+                    for (
+                        let index = 0;
+                        index < records.length;
+                        index += 1
+                    ) {
+                        const row =
+                            addRow();
+
+                        rowsBody.insertBefore(
+                            row,
+                            rowsBody.children[
+                                targetIndex + index
+                            ] || null,
+                        );
+
+
+                        applyRecordToRow(
+                            row,
+                            records[index],
+                        );
+                    }
+                }
+            }
+
+
+            /* =================================================
+            선택 행이 없는 경우
+
+            기존 내용 아래에 추가
+            ================================================= */
+
+            else {
+                const initialRow = rowsBody.children.length === 1
+                    ? rowsBody.firstElementChild
+                    : null;
+
+                if (initialRow && rowIsEmpty(initialRow)) {
+                    insertionStart = 0;
+                    applyRecordToRow(initialRow, records[0]);
+                    records.slice(1).forEach((record) => {
+                        const row = addRow(record);
+                        applyRecordToRow(row, record);
+                    });
+                } else {
+                    insertionStart = rowsBody.children.length;
+                    records.forEach((record) => {
+                        const row = addRow(record);
+                        applyRecordToRow(row, record);
+                    });
+                }
+            }
+
+
+            /* =================================================
+            MERGE 적용
+            ================================================= */
+
+            grid.importRows(
+                records,
+                insertionStart,
+            );
+
+
+            /* =================================================
+            ROW NUMBER 갱신
+            ================================================= */
+
+            updateRowNumbers();
+
+
+            /* =================================================
+            선택 상태 갱신
+            ================================================= */
+
+            updateBulkSelectionState();
+
+
+            /* =================================================
+            DIRTY
+            ================================================= */
+
+            setDirty(true);
+
+
+            /* =================================================
+            STATUS
+            ================================================= */
+
             showStatus(
-                String(records.length) + "행을 템플릿 표에 불러왔습니다.",
+                `${records.length}개의 C/B 행을 불러왔습니다. 수정 내용 저장을 눌러 주세요.`,
                 "success",
             );
+
+
             return records.length;
+
         } catch (error) {
-            showStatus(error.message, "error");
+            console.error(
+                "C/B 데이터 붙여넣기 실패",
+                error,
+            );
+
+
+            showStatus(
+                error.message ||
+                    "C/B 데이터를 불러오지 못했습니다.",
+                "error",
+            );
+
+
             return 0;
         }
+}
+
+    function updatePageTitle() {
+        if (!pageTitle) return;
+        const aircraft = aircraftFilter.value || "기종";
+        const templateName = name.value.trim();
+        pageTitle.textContent = selectedId
+            ? `${aircraft} · ${templateName || "기본 템플릿"} 수정 · 삭제`
+            : `${aircraft} · ${templateName || "새 템플릿"} 생성`;
     }
 
     function showEditor(item) {
@@ -655,10 +948,11 @@ document.addEventListener("DOMContentLoaded", () => {
         grid.importRows(item?.rows || []);
         selectedId = item ? String(item.id) : "";
         select.value = selectedId;
-        updateButton.disabled = !selectedId;
         deleteButton.disabled = !selectedId;
         applyButton.disabled = !selectedId;
-        dirty = false;
+        updatePageTitle();
+        setDirty(false);
+        updateBulkSelectionState();
     }
 
     function readRows() {
@@ -831,7 +1125,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             if (!response.ok)
                 throw new Error(data.error || "템플릿 삭제에 실패했습니다.");
-            dirty = false;
+            setDirty(false);
             showEditor();
             await refresh();
             const message = `${data.name} 템플릿을 삭제했습니다.`;
@@ -883,7 +1177,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             if (!response.ok)
                 throw new Error(data.error || "템플릿 저장에 실패했습니다.");
-            dirty = false;
+            setDirty(false);
             await refresh(data.id);
             const message = `${data.name} 템플릿을 ${isUpdate ? "수정" : "생성"}했습니다.`;
             showStatus(message, "success");
@@ -900,8 +1194,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     fields.addEventListener("input", (event) => {
+        if (event.target === name) updatePageTitle();
         if (event.target === name || rowsBody.contains(event.target))
-            dirty = true;
+            setDirty(true);
     });
     aircraftFilter.addEventListener("change", async () => {
         if (!(await confirmDiscard())) {
@@ -935,7 +1230,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("cbTemplateAddRow")
         .addEventListener("click", () => {
             addRow();
-            dirty = true;
+            setDirty(true);
             rowsBody.lastElementChild.querySelector("input, textarea").focus();
         });
     pasteImportButton.addEventListener("click", () => {
@@ -972,6 +1267,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
             return;
         }
+
         sessionStorage.setItem(
             "cb_open_template_import_v1",
             JSON.stringify({
@@ -980,7 +1276,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 rows: item.rows,
             }),
         );
-        window.location.href = manager.dataset.workspaceUrl;
+
+        const workspaceUrl = new URL(
+            manager.dataset.workspaceUrl,
+            window.location.origin,
+        );
+
+        workspaceUrl.searchParams.set("from_template", "1");
+
+        window.location.href = workspaceUrl.toString();
     });
 
     const grid = new window.CBGridEditor({
@@ -991,9 +1295,31 @@ document.addEventListener("DOMContentLoaded", () => {
         ),
         createRow: () => addRow(),
         changed: () => {
-            dirty = true;
+            setDirty(true);
         },
     });
+
+    function setGridToolsVisible(visible) {
+        grid.toolbar.classList.toggle("is-user-hidden", !visible);
+        grid.toolbarAnchor.classList.toggle("is-user-hidden", !visible);
+        if (!gridToolsToggle) return;
+        gridToolsToggle.setAttribute("aria-pressed", String(visible));
+        gridToolsToggle.innerHTML = visible
+            ? '<i class="bi bi-eye-slash"></i><span> 편집 도구 숨기기</span>'
+            : '<i class="bi bi-tools"></i><span> 편집 도구 표시</span>';
+        if (visible)
+            window.requestAnimationFrame(() =>
+                grid.toolbar.scrollIntoView({ behavior: "smooth", block: "start" }),
+            );
+    }
+
+    setGridToolsVisible(false);
+
+    gridToolsToggle?.addEventListener("click", () =>
+        setGridToolsVisible(grid.toolbar.classList.contains("is-user-hidden")),
+    );
+
+    deleteSelectedButton?.addEventListener("click", deleteSelectedRows);
 
     /*
     * 마우스 행 이동
@@ -1001,5 +1327,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initTemplateRowDrag();
 
     showEditor();
-    refresh();
+
+    refresh(manager.dataset.initialTemplateId || "");
 });

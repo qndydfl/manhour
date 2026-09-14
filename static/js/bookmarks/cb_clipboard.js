@@ -20,8 +20,24 @@
         }
 
         if (!isBoeing) {
-            return lines.map((line) => {
+            const airbusHeader = /^PANEL\s+(?:DESIGNATION|DESCRIPTION)\s+FIN\s+(?:LOCATION|C\/B\s+LOC'?)/i;
+            return lines.filter((line) => !airbusHeader.test(normalized(line).replace(/\t+/g, ' '))).map((line) => {
+                const fullLine = normalized(line.replace(/\t+/g, ' '));
+                // Airbus 작업 범위 제목은 쉼표를 포함해도 데이터 열로
+                // 나누지 않고 PANEL부터 DESCRIPTION까지 한 셀로 표시합니다.
+                if (/\bON\s+A\/C\b/i.test(fullLine)) {
+                    return {
+                        panel_loc: fullLine, description: '', fin: '', cb_loc: '', warning: '',
+                        _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }],
+                    };
+                }
                 const [panel_loc = '', description = '', fin = '', cb_loc = ''] = line.split('\t');
+                if (/^FOR\s+FIN\b/i.test(panel_loc.trim()) && !description.trim() && !fin.trim() && !cb_loc.trim()) {
+                    return {
+                        panel_loc: panel_loc.trim(), description: '', fin: '', cb_loc: '', warning: '',
+                        _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }],
+                    };
+                }
                 return { panel_loc, description, fin, cb_loc };
             });
         }

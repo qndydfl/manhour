@@ -11,11 +11,12 @@
 
 .cb-template-page {
     min-height: 100vh;
-    padding-inline: clamp(16px, 3vw, 36px);
+    padding-inline: 0;
 }
 
 .cb-template-card {
-    max-width: 1320px;
+    width: min(var(--cb-content-width, 1320px), calc(100% - 56px));
+    max-width: none;
     margin: 0 auto;
     padding: clamp(18px, 3vw, 32px);
     border: 1px solid var(--cb-template-border);
@@ -35,6 +36,25 @@
 .cb-template-heading {
     padding-bottom: 22px;
     border-bottom: 1px solid var(--cb-template-border);
+}
+
+.cb-template-heading-actions {
+    width: min(420px, 48%);
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+    align-items: end;
+    gap: 7px;
+}
+
+.cb-template-heading-actions label {
+    grid-column: 1 / -1;
+    color: #52657a;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.cb-template-heading-actions .form-control {
+    min-width: 0;
 }
 
 .assignment-topbar-btn:disabled {
@@ -123,28 +143,96 @@
     font-size: 1.05rem;
 }
 
+.cb-template-table-actions,
+.cb-template-row-actions,
+.cb-template-select-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.cb-template-select-all {
+    margin: 0;
+    cursor: pointer;
+}
+
+.cb-template-row-select {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.cb-grid-toolbar.is-user-hidden,
+.cb-grid-toolbar-anchor.is-user-hidden {
+    display: none !important;
+}
+
 .cb-template-table-wrap {
+    height: auto;
+    max-height: none;
     border: 1px solid var(--cb-template-border);
     border-radius: 12px;
     background: #fff;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    touch-action: pan-y;
 }
 
 .cb-template-editor {
-    min-width: 1080px;
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+.cb-template-editor th,
+.cb-template-editor td,
+.cb-template-editor input,
+.cb-template-editor textarea {
+    min-width: 0;
+}
+
+.cb-template-editor .cb-template-number-head,
+.cb-template-editor .cb-template-number-cell {
+    width: clamp(24px, 4vw, 42px);
+    min-width: 0;
 }
 
 .cb-template-editor th {
     padding: 10px;
     background: #e5edf6;
     color: #334155;
-    white-space: nowrap;
+    white-space: normal;
     font-size: 0.88rem;
     text-align: center;
 }
 
-.cb-template-editor th:nth-child(7),
-.cb-template-editor th:nth-child(8) {
-    width: 42%;
+/* cb_open_list의 기본 열 너비(38/38/38/38/60/55/60/170/160)를
+   템플릿 표 너비 안에서 같은 비율로 환산합니다. */
+.cb-template-editor .cb-template-col-no,
+.cb-template-editor .cb-template-col-cockpit,
+.cb-template-editor .cb-template-col-ee,
+.cb-template-editor .cb-template-col-etc {
+    width: 5.784%;
+}
+
+.cb-template-editor .cb-template-col-panel,
+.cb-template-editor .cb-template-col-fin {
+    width: 9.132%;
+}
+
+.cb-template-editor .cb-template-col-location {
+    width: 8.371%;
+}
+
+.cb-template-editor .cb-template-col-description {
+    width: 25.875%;
+}
+
+.cb-template-editor .cb-template-col-warning {
+    width: 24.354%;
 }
 
 .cb-template-editor td {
@@ -153,7 +241,8 @@
 }
 
 .cb-template-editor .form-control {
-    min-width: 90px;
+    width: 100%;
+    min-width: 0;
     font-size: 0.88rem;
 }
 
@@ -203,6 +292,10 @@
     }
     .cb-template-heading {
         align-items: flex-start;
+        flex-direction: column;
+    }
+    .cb-template-heading-actions {
+        width: 100%;
     }
     .cb-template-heading p:not(.cb-template-eyebrow) {
         display: none;
@@ -210,6 +303,31 @@
     .cb-template-paste-heading {
         align-items: stretch;
         flex-direction: column;
+    }
+    .cb-template-table-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .cb-template-table-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .cb-template-editor th,
+    .cb-template-editor td {
+        padding: 3px 2px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .cb-template-editor th {
+        font-size: 0.68rem;
+    }
+
+    .cb-template-editor .cb-template-location-check {
+        width: 12px;
+        height: 12px;
     }
 }
 
@@ -475,93 +593,117 @@ MOBILE
     }
 }
 
+
 /* =========================================================
-TEMPLATE ROW DRAG
+TEMPLATE ROW NO / SELECT / DRAG
 ========================================================= */
 
-.cb-template-row-action-cell {
-    width: 110px;
-    min-width: 110px;
-}
+.cb-template-number-head {
+    width: 42px;
+    min-width: 42px;
 
-.cb-template-row-actions {
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 6px;
+    text-align: center;
 }
 
 
-/*
- * 마우스로 잡는 영역
- */
-.cb-template-row-drag-handle {
-    min-width: 62px;
-    height: 31px;
+.cb-template-number-cell {
+    width: 42px;
+    min-width: 42px;
 
-    display: inline-flex;
+    padding: 0 !important;
 
-    align-items: center;
-    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
 
-    gap: 4px;
+    background: #f8fafc !important;
 
-    padding: 0 8px;
+    color: #334155;
 
-    border:
-        1px solid #cbd5e1;
-
-    border-radius: 6px;
-
-    background: #f8fafc;
-
-    color: #475569;
-
-    font-size: 12px;
     font-weight: 700;
 
     cursor: grab;
 
     user-select: none;
     touch-action: none;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
-.cb-template-row-drag-handle:hover {
-    border-color: #93c5fd;
 
-    background: #eff6ff;
+.cb-template-number-cell:hover {
+    background: #e8f1fb !important;
 
-    color: #2563eb;
+    color: #1d4ed8;
 }
 
-.cb-template-row-drag-handle:active {
+
+.cb-template-number-cell:active {
     cursor: grabbing;
 }
 
 
-/*
- * 이동 중인 행
- */
-.cb-template-editor
-tr.cb-template-row-dragging > td {
-    background:
-        #dbeafe !important;
+/* =========================================================
+SELECTED ROW
+========================================================= */
+
+#cbTemplateRows
+tr.cb-template-row-selected
+> td {
+    background-color:
+        rgba(13, 110, 253, 0.08) !important;
+}
+
+
+#cbTemplateRows
+tr.cb-template-row-selected
+> .cb-template-number-cell {
+    background: #0d6efd !important;
+
+    color: #ffffff !important;
+
+    font-weight: 800;
+}
+
+
+#cbTemplateRows
+tr.cb-template-row-selected
+> .cb-template-number-cell:hover {
+    background: #0b5ed7 !important;
+
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+ROW DRAG
+========================================================= */
+
+#cbTemplateRows
+tr.cb-template-row-dragging
+> td {
+    background: #dbeafe !important;
 
     box-shadow:
         inset 0 2px 0 #3b82f6,
         inset 0 -2px 0 #3b82f6;
-
-    opacity: 0.92;
 }
 
 
-/*
- * 공통 drag 상태
- */
-body.cb-row-drag-active {
-    user-select: none !important;
+#cbTemplateRows
+tr.cb-template-row-dragging
+> .cb-template-number-cell {
+    background: #bfdbfe !important;
 
+    color: #1d4ed8 !important;
+}
+
+
+body.cb-row-drag-active,
+body.cb-row-drag-active * {
     cursor: grabbing !important;
+
+    user-select: none !important;
 }

@@ -7,26 +7,28 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_grid_editor.css' %}?v=20260911-6"
+    href="{% static 'css/bookmarks/cb_grid_editor.css' %}?v=20260914-7"
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260910-7"
+    href="{% static 'css/bookmarks/cb_template_manage.css' %}?v=20260914-12"
 />
 {% endblock css %} 
 
 {% block js %}
 <script
     defer
-    src="{% static 'js/bookmarks/cb_clipboard.js' %}?v=20260908-2"
+    src="{% static 'js/bookmarks/cb_grid_editor.js' %}?v=20260914-2"
 ></script>
+
 <script
     defer
-    src="{% static 'js/bookmarks/cb_grid_editor.js' %}?v=20260911-6"
+    src="{% static 'js/bookmarks/cb_clipboard_parser.js' %}?v=20260914-2"
 ></script>
+
 <script
     defer
-    src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260911-14"
+    src="{% static 'js/bookmarks/cb_template_manage.js' %}?v=20260914-3"
 ></script>
 {% endblock js %} 
 
@@ -78,23 +80,13 @@
             >
                 <i class="bi bi-trash text-danger"></i><span>템플릿 삭제</span>
             </button>
-            {% if request.session.user_role == "admin" %}
-            <button
-                type="button"
-                class="assignment-topbar-btn"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#cbAircraftSettingsPanel"
-                aria-controls="cbAircraftSettingsPanel"
-            >
-                <i class="bi bi-gear"></i><span>기종 설정</span>
-            </button>
-            {% endif %}
+
             <a
-                href="{% url 'bookmarks:cb_open_list' %}"
+                href="{% url 'bookmarks:cb_home' %}"
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span>C/B 문서</span>
+                <span>C/B 메뉴</span>
             </a>
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
@@ -111,60 +103,34 @@
         data-api-url="{% url 'bookmarks:cb_templates' %}"
         data-aircraft-api-url="{% url 'bookmarks:cb_aircraft_models' %}"
         data-workspace-url="{% url 'bookmarks:cb_open_list' %}"
+        data-initial-template-id="{{ selected_template_id }}"
     >
         {% csrf_token %}
+        <fieldset id="cbTemplateFields">
         <div class="cb-template-heading">
             <div>
                 <p class="cb-template-eyebrow">AIRCRAFT TEMPLATE</p>
-                <h1>기본 템플릿 생성 · 수정 · 삭제</h1>
+                <h1 id="cbTemplatePageTitle">기본 템플릿 생성 · 수정 · 삭제</h1>
                 <p>
                     기종별 PANEL, C/B LOC', FIN, DESCRIPTION을 저장하고 C/B
                     문서에 불러올 수 있습니다.
                 </p>
             </div>
-            <button
-                id="cbTemplateNew"
-                type="button"
-                class="btn btn-outline-primary"
-            >
-                <i class="bi bi-plus-lg"></i> 새 템플릿
-            </button>
+            <div class="cb-template-heading-actions">
+                <label for="cbTemplateName">템플릿 이름</label>
+                <input id="cbTemplateName" class="form-control" maxlength="100" placeholder="예: 엔진 작업" />
+                <button id="cbTemplateNew" type="button" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-lg"></i> 새 템플릿
+                </button>
+            </div>
         </div>
 
-        <fieldset id="cbTemplateFields">
-            <div class="row g-3 cb-template-controls">
-                <div class="col-12 col-md-3">
-                    <label for="cbTemplateFilterAircraft" class="form-label"
-                        >기종</label
-                    >
-                    <select id="cbTemplateFilterAircraft" class="form-select">
-                        {% for aircraft_model in aircraft_models %}
-                        <option value="{{ aircraft_model }}">
-                            {{ aircraft_model }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-md-4">
-                    <label for="cbTemplateSelect" class="form-label"
-                        >저장된 템플릿</label
-                    >
-                    <select id="cbTemplateSelect" class="form-select">
-                        <option value="">새 템플릿</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-5">
-                    <label for="cbTemplateName" class="form-label"
-                        >템플릿 이름</label
-                    >
-                    <input
-                        id="cbTemplateName"
-                        class="form-control"
-                        maxlength="100"
-                        placeholder="예: B777 엔진 작업"
-                    />
-                </div>
-            </div>
+            <select id="cbTemplateFilterAircraft" hidden aria-hidden="true">
+                {% for aircraft_model in aircraft_models %}
+                <option value="{{ aircraft_model }}"{% if aircraft_model == selected_aircraft_model %} selected{% endif %}>{{ aircraft_model }}</option>
+                {% endfor %}
+            </select>
+            <select id="cbTemplateSelect" hidden aria-hidden="true"><option value="">새 템플릿</option></select>
 
             <section class="cb-template-paste">
                 <div class="cb-template-paste-heading">
@@ -206,30 +172,45 @@
                         COCKPIT, E/E, ETC를 체크하면 문서에 V로 표시됩니다.
                     </p>
                 </div>
-                <button
-                    id="cbTemplateAddRow"
-                    type="button"
-                    class="btn btn-outline-primary btn-sm"
-                >
-                    <i class="bi bi-plus-lg"></i> 행 추가
-                </button>
+                <div class="cb-template-table-actions">
+                    <button id="cbTemplateGridToolsToggle" type="button" class="btn btn-outline-secondary btn-sm" aria-pressed="false">
+                        <i class="bi bi-tools"></i><span> 편집 도구 표시</span>
+                    </button>
+                    <button id="cbTemplateDeleteSelected" type="button" class="btn btn-outline-danger btn-sm" disabled>
+                        <i class="bi bi-trash3"></i> 선택 삭제
+                    </button>
+                    <button id="cbTemplateAddRow" type="button" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-plus-lg"></i> 행 추가
+                    </button>
+                </div>
             </div>
 
             <div class="table-responsive cb-template-table-wrap">
                 <table
                     class="table table-bordered align-middle mb-0 cb-template-editor"
                 >
+                    <colgroup>
+                        <col class="cb-template-col-no" />
+                        <col class="cb-template-col-cockpit" />
+                        <col class="cb-template-col-ee" />
+                        <col class="cb-template-col-etc" />
+                        <col class="cb-template-col-panel" />
+                        <col class="cb-template-col-location" />
+                        <col class="cb-template-col-fin" />
+                        <col class="cb-template-col-description" />
+                        <col class="cb-template-col-warning" />
+                    </colgroup>
                     <thead>
                         <tr>
+                            <th class="cb-template-number-head">NO</th>
                             <th>COCKPIT</th>
                             <th>E/E</th>
                             <th>ETC</th>
                             <th>PANEL</th>
-                            <th>C/B LOC'</th>
+                            <th>LOC'</th>
                             <th>FIN (선택)</th>
                             <th>DESCRIPTION</th>
                             <th>관련 작업 내용 / 주의사항</th>
-                            <th>이동 / 삭제</th>
                         </tr>
                     </thead>
                     <tbody id="cbTemplateRows"></tbody>

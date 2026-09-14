@@ -1,4 +1,3 @@
-// Shared row insertion and reversible rectangular cell merging for C/B tables.
 window.CBGridEditor = class {
     constructor({ body, fields, toolbarHost, createRow, changed }) {
         Object.assign(this, { body, fields, createRow, changed });
@@ -96,6 +95,31 @@ window.CBGridEditor = class {
             passive: true,
         });
         scheduleToolbarPinning();
+        toolbarHost.addEventListener(
+            "wheel",
+            (event) => {
+                if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+                const nestedScroller =
+                    event.target instanceof Element
+                        ? event.target.closest(
+                              "textarea, .offcanvas-body, .modal-body",
+                          )
+                        : null;
+                if (nestedScroller && nestedScroller.scrollHeight > nestedScroller.clientHeight) {
+                    const canScrollUp = event.deltaY < 0 && nestedScroller.scrollTop > 0;
+                    const canScrollDown =
+                        event.deltaY > 0 &&
+                        nestedScroller.scrollTop + nestedScroller.clientHeight <
+                            nestedScroller.scrollHeight;
+                    if (canScrollUp || canScrollDown) return;
+                }
+                const pageScroller = document.scrollingElement;
+                if (!pageScroller) return;
+                pageScroller.scrollTop += event.deltaY;
+                event.preventDefault();
+            },
+            { passive: false },
+        );
         body.addEventListener(
             "click",
             (event) => {

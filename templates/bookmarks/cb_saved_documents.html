@@ -1,0 +1,86 @@
+{% extends "manhour/base/result_base.html" %} 
+{% load static %} 
+{% block title %}저장된 C/B 문서{% endblock title %} 
+{% block body_class %}cb-library-body{% endblock body_class %} 
+
+{% block css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/bookmarks/cb_library.css' %}?v=20260914-2"
+/>
+{% endblock css %} 
+
+{% block js %}
+<script
+    defer
+    src="{% static 'js/bookmarks/cb_saved_documents.js' %}?v=20260914-2"
+></script>
+{% endblock js %} 
+
+{% block content %}
+
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'bookmarks:cb_home' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-folder2-open"></i>
+            </div>
+
+            <div>
+                <strong>SAVED C/B</strong>
+                <span>Saved Documents</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
+            <a
+                href="{% url 'bookmarks:cb_home' %}"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span>C/B 메뉴</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>홈</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main
+    class="cb-library-page"
+    id="cbSavedDocuments"
+    data-editor-url="{% url 'bookmarks:cb_open_list' %}"
+>
+    <!-- =====================================================
+        저장된 C/B 문서 목록
+    ====================================================== -->
+    <section
+        id="cbSavedDocumentList"
+        class="cb-saved-document-list"
+        hidden
+    ></section>
+
+    <!-- =====================================================
+        저장 문서 없음
+    ====================================================== -->
+    <section id="cbSavedEmpty" class="cb-saved-empty" hidden>
+        <i class="bi bi-inbox"></i>
+
+        <strong> 저장된 문서가 없습니다. </strong>
+
+        <span> C/B 문서에서 저장 버튼을 누르면 여기에 표시됩니다. </span>
+
+        <a
+            href="{% url 'bookmarks:cb_open_list' %}?new=1"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-plus-lg me-1"></i>
+            새 문서 만들기
+        </a>
+    </section>
+</main>
+
+{% endblock content %}

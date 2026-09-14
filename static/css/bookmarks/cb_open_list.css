@@ -49,18 +49,16 @@ BOOKMARKS — C/B OPEN LIST
 
     --cb-header-bg: #e7edf5;
 
-    /* JS에서 변경 */
     --cb-header-font: 10px;
     --cb-header-padding: 5px;
     --cb-row-height: 34px;
 
-    /*
-     * 추천 추가 설정
-     * 전체 본문 글자 크기
-     */
     --cb-body-font: 11px;
 
     --cb-topbar-height: 72px;
+
+    /* 전체 C/B 화면 공통 폭 */
+    --cb-content-width: 1500px;
 }
 
 /* =========================================================
@@ -121,23 +119,15 @@ TOP BAR
 }
 
 .cb-open-topbar-inner {
-    width: 100%;
-    max-width: 1600px;
-
+    width: min(var(--cb-content-width), calc(100% - 56px));
+    max-width: none;
     height: 100%;
-
     margin: 0 auto;
-
     padding: 8px 18px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 20px;
-
     overflow: hidden;
 }
 
@@ -345,34 +335,25 @@ DOCUMENT INFORMATION BAR
 main 위
 ========================================================= */
 
-.cb-open-document-bar {
-    width: calc(100% - 36px);
-
-    max-width: 1564px;
-
+.cb-open-document-bar {    
+    width: min(var(--cb-content-width), calc(100% - 56px));
+    max-width: 1248px;    
     margin: 24px auto 0;
-
     background: var(--cb-card-soft);
-
     border: 1px solid var(--cb-border);
-
     border-radius: 14px;
-
     box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+    box-sizing: border-box;
 }
 
 .cb-open-document-bar-inner {
     padding: 16px;
-
     display: grid;
-
     grid-template-columns:
         150px
         150px
         minmax(260px, 1fr);
-
     align-items: end;
-
     gap: 12px;
 }
 
@@ -441,98 +422,16 @@ PAGE
 ========================================================= */
 
 .cb-open-page {
-    width: 100%;
-
-    max-width: 1600px;
-
+    width: min(var(--cb-content-width), calc(100% - 56px));
+    max-width: 1284px;
     margin: 0 auto;
-
     padding: 16px 18px 24px;
+    box-sizing: border-box;
 }
 
 /* =========================================================
 PASTE CARD
 ========================================================= */
-
-.cb-open-template-picker {
-    margin-bottom: 12px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border: 1px solid #b9cce1;
-    border-radius: 12px;
-    background: #edf4fb;
-    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.05);
-}
-.cb-open-template-picker[hidden] {
-    display: none !important;
-}
-.cb-open-template-copy {
-    display: grid;
-    gap: 2px;
-}
-.cb-open-template-copy strong {
-    color: #1e3a5f;
-    font-size: 14px;
-}
-.cb-open-template-copy strong i {
-    margin-right: 5px;
-    color: var(--cb-primary);
-}
-.cb-open-template-copy small {
-    color: #64748b;
-    font-size: 12px;
-}
-.cb-open-template-actions {
-    min-width: min(520px, 55%);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.cb-open-template-actions .form-select {
-    min-width: 0;
-}
-.cb-open-template-count {
-    flex: 0 0 auto;
-    padding: 5px 9px;
-    border: 1px solid #93b4d5;
-    border-radius: 999px;
-    background: #dbeafe;
-    color: #1e40af;
-    font-size: 12px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-.cb-open-template-count[hidden] {
-    display: none !important;
-}
-.cb-open-template-actions .btn {
-    flex: 0 0 auto;
-}
-
-@media (max-width: 767.98px) {
-    .cb-open-template-picker {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 8px;
-        padding: 10px;
-    }
-    .cb-open-template-actions {
-        min-width: 0;
-        width: 100%;
-    }
-    .cb-open-template-copy small {
-        font-size: 11px;
-    }
-}
-
-@media print {
-    .cb-open-template-picker {
-        display: none !important;
-    }
-}
 
 .cb-open-paste-card {
     margin-bottom: 14px;
@@ -546,6 +445,162 @@ PASTE CARD
     border-radius: 13px;
 
     box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+}
+
+.cb-open-row-filter {
+    --bs-offcanvas-width: min(470px, 96vw);
+    height: 100dvh;
+    max-height: 100dvh;
+    border-left: 1px solid rgba(95, 174, 255, 0.38);
+    background: linear-gradient(135deg, #26374a, #1c2a3a);
+    color: #f4f8fc;
+    box-shadow: -12px 0 36px rgba(7, 17, 29, 0.28);
+}
+
+.cb-open-row-filter-head {
+    min-height: 86px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.cb-open-row-filter-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cb-open-row-filter-body {
+    min-height: 0;
+    padding: 18px;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 이 패널은 결과 표를 확인하면서 쓰므로 공통 Offcanvas 스크롤 잠금에서 제외합니다. */
+html:has(.cb-open-row-filter.show),
+body:has(.cb-open-row-filter.show) {
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+}
+
+.cb-open-row-filter-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.cb-open-row-filter-head strong,
+.cb-open-row-filter-head small {
+    display: block;
+}
+
+.cb-open-row-filter-head small {
+    margin-top: 3px;
+    color: #c7d5e4;
+}
+
+.cb-open-row-filter-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: end;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.cb-open-row-filter-controls label > span:first-child {
+    display: block;
+    margin-bottom: 4px;
+    color: #c7d5e4;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.cb-open-row-range {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 5px;
+}
+
+.cb-open-row-range b {
+    color: #c7d5e4;
+}
+
+.cb-open-row-filter-help {
+    display: block;
+    margin-top: 7px;
+    color: #9fb3c8;
+}
+
+.cb-open-row-filter-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 7px;
+    max-height: 42vh;
+    margin-top: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cb-open-row-filter-list[hidden] {
+    display: none !important;
+}
+
+.cb-open-row-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+}
+
+.cb-open-row-filter-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cb-open-row-excluded {
+    display: none !important;
+}
+
+.cb-grid-toolbar.is-user-hidden,
+.cb-grid-toolbar-anchor.is-user-hidden {
+    display: none !important;
+}
+
+@media (max-width: 767.98px) {
+    .cb-open-row-filter-head {
+        align-items: center;
+    }
+
+    .cb-open-row-filter-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .cb-open-row-keyword-field {
+        grid-column: 1 / -1;
+    }
+
+    .cb-open-row-filter-controls > button {
+        min-height: 31px;
+    }
+
+    .cb-open-row-filter-list {
+        grid-template-columns: 1fr;
+    }
+
+    .cb-open-row-filter {
+        --bs-offcanvas-width: 100vw;
+    }
 }
 
 .cb-open-paste-head {
@@ -643,6 +698,8 @@ SHEET STAGE
 ========================================================= */
 
 .cb-open-sheet-stage {
+    height: auto;
+    max-height: none;
     padding: 20px;
     overflow: hidden;
     border: 1px solid #bccad8;
@@ -667,16 +724,12 @@ SHEET
 ========================================================= */
 
 .cb-open-sheet {
-    min-width: 1180px;
-
+    width: 100%;
+    min-width: 0;
     margin: 0 auto;
-
     padding: 18px;
-
     background: #ffffff;
-
     border: 1px solid #cbd5e1;
-
     box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
 }
 
@@ -750,14 +803,97 @@ DOCUMENT HEADER
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
 }
 
+
+/* =========================================================
+TABLE HEADING / TABLE ACTIONS
+========================================================= */
+
+.cb-open-table-heading {
+    width: 100%;
+
+    margin-bottom: 10px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+
+/* 왼쪽 제목 영역 */
+.cb-open-table-heading > div:first-child {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.cb-open-table-heading strong {
+    color: #1e293b;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+
+.cb-open-table-heading small {
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+
+/* 오른쪽 버튼 영역 */
+.cb-open-table-actions {
+    flex: 0 0 auto;
+
+    margin-left: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    flex-wrap: nowrap;
+
+    gap: 6px;
+}
+
+
+.cb-open-table-actions .btn {
+    flex: 0 0 auto;
+
+    white-space: nowrap;
+}
+
+
 /* =========================================================
 TABLE WRAP
 ========================================================= */
 
 .cb-open-table-wrap {
     width: 100%;
+    height: auto;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    touch-action: pan-y;
+}
 
-    overflow-x: auto;
+.cb-open-table th,
+.cb-open-table td,
+.cb-open-table input,
+.cb-open-table textarea {
+    min-width: 0;
 }
 
 /* =========================================================
@@ -2383,38 +2519,114 @@ PRINT
 
         print-color-adjust: exact;
     }
+
+    /* 선택한 행의 화면용 효과는 인쇄하지 않음 */
+    .cb-open-table tbody tr.cb-open-row-selected > td,
+    .cb-open-table tbody
+    tr.cb-open-row-selected
+    > .cb-open-number-cell {
+        background: #ffffff !important;
+        color: #111827 !important;
+        box-shadow: none !important;
+    }
+
 }
 
 
 /* =========================================================
-ROW DRAG
+ROW SELECT / DRAG
 ========================================================= */
 
-.cb-open-number-cell {
+/*
+ * NO 셀
+ * - 클릭: 행 선택
+ * - 드래그: 행 이동
+ */
+.cb-open-table tbody .cb-open-number-cell {
     cursor: grab;
     user-select: none;
     touch-action: none;
 
+    text-align: center;
+    vertical-align: middle;
+
+    font-weight: 700;
+
     transition:
-        background-color 0.12s ease,
-        color 0.12s ease;
+        background-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
-.cb-open-number-cell:hover {
-    background: #e8f1fb;
+
+/* 마우스를 번호 위에 올렸을 때 */
+.cb-open-table tbody .cb-open-number-cell:hover {
+    background: #e8f1fb !important;
     color: #1d4ed8;
 }
 
-.cb-open-number-cell:active {
+
+/* 번호를 잡고 있는 상태 */
+.cb-open-table tbody .cb-open-number-cell:active {
     cursor: grabbing;
 }
 
+
+/* =========================================================
+선택된 행
+========================================================= */
+
+/*
+ * 삭제 대상으로 선택된 행
+ */
+.cb-open-table tbody tr.cb-open-row-selected > td {
+    background-color: rgba(13, 110, 253, 0.08) !important;
+}
+
+
+/*
+ * 선택된 행의 NO 셀
+ */
+.cb-open-table tbody
+tr.cb-open-row-selected
+> .cb-open-number-cell {
+    background: #0d6efd !important;
+
+    color: #ffffff !important;
+
+    font-weight: 800;
+
+    box-shadow:
+        inset 0 0 0 2px rgba(13, 110, 253, 0.35);
+}
+
+
+/*
+ * 선택된 번호 hover
+ *
+ * 선택되어 있을 때는
+ * 파란색을 그대로 유지합니다.
+ */
+.cb-open-table tbody
+tr.cb-open-row-selected
+> .cb-open-number-cell:hover {
+    background: #0b5ed7 !important;
+
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+행 드래그
+========================================================= */
 
 /*
  * 이동 중인 행
  */
 .cb-open-table
-tr.cb-open-row-dragging > td {
+tbody
+tr.cb-open-row-dragging
+> td {
     background: #dbeafe !important;
 
     box-shadow:
@@ -2426,11 +2638,24 @@ tr.cb-open-row-dragging > td {
 
 
 /*
- * 드래그 중에는
- * 페이지 텍스트 선택 방지
+ * 드래그 중인 NO 셀
  */
-body.cb-row-drag-active {
-    user-select: none !important;
-    cursor: grabbing !important;
+.cb-open-table
+tbody
+tr.cb-open-row-dragging
+> .cb-open-number-cell {
+    background: #bfdbfe !important;
+
+    color: #1d4ed8 !important;
 }
 
+
+/*
+ * 드래그 중 페이지 텍스트 선택 방지
+ */
+body.cb-row-drag-active,
+body.cb-row-drag-active * {
+    cursor: grabbing !important;
+
+    user-select: none !important;
+}

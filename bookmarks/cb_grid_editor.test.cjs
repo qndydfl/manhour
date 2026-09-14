@@ -36,10 +36,14 @@ async function fixture(browser, name, templates = []) {
             .replace(/{%\s*csrf_token\s*%}/g, '<input name="csrfmiddlewaretoken" value="test" type="hidden">')
             .replace(/{{\s*aircraft_model\s*}}/g, 'B777')
             .replace(/{{[^}]*}}/g, '').replace(/{%[\s\S]*?%}/g, '');
-        await route.fulfill({ contentType: 'text/html; charset=utf-8', body: '<!doctype html><html><head><meta charset="utf-8"></head><body>' + html + '</body></html>' });
+        await route.fulfill({ contentType: 'text/html; charset=utf-8', body: '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body>' + html + '</body></html>' });
     });
     await page.goto('http://cb.test/');
-    await page.waitForSelector('.cb-grid-toolbar');
+    await page.waitForSelector('.cb-grid-toolbar', { state: 'attached' });
+    if (name === 'cb_open_list')
+        await page.waitForFunction(() => document.body.dataset.cbOpenReady === 'true');
+    else
+        await page.waitForFunction(() => document.querySelectorAll('tbody[id] > tr').length > 0);
     return { page, errors, saved: () => saved };
 }
 
@@ -48,14 +52,24 @@ test('template middle insertion, reversible merges and saved merge metadata', as
     try {
         const record = i => ({ panel_loc: 'P11', cb_loc: 'A' + i, fin: '', description: 'ITEM ' + i });
         const { page, errors, saved } = await fixture(browser, 'cb_template_manage', [{ id: 1, name: 'Test', aircraft_model: 'B777', rows: [record(1), record(2)] }]);
-        await page.selectOption('#cbTemplateSelect', '1');
+        assert.equal(await page.locator('.cb-grid-toolbar').isHidden(), true);
+        await page.click('#cbTemplateGridToolsToggle');
+        assert.equal(await page.locator('.cb-grid-toolbar').isVisible(), true);
+        await page.locator('#cbTemplateSelect').evaluate((select) => {
+            select.value = '1';
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        assert.equal(await page.locator('#cbTemplatePageTitle').textContent(), 'B777 · Test 수정 · 삭제');
+        assert.equal(await page.locator('#cbTemplateUpdate').isDisabled(), true);
         await page.locator('#cbTemplateRows [data-field="panel_loc"]').first().click();
         await page.getByRole('button', { name: '선택 행 아래에 추가', exact: true }).click();
+        assert.equal(await page.locator('#cbTemplateUpdate').isEnabled(), true);
         assert.equal(await page.locator('#cbTemplateRows tr').count(), 3);
         assert.equal(await page.locator('#cbTemplateRows [data-field="cb_loc"]').nth(2).inputValue(), 'A2');
         await page.evaluate(() => { window.lastAlert = ''; });
         await page.click('#cbTemplateUpdate');
         await page.waitForFunction(() => window.lastAlert?.includes('수정했습니다'));
+        assert.equal(await page.locator('#cbTemplateUpdate').isDisabled(), true);
         assert.equal(saved().rows.length, 3);
         assert.equal(saved().rows[1].panel_loc, '');
         await page.locator('#cbTemplateRows [data-field="cb_loc"]').nth(1).fill('NEW');
@@ -90,6 +104,79 @@ test('template middle insertion, reversible merges and saved merge metadata', as
         assert.equal(saved().rows[1].warning, 'CHECK BEFORE WORK');
         await page.getByRole('button', { name: '병합 해제', exact: true }).click();
         assert.equal(await page.locator('#cbTemplateRows [data-field="description"]').first().inputValue(), 'ITEM 1');
+        await page.click('#cbTemplateNew');
+        assert.equal(await page.locator('#cbTemplatePageTitle').textContent(), 'B777 · 새 템플릿 생성');
+        await page.fill('#cbTemplatePasteSource', 'PANEL\tDESIGNATION\tFIN\tLOCATION\nFOR FIN 4000EM1(ENGINE-1)\t\t\t\n2500VU\tLP VLV MOT1 ENG 1\t1QG1\t0744\n** ON A/C FSN 801-803, 851-900, 951-952\n49VU\tCOM/CVR/SPLY\t23RK\tE14');
+        await page.click('#cbTemplatePasteImport');
+        assert.equal(await page.locator('#cbTemplateRows [data-field="panel_loc"]').first().inputValue(), 'FOR FIN 4000EM1(ENGINE-1)');
+        assert.equal(await page.locator('#cbTemplateRows [data-field="panel_loc"]').first().evaluate(el => el.closest('td').colSpan), 4);
+        assert.equal(await page.locator('#cbTemplateRows [data-field="description"]').nth(1).inputValue(), 'LP VLV MOT1 ENG 1');
+        assert.equal(await page.locator('#cbTemplateRows [data-field="panel_loc"]').nth(2).inputValue(), '** ON A/C FSN 801-803, 851-900, 951-952');
+        assert.equal(await page.locator('#cbTemplateRows [data-field="panel_loc"]').nth(2).evaluate(el => el.closest('td').colSpan), 4);
+        assert.equal(await page.locator('#cbTemplateRows [data-field="description"]').nth(3).inputValue(), 'COM/CVR/SPLY');
+        await page.locator('.cb-template-number-cell').nth(1).click();
+        await page.locator('.cb-template-number-cell').nth(2).click();
+        assert.match(await page.locator('#cbTemplateDeleteSelected').textContent(), /2/);
+        await page.click('#cbTemplateDeleteSelected');
+        assert.equal(await page.locator('#cbTemplateRows tr').count(), 2);
+        assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+});
+
+test('template application lets the user filter rows shown on screen and in print', async () => {
+    const browser = await chromium.launch({ channel: 'msedge', headless: true });
+    try {
+        const { page, errors } = await fixture(browser, 'cb_open_list');
+        await page.addInitScript(() => {
+            sessionStorage.setItem('cb_open_template_import_v1', JSON.stringify({
+                aircraft_model: 'B777',
+                name: 'Engine',
+                rows: [
+                    { panel_loc: 'P11', cb_loc: '', fin: '', description: 'FOR FIN 4000EM1(ENGINE-1)', _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }] },
+                    { panel_loc: '2500VU', cb_loc: '0744', fin: '1QG1', description: 'LP VLV MOT1 ENG 1' },
+                    { panel_loc: 'SEPDC2', cb_loc: 'SSPC', fin: '800QG1', description: 'LP VLV MOT2 ENG 1' },
+                    { panel_loc: 'FOR FIN 4000EM2(ENGINE-2)', cb_loc: '', fin: '', description: '', _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }] },
+                    { panel_loc: '2501VU', cb_loc: '0745', fin: '2QG1', description: 'LP VLV MOT1 ENG 2' },
+                ],
+            }));
+        });
+        await page.goto('http://cb.test/?from_template=1');
+        await page.waitForTimeout(500);
+        assert.deepEqual(errors, []);
+        assert.equal(await page.locator('#cbOpenRowFilter').isHidden(), true);
+        await page.click('#cbOpenRowFilterPanelToggle');
+        await page.waitForSelector('#cbOpenRowFilter:not([hidden])');
+        assert.equal(await page.locator('#cbOpenRowFilter').getAttribute('data-bs-scroll'), 'true');
+        assert.equal(await page.locator('#cbOpenRowFilter').getAttribute('data-bs-backdrop'), 'false');
+        assert.equal(await page.locator('.cb-open-row-filter-body').evaluate(el => getComputedStyle(el).overflowY), 'auto');
+        assert.equal(await page.locator('#cbOpenRowFilterList').isHidden(), true);
+        await page.click('#cbOpenRowFilterToggle');
+        assert.equal(await page.locator('#cbOpenRowFilterList').isVisible(), true);
+        assert.equal(await page.locator('#cbOpenRowFilterList input').count(), 5);
+        assert.match(await page.locator('#cbOpenRowFilterStatus').textContent(), /5개 중 5개/);
+        assert.equal(await page.locator('#cbOpenListBody [data-field="panel_loc"]').first().evaluate(el => el.closest('td').colSpan), 4);
+        assert.equal(await page.locator('#cbOpenListBody [data-field="warning"]').first().evaluate(el => el.closest('td').classList.contains('cb-grid-covered')), false);
+        await page.locator('#cbOpenRowFilterList input').nth(1).uncheck();
+        assert.match(await page.locator('#cbOpenRowFilterStatus').textContent(), /5개 중 4개/);
+        assert.equal(await page.locator('#cbOpenListBody tr.cb-open-row-excluded').count(), 1);
+        await page.fill('#cbOpenRowFilterSearch', 'ENGINE-1');
+        await page.click('#cbOpenRowFilterApply');
+        assert.match(await page.locator('#cbOpenRowFilterStatus').textContent(), /5개 중 3개/);
+        assert.equal(await page.locator('#cbOpenListBody tr.cb-open-row-excluded').count(), 2);
+        await page.fill('#cbOpenRowFilterFrom', '2');
+        await page.fill('#cbOpenRowFilterTo', '3');
+        await page.click('#cbOpenRowFilterApply');
+        assert.match(await page.locator('#cbOpenRowFilterStatus').textContent(), /5개 중 2개/);
+        await page.selectOption('#cbOpenRowFilterLogic', 'or');
+        await page.click('#cbOpenRowFilterApply');
+        assert.match(await page.locator('#cbOpenRowFilterStatus').textContent(), /5개 중 3개/);
+        await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+        const printText = await page.locator('.cb-print-pages').innerText();
+        assert.ok(printText.includes('FOR FIN 4000EM1(ENGINE-1)'));
+        assert.ok(printText.includes('LP VLV MOT2 ENG 1'));
+        assert.ok(printText.includes('LP VLV MOT1 ENG 1'));
+        assert.ok(!printText.includes('FOR FIN 4000EM2(ENGINE-2)'));
+        assert.ok(!printText.includes('LP VLV MOT1 ENG 2'));
         assert.deepEqual(errors, []);
     } finally { await browser.close(); }
 });
@@ -98,6 +185,9 @@ test('document merges survive reload and print without empty continuation pages'
     const browser = await chromium.launch({ channel: 'msedge', headless: true });
     try {
         const { page, errors } = await fixture(browser, 'cb_open_list');
+        assert.equal(await page.locator('.cb-grid-toolbar').isHidden(), true);
+        await page.click('#cbOpenGridToolsToggle');
+        assert.equal(await page.locator('.cb-grid-toolbar').isVisible(), true);
         await page.selectOption('#cbOpenAircraftModel', 'B777');
         await page.fill('#cbOpenGibun', '7700');
         const cells = field => page.locator('#cbOpenListBody [data-field="' + field + '"]');
@@ -109,7 +199,8 @@ test('document merges survive reload and print without empty continuation pages'
         await page.getByRole('button', { name: '셀 병합', exact: true }).click();
         await page.waitForFunction(() => document.querySelector('#cbOpenListBody [data-field="description"]').closest('td').rowSpan === 2);
         await page.reload();
-        await page.waitForSelector('.cb-grid-toolbar');
+        await page.waitForSelector('.cb-grid-toolbar', { state: 'attached' });
+        await page.click('#cbOpenGridToolsToggle');
         assert.equal(await cells('description').nth(0).evaluate(el => el.closest('td').rowSpan), 2);
         await cells('panel_loc').nth(2).click();
         await page.getByRole('button', { name: '선택 행 위에 추가', exact: true }).click();
@@ -146,6 +237,8 @@ test('editing toolbar sticks below the header on both pages and screen sizes', a
     try {
         for (const name of ['cb_open_list', 'cb_template_manage']) {
             const { page, errors } = await fixture(browser, name);
+            if (name === 'cb_open_list') await page.click('#cbOpenGridToolsToggle');
+            if (name === 'cb_template_manage') await page.click('#cbTemplateGridToolsToggle');
             await page.addStyleTag({ content: fs.readFileSync(path.join(root, 'static/css/result_view.css'), 'utf8') });
             await page.addStyleTag({ content: fs.readFileSync(path.join(root, 'static/css/mobile.css'), 'utf8') });
             await page.evaluate(name => {
@@ -173,6 +266,79 @@ test('editing toolbar sticks below the header on both pages and screen sizes', a
                     });
                     throw new Error(name + '/' + width + ': ' + JSON.stringify(metrics));
                 }
+            }
+            assert.deepEqual(errors, []);
+            await page.close();
+        }
+    } finally { await browser.close(); }
+});
+
+test('vertical wheel over document tables scrolls the page instead of a nested area', async () => {
+    const browser = await chromium.launch({ channel: 'msedge', headless: true });
+    try {
+        for (const name of ['cb_open_list', 'cb_template_manage']) {
+            const { page, errors } = await fixture(browser, name);
+            const host = page.locator(name === 'cb_open_list' ? '.cb-open-sheet-stage' : '.cb-template-table-wrap');
+            await host.evaluate((element) => {
+                element.style.height = '180px';
+                element.style.overflowY = 'auto';
+                const spacer = document.createElement('div');
+                spacer.style.height = '1200px';
+                document.body.appendChild(spacer);
+            });
+            await host.hover();
+            const before = await page.evaluate(() => window.scrollY);
+            await page.mouse.wheel(0, 320);
+            await page.waitForFunction(value => window.scrollY > value, before);
+            assert.equal(await host.evaluate(element => element.scrollTop), 0);
+            assert.deepEqual(errors, []);
+            await page.close();
+        }
+    } finally { await browser.close(); }
+});
+
+test('document tables fit their page without horizontal scrolling', async () => {
+    const browser = await chromium.launch({ channel: 'msedge', headless: true });
+    try {
+        for (const name of ['cb_open_list', 'cb_template_manage']) {
+            const { page, errors } = await fixture(browser, name);
+            await page.setViewportSize({ width: 390, height: 844 });
+            const wrap = page.locator(name === 'cb_open_list' ? '.cb-open-table-wrap' : '.cb-template-table-wrap');
+            const table = page.locator(name === 'cb_open_list' ? '.cb-open-table' : '.cb-template-editor');
+            assert.equal(await wrap.evaluate(element => getComputedStyle(element).overflowX), 'hidden');
+            const dimensions = await table.evaluate(element => ({ scrollWidth: element.scrollWidth, clientWidth: element.clientWidth }));
+            // Collapsed table borders can contribute a few device pixels without
+            // creating a user-scrollable horizontal area.
+            assert.equal(dimensions.scrollWidth <= dimensions.clientWidth + 8, true, `${name}: ${JSON.stringify(dimensions)}`);
+            if (name === 'cb_open_list') {
+                assert.equal(await page.locator('col[data-col="panel-loc"]').getAttribute('data-width'), '60');
+                assert.equal(await page.locator('col[data-col="fin"]').getAttribute('data-width'), '60');
+                await page.locator('[data-col-width-input="description"]').evaluate(input => {
+                    input.value = '300';
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                await page.locator('[data-col-width-input="panel-loc"]').evaluate(input => {
+                    input.value = '55';
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                await page.waitForTimeout(50);
+                const descriptionWidth = Number.parseFloat(await page.locator('col[data-col="description"]').evaluate(element => element.style.width));
+                const panelWidth = Number.parseFloat(await page.locator('col[data-col="panel-loc"]').evaluate(element => element.style.width));
+                assert.ok(descriptionWidth / panelWidth > 5);
+                const [stageBox, sheetBox] = await Promise.all([
+                    page.locator('.cb-open-sheet-stage').boundingBox(),
+                    page.locator('.cb-open-sheet').boundingBox(),
+                ]);
+                const zoom = await page.locator('.cb-open-sheet').evaluate(element => ({ inline: element.style.zoom, computed: getComputedStyle(element).zoom }));
+                assert.ok(sheetBox.width <= stageBox.width + 1, JSON.stringify({ stageBox, sheetBox, zoom }));
+            } else {
+                const [panelWidth, finWidth, descriptionWidth] = await Promise.all([
+                    page.locator('.cb-template-col-panel').evaluate(element => Number.parseFloat(getComputedStyle(element).width)),
+                    page.locator('.cb-template-col-fin').evaluate(element => Number.parseFloat(getComputedStyle(element).width)),
+                    page.locator('.cb-template-col-description').evaluate(element => Number.parseFloat(getComputedStyle(element).width)),
+                ]);
+                assert.ok(Math.abs(panelWidth - finWidth) < 1);
+                assert.ok(descriptionWidth / panelWidth > 2.7);
             }
             assert.deepEqual(errors, []);
             await page.close();

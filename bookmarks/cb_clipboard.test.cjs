@@ -33,6 +33,28 @@ test('Airbus mapping and blank first field are preserved', () => {
     ]);
 });
 
+test('Airbus table header is skipped and FOR FIN title becomes a merged row', () => {
+    assert.deepEqual(parse(
+        'PANEL\tDESIGNATION\tFIN\tLOCATION\nFOR FIN 4000EM1(ENGINE-1)\t\t\t\n2500VU\tLP VLV MOT1 ENG 1\t1QG1\t0744\nSEPDC2\tLP VLV MOT2 ENG 1\t800QG1\tSSPC',
+    ), [
+        { panel_loc: 'FOR FIN 4000EM1(ENGINE-1)', description: '', fin: '', cb_loc: '', warning: '', _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }] },
+        { panel_loc: '2500VU', description: 'LP VLV MOT1 ENG 1', fin: '1QG1', cb_loc: '0744' },
+        { panel_loc: 'SEPDC2', description: 'LP VLV MOT2 ENG 1', fin: '800QG1', cb_loc: 'SSPC' },
+    ]);
+});
+
+test('Airbus ON A/C heading with commas becomes one merged title row', () => {
+    assert.deepEqual(parse(
+        '** ON A/C FSN 801-803, 851-900, 951-952\n49VU\tCOM/CVR/SPLY\t23RK\tE14\n49VU\tCOM/CVR/CTL\t26RK\tE13\n** ON A/C FSN 801-900, 951-999\n49VU\tENGINE/1 AND 2/IGN/SYS A\t1JH\tA03',
+    ), [
+        { panel_loc: '** ON A/C FSN 801-803, 851-900, 951-952', description: '', fin: '', cb_loc: '', warning: '', _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }] },
+        { panel_loc: '49VU', description: 'COM/CVR/SPLY', fin: '23RK', cb_loc: 'E14' },
+        { panel_loc: '49VU', description: 'COM/CVR/CTL', fin: '26RK', cb_loc: 'E13' },
+        { panel_loc: '** ON A/C FSN 801-900, 951-999', description: '', fin: '', cb_loc: '', warning: '', _merges: [{ field: 'panel_loc', rows: 1, cols: 4 }] },
+        { panel_loc: '49VU', description: 'ENGINE/1 AND 2/IGN/SYS A', fin: '1JH', cb_loc: 'A03' },
+    ]);
+});
+
 test('Incomplete Boeing input fails before returning partial records', () => {
     assert.throws(() => parse('Row Col Number Name\nP 23 C78605 L ENG T/R CTRL'));
     assert.throws(() => parse('Panel, P110\nRow Col Number Name\nP 23 C1 NAME\nINVALID'));

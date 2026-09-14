@@ -1,0 +1,293 @@
+{% extends "manhour/base/result_base.html" %} 
+{% load static %} 
+{% block title %}기종별 C/B 템플릿{% endblock title %} 
+
+{% block body_class %}C/B Template Library{% endblock body_class %} 
+
+{% block css %}
+{{ block.super }}
+<link
+    rel="stylesheet"
+    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260914-1"
+/>
+{% endblock css %} 
+
+{% block js %}
+{{ block.super }}
+<script
+    defer
+    src="{% static 'js/bookmarks/cb_template_library.js' %}?v=20260914-2"
+></script>
+{% endblock js %}
+
+{% block content %}
+
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'bookmarks:cb_home' %}" class="assignment-brand">
+            <div class="assignment-brand-icon">
+                <i class="bi bi-collection"></i>
+            </div>
+
+            <div>
+                <strong>C/B TEMPLATES</strong>
+                <span>Aircraft Template Library</span>
+            </div>
+        </a>
+
+        <div class="assignment-topbar-actions">
+            <a
+                href="{% url 'bookmarks:cb_home' %}"
+                class="assignment-topbar-btn"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span>C/B 메뉴</span>
+            </a>
+
+            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i>
+                <span>홈</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main id="cbTemplateLibrary" class="cb-library-page">
+    <!-- =================================================
+    PAGE HEADER
+    ================================================== -->
+
+    <section class="cb-library-intro">
+        <div class="cb-library-intro-copy">
+            <span class="cb-library-eyebrow"> AIRCRAFT TEMPLATE LIBRARY </span>
+
+            <h1>기종별 C/B 템플릿</h1>
+
+            <p>
+                항공기를 선택하여 저장된 템플릿을 확인하거나 새 템플릿을
+                생성하세요.
+            </p>
+        </div>
+
+        <!-- SEARCH -->
+
+        <div class="cb-library-search">
+            <i class="bi bi-search"></i>
+
+            <input
+                id="cbTemplateAircraftSearch"
+                type="search"
+                placeholder="기종 검색 (예: A350, B737 ...)"
+                autocomplete="off"
+                aria-label="기종 검색"
+            />
+
+            <button
+                id="cbTemplateSearchClear"
+                type="button"
+                title="검색 초기화"
+                hidden
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- =================================================
+    AIRCRAFT CARDS
+    ================================================== -->
+
+    <section id="cbAircraftCardGrid" class="cb-aircraft-card-grid">
+        {% for group in aircraft_groups %}
+
+        <button
+            type="button"
+            class="cb-aircraft-card"
+            data-aircraft-card
+            data-aircraft="{{ group.aircraft_model }}"
+            data-aircraft-key="{{ group.aircraft_model|lower }}"
+            aria-expanded="false"
+        >
+            <!-- IMAGE -->
+
+            <div class="cb-aircraft-card-image">
+
+                {% if group.image %}
+
+                    <img
+                        src="{{ group.image }}"
+                        alt="{{ group.aircraft_model }}"
+                        loading="lazy"
+                    />
+
+                {% else %}
+
+                    <img
+                        src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
+                        alt="{{ group.aircraft_model }}"
+                        loading="lazy"
+                    />
+
+                {% endif %}
+
+
+                <span class="cb-aircraft-brand">
+
+                    {% if group.aircraft_model|slice:":1" == "A" %}
+
+                        <i class="bi bi-airplane-engines"></i>
+                        AIRBUS
+
+                    {% elif group.aircraft_model|slice:":1" == "B" %}
+
+                        <i class="bi bi-airplane-engines"></i>
+                        BOEING
+
+                    {% else %}
+
+                        <i class="bi bi-airplane"></i>
+                        AIRCRAFT
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+            <!-- INFO -->
+
+            <div class="cb-aircraft-card-content">
+                <div class="cb-aircraft-card-main">
+                    <strong> {{ group.aircraft_model }} </strong>
+
+                    <span> {{ group.template_count }} 개의 템플릿 </span>
+                </div>
+
+                <span class="cb-aircraft-card-arrow">
+                    <i class="bi bi-chevron-right" data-aircraft-arrow></i>
+                </span>
+            </div>
+        </button>
+
+        <!--
+            카드와 상세 패널을 JS에서 연결하기 위한
+            template data
+        -->
+
+        {% empty %}
+
+        <div class="cb-library-empty-aircraft">
+            <i class="bi bi-airplane"></i>
+
+            <strong> 등록된 기종이 없습니다. </strong>
+        </div>
+
+        {% endfor %}
+    </section>
+
+    <!-- =================================================
+    NO SEARCH RESULT
+    ================================================== -->
+
+    <div id="cbAircraftSearchEmpty" class="cb-library-search-empty" hidden>
+        <i class="bi bi-search"></i>
+
+        <strong> 검색 결과가 없습니다. </strong>
+
+        <span> 다른 기종명을 입력해 주세요. </span>
+    </div>
+
+    <!-- =================================================
+    SELECTED AIRCRAFT PANEL
+    ================================================== -->
+
+    <section id="cbTemplateResultPanel" class="cb-template-result-panel" hidden>
+        <!-- POINTER -->
+
+        <span
+            id="cbTemplatePanelPointer"
+            class="cb-template-result-pointer"
+        ></span>
+
+        <!-- HEADER -->
+
+        <div class="cb-template-result-header">
+            <div class="cb-template-result-title">
+                <div class="cb-template-result-icon">
+                    <i class="bi bi-airplane-engines"></i>
+                </div>
+
+                <div>
+                    <div class="cb-template-result-heading">
+                        <h2 id="cbSelectedAircraftTitle">기종 템플릿 목록</h2>
+
+                        <span
+                            id="cbSelectedTemplateCount"
+                            class="cb-template-count-badge"
+                        >
+                            0개
+                        </span>
+                    </div>
+
+                    <p>선택한 기종에 저장된 C/B 템플릿입니다.</p>
+                </div>
+            </div>
+
+            <a
+                id="cbNewTemplateButton"
+                href="{% url 'bookmarks:cb_template_manage' %}"
+                class="cb-template-new-button"
+            >
+                <i class="bi bi-plus-lg"></i>
+
+                <span> 첫 템플릿 생성하기 </span>
+            </a>
+        </div>
+
+        <!-- LIST -->
+
+        <div id="cbSelectedTemplateList" class="cb-template-result-list"></div>
+
+        <!-- EMPTY -->
+
+        <div
+            id="cbSelectedTemplateEmpty"
+            class="cb-template-result-empty"
+            hidden
+        >
+            <div class="cb-template-result-empty-icon">
+                <i class="bi bi-file-earmark-plus"></i>
+            </div>
+
+            <strong> 저장된 템플릿이 없습니다. </strong>
+
+            <p>이 기종의 첫 번째 C/B 템플릿을 만들어 보세요.</p>
+        </div>
+    </section>
+
+    <!-- =================================================
+    DJANGO DATA
+    JS가 화면에 출력할 실제 Template 데이터
+    ================================================== -->
+
+    <div id="cbTemplateLibraryData" hidden>
+        {% for group in aircraft_groups %}
+
+        <div data-aircraft-group="{{ group.aircraft_model }}">
+            {% for template in group.templates %}
+
+            <div
+                data-template-item
+                data-id="{{ template.id }}"
+                data-name="{{ template.name|escape }}"
+                data-created="{{ template.created_at|date:'Y.m.d' }}"
+                data-manage-url="{% url 'bookmarks:cb_template_manage' %}?aircraft_model={{ group.aircraft_model|urlencode }}&amp;template_id={{ template.id }}"
+            ></div>
+
+            {% endfor %}
+        </div>
+
+        {% endfor %}
+    </div>
+</main>
+{% endblock content %}

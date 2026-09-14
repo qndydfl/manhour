@@ -40,15 +40,86 @@ class CircuitBreakerOpenListTests(TestCase):
         self.assertTemplateUsed(response, "bookmarks/cb_open_list.html")
         self.assertTemplateUsed(response, "manhour/base/result_base.html")
         self.assertContains(response, "cbOpenListPasteSource")
-        self.assertContains(response, "cbOpenListDeleteRow")
-        self.assertContains(response, "cbOpenTemplatePicker")
-        self.assertContains(response, reverse("bookmarks:cb_templates"))
-        self.assertContains(response, 'data-col-width-input="panel-loc"')
-        self.assertContains(response, 'data-col-width-input="cb-loc"')
-        self.assertContains(response, 'data-col-width-input="fin"')
+        self.assertNotContains(response, "cbOpenListDeleteRow")
+        self.assertNotContains(response, "cbOpenTemplatePicker")
+        self.assertNotContains(response, reverse("bookmarks:cb_templates"))
+        self.assertNotContains(response, 'data-col-width-input="panel-loc"')
+        self.assertNotContains(response, 'data-col-width-input="cb-loc"')
+        self.assertNotContains(response, 'data-col-width-input="fin"')
         for asset in ("css/bookmarks/cb_open_list.css", "js/bookmarks/cb_open_list.js"):
             self.assertContains(response, asset)
             self.assertIsNotNone(finders.find(asset))
+
+    def test_cb_home_and_saved_documents_pages(self):
+        Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
+        session = self.client.session
+        session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "user"})
+        session.save()
+        home = self.client.get(reverse("bookmarks:cb_home"))
+        self.assertEqual(home.status_code, 200)
+        self.assertTemplateUsed(home, "bookmarks/cb_home.html")
+        self.assertContains(home, reverse("bookmarks:cb_open_list") + "?new=1")
+        self.assertContains(home, reverse("bookmarks:cb_saved_documents"))
+        self.assertContains(home, reverse("bookmarks:cb_template_library"))
+        self.assertNotContains(home, "cbAircraftSettingsPanel")
+        saved = self.client.get(reverse("bookmarks:cb_saved_documents"))
+        self.assertEqual(saved.status_code, 200)
+        self.assertTemplateUsed(saved, "bookmarks/cb_saved_documents.html")
+        self.assertContains(saved, "js/bookmarks/cb_saved_documents.js")
+
+    def test_template_library_groups_templates_and_links_to_editor(self):
+        Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
+        session = self.client.session
+        session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
+        session.save()
+        template = CBTemplate.objects.create(
+            site="SITE-A", aircraft_model="B777", name="Engine change",
+            rows=[{"panel_loc": "P11", "cb_loc": "A1", "description": "TEST"}],
+        )
+        response = self.client.get(reverse("bookmarks:cb_template_library"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "bookmarks/cb_template_library.html")
+        self.assertContains(response, "Engine change")
+        self.assertContains(response, f"aircraft_model=B777&amp;template_id={template.pk}")
+        self.assertContains(response, "첫 템플릿 생성하기")
+        self.assertNotContains(response, "cb-library-heading")
+        self.assertContains(response, "data-aircraft-card", count=7)
+
+    def test_admin_home_renders_working_aircraft_settings(self):
+        Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
+        session = self.client.session
+        session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
+        session.save()
+        response = self.client.get(reverse("bookmarks:cb_home"))
+        self.assertContains(response, 'data-bs-target="#cbAircraftSettingsPanel"')
+        self.assertContains(response, 'data-api-url="' + reverse("bookmarks:cb_aircraft_models") + '"')
+        self.assertContains(response, "cbAircraftManageSelect")
+        self.assertContains(response, "js/bookmarks/cb_home.js")
+        self.assertIsNotNone(finders.find("js/bookmarks/cb_home.js"))
+
+    def test_template_manage_opens_requested_aircraft_and_template(self):
+        Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
+        session = self.client.session
+        session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
+        session.save()
+        template = CBTemplate.objects.create(
+            site="SITE-A", aircraft_model="B747", name="Selected",
+            rows=[{"panel_loc": "P1", "cb_loc": "A1", "description": "TEST"}],
+        )
+        response = self.client.get(
+            reverse("bookmarks:cb_template_manage"),
+            {"aircraft_model": "B747", "template_id": template.pk},
+        )
+        self.assertContains(response, 'value="B747" selected')
+        self.assertContains(response, f'data-initial-template-id="{template.pk}"')
+
+    def test_cb_library_pages_require_login(self):
+        for name in (
+            "bookmarks:cb_home",
+            "bookmarks:cb_saved_documents",
+            "bookmarks:cb_template_library",
+        ):
+            self.assertRedirects(self.client.get(reverse(name)), reverse("manhour:login"))
 
 
 @override_settings(
