@@ -57,12 +57,7 @@ class CircuitBreakerOpenListTests(TestCase):
         session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "user"})
         session.save()
         home = self.client.get(reverse("bookmarks:cb_home"))
-        self.assertEqual(home.status_code, 200)
-        self.assertTemplateUsed(home, "bookmarks/cb_home.html")
-        self.assertContains(home, reverse("bookmarks:cb_open_list") + "?new=1")
-        self.assertContains(home, reverse("bookmarks:cb_saved_documents"))
-        self.assertContains(home, reverse("bookmarks:cb_template_library"))
-        self.assertNotContains(home, "cbAircraftSettingsPanel")
+        self.assertRedirects(home, reverse("bookmarks:cb_template_library"))
         saved = self.client.get(reverse("bookmarks:cb_saved_documents"))
         self.assertEqual(saved.status_code, 200)
         self.assertTemplateUsed(saved, "bookmarks/cb_saved_documents.html")
@@ -85,18 +80,15 @@ class CircuitBreakerOpenListTests(TestCase):
         self.assertContains(response, "첫 템플릿 생성하기")
         self.assertNotContains(response, "cb-library-heading")
         self.assertContains(response, "data-aircraft-card", count=7)
+        self.assertNotContains(response, "<span>기종 목록</span>", html=True)
 
-    def test_admin_home_renders_working_aircraft_settings(self):
+    def test_home_redirects_to_template_library(self):
         Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
         session = self.client.session
         session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
         session.save()
         response = self.client.get(reverse("bookmarks:cb_home"))
-        self.assertContains(response, 'data-bs-target="#cbAircraftSettingsPanel"')
-        self.assertContains(response, 'data-api-url="' + reverse("bookmarks:cb_aircraft_models") + '"')
-        self.assertContains(response, "cbAircraftManageSelect")
-        self.assertContains(response, "js/bookmarks/cb_home.js")
-        self.assertIsNotNone(finders.find("js/bookmarks/cb_home.js"))
+        self.assertRedirects(response, reverse("bookmarks:cb_template_library"))
 
     def test_template_manage_opens_requested_aircraft_and_template(self):
         Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
@@ -117,7 +109,7 @@ class CircuitBreakerOpenListTests(TestCase):
         self.assertContains(response, 'id="cbOpenManagedTemplateDelete"')
         self.assertContains(response, 'id="cbOpenGibun"')
 
-    def test_aircraft_template_list_uses_a_separate_page(self):
+    def test_aircraft_template_list_uses_separate_aircraft_home(self):
         Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
         session = self.client.session
         session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
@@ -127,13 +119,19 @@ class CircuitBreakerOpenListTests(TestCase):
             rows=[{"panel_loc": "P11", "description": "TEST"}],
         )
         library = self.client.get(reverse("bookmarks:cb_template_library"))
-        list_url = reverse("bookmarks:cb_template_aircraft_list", args=["B777"])
+        list_url = reverse("bookmarks:cb_aircraft_home", args=["B777"])
         self.assertContains(library, list_url)
         response = self.client.get(list_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "bookmarks/cb_template_aircraft_list.html")
+        self.assertTemplateUsed(response, "bookmarks/cb_aircraft_home.html")
+        self.assertTrue(response.context["aircraft_template_list_mode"])
         self.assertContains(response, "Engine")
         self.assertContains(response, f"template_id={template.pk}")
+        self.assertContains(response, "새로운 C/B 문서 작성하기")
+        self.assertContains(response, "저장된 C/B 문서 불러오기")
+        self.assertContains(response, "aircraft_model=B777")
+        self.assertContains(response, 'data-bs-target="#cbAircraftTemplates"')
+        self.assertContains(response, "<span>기종 목록</span>", html=True)
 
     def test_cb_library_pages_require_login(self):
         for name in (
@@ -178,7 +176,7 @@ class CBTemplateTests(TestCase):
     def test_manage_page_renders(self):
         response = self.client.get(reverse("bookmarks:cb_template_manage"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "bookmarks/cb_template_manage.html")
+        self.assertTemplateUsed(response, "bookmarks/cb_open_list.html")
         self.assertTemplateUsed(response, "bookmarks/cb_open_list.html")
         self.assertContains(response, reverse("bookmarks:cb_templates"))
         self.assertContains(response, 'id="cbOpenManagedTemplateUpdate"')

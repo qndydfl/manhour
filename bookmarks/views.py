@@ -3,8 +3,9 @@ import json
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.http import Http404
+from django.utils.html import json_script
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 from manhour.views import SimpleLoginRequiredMixin, get_current_workplace
 from .models import CBAircraftModel, CBTemplate
@@ -43,7 +44,13 @@ class CircuitBreakerOpenListView(SimpleLoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["aircraft_models"] = get_aircraft_models()
-        context["default_aircraft_model"] = ""
+        requested_model = self.request.GET.get("aircraft_model", "").strip().upper()
+        context["default_aircraft_model"] = (
+            requested_model
+            if requested_model in context["aircraft_models"]
+            else context["aircraft_models"][0]
+        )
+        context["back_aircraft_model"] = context["default_aircraft_model"]
         context["can_manage_cb"] = (
             self.request.session.get("user_role") == "admin"
             or self.request.user.is_superuser
@@ -51,17 +58,22 @@ class CircuitBreakerOpenListView(SimpleLoginRequiredMixin, TemplateView):
         return context
 
 
-class CBHomeView(SimpleLoginRequiredMixin, TemplateView):
-    template_name = "bookmarks/cb_home.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["aircraft_models"] = get_aircraft_models()
-        return context
+class CBHomeView(SimpleLoginRequiredMixin, RedirectView):
+    pattern_name = "bookmarks:cb_template_library"
+    permanent = False
 
 
 class CBSavedDocumentsView(SimpleLoginRequiredMixin, TemplateView):
     template_name = "bookmarks/cb_saved_documents.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        requested_model = self.request.GET.get("aircraft_model", "").strip().upper()
+        aircraft_models = get_aircraft_models()
+        context["selected_aircraft_model"] = (
+            requested_model if requested_model in aircraft_models else aircraft_models[0]
+        )
+        return context
 
 
 class CBTemplateLibraryView(
@@ -110,12 +122,17 @@ class CBTemplateLibraryView(
             )
 
         context["aircraft_groups"] = aircraft_groups
+        context["aircraft_models"] = [item.code for item in aircraft_models]
+        context["can_manage_cb"] = (
+            self.request.session.get("user_role") == "admin"
+            or self.request.user.is_superuser
+        )
 
         return context
 
 
-class CBTemplateAircraftListView(SimpleLoginRequiredMixin, TemplateView):
-    template_name = "bookmarks/cb_template_aircraft_list.html"
+class CBAircraftHomeView(SimpleLoginRequiredMixin, TemplateView):
+    template_name = "bookmarks/cb_aircraft_home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -130,11 +147,17 @@ class CBTemplateAircraftListView(SimpleLoginRequiredMixin, TemplateView):
             site=get_current_workplace(self.request),
             aircraft_model=aircraft_model,
         ).order_by("-updated_at", "name")
+        context["aircraft_template_list_mode"] = True
+        context["aircraft_models"] = get_aircraft_models()
+        context["can_manage_cb"] = (
+            self.request.session.get("user_role") == "admin"
+            or self.request.user.is_superuser
+        )
         return context
 
 
 class CBTemplateManageView(SimpleLoginRequiredMixin, TemplateView):
-    template_name = "bookmarks/cb_template_manage.html"
+    template_name = "bookmarks/cb_open_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -158,6 +181,7 @@ class CBTemplateManageView(SimpleLoginRequiredMixin, TemplateView):
                 selected_template_id = requested_template_id
         context["aircraft_models"] = aircraft_models
         context["selected_aircraft_model"] = selected_model
+        context["back_aircraft_model"] = selected_model
         context["selected_template_id"] = selected_template_id
         context["template_manage_mode"] = True
         context["managed_template_data"] = {
@@ -166,6 +190,9 @@ class CBTemplateManageView(SimpleLoginRequiredMixin, TemplateView):
             "name": selected_template.name if selected_template else "",
             "rows": selected_template.rows if selected_template else [],
         }
+        context["managed_template_script"] = json_script(
+            context["managed_template_data"], "cbManagedTemplateData"
+        )
         return context
 
 

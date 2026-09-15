@@ -26,6 +26,7 @@
     --assignment-radius: 16px;
 
     --assignment-width: 1500px;
+    --assignment-topbar-height: 60px;
 }
 
 * {
@@ -41,7 +42,7 @@ body.assignment-console-body {
 
     min-height: 100vh;
 
-    padding-top: 72px;
+    padding-top: var(--assignment-topbar-height);
 
     overflow-x: hidden;
 
@@ -94,7 +95,7 @@ body.assignment-console-body
 
     width: 100%;
 
-    min-height: 72px;
+    min-height: var(--assignment-topbar-height);
 
     background: rgba(7, 17, 31, 0.97);
 
@@ -106,7 +107,7 @@ body.assignment-console-body
 .assignment-topbar-inner {
     width: min(var(--assignment-width), calc(100% - 56px));
 
-    min-height: 72px;
+    min-height: var(--assignment-topbar-height);
 
     margin: 0 auto;
 
@@ -124,7 +125,7 @@ body.assignment-console-body
 
     align-items: center;
 
-    gap: 12px;
+    gap: 10px;
 
     color: #ffffff;
 
@@ -136,8 +137,8 @@ body.assignment-console-body
 }
 
 .assignment-brand-icon {
-    width: 39px;
-    height: 39px;
+    width: 34px;
+    height: 34px;
 
     display: flex;
 
@@ -151,7 +152,7 @@ body.assignment-console-body
 
     color: #60a5fa;
 
-    font-size: 17px;
+    font-size: 15px;
 }
 
 .assignment-brand strong {
@@ -183,9 +184,9 @@ body.assignment-console-body
 }
 
 .assignment-topbar-btn {
-    min-height: 36px;
+    min-height: 34px;
 
-    padding: 0 12px;
+    padding: 0 10px;
 
     display: inline-flex;
 
@@ -922,19 +923,18 @@ body.assignment-console-body
     .worker-status-panel .worker-card .progress {
         height: 2px !important;
     }
-    
+
     .worker-status-panel .worker-card .worker-used-mh {
         font-size: 14px !important;
         line-height: 1;
         width: 34px !important;
     }
 
-    
     .worker-status-panel .worker-card .worker-mh-divider {
         font-size: 12px;
         line-height: 1;
     }
-    
+
     .worker-status-panel .worker-card input.worker-limit-mh {
         font-size: 12px !important;
         line-height: 1 !important;

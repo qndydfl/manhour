@@ -2,6 +2,18 @@
     background: #e9eff5;
     color: #172033;
 }
+.cb-library-body .assignment-topbar-inner {
+    width: min(1320px, calc(100% - 36px));
+}
+.cb-saved-topbar .assignment-brand strong {
+    font-size: 15px;
+    letter-spacing: 0.06em;
+}
+.cb-saved-topbar .assignment-brand span {
+    color: #b7c7d9;
+    font-size: 12px;
+    font-weight: 650;
+}
 .cb-library-page {
     width: min(var(--cb-content-width, 1320px), calc(100% - 56px));
     min-height: calc(100vh - 144px);
@@ -89,41 +101,55 @@
     font-weight: 700;
 }
 .cb-saved-card {
-    padding: 18px;
+    padding: 20px;
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: start;
     gap: 14px;
     border: 1px solid #cbd8e6;
-    border-radius: 18px;
-    background: #f8fafc;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(34, 55, 78, 0.07);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.cb-saved-card:hover {
+    transform: translateY(-2px);
+    border-color: #9bb7d7;
+    box-shadow: 0 14px 30px rgba(34, 55, 78, 0.12);
 }
 .cb-saved-document-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
-    margin-top: 22px;
+    margin-top: 16px;
 }
 .cb-saved-icon {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
     display: grid;
     place-items: center;
     border-radius: 15px;
     background: #0f766e;
     color: white;
-    font-size: 25px;
+    font-size: 21px;
 }
 .cb-saved-copy {
     display: grid;
     gap: 4px;
 }
 .cb-saved-copy strong {
+    color: #172f53;
     font-size: 19px;
+    line-height: 1.35;
 }
-.cb-saved-copy span,
+.cb-saved-copy span {
+    color: #40566f;
+    font-size: 14px;
+    font-weight: 650;
+}
 .cb-saved-copy small {
-    color: #5e7186;
+    color: #596d84;
+    font-size: 13px;
 }
 .cb-saved-actions {
     grid-column: 1 / -1;
@@ -133,6 +159,74 @@
 .cb-saved-actions > * {
     flex: 1 1 0;
     min-width: 0;
+}
+
+.cb-saved-page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 22px;
+    border: 1px solid #cbd8e6;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f8fbff, #edf3f9);
+    box-shadow: 0 8px 24px rgba(34, 55, 78, 0.07);
+}
+
+.cb-saved-page-heading,
+.cb-saved-page-tools {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cb-saved-page-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    flex: 0 0 48px;
+    place-items: center;
+    border-radius: 14px;
+    background: #d7f0ec;
+    color: #0f766e;
+    font-size: 22px;
+}
+
+.cb-saved-eyebrow {
+    display: block;
+    margin-bottom: 2px;
+    color: #0f766e;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.cb-saved-page-heading h1 {
+    margin: 0;
+    color: #172f53;
+    font-size: 25px;
+    font-weight: 850;
+}
+
+.cb-saved-page-heading p {
+    margin: 4px 0 0;
+    color: #455b73;
+    font-size: 14px;
+    font-weight: 550;
+}
+
+.cb-saved-count {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #e3ebf4;
+    color: #53677f;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.cb-saved-count strong {
+    color: #1d4ed8;
+    font-size: 14px;
 }
 
 @media (max-width: 1100px) {
@@ -157,9 +251,15 @@
     background: #f8fafc;
     text-align: center;
 }
-.cb-saved-empty > i {
-    font-size: 42px;
-    color: #8294a8;
+.cb-saved-empty-icon {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    background: #e8eef5;
+    color: #71859b;
+    font-size: 26px;
 }
 .cb-saved-empty span {
     color: #64748b;
@@ -295,6 +395,26 @@
     }
     .cb-saved-card {
         grid-template-columns: auto 1fr;
+    }
+    .cb-saved-page-head {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+        padding: 16px;
+    }
+    .cb-saved-page-heading {
+        align-items: flex-start;
+    }
+    .cb-saved-page-heading h1 {
+        font-size: 19px;
+    }
+    .cb-saved-page-heading p {
+        line-height: 1.45;
+    }
+    .cb-saved-page-tools {
+        justify-content: space-between;
+        padding-top: 12px;
+        border-top: 1px solid #d6e1ec;
     }
     .cb-saved-actions {
         grid-column: 1 / -1;

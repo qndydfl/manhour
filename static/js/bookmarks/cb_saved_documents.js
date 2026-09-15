@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const list = document.getElementById("cbSavedDocumentList");
     const empty = document.getElementById("cbSavedEmpty");
+    const documentCount = document.getElementById("cbSavedDocumentCount");
+    const selectedAircraft = (page.dataset.aircraftModel || "")
+        .trim()
+        .toUpperCase();
 
     /* =====================================================
        STORAGE KEY
@@ -88,6 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     function showEmptyState() {
+        if (documentCount) {
+            documentCount.textContent = "0";
+        }
         if (list) {
             list.hidden = true;
             list.replaceChildren();
@@ -240,12 +247,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const title = document.createElement("strong");
 
-        title.textContent = info.title || "CIRCUIT BREAKER OPEN LIST";
+        title.textContent =
+            [aircraft, gibun].filter(Boolean).join(" · ") || "C/B 저장 문서";
 
         const meta = document.createElement("span");
 
+        const savedTitle = String(info.title || "").trim();
+
         meta.textContent =
-            [aircraft, gibun].filter(Boolean).join(" · ") || "기종·기번 미입력";
+            savedTitle && savedTitle.toUpperCase() !== "CIRCUIT BREAKER OPEN LIST"
+                ? savedTitle
+                : "저장된 작업 문서";
 
         const time = document.createElement("small");
 
@@ -318,14 +330,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderSavedDocuments() {
         const documents = loadSavedDocuments();
+        const visibleDocuments = documents
+            .map((saved, originalIndex) => ({ saved, originalIndex }))
+            .filter(({ saved }) => {
+                if (!selectedAircraft) {
+                    return true;
+                }
+                return (
+                    String(saved?.document?.aircraft || "")
+                        .trim()
+                        .toUpperCase() === selectedAircraft
+                );
+            });
 
-        if (!documents.length) {
+        if (!visibleDocuments.length) {
             showEmptyState();
             return;
         }
 
         if (!list) {
             return;
+        }
+
+        if (documentCount) {
+            documentCount.textContent = String(visibleDocuments.length);
         }
 
         /*
@@ -336,12 +364,12 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * 정상적인 저장 데이터만 카드 생성
          */
-        documents.forEach((saved, index) => {
+        visibleDocuments.forEach(({ saved, originalIndex }) => {
             if (!saved || !saved.rows) {
                 return;
             }
 
-            const card = createDocumentCard(saved, index);
+            const card = createDocumentCard(saved, originalIndex);
 
             list.appendChild(card);
         });

@@ -1,0 +1,78 @@
+{% extends "manhour/base/result_base.html" %}
+{% load static %}
+{% block title %}{{ aircraft_model }} C/B{% endblock title %}
+{% block body_class %}cb-library-body{% endblock body_class %}
+{% block css %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_library.css' %}?v=20260915-6" />
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260915-7" />
+{% endblock css %}
+{% block content %}
+<header class="assignment-topbar">
+    <div class="assignment-topbar-inner">
+        <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-brand">
+            <div class="assignment-brand-icon"><i class="bi bi-airplane-engines"></i></div>
+            <div><strong>{{ aircraft_model }} C/B</strong><span>Aircraft Workspace</span></div>
+        </a>
+        <div class="assignment-topbar-actions">
+            <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-topbar-btn">
+                <i class="bi bi-arrow-left"></i><span>기종 목록</span>
+            </a>
+            <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-topbar-btn">
+                <i class="bi bi-house"></i><span>홈</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="cb-library-page">
+    <section class="cb-aircraft-list-hero">
+        <div class="cb-aircraft-list-image">
+            {% if aircraft_image %}<img src="{{ aircraft_image }}" alt="{{ aircraft_model }}" />
+            {% else %}<img src="{% static 'images/bookmarks/aircraft/default.jpg' %}" alt="{{ aircraft_model }}" />{% endif %}
+        </div>
+        <div class="cb-aircraft-list-copy">
+            <span class="cb-library-eyebrow">AIRCRAFT WORKSPACE</span>
+            <h1>{{ aircraft_model }}</h1>
+            <p>이 기종의 문서 작성, 저장 문서 및 기본 템플릿을 관리합니다.</p>
+        </div>
+    </section>
+
+    <section class="cb-library-grid cb-aircraft-action-grid" aria-label="{{ aircraft_model }} C/B 메뉴">
+        <a href="{% url 'bookmarks:cb_open_list' %}?new=1&amp;aircraft_model={{ aircraft_model|urlencode }}" class="cb-library-card is-new">
+            <i class="bi bi-file-earmark-plus"></i><strong>새로운 C/B 문서 작성하기</strong>
+            <span>{{ aircraft_model }} 새 문서를 작성합니다.</span>
+        </a>
+        <button type="button" class="cb-library-card is-base" data-bs-toggle="collapse" data-bs-target="#cbAircraftTemplates" aria-expanded="false" aria-controls="cbAircraftTemplates">
+            <i class="bi bi-collection"></i><strong>기종별 템플릿 불러오기</strong>
+            <span>{{ templates|length }}개의 저장된 템플릿</span>
+        </button>
+        <a href="{% url 'bookmarks:cb_saved_documents' %}?aircraft_model={{ aircraft_model|urlencode }}" class="cb-library-card is-saved">
+            <i class="bi bi-folder2-open"></i><strong>저장된 C/B 문서 불러오기</strong>
+            <span>{{ aircraft_model }} 저장 문서를 확인합니다.</span>
+        </a>
+    </section>
+
+    <section id="cbAircraftTemplates" class="collapse cb-aircraft-template-panel">
+        <div class="cb-aircraft-template-panel-head ms-2">
+            <strong>{{ aircraft_model }} 저장 템플릿</strong>
+            <a href="{% url 'bookmarks:cb_template_manage' %}?aircraft_model={{ aircraft_model|urlencode }}" class="cb-template-new-button"><i class="bi bi-plus-lg"></i> 새 템플릿</a>
+        </div>
+        <div class="cb-aircraft-template-list">
+            {% for template in templates %}
+            <article class="cb-aircraft-template-row">
+                <div class="cb-template-item-icon"><i class="bi bi-file-earmark-text"></i></div>
+                <div class="cb-template-item-copy">
+                    <strong>{{ template.name }}</strong>
+                    <small>{{ template.rows|length }}행 · {{ template.updated_at|date:"Y.m.d H:i" }}</small>
+                </div>
+                <a href="{% url 'bookmarks:cb_template_manage' %}?aircraft_model={{ aircraft_model|urlencode }}&amp;template_id={{ template.pk }}" class="cb-template-item-edit">불러오기 <i class="bi bi-chevron-right"></i></a>
+            </article>
+            {% empty %}
+            <div class="cb-template-result-empty cb-aircraft-template-empty">
+                <strong>저장된 템플릿이 없습니다.</strong><p>첫 번째 템플릿을 만들어 보세요.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock content %}

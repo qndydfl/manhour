@@ -1,47 +1,43 @@
-{% extends "manhour/base/result_base.html" %} 
-{% load static %} 
+<!-- prettier-ignore -->
+{% extends "manhour/base/result_base.html" %}
+{% load static %}
 {% block title %}저장된 C/B 문서{% endblock title %} 
 {% block body_class %}cb-library-body{% endblock body_class %} 
-
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_library.css' %}?v=20260915-3"
+    href="{% static 'css/bookmarks/cb_library.css' %}?v=20260915-8"
 />
-{% endblock css %} 
-
-{% block js %}
+{% endblock css %} {% block js %}
 <script
     defer
-    src="{% static 'js/bookmarks/cb_saved_documents.js' %}?v=20260915-3"
+    src="{% static 'js/bookmarks/cb_saved_documents.js' %}?v=20260915-6"
 ></script>
-{% endblock js %} 
+{% endblock js %} {% block content %}
 
-{% block content %}
-
-<header class="assignment-topbar">
+<header class="assignment-topbar cb-saved-topbar">
     <div class="assignment-topbar-inner">
-        <a href="{% url 'bookmarks:cb_home' %}" class="assignment-brand">
+        <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-brand">
             <div class="assignment-brand-icon">
                 <i class="bi bi-folder2-open"></i>
             </div>
 
             <div>
-                <strong>저장된 C/B 문서</strong>
-                <span>Saved Documents</span>
+                <strong>CIRCUIT BREAKER OPEN LIST</strong>
+                <span>{{ selected_aircraft_model }} · 저장된 C/B 문서</span>
             </div>
         </a>
 
         <div class="assignment-topbar-actions">
             <a
-                href="{% url 'bookmarks:cb_home' %}"
+                href="{% url 'bookmarks:cb_aircraft_home' selected_aircraft_model %}"
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span>C/B 메뉴</span>
+                <span>기종 메뉴</span>
             </a>
 
-            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+            <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
                 <span>홈</span>
             </a>
@@ -53,7 +49,25 @@
     class="cb-library-page"
     id="cbSavedDocuments"
     data-editor-url="{% url 'bookmarks:cb_open_list' %}"
+    data-aircraft-model="{{ selected_aircraft_model }}"
 >
+    <section class="cb-saved-page-head">
+        <div class="cb-saved-page-heading">
+            <span class="cb-saved-page-icon"><i class="bi bi-folder2-open"></i></span>
+            <div>
+                <span class="cb-saved-eyebrow">SAVED DOCUMENTS</span>
+                <h1>{{ selected_aircraft_model }} 저장 C/B 문서</h1>
+                <p>저장한 C/B 문서를 불러와 계속 작성하거나 정리할 수 있습니다.</p>
+            </div>
+        </div>
+        <div class="cb-saved-page-tools">
+            <span class="cb-saved-count"><strong id="cbSavedDocumentCount">0</strong>개 문서</span>
+            <a href="{% url 'bookmarks:cb_open_list' %}?new=1&amp;aircraft_model={{ selected_aircraft_model|urlencode }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>새 문서
+            </a>
+        </div>
+    </section>
+
     <!-- =====================================================
         저장된 C/B 문서 목록
     ====================================================== -->
@@ -67,14 +81,14 @@
         저장 문서 없음
     ====================================================== -->
     <section id="cbSavedEmpty" class="cb-saved-empty" hidden>
-        <i class="bi bi-inbox"></i>
+        <span class="cb-saved-empty-icon"><i class="bi bi-inbox"></i></span>
 
-        <strong> 저장된 문서가 없습니다. </strong>
+        <strong>{% if selected_aircraft_model %}{{ selected_aircraft_model }}에 {% endif %}저장된 문서가 없습니다.</strong>
 
         <span> C/B 문서에서 저장 버튼을 누르면 여기에 표시됩니다. </span>
 
         <a
-            href="{% url 'bookmarks:cb_open_list' %}?new=1"
+            href="{% url 'bookmarks:cb_open_list' %}?new=1{% if selected_aircraft_model %}&amp;aircraft_model={{ selected_aircraft_model|urlencode }}{% endif %}"
             class="btn btn-primary"
         >
             <i class="bi bi-plus-lg me-1"></i>

@@ -1,7 +1,14 @@
 <!-- prettier-ignore -->
 {% extends "manhour/base/result_base.html" %}
 {% load static %}
-{% block title %}Circuit Breaker Open List{% endblock title %}
+{% block title %}
+    {% if template_manage_mode %}
+        {% if selected_template_id %}C/B 템플릿 수정 · 삭제
+        {% else %}C/B 템플릿 생성
+        {% endif %}
+    {% else %}Circuit Breaker Open List
+    {% endif %}
+{% endblock title %}
 {% block body_class %}cb-open-body{% endblock body_class %}
 
 {% block css %}
@@ -11,7 +18,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260915-31"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260915-36"
 />
 {% endblock css %} {% block js %}
 <script
@@ -24,7 +31,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260915-24"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260915-26"
 ></script>
 {% endblock js %} {% block content %}
 <!-- =====================================================
@@ -34,7 +41,7 @@
     <div class="cb-open-topbar-inner">
         <!-- 브랜드 -->
         <a
-            href="{% if template_manage_mode %}{% url 'bookmarks:cb_template_library' %}{% else %}{% url 'bookmarks:cb_home' %}{% endif %}"
+            href="{% url 'bookmarks:cb_template_library' %}"
             class="cb-open-brand"
         >
             <span class="cb-open-brand-icon">
@@ -43,16 +50,26 @@
 
             <span class="cb-open-brand-text">
                 <strong
-                    >{% if template_manage_mode %}C/B TEMPLATE{% else %}C/B OPEN LIST{% endif %}
+                    >{% if template_manage_mode %}기종별 C/B 템플릿{% else %}C/B OPEN LIST{% endif %}
                 </strong>
                 <small
-                    >{% if template_manage_mode %}Edit · Delete · Print{% else %}Maintenance Operations{% endif %}
+                    >{% if template_manage_mode %}수정 · 삭제 · 출력{% else %}Maintenance Operations{% endif %}
                 </small>
             </span>
         </a>
 
         <!-- 상단 버튼 -->
         <div class="cb-open-top-actions">
+            <a
+                id="cbOpenAircraftBack"
+                href="{% url 'bookmarks:cb_aircraft_home' back_aircraft_model %}"
+                class="cb-open-top-btn cb-open-top-btn-back"
+                data-library-url="{% url 'bookmarks:cb_template_library' %}"
+                data-aircraft-url-template="{% url 'bookmarks:cb_aircraft_home' '__AIRCRAFT__' %}"
+            >
+                <i class="bi bi-arrow-left"></i>
+                <span>기종 메뉴</span>
+            </a>
             {% if template_manage_mode %}
             <button
                 type="button"
@@ -64,14 +81,6 @@
                 <span
                     >{% if selected_template_id %}수정 내용 저장{% else %}새 템플릿 저장{% endif %}</span
                 >
-            </button>
-            <button
-                type="button"
-                id="cbOpenManagedTemplateDelete"
-                class="cb-open-top-btn cb-open-top-btn-danger"
-                {% if not selected_template_id %}disabled{% endif %}                
-            >
-                <i class="bi bi-trash3"></i><span>템플릿 삭제</span>
             </button>
             {% else %}
             <button
@@ -89,28 +98,12 @@
                 id="cbOpenTemplateSave"
                 class="cb-open-top-btn"
                 data-api-url="{% url 'bookmarks:cb_templates' %}"
-                data-manage-url="{% url 'bookmarks:cb_template_manage' %}"
+                data-home-url="{% url 'bookmarks:cb_template_library' %}"
             >
                 <i class="bi bi-collection"></i>
-                <span>기종별 템플릿 저장</span>
+                <span>템플릿 저장</span>
             </button>
             {% endif %}
-
-            <!-- 초기화 -->
-            <button type="button" id="cbOpenListClear" class="cb-open-top-btn">
-                <i class="bi bi-arrow-counterclockwise"></i>
-                <span>초기화</span>
-            </button>
-
-            <!-- 미리보기 -->
-            <button
-                type="button"
-                id="cbOpenListPreview"
-                class="cb-open-top-btn"
-            >
-                <i class="bi bi-file-earmark-text"></i>
-                <span>A4 미리보기</span>
-            </button>
 
             <!-- 인쇄 -->
             <button
@@ -122,33 +115,33 @@
                 <span>인쇄</span>
             </button>
 
-            <a
-                href="{% if template_manage_mode %}{% url 'bookmarks:cb_template_library' %}{% else %}{% url 'bookmarks:cb_home' %}{% endif %}"
-                class="assignment-topbar-btn"
-            >
-                <i class="bi bi-arrow-left"></i>
-                <span
-                    >{% if template_manage_mode %}템플릿 목록{% else %}C/B
-                    메뉴{% endif %}</span
-                >
-            </a>
-
-            <!-- 설정 -->
-            {% if can_manage_cb %}
-            <button
-                type="button"
-                id="cbOpenListSettings"
-                class="cb-open-top-btn"
-            >
-                <i class="bi bi-gear"></i>
-                <span>설정</span>
-            </button>
-            {% endif %}
+            <div class="dropdown cb-open-tools-menu">
+                <button class="cb-open-top-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-sliders"></i><span>도구</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end cb-open-tools-dropdown">
+                    <button type="button" id="cbOpenListPreview" class="dropdown-item">
+                        <i class="bi bi-file-earmark-text"></i><span>A4 미리보기</span>
+                    </button>
+                    <button type="button" id="cbOpenListClear" class="dropdown-item cb-open-tool-danger">
+                        <i class="bi bi-arrow-counterclockwise"></i><span>문서 초기화</span>
+                    </button>
+                    {% if template_manage_mode %}
+                    <button type="button" id="cbOpenManagedTemplateDelete" class="dropdown-item cb-open-tool-danger" {% if not selected_template_id %}disabled{% endif %}>
+                        <i class="bi bi-trash3"></i><span>템플릿 삭제</span>
+                    </button>
+                    {% endif %}
+                    {% if can_manage_cb %}
+                    <button type="button" id="cbOpenListSettings" class="dropdown-item">
+                        <i class="bi bi-gear"></i><span>문서 설정</span>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
 
             <!-- 홈 -->
-            <a href="/" class="cb-open-top-btn">
+            <a href="{% url 'bookmarks:cb_template_library' %}" class="cb-open-top-btn cb-open-home-btn" aria-label="C/B 홈" title="C/B 홈">
                 <i class="bi bi-house"></i>
-                <span>홈</span>
             </a>
         </div>
     </div>
@@ -172,7 +165,7 @@
 
                 {% for aircraft_model in aircraft_models %}
 
-                <option value="{{ aircraft_model }}">
+                <option value="{{ aircraft_model }}" {% if aircraft_model == back_aircraft_model %}selected{% endif %}>
                     {{ aircraft_model }}
                 </option>
 
@@ -629,8 +622,7 @@
     </section>
 </main>
 
-{% if template_manage_mode %} {{
-managed_template_data|json_script:"cbManagedTemplateData" }}
+{% if template_manage_mode %}{{ managed_template_script|safe }}
 <div
     id="cbManagedTemplateConfig"
     data-library-url="{% url 'bookmarks:cb_template_library' %}"
@@ -653,7 +645,7 @@ managed_template_data|json_script:"cbManagedTemplateData" }}
             <i class="bi bi-collection-fill"></i>
         </div>
         <div>
-            <h3 id="cbOpenTemplateSaveTitle">기종별 템플릿 저장</h3>
+            <h3 id="cbOpenTemplateSaveTitle">템플릿 저장</h3>
             <p>
                 <strong id="cbOpenTemplateAircraftLabel">선택 기종</strong>의
                 현재 표 데이터를 기본 템플릿으로 저장합니다.
@@ -687,7 +679,7 @@ managed_template_data|json_script:"cbManagedTemplateData" }}
                 type="button"
                 class="btn btn-primary"
             >
-                <i class="bi bi-floppy me-1"></i>저장 후 관리 화면 열기
+                <i class="bi bi-floppy me-1"></i>저장
             </button>
         </div>
     </div>

@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ===================================================== */
 
     const aircraftModelSelect = document.getElementById("cbOpenAircraftModel");
+    const aircraftBackLink = document.getElementById("cbOpenAircraftBack");
 
     const documentBar = document.querySelector(".cb-open-document-bar");
 
@@ -536,6 +537,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateHeader() {
         const aircraft = cleanText(aircraftModelSelect?.value);
+
+        if (aircraftBackLink) {
+            const libraryUrl = aircraftBackLink.dataset.libraryUrl || "/";
+            const aircraftUrlTemplate =
+                aircraftBackLink.dataset.aircraftUrlTemplate || "";
+            aircraftBackLink.href =
+                aircraft && aircraftUrlTemplate
+                    ? aircraftUrlTemplate.replace(
+                          "__AIRCRAFT__",
+                          encodeURIComponent(aircraft),
+                      )
+                    : libraryUrl;
+            aircraftBackLink.title = aircraft
+                ? `${aircraft} C/B 메뉴로 돌아가기`
+                : "기종 목록으로 돌아가기";
+        }
 
         let gibun = cleanText(gibunInput?.value);
 
@@ -2573,11 +2590,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(data.error || "템플릿을 저장하지 못했습니다.");
             }
             const url = new URL(
-                templateSaveButton.dataset.manageUrl,
+                templateSaveButton.dataset.homeUrl,
                 window.location.origin,
             );
-            url.searchParams.set("aircraft_model", aircraftModelSelect.value);
-            url.searchParams.set("template_id", data.id);
             window.location.assign(url.toString());
         } catch (error) {
             templateSaveStatus.textContent = error.message;

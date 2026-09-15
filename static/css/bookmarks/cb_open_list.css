@@ -55,10 +55,10 @@ BOOKMARKS — C/B OPEN LIST
 
     --cb-body-font: 11px;
 
-    --cb-topbar-height: 72px;
+    --cb-topbar-height: 60px;
 
     /* 전체 C/B 화면 공통 폭 */
-    --cb-content-width: 1500px;
+    --cb-content-width: 1320px;
 }
 
 /* =========================================================
@@ -115,11 +115,11 @@ TOP BAR
 
     backdrop-filter: blur(14px);
 
-    overflow: hidden;
+    overflow: visible;
 }
 
 .cb-open-topbar-inner {
-    width: min(var(--assignment-width, 1500px), calc(100% - 56px));
+    width: min(var(--cb-content-width), calc(100% - 36px));
     max-width: none;
     height: 100%;
     margin: 0 auto;
@@ -128,7 +128,7 @@ TOP BAR
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* =========================================================
@@ -154,15 +154,15 @@ BRAND
 }
 
 .cb-open-brand-icon {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
 
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    flex: 0 0 38px;
+    flex: 0 0 34px;
 
     border-radius: 10px;
 
@@ -170,7 +170,7 @@ BRAND
 
     color: #93c5fd;
 
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .cb-open-brand-text {
@@ -216,8 +216,7 @@ TOP ACTIONS
 
     gap: 6px;
 
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: visible;
 
     scrollbar-width: none;
 }
@@ -226,10 +225,57 @@ TOP ACTIONS
     display: none;
 }
 
-.cb-open-top-btn {
-    min-height: 38px;
+.cb-open-top-btn-back {
+    margin-right: 2px;
+}
 
-    padding: 7px 11px;
+.cb-open-home-btn {
+    width: 34px;
+    padding: 5px;
+}
+
+.cb-open-tools-menu {
+    flex: 0 0 auto;
+}
+
+.cb-open-tools-dropdown {
+    min-width: 190px;
+    padding: 7px;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.2);
+}
+
+.cb-open-tools-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 38px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.cb-open-tools-dropdown .dropdown-item i {
+    width: 17px;
+    text-align: center;
+}
+
+.cb-open-tools-dropdown .dropdown-item:hover {
+    background: #eef4fa;
+    color: #0f172a;
+}
+
+.cb-open-tools-dropdown .cb-open-tool-danger {
+    color: #b14942 !important;
+}
+
+.cb-open-top-btn {
+    min-height: 34px;
+
+    padding: 5px 10px;
 
     display: inline-flex;
 
@@ -440,8 +486,8 @@ main 위
 ========================================================= */
 
 .cb-open-document-bar {
-    width: min(var(--cb-content-width), calc(100% - 56px));
-    max-width: 1248px;
+    width: min(var(--cb-content-width), calc(100% - 36px));
+    max-width: none;
     margin: 24px auto 0;
     background: var(--cb-card-soft);
     border: 1px solid var(--cb-border);
@@ -526,10 +572,10 @@ PAGE
 ========================================================= */
 
 .cb-open-page {
-    width: min(var(--cb-content-width), calc(100% - 56px));
-    max-width: 1284px;
+    width: min(var(--cb-content-width), calc(100% - 36px));
+    max-width: none;
     margin: 0 auto;
-    padding: 16px 18px 24px;
+    padding: 16px 0 24px;
     box-sizing: border-box;
 }
 
@@ -2075,7 +2121,7 @@ RESPONSIVE — TABLET
 
 @media screen and (max-width: 900px) {
     body.cb-open-body {
-        --cb-topbar-height: 64px;
+        --cb-topbar-height: 48px;
     }
 
     .cb-open-topbar-inner {
@@ -2162,7 +2208,7 @@ RESPONSIVE — MOBILE
 
 @media screen and (max-width: 700px) {
     body.cb-open-body {
-        --cb-topbar-height: 58px;
+        --cb-topbar-height: 48px;
     }
 
     .cb-open-topbar-inner {

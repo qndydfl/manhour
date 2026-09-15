@@ -1,50 +1,54 @@
-{% extends "manhour/base/result_base.html" %} 
-{% load static %} 
+<!-- prettier-ignore -->
+{% extends "manhour/base/result_base.html" %}
+{% load static %}
 {% block title %}기종별 C/B 템플릿{% endblock title %} 
-
-{% block body_class %}C/B Template Library{% endblock body_class %} 
-
-{% block css %}
-{{ block.super }}
+{% block body_class %}cb-library-body{% endblock body_class %}
+{% block css %} {{ block.super }}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260915-2"
+    href="{% static 'css/bookmarks/cb_library.css' %}?v=20260915-6"
 />
-{% endblock css %} 
-
-{% block js %}
-{{ block.super }}
+<link
+    rel="stylesheet"
+    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260915-7"
+/>
+{% endblock css %} {% block js %} {{ block.super }}
+<script
+    defer
+    src="{% static 'js/bookmarks/cb_home.js' %}?v=20260913-1"
+></script>
 <script
     defer
     src="{% static 'js/bookmarks/cb_template_library.js' %}?v=20260915-3"
 ></script>
-{% endblock js %}
-
-{% block content %}
+{% endblock js %} {% block content %}
 
 <header class="assignment-topbar">
     <div class="assignment-topbar-inner">
-        <a href="{% url 'bookmarks:cb_home' %}" class="assignment-brand">
+        <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-brand">
             <div class="assignment-brand-icon">
                 <i class="bi bi-collection"></i>
             </div>
 
             <div>
-                <strong>기종별 C/B TEMPLATES</strong>
+                <strong>기종별 C/B 템플릿</strong>
                 <span>Aircraft Template Library</span>
             </div>
         </a>
 
         <div class="assignment-topbar-actions">
-            <a
-                href="{% url 'bookmarks:cb_home' %}"
+            {% if can_manage_cb %}
+            <button
+                type="button"
                 class="assignment-topbar-btn"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#cbAircraftSettingsPanel"
+                aria-controls="cbAircraftSettingsPanel"
             >
-                <i class="bi bi-arrow-left"></i>
-                <span>C/B 메뉴</span>
-            </a>
-
-            <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
+                <i class="bi bi-gear"></i><span>기종 설정</span>
+            </button>
+            {% endif %}
+            <a href="{% url 'bookmarks:cb_template_library' %}" class="assignment-topbar-btn">
                 <i class="bi bi-house"></i>
                 <span>홈</span>
             </a>
@@ -54,46 +58,6 @@
 
 <main id="cbTemplateLibrary" class="cb-library-page">
     <!-- =================================================
-    PAGE HEADER
-    ================================================== -->
-
-    {% comment %} <section class="cb-library-intro">
-        <div class="cb-library-intro-copy">
-            <span class="cb-library-eyebrow"> AIRCRAFT TEMPLATE LIBRARY </span>
-
-            <h1>기종별 C/B 템플릿</h1>
-
-            <p>
-                항공기를 선택하여 저장된 템플릿을 확인하거나 새 템플릿을
-                생성하세요.
-            </p>
-        </div>
-
-        <!-- SEARCH -->
-
-        <div class="cb-library-search">
-            <i class="bi bi-search"></i>
-
-            <input
-                id="cbTemplateAircraftSearch"
-                type="search"
-                placeholder="기종 검색 (예: A350, B737 ...)"
-                autocomplete="off"
-                aria-label="기종 검색"
-            />
-
-            <button
-                id="cbTemplateSearchClear"
-                type="button"
-                title="검색 초기화"
-                hidden
-            >
-                <i class="bi bi-x-lg"></i>
-            </button>
-        </div>
-    </section> {% endcomment %}
-
-    <!-- =================================================
     AIRCRAFT CARDS
     ================================================== -->
 
@@ -101,7 +65,7 @@
         {% for group in aircraft_groups %}
 
         <a
-            href="{% url 'bookmarks:cb_template_aircraft_list' group.aircraft_model %}"
+            href="{% url 'bookmarks:cb_aircraft_home' group.aircraft_model %}"
             class="cb-aircraft-card"
             data-aircraft-card
             data-aircraft="{{ group.aircraft_model }}"
@@ -111,47 +75,36 @@
             <!-- IMAGE -->
 
             <div class="cb-aircraft-card-image">
-
                 {% if group.image %}
 
-                    <img
-                        src="{{ group.image }}"
-                        alt="{{ group.aircraft_model }}"
-                        loading="lazy"
-                    />
+                <img
+                    src="{{ group.image }}"
+                    alt="{{ group.aircraft_model }}"
+                    loading="lazy"
+                />
 
                 {% else %}
 
-                    <img
-                        src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
-                        alt="{{ group.aircraft_model }}"
-                        loading="lazy"
-                    />
+                <img
+                    src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
+                    alt="{{ group.aircraft_model }}"
+                    loading="lazy"
+                />
 
                 {% endif %}
 
-
                 <span class="cb-aircraft-brand">
-
                     {% if group.aircraft_model|slice:":1" == "A" %}
 
-                        <i class="bi bi-airplane-engines"></i>
-                        AIRBUS
+                    <i class="bi bi-airplane-engines"></i>
+                    AIRBUS {% elif group.aircraft_model|slice:":1" == "B" %}
 
-                    {% elif group.aircraft_model|slice:":1" == "B" %}
+                    <i class="bi bi-airplane-engines"></i>
+                    BOEING {% else %}
 
-                        <i class="bi bi-airplane-engines"></i>
-                        BOEING
-
-                    {% else %}
-
-                        <i class="bi bi-airplane"></i>
-                        AIRCRAFT
-
-                    {% endif %}
-
+                    <i class="bi bi-airplane"></i>
+                    AIRCRAFT {% endif %}
                 </span>
-
             </div>
 
             <!-- INFO -->
@@ -290,4 +243,79 @@
         {% endfor %}
     </div>
 </main>
-{% endblock content %}
+{% if can_manage_cb %}
+<aside
+    id="cbAircraftSettingsPanel"
+    class="offcanvas offcanvas-end cb-aircraft-settings"
+    tabindex="-1"
+    aria-labelledby="cbAircraftSettingsTitle"
+    data-api-url="{% url 'bookmarks:cb_aircraft_models' %}"
+>
+    {% csrf_token %}
+    <div class="offcanvas-header cb-aircraft-settings-header">
+        <div>
+            <h5 class="offcanvas-title" id="cbAircraftSettingsTitle">
+                <i class="bi bi-airplane me-2"></i>기종 설정
+            </h5>
+            <small>템플릿에서 사용하는 기종을 관리합니다.</small>
+        </div>
+        <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="offcanvas"
+            aria-label="닫기"
+        ></button>
+    </div>
+    <div class="offcanvas-body cb-aircraft-settings-body">
+        <section class="cb-aircraft-settings-section">
+            <label for="cbAircraftManageSelect" class="form-label"
+                >관리할 기종</label
+            >
+            <select id="cbAircraftManageSelect" class="form-select mb-3">
+                {% for item in aircraft_models %}
+                <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+            <label for="cbAircraftCode" class="form-label">기종 이름</label>
+            <input
+                id="cbAircraftCode"
+                class="form-control"
+                maxlength="20"
+                placeholder="예: A321"
+            />
+            <p class="form-text">영문은 대문자로 자동 저장됩니다.</p>
+        </section>
+        <section class="cb-aircraft-settings-section">
+            <div class="d-grid gap-2">
+                <button
+                    id="cbAircraftAdd"
+                    type="button"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-plus-lg me-1"></i>새 기종 추가
+                </button>
+                <button
+                    id="cbAircraftRename"
+                    type="button"
+                    class="btn btn-outline-secondary"
+                >
+                    <i class="bi bi-pencil me-1"></i>선택 기종 이름 수정
+                </button>
+                <button
+                    id="cbAircraftDelete"
+                    type="button"
+                    class="btn btn-outline-danger"
+                >
+                    <i class="bi bi-trash3 me-1"></i>선택 기종 삭제
+                </button>
+            </div>
+        </section>
+        <p
+            id="cbAircraftStatus"
+            class="cb-aircraft-settings-status"
+            role="status"
+            aria-live="polite"
+        ></p>
+    </div>
+</aside>
+{% endif %} {% endblock content %}

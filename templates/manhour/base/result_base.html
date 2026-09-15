@@ -39,7 +39,7 @@
 
         <link
             rel="stylesheet"
-            href="{% static 'css/result_view.css' %}?v=20260905-1"
+            href="{% static 'css/result_view.css' %}?v=20260915-1"
         />
 
         <link rel="stylesheet" href="{% static 'css/loader.css' %}" />
@@ -89,7 +89,8 @@
             {% endfor %}
         </div>
 
-        {% endif %} {% block content %} {% endblock content %} 
+        {% endif %} {% block content %} {% endblock content %}
+        <!-- prettier-ignore -->
         {% include "manhour/partials/app_dialog.html" %}
     </body>
 </html>

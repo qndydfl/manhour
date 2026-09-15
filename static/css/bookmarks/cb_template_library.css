@@ -2,6 +2,10 @@
    C/B TEMPLATE LIBRARY
 ========================================================= */
 
+.cb-library-body .assignment-topbar-inner {
+    width: min(1320px, calc(100% - 36px));
+}
+
 .cb-library-page {
     width: min(1320px, calc(100% - 36px));
     margin: 0 auto;
@@ -1085,6 +1089,53 @@
 .cb-aircraft-template-list {
     display: grid;
     gap: 10px;
+    font-size: 14px;
+}
+
+.cb-aircraft-action-grid {
+    gap: 12px;
+    margin: 14px 0 16px;
+}
+
+.cb-aircraft-action-grid .cb-library-card {
+    min-height: 132px;
+    padding: 16px 18px;
+    gap: 7px;
+    text-align: left;
+}
+
+.cb-aircraft-action-grid button.cb-library-card {
+    width: 100%;
+    font: inherit;
+    cursor: pointer;
+}
+
+.cb-aircraft-action-grid .cb-library-card > i {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.cb-aircraft-action-grid .cb-library-card strong {
+    font-size: 16px;
+}
+
+.cb-aircraft-action-grid .cb-library-card span {
+    font-size: 12px;
+}
+
+.cb-aircraft-template-panel {
+    scroll-margin-top: 76px;
+    padding-top: 4px;
+}
+
+.cb-aircraft-template-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
 .cb-aircraft-template-row {
@@ -1103,8 +1154,19 @@
     gap: 3px;
 }
 
+.cb-aircraft-template-row .cb-template-item-copy strong {
+    font-size: 16px;
+    line-height: 1.35;
+}
+
 .cb-aircraft-template-row .cb-template-item-copy small {
     color: #718096;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.cb-aircraft-template-row .cb-template-item-edit {
+    font-size: 14px;
 }
 
 .cb-aircraft-template-empty {
