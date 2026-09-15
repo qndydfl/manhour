@@ -8,7 +8,7 @@
 {{ block.super }}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260914-1"
+    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260915-2"
 />
 {% endblock css %} 
 
@@ -16,7 +16,7 @@
 {{ block.super }}
 <script
     defer
-    src="{% static 'js/bookmarks/cb_template_library.js' %}?v=20260914-2"
+    src="{% static 'js/bookmarks/cb_template_library.js' %}?v=20260915-3"
 ></script>
 {% endblock js %}
 
@@ -30,7 +30,7 @@
             </div>
 
             <div>
-                <strong>C/B TEMPLATES</strong>
+                <strong>기종별 C/B TEMPLATES</strong>
                 <span>Aircraft Template Library</span>
             </div>
         </a>
@@ -57,7 +57,7 @@
     PAGE HEADER
     ================================================== -->
 
-    <section class="cb-library-intro">
+    {% comment %} <section class="cb-library-intro">
         <div class="cb-library-intro-copy">
             <span class="cb-library-eyebrow"> AIRCRAFT TEMPLATE LIBRARY </span>
 
@@ -91,7 +91,7 @@
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
-    </section>
+    </section> {% endcomment %}
 
     <!-- =================================================
     AIRCRAFT CARDS
@@ -100,13 +100,13 @@
     <section id="cbAircraftCardGrid" class="cb-aircraft-card-grid">
         {% for group in aircraft_groups %}
 
-        <button
-            type="button"
+        <a
+            href="{% url 'bookmarks:cb_template_aircraft_list' group.aircraft_model %}"
             class="cb-aircraft-card"
             data-aircraft-card
             data-aircraft="{{ group.aircraft_model }}"
             data-aircraft-key="{{ group.aircraft_model|lower }}"
-            aria-expanded="false"
+            aria-label="{{ group.aircraft_model }} 템플릿 목록 열기"
         >
             <!-- IMAGE -->
 
@@ -167,7 +167,7 @@
                     <i class="bi bi-chevron-right" data-aircraft-arrow></i>
                 </span>
             </div>
-        </button>
+        </a>
 
         <!--
             카드와 상세 패널을 JS에서 연결하기 위한

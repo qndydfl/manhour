@@ -541,6 +541,10 @@ document.addEventListener(
                     "click",
                     () => {
 
+                        if (card.matches("a[href]")) {
+                            return;
+                        }
+
                         selectAircraft(
                             card,
                             true,

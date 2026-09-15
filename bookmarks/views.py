@@ -2,6 +2,7 @@ import json
 
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
+from django.http import Http404
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -43,6 +44,10 @@ class CircuitBreakerOpenListView(SimpleLoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["aircraft_models"] = get_aircraft_models()
         context["default_aircraft_model"] = ""
+        context["can_manage_cb"] = (
+            self.request.session.get("user_role") == "admin"
+            or self.request.user.is_superuser
+        )
         return context
 
 
@@ -109,6 +114,25 @@ class CBTemplateLibraryView(
         return context
 
 
+class CBTemplateAircraftListView(SimpleLoginRequiredMixin, TemplateView):
+    template_name = "bookmarks/cb_template_aircraft_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        aircraft_model = self.kwargs["aircraft_model"].strip().upper()
+        get_aircraft_models()
+        aircraft = CBAircraftModel.objects.filter(code=aircraft_model).first()
+        if aircraft is None:
+            raise Http404("등록되지 않은 기종입니다.")
+        context["aircraft_model"] = aircraft_model
+        context["aircraft_image"] = aircraft.image.url if aircraft.image else ""
+        context["templates"] = CBTemplate.objects.filter(
+            site=get_current_workplace(self.request),
+            aircraft_model=aircraft_model,
+        ).order_by("-updated_at", "name")
+        return context
+
+
 class CBTemplateManageView(SimpleLoginRequiredMixin, TemplateView):
     template_name = "bookmarks/cb_template_manage.html"
 
@@ -123,22 +147,32 @@ class CBTemplateManageView(SimpleLoginRequiredMixin, TemplateView):
         )
         requested_template_id = self.request.GET.get("template_id", "")
         selected_template_id = ""
-        if (
-            requested_template_id.isdigit()
-            and CBTemplate.objects.filter(
+        selected_template = None
+        if requested_template_id.isdigit():
+            selected_template = CBTemplate.objects.filter(
                 pk=int(requested_template_id),
                 site=get_current_workplace(self.request),
                 aircraft_model=selected_model,
-            ).exists()
-        ):
-            selected_template_id = requested_template_id
+            ).first()
+            if selected_template:
+                selected_template_id = requested_template_id
         context["aircraft_models"] = aircraft_models
         context["selected_aircraft_model"] = selected_model
         context["selected_template_id"] = selected_template_id
+        context["template_manage_mode"] = True
+        context["managed_template_data"] = {
+            "id": selected_template.pk if selected_template else None,
+            "aircraft_model": selected_model,
+            "name": selected_template.name if selected_template else "",
+            "rows": selected_template.rows if selected_template else [],
+        }
         return context
 
 
-class CBAircraftModelView(SimpleLoginRequiredMixin,View,):
+class CBAircraftModelView(
+    SimpleLoginRequiredMixin,
+    View,
+):
     def get(self, request):
         return JsonResponse({"aircraft_models": get_aircraft_models()})
 

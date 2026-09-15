@@ -3,10 +3,6 @@
 // =========================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    /* =====================================================
-    ELEMENTS
-    ===================================================== */
-
     const table = document.getElementById("cbOpenListTable");
     const tableBody = document.getElementById("cbOpenListBody");
     const sheet = document.getElementById("cbOpenSheet");
@@ -109,6 +105,45 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     const saveButton = document.getElementById("cbOpenListSave");
+
+    const templateSaveButton = document.getElementById("cbOpenTemplateSave");
+    const templateSaveDialog = document.getElementById(
+        "cbOpenTemplateSaveDialog",
+    );
+    const templateNameInput = document.getElementById("cbOpenTemplateName");
+    const templateSaveConfirm = document.getElementById(
+        "cbOpenTemplateSaveConfirm",
+    );
+    const templateSaveCancel = document.getElementById(
+        "cbOpenTemplateSaveCancel",
+    );
+    const templateSaveStatus = document.getElementById(
+        "cbOpenTemplateSaveStatus",
+    );
+    const templateAircraftLabel = document.getElementById(
+        "cbOpenTemplateAircraftLabel",
+    );
+    const managedTemplateUpdate = document.getElementById(
+        "cbOpenManagedTemplateUpdate",
+    );
+    const managedTemplateDelete = document.getElementById(
+        "cbOpenManagedTemplateDelete",
+    );
+    const managedTemplateName = document.getElementById(
+        "cbManagedTemplateName",
+    );
+    const managedTemplateConfig = document.getElementById(
+        "cbManagedTemplateConfig",
+    );
+    let managedTemplateData = null;
+    try {
+        const dataElement = document.getElementById("cbManagedTemplateData");
+        managedTemplateData = dataElement
+            ? JSON.parse(dataElement.textContent)
+            : null;
+    } catch (_error) {
+        managedTemplateData = null;
+    }
 
     const clearButton = document.getElementById("cbOpenListClear");
 
@@ -1047,10 +1082,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     rowsBodyInsertAfter(draggedRow, target);
                 }
             } else {
-
-            /*
-             * 대상 위쪽으로 이동
-             */
+                /*
+                 * 대상 위쪽으로 이동
+                 */
                 if (target !== draggedRow.nextSibling) {
                     tableBody.insertBefore(draggedRow, target);
                 }
@@ -1367,21 +1401,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 String(rowFilterPanelVisible),
             );
 
-            const label = rowFilterPanelToggle.querySelector("span");
+            // const label = rowFilterPanelToggle.querySelector("span");
 
-            if (label) {
-                label.textContent = rowFilterPanelVisible
-                    ? " 문서 항목 필터 숨기기"
-                    : " 문서 항목 필터 표시";
-            }
+            // if (label) {
+            //     label.textContent = rowFilterPanelVisible
+            //         ? " 문서 항목 필터 숨기기"
+            //         : " 문서 항목 필터 표시";
+            // }
 
-            const icon = rowFilterPanelToggle.querySelector("i");
+            // const icon = rowFilterPanelToggle.querySelector("i");
 
-            if (icon) {
-                icon.className = rowFilterPanelVisible
-                    ? "bi bi-eye-slash"
-                    : "bi bi-funnel";
-            }
+            // if (icon) {
+            //     icon.className = rowFilterPanelVisible
+            //         ? "bi bi-eye-slash"
+            //         : "bi bi-funnel";
+            // }
         }
     }
 
@@ -1829,10 +1863,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         const availableWidth = Math.max(
             1,
-            Math.min(
-                stageRect.width - horizontalPadding,
-                viewportWidth,
-            ),
+            Math.min(stageRect.width - horizontalPadding, viewportWidth),
         );
         const naturalWidth = sheet.offsetWidth;
         const scale = Math.min(1, availableWidth / naturalWidth);
@@ -2306,7 +2337,7 @@ document.addEventListener("DOMContentLoaded", () => {
     SAVE WORKSPACE
     ===================================================== */
 
-    function saveWorkspace() {
+    function saveWorkspace(showMessage = true) {
         /*
          * 전체 문서 저장은
          * 기종 / 기번 필수
@@ -2320,7 +2351,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-            showSaveMessage("저장되었습니다.");
+            if (showMessage) {
+                showSaveMessage("저장되었습니다.");
+            }
 
             return true;
         } catch (error) {
@@ -2373,14 +2406,29 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             /*
-             * 같은 ID가 있으면 수정,
-             * 없으면 새 문서 추가
+             * 같은 기종·기번이면 기존 문서를 덮어씁니다.
+             * 이전 버전의 ID 기반 저장 데이터도 계속 수정할 수 있도록
+             * 같은 ID 비교는 기종·기번 비교의 보조 조건으로 사용합니다.
              */
-            const existingIndex = documents.findIndex(
-                (item) => item.id === data.id,
-            );
+            const documentAircraft = cleanText(
+                data.document?.aircraft,
+            ).toUpperCase();
+            const documentGibun = cleanText(data.document?.gibun);
+            const existingIndex = documents.findIndex((item) => {
+                const itemAircraft = cleanText(
+                    item?.document?.aircraft,
+                ).toUpperCase();
+                const itemGibun = cleanText(item?.document?.gibun);
+
+                return (
+                    (itemAircraft === documentAircraft &&
+                        itemGibun === documentGibun) ||
+                    item.id === data.id
+                );
+            });
 
             if (existingIndex >= 0) {
+                data.id = documents[existingIndex].id || data.id;
                 documents[existingIndex] = data;
             } else {
                 documents.unshift(data);
@@ -2396,7 +2444,11 @@ document.addEventListener("DOMContentLoaded", () => {
              */
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-            showSaveMessage("C/B 문서를 저장했습니다.");
+            showSaveMessage(
+                existingIndex >= 0
+                    ? "같은 기종·기번의 문서를 덮어써 저장했습니다."
+                    : "C/B 문서를 저장했습니다.",
+            );
 
             return true;
         } catch (error) {
@@ -2405,6 +2457,259 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("C/B 문서 저장 중 오류가 발생했습니다.");
 
             return false;
+        }
+    }
+
+    function collectTemplateRows() {
+        const templateFields = [
+            "cockpit",
+            "ee",
+            "etc",
+            "panel_loc",
+            "cb_loc",
+            "fin",
+            "description",
+            "warning",
+        ];
+        const rows = Array.from(tableBody.querySelectorAll("tr")).map((row) => {
+            const record = {};
+            templateFields.forEach((field) => {
+                const editor = row.querySelector(`[data-field="${field}"]`);
+                record[field] = cleanText(editor?.innerText || "");
+            });
+            const merges = grid.exportRow(row).filter((merge) => {
+                const start = templateFields.indexOf(merge.field);
+                return (
+                    start >= 0 && start + merge.cols <= templateFields.length
+                );
+            });
+            if (merges.length) record._merges = merges;
+            record.__covered = Boolean(row.querySelector("td.cb-grid-covered"));
+            return record;
+        });
+
+        while (rows.length) {
+            const last = rows[rows.length - 1];
+            const hasData = templateFields.some((field) => last[field]);
+            if (hasData || last._merges?.length || last.__covered) break;
+            rows.pop();
+        }
+        rows.forEach((row) => delete row.__covered);
+        return rows;
+    }
+
+    function closeTemplateSaveDialog() {
+        if (!templateSaveDialog) return;
+        templateSaveDialog.hidden = true;
+        document.body.classList.remove("cb-template-save-dialog-open");
+        templateSaveButton?.focus();
+    }
+
+    function openTemplateSaveDialog() {
+        const aircraft = cleanText(aircraftModelSelect?.value);
+        if (!aircraft) {
+            showSaveMessage("먼저 기종을 선택해 주세요.");
+            aircraftModelSelect?.focus();
+            return;
+        }
+        if (
+            !collectTemplateRows().some((row) =>
+                [
+                    "cockpit",
+                    "ee",
+                    "etc",
+                    "panel_loc",
+                    "cb_loc",
+                    "fin",
+                    "description",
+                    "warning",
+                ].some((field) => row[field]),
+            )
+        ) {
+            showSaveMessage("템플릿으로 저장할 표 데이터를 입력해 주세요.");
+            return;
+        }
+        templateAircraftLabel.textContent = aircraft;
+        templateSaveStatus.textContent = "";
+        if (!templateNameInput.value.trim()) {
+            const gibun = cleanText(gibunInput?.value);
+            templateNameInput.value = gibun
+                ? `${aircraft} HL${gibun}`
+                : aircraft;
+        }
+        templateSaveDialog.hidden = false;
+        document.body.classList.add("cb-template-save-dialog-open");
+        window.setTimeout(() => templateNameInput.focus(), 0);
+    }
+
+    async function saveAsAircraftTemplate() {
+        const templateName = cleanText(templateNameInput?.value);
+        if (!templateName) {
+            templateSaveStatus.textContent = "템플릿 이름을 입력해 주세요.";
+            templateNameInput?.focus();
+            return;
+        }
+        const rows = collectTemplateRows();
+        templateSaveConfirm.disabled = true;
+        templateSaveStatus.textContent = "템플릿을 저장하고 있습니다.";
+        try {
+            const csrfToken =
+                templateSaveDialog.querySelector("[name=csrfmiddlewaretoken]")
+                    ?.value || "";
+            const response = await fetch(templateSaveButton.dataset.apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({
+                    aircraft_model: aircraftModelSelect.value,
+                    name: templateName,
+                    rows,
+                }),
+            });
+            const data = await response.json();
+            if (!response.ok || response.redirected) {
+                throw new Error(data.error || "템플릿을 저장하지 못했습니다.");
+            }
+            const url = new URL(
+                templateSaveButton.dataset.manageUrl,
+                window.location.origin,
+            );
+            url.searchParams.set("aircraft_model", aircraftModelSelect.value);
+            url.searchParams.set("template_id", data.id);
+            window.location.assign(url.toString());
+        } catch (error) {
+            templateSaveStatus.textContent = error.message;
+            templateSaveConfirm.disabled = false;
+        }
+    }
+
+    function loadManagedTemplate() {
+        if (!managedTemplateData) return;
+        aircraftModelSelect.value = managedTemplateData.aircraft_model || "";
+        managedTemplateName.value = managedTemplateData.name || "";
+        clearTable();
+        if (
+            Array.isArray(managedTemplateData.rows) &&
+            managedTemplateData.rows.length
+        ) {
+            applyCBRecords(managedTemplateData.rows, 0);
+        }
+        updateHeader();
+        rebuildRowFilter();
+        scheduleSheetScale();
+    }
+
+    async function saveManagedTemplate() {
+        if (!managedTemplateData || !managedTemplateUpdate) return;
+        const aircraft = cleanText(aircraftModelSelect?.value);
+        const name = cleanText(managedTemplateName?.value);
+        const rows = collectTemplateRows();
+        if (!aircraft || !name) {
+            showSaveMessage("기종과 템플릿 이름을 입력해 주세요.");
+            return;
+        }
+        if (
+            !rows.some((row) =>
+                [
+                    "cockpit",
+                    "ee",
+                    "etc",
+                    "panel_loc",
+                    "cb_loc",
+                    "fin",
+                    "description",
+                    "warning",
+                ].some((field) => row[field]),
+            )
+        ) {
+            showSaveMessage("저장할 템플릿 데이터를 입력해 주세요.");
+            return;
+        }
+        const payload = { aircraft_model: aircraft, name, rows };
+        if (managedTemplateData.id) {
+            payload.id = Number(managedTemplateData.id);
+            payload.original_aircraft_model =
+                managedTemplateData.aircraft_model;
+        }
+        managedTemplateUpdate.disabled = true;
+        try {
+            const csrfToken =
+                templateSaveDialog.querySelector("[name=csrfmiddlewaretoken]")
+                    ?.value || "";
+            const response = await fetch(managedTemplateUpdate.dataset.apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await response.json();
+            if (!response.ok || response.redirected) {
+                throw new Error(data.error || "템플릿을 저장하지 못했습니다.");
+            }
+            managedTemplateData = {
+                id: data.id,
+                aircraft_model: aircraft,
+                name,
+                rows,
+            };
+            managedTemplateDelete.disabled = false;
+            managedTemplateUpdate.querySelector("span").textContent =
+                "수정 내용 저장";
+            const url = new URL(
+                managedTemplateConfig.dataset.manageUrl,
+                window.location.origin,
+            );
+            url.searchParams.set("aircraft_model", aircraft);
+            url.searchParams.set("template_id", data.id);
+            window.history.replaceState({}, "", url);
+            showSaveMessage(`${name} 템플릿을 저장했습니다.`);
+        } catch (error) {
+            showSaveMessage(error.message);
+        } finally {
+            managedTemplateUpdate.disabled = false;
+        }
+    }
+
+    async function deleteManagedTemplate() {
+        if (!managedTemplateData?.id || !managedTemplateDelete) return;
+        const confirmed = await window.AppDialog.confirm(
+            `${managedTemplateData.name} 템플릿을 삭제하시겠습니까?`,
+            {
+                title: "템플릿 삭제",
+                variant: "danger",
+                confirmText: "삭제",
+                cancelText: "취소",
+            },
+        );
+        if (!confirmed) return;
+        managedTemplateDelete.disabled = true;
+        try {
+            const csrfToken =
+                templateSaveDialog.querySelector("[name=csrfmiddlewaretoken]")
+                    ?.value || "";
+            const response = await fetch(managedTemplateUpdate.dataset.apiUrl, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({
+                    id: Number(managedTemplateData.id),
+                    aircraft_model: managedTemplateData.aircraft_model,
+                }),
+            });
+            const data = await response.json();
+            if (!response.ok || response.redirected) {
+                throw new Error(data.error || "템플릿을 삭제하지 못했습니다.");
+            }
+            window.location.assign(managedTemplateConfig.dataset.libraryUrl);
+        } catch (error) {
+            managedTemplateDelete.disabled = false;
+            showSaveMessage(error.message);
         }
     }
 
@@ -2597,6 +2902,8 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.id = "cbOpenSaveMessage";
 
         toast.className = "cb-open-save-message";
+        toast.setAttribute("role", "status");
+        toast.setAttribute("aria-live", "polite");
 
         const icon = document.createElement("i");
 
@@ -2606,9 +2913,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         text.textContent = message;
 
-        toast.appendChild(icon);
+        const closeButton = document.createElement("button");
+        closeButton.type = "button";
+        closeButton.className = "cb-open-save-message-close";
+        closeButton.setAttribute("aria-label", "메시지 닫기");
+        closeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
+        closeButton.addEventListener("click", () => toast.remove());
 
-        toast.appendChild(text);
+        toast.append(icon, text, closeButton);
 
         document.body.appendChild(toast);
 
@@ -2622,7 +2934,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => {
                 toast.remove();
             }, 200);
-        }, 1800);
+        }, 4000);
     }
 
     /* =====================================================
@@ -2884,6 +3196,27 @@ document.addEventListener("DOMContentLoaded", () => {
         saveButton.addEventListener("click", saveDocument);
     }
 
+    templateSaveButton?.addEventListener("click", openTemplateSaveDialog);
+    templateSaveCancel?.addEventListener("click", closeTemplateSaveDialog);
+    templateSaveConfirm?.addEventListener("click", saveAsAircraftTemplate);
+    templateNameInput?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") saveAsAircraftTemplate();
+    });
+    templateSaveDialog?.addEventListener("click", (event) => {
+        if (event.target === templateSaveDialog) closeTemplateSaveDialog();
+    });
+    managedTemplateUpdate?.addEventListener("click", saveManagedTemplate);
+    managedTemplateDelete?.addEventListener("click", deleteManagedTemplate);
+    document.addEventListener("keydown", (event) => {
+        if (
+            event.key === "Escape" &&
+            templateSaveDialog &&
+            !templateSaveDialog.hidden
+        ) {
+            closeTemplateSaveDialog();
+        }
+    });
+
     /* =====================================================
        EVENTS — SETTINGS SAVE
        ===================================================== */
@@ -3093,7 +3426,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (count) {
                 pasteSource.value = "";
 
-                saveWorkspace();
+                saveWorkspace(false);
 
                 pasteSource.focus();
             }
@@ -3351,15 +3684,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateTableSizing();
     } else {
-
-    /*
-     * =====================================================
-     * NORMAL OPEN
-     *
-     * 일반적으로 C/B 문서 화면에 들어온 경우
-     * 마지막 작업 상태를 복원합니다.
-     * =====================================================
-     */
+        /*
+         * =====================================================
+         * NORMAL OPEN
+         *
+         * 일반적으로 C/B 문서 화면에 들어온 경우
+         * 마지막 작업 상태를 복원합니다.
+         * =====================================================
+         */
         const restored = restoreWorkspace();
 
         /*
@@ -3381,6 +3713,10 @@ document.addEventListener("DOMContentLoaded", () => {
      * FINAL REFRESH
      * =====================================================
      */
+
+    if (managedTemplateData) {
+        loadManagedTemplate();
+    }
 
     refreshAutomaticLocationMarks();
 

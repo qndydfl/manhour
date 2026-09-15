@@ -190,6 +190,9 @@
         border-color 0.18s ease,
         box-shadow 0.18s ease,
         background 0.18s ease;
+
+    color: inherit;
+    text-decoration: none;
 }
 
 .cb-aircraft-card:hover {
@@ -1035,4 +1038,100 @@
             100%;
     }
 
+}
+
+/* =========================================================
+   AIRCRAFT TEMPLATE LIST PAGE
+========================================================= */
+
+.cb-aircraft-list-hero {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 20px;
+    padding: 18px;
+    border: 1px solid #d4dfeb;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 8px 26px rgba(29, 55, 89, 0.07);
+}
+
+.cb-aircraft-list-image {
+    height: 92px;
+    overflow: hidden;
+    border-radius: 13px;
+    background: #e8f0f8;
+}
+
+.cb-aircraft-list-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cb-aircraft-list-copy h1 {
+    margin: 0;
+    color: #10264b;
+    font-size: clamp(25px, 3vw, 36px);
+    font-weight: 850;
+}
+
+.cb-aircraft-list-copy p {
+    margin: 6px 0 0;
+    color: #60738f;
+}
+
+.cb-aircraft-template-list {
+    display: grid;
+    gap: 10px;
+}
+
+.cb-aircraft-template-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 17px;
+    border: 1px solid #d6e0ec;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.cb-aircraft-template-row .cb-template-item-copy {
+    display: grid;
+    gap: 3px;
+}
+
+.cb-aircraft-template-row .cb-template-item-copy small {
+    color: #718096;
+}
+
+.cb-aircraft-template-empty {
+    padding: 48px 20px;
+    border: 1px dashed #b9c9db;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+@media (max-width: 700px) {
+    .cb-aircraft-list-hero {
+        grid-template-columns: 80px minmax(0, 1fr);
+        gap: 13px;
+        padding: 13px;
+    }
+
+    .cb-aircraft-list-image {
+        height: 68px;
+    }
+
+    .cb-aircraft-list-hero > .cb-template-new-button {
+        grid-column: 1 / -1;
+        justify-content: center;
+    }
+
+    .cb-aircraft-template-row {
+        gap: 9px;
+        padding: 12px;
+    }
 }

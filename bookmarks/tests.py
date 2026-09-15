@@ -42,7 +42,8 @@ class CircuitBreakerOpenListTests(TestCase):
         self.assertContains(response, "cbOpenListPasteSource")
         self.assertNotContains(response, "cbOpenListDeleteRow")
         self.assertNotContains(response, "cbOpenTemplatePicker")
-        self.assertNotContains(response, reverse("bookmarks:cb_templates"))
+        self.assertContains(response, 'id="cbOpenTemplateSave"')
+        self.assertContains(response, reverse("bookmarks:cb_templates"))
         self.assertNotContains(response, 'data-col-width-input="panel-loc"')
         self.assertNotContains(response, 'data-col-width-input="cb-loc"')
         self.assertNotContains(response, 'data-col-width-input="fin"')
@@ -110,8 +111,29 @@ class CircuitBreakerOpenListTests(TestCase):
             reverse("bookmarks:cb_template_manage"),
             {"aircraft_model": "B747", "template_id": template.pk},
         )
-        self.assertContains(response, 'value="B747" selected')
-        self.assertContains(response, f'data-initial-template-id="{template.pk}"')
+        self.assertContains(response, 'id="cbManagedTemplateData"')
+        self.assertContains(response, '"aircraft_model": "B747"')
+        self.assertContains(response, f'"id": {template.pk}')
+        self.assertContains(response, 'id="cbOpenManagedTemplateDelete"')
+        self.assertContains(response, 'id="cbOpenGibun"')
+
+    def test_aircraft_template_list_uses_a_separate_page(self):
+        Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
+        session = self.client.session
+        session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
+        session.save()
+        template = CBTemplate.objects.create(
+            site="SITE-A", aircraft_model="B777", name="Engine",
+            rows=[{"panel_loc": "P11", "description": "TEST"}],
+        )
+        library = self.client.get(reverse("bookmarks:cb_template_library"))
+        list_url = reverse("bookmarks:cb_template_aircraft_list", args=["B777"])
+        self.assertContains(library, list_url)
+        response = self.client.get(list_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "bookmarks/cb_template_aircraft_list.html")
+        self.assertContains(response, "Engine")
+        self.assertContains(response, f"template_id={template.pk}")
 
     def test_cb_library_pages_require_login(self):
         for name in (
@@ -157,8 +179,11 @@ class CBTemplateTests(TestCase):
         response = self.client.get(reverse("bookmarks:cb_template_manage"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "bookmarks/cb_template_manage.html")
+        self.assertTemplateUsed(response, "bookmarks/cb_open_list.html")
         self.assertContains(response, reverse("bookmarks:cb_templates"))
-        self.assertIsNotNone(finders.find("js/bookmarks/cb_template_manage.js"))
+        self.assertContains(response, 'id="cbOpenManagedTemplateUpdate"')
+        self.assertContains(response, 'id="cbOpenListPrint"')
+        self.assertIsNotNone(finders.find("js/bookmarks/cb_open_list.js"))
 
     def test_create_list_multiple_and_duplicate(self):
         self.assertEqual(

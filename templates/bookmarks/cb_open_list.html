@@ -1,8 +1,8 @@
-{% extends "manhour/base/result_base.html" %} 
-{% load static %} 
-{% block title %}Circuit Breaker Open List{% endblock title %} 
-
-{% block body_class %}cb-open-body{% endblock body_class %} 
+<!-- prettier-ignore -->
+{% extends "manhour/base/result_base.html" %}
+{% load static %}
+{% block title %}Circuit Breaker Open List{% endblock title %}
+{% block body_class %}cb-open-body{% endblock body_class %}
 
 {% block css %}
 <link
@@ -11,11 +11,9 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260914-27"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260915-31"
 />
-{% endblock css %} 
-
-{% block js %}
+{% endblock css %} {% block js %}
 <script
     defer
     src="{% static 'js/bookmarks/cb_grid_editor.js' %}?v=20260914-7"
@@ -26,34 +24,77 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260914-20"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260915-24"
 ></script>
-{% endblock js %} 
-
-{% block content %}
+{% endblock js %} {% block content %}
 <!-- =====================================================
     TOP BAR
 ===================================================== -->
 <header class="cb-open-topbar">
     <div class="cb-open-topbar-inner">
         <!-- 브랜드 -->
-        <a href="{% url 'bookmarks:cb_home' %}" class="cb-open-brand">
+        <a
+            href="{% if template_manage_mode %}{% url 'bookmarks:cb_template_library' %}{% else %}{% url 'bookmarks:cb_home' %}{% endif %}"
+            class="cb-open-brand"
+        >
             <span class="cb-open-brand-icon">
                 <i class="bi bi-clipboard2-check"></i>
             </span>
 
             <span class="cb-open-brand-text">
-                <strong>C/B OPEN LIST</strong>
-                <small>Maintenance Operations</small>
+                <strong
+                    >{% if template_manage_mode %}C/B TEMPLATE{% else %}C/B OPEN LIST{% endif %}
+                </strong>
+                <small
+                    >{% if template_manage_mode %}Edit · Delete · Print{% else %}Maintenance Operations{% endif %}
+                </small>
             </span>
         </a>
 
         <!-- 상단 버튼 -->
         <div class="cb-open-top-actions">
-            <button type="button" id="cbOpenListSave" class="cb-open-top-btn">
+            {% if template_manage_mode %}
+            <button
+                type="button"
+                id="cbOpenManagedTemplateUpdate"
+                class="cb-open-top-btn cb-open-top-btn-primary"
+                data-api-url="{% url 'bookmarks:cb_templates' %}"
+            >
+                <i class="bi bi-floppy"></i>
+                <span
+                    >{% if selected_template_id %}수정 내용 저장{% else %}새 템플릿 저장{% endif %}</span
+                >
+            </button>
+            <button
+                type="button"
+                id="cbOpenManagedTemplateDelete"
+                class="cb-open-top-btn cb-open-top-btn-danger"
+                {% if not selected_template_id %}disabled{% endif %}                
+            >
+                <i class="bi bi-trash3"></i><span>템플릿 삭제</span>
+            </button>
+            {% else %}
+            <button
+                type="button"
+                id="cbOpenListSave"
+                class="cb-open-top-btn"
+                data-saved-documents-url="{% url 'bookmarks:cb_saved_documents' %}"
+            >
                 <i class="bi bi-floppy"></i>
                 <span>저장</span>
             </button>
+
+            <button
+                type="button"
+                id="cbOpenTemplateSave"
+                class="cb-open-top-btn"
+                data-api-url="{% url 'bookmarks:cb_templates' %}"
+                data-manage-url="{% url 'bookmarks:cb_template_manage' %}"
+            >
+                <i class="bi bi-collection"></i>
+                <span>기종별 템플릿 저장</span>
+            </button>
+            {% endif %}
 
             <!-- 초기화 -->
             <button type="button" id="cbOpenListClear" class="cb-open-top-btn">
@@ -82,15 +123,18 @@
             </button>
 
             <a
-                href="{% url 'bookmarks:cb_home' %}"
+                href="{% if template_manage_mode %}{% url 'bookmarks:cb_template_library' %}{% else %}{% url 'bookmarks:cb_home' %}{% endif %}"
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span>C/B 메뉴</span>
+                <span
+                    >{% if template_manage_mode %}템플릿 목록{% else %}C/B
+                    메뉴{% endif %}</span
+                >
             </a>
 
             <!-- 설정 -->
-            {% if request.session.user_role == 'admin' or request.user.is_superuser %}
+            {% if can_manage_cb %}
             <button
                 type="button"
                 id="cbOpenListSettings"
@@ -160,7 +204,21 @@
             </div>
         </div>
 
+        {% if template_manage_mode %}
+        <div class="cb-document-field">
+            <label for="cbManagedTemplateName"> 템플릿 이름 </label>
+            <input
+                id="cbManagedTemplateName"
+                type="text"
+                class="form-control form-control-sm"
+                maxlength="100"
+                placeholder="템플릿 이름"
+            />
+        </div>
+        {% endif %}
+
         <!-- 문서 제목 -->
+        {% comment %}
         <div class="cb-document-field cb-document-title-field">
             <label for="cbOpenHeaderTitle"> 문서 제목 </label>
 
@@ -171,6 +229,7 @@
                 value="CIRCUIT BREAKER OPEN LIST"
             />
         </div>
+        {% endcomment %}
     </div>
 </section>
 
@@ -298,7 +357,10 @@
             <div class="cb-open-table-heading">
                 <div>
                     <strong>C/B OPEN LIST DATA</strong>
-                    <small>필요한 행을 선택하여 이동, 삭제하거나 새 행을 추가할 수 있습니다.</small>
+                    <small
+                        >필요한 행을 선택하여 이동, 삭제하거나 새 행을 추가할 수
+                        있습니다.</small
+                    >
                 </div>
 
                 <div class="cb-open-table-actions">
@@ -567,6 +629,70 @@
     </section>
 </main>
 
+{% if template_manage_mode %} {{
+managed_template_data|json_script:"cbManagedTemplateData" }}
+<div
+    id="cbManagedTemplateConfig"
+    data-library-url="{% url 'bookmarks:cb_template_library' %}"
+    data-manage-url="{% url 'bookmarks:cb_template_manage' %}"
+    hidden
+></div>
+{% endif %}
+
+<div
+    id="cbOpenTemplateSaveDialog"
+    class="cb-template-save-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cbOpenTemplateSaveTitle"
+    hidden
+>
+    <div class="cb-template-save-dialog-card">
+        {% csrf_token %}
+        <div class="cb-template-save-dialog-icon">
+            <i class="bi bi-collection-fill"></i>
+        </div>
+        <div>
+            <h3 id="cbOpenTemplateSaveTitle">기종별 템플릿 저장</h3>
+            <p>
+                <strong id="cbOpenTemplateAircraftLabel">선택 기종</strong>의
+                현재 표 데이터를 기본 템플릿으로 저장합니다.
+            </p>
+        </div>
+        <label for="cbOpenTemplateName">템플릿 이름</label>
+        <input
+            id="cbOpenTemplateName"
+            type="text"
+            class="form-control"
+            maxlength="100"
+            placeholder="예: Engine Change"
+            autocomplete="off"
+        />
+        <p
+            id="cbOpenTemplateSaveStatus"
+            class="cb-template-save-dialog-status"
+            role="status"
+            aria-live="polite"
+        ></p>
+        <div class="cb-template-save-dialog-actions">
+            <button
+                id="cbOpenTemplateSaveCancel"
+                type="button"
+                class="btn btn-outline-secondary"
+            >
+                취소
+            </button>
+            <button
+                id="cbOpenTemplateSaveConfirm"
+                type="button"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-floppy me-1"></i>저장 후 관리 화면 열기
+            </button>
+        </div>
+    </div>
+</div>
+
 <aside
     id="cbOpenRowFilter"
     class="offcanvas offcanvas-end cb-open-row-filter"
@@ -578,52 +704,110 @@
 >
     <div class="offcanvas-header cb-open-row-filter-head">
         <div>
-            <strong id="cbOpenRowFilterTitle"><i class="bi bi-funnel-fill"></i> 문서에 적용할 항목</strong>
-            <small id="cbOpenRowFilterStatus">체크한 행만 화면과 인쇄 문서에 표시됩니다.</small>
+            <strong id="cbOpenRowFilterTitle"
+                ><i class="bi bi-funnel-fill"></i> 문서에 적용할 항목</strong
+            >
+            <small id="cbOpenRowFilterStatus"
+                >체크한 행만 화면과 인쇄 문서에 표시됩니다.</small
+            >
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="닫기"></button>
+        <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="offcanvas"
+            aria-label="닫기"
+        ></button>
     </div>
     <div class="offcanvas-body cb-open-row-filter-body">
         <div class="cb-open-row-filter-actions">
-            <button id="cbOpenRowFilterToggle" type="button" class="btn btn-sm btn-outline-light" aria-expanded="false">
+            <button
+                id="cbOpenRowFilterToggle"
+                type="button"
+                class="btn btn-sm btn-outline-light"
+                aria-expanded="false"
+            >
                 <i class="bi bi-list-check"></i> 개별 항목 보기
             </button>
-            <button id="cbOpenRowFilterAll" type="button" class="btn btn-sm btn-outline-light">전체 선택</button>
-            <button id="cbOpenRowFilterNone" type="button" class="btn btn-sm btn-outline-light">전체 해제</button>
+            <button
+                id="cbOpenRowFilterAll"
+                type="button"
+                class="btn btn-sm btn-outline-light"
+            >
+                전체 선택
+            </button>
+            <button
+                id="cbOpenRowFilterNone"
+                type="button"
+                class="btn btn-sm btn-outline-light"
+            >
+                전체 해제
+            </button>
         </div>
         <div class="cb-open-row-filter-controls">
             <label>
                 <span>번호 범위</span>
                 <span class="cb-open-row-range">
-                    <input id="cbOpenRowFilterFrom" type="number" min="1" class="form-control form-control-sm" placeholder="1" />
+                    <input
+                        id="cbOpenRowFilterFrom"
+                        type="number"
+                        min="1"
+                        class="form-control form-control-sm"
+                        placeholder="1"
+                    />
                     <b>~</b>
-                    <input id="cbOpenRowFilterTo" type="number" min="1" class="form-control form-control-sm" placeholder="20" />
+                    <input
+                        id="cbOpenRowFilterTo"
+                        type="number"
+                        min="1"
+                        class="form-control form-control-sm"
+                        placeholder="20"
+                    />
                 </span>
             </label>
             <label class="cb-open-row-keyword-field">
                 <span>구역·키워드</span>
-                <input id="cbOpenRowFilterSearch" type="search" class="form-control form-control-sm" placeholder="예: ENGINE-1, COMMON (쉼표로 구분)" aria-label="적용 항목 구역 및 키워드" />
+                <input
+                    id="cbOpenRowFilterSearch"
+                    type="search"
+                    class="form-control form-control-sm"
+                    placeholder="예: ENGINE-1, COMMON (쉼표로 구분)"
+                    aria-label="적용 항목 구역 및 키워드"
+                />
             </label>
             <label>
                 <span>조건</span>
-                <select id="cbOpenRowFilterLogic" class="form-select form-select-sm">
+                <select
+                    id="cbOpenRowFilterLogic"
+                    class="form-select form-select-sm"
+                >
                     <option value="and">AND · 모두 만족</option>
                     <option value="or">OR · 하나 이상</option>
                 </select>
             </label>
-            <button id="cbOpenRowFilterApply" type="button" class="btn btn-sm btn-primary">
+            <button
+                id="cbOpenRowFilterApply"
+                type="button"
+                class="btn btn-sm btn-primary"
+            >
                 <i class="bi bi-funnel"></i> 필터 적용
             </button>
         </div>
-        <small class="cb-open-row-filter-help">병합된 제목을 검색하면 다음 병합 제목 전까지 한 구역으로 선택됩니다.</small>
-        <div id="cbOpenRowFilterList" class="cb-open-row-filter-list" hidden></div>
+        <small class="cb-open-row-filter-help"
+            >병합된 제목을 검색하면 다음 병합 제목 전까지 한 구역으로
+            선택됩니다.</small
+        >
+        <div
+            id="cbOpenRowFilterList"
+            class="cb-open-row-filter-list"
+            hidden
+        ></div>
     </div>
 </aside>
 
 <!-- =====================================================
     설정 OFFCANVAS
 ===================================================== -->
-{% if request.session.user_role == 'admin' or request.user.is_superuser %}
+{% if request.session.user_role == 'admin' %}
 <div
     class="offcanvas offcanvas-end cb-open-settings"
     tabindex="-1"
@@ -667,17 +851,30 @@
                 </div>
                 <div>
                     <h6>표 행 관리</h6>
-                    <small>문서 표의 마지막에 빈 줄을 추가하거나 삭제합니다.</small>
+                    <small
+                        >문서 표의 마지막에 빈 줄을 추가하거나
+                        삭제합니다.</small
+                    >
                 </div>
             </div>
-            {% comment %} <div class="d-flex gap-2">
-                <button type="button" id="cbOpenListAddRow" class="btn cb-setting-action-btn flex-fill">
+            {% comment %}
+            <div class="d-flex gap-2">
+                <button
+                    type="button"
+                    id="cbOpenListAddRow"
+                    class="btn cb-setting-action-btn flex-fill"
+                >
                     <i class="bi bi-plus-lg"></i> 줄 추가
                 </button>
-                <button type="button" id="cbOpenListDeleteRow" class="btn cb-setting-action-btn flex-fill">
+                <button
+                    type="button"
+                    id="cbOpenListDeleteRow"
+                    class="btn cb-setting-action-btn flex-fill"
+                >
                     <i class="bi bi-dash-lg"></i> 줄 삭제
                 </button>
-            </div> {% endcomment %}
+            </div>
+            {% endcomment %}
         </section>
 
         <section class="cb-setting-section">
@@ -1217,5 +1414,4 @@
         </button>
     </div>
 </div>
-{% endif %}
-{% endblock content %}
+{% endif %} {% endblock content %}

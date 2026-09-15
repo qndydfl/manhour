@@ -22,6 +22,11 @@ urlpatterns = [
         name="cb_template_library",
     ),
     path(
+        "cb-templates/library/<str:aircraft_model>/",
+        views.CBTemplateAircraftListView.as_view(),
+        name="cb_template_aircraft_list",
+    ),
+    path(
         "cb-aircraft-models/",
         views.CBAircraftModelView.as_view(),
         name="cb_aircraft_models",

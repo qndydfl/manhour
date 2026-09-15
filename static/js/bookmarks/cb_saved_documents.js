@@ -21,14 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const WORKSPACE_KEY = "cb_open_list_workspace_v1";
 
     /* =====================================================
-       DISPLAY LIMIT
-
-       기종에 관계없이 최근 저장 문서 최대 10개
-       ===================================================== */
-
-    const MAX_VISIBLE_DOCUMENTS = 10;
-
-    /* =====================================================
        LOAD SAVED DOCUMENTS
        ===================================================== */
 
@@ -322,10 +314,6 @@ document.addEventListener("DOMContentLoaded", () => {
        [1] 그 다음
        ...
 
-       최대 10개까지만 화면 표시
-
-       11번째 이후 문서는 localStorage에는 남아 있지만
-       Saved Documents 화면에는 표시하지 않음
        ===================================================== */
 
     function renderSavedDocuments() {
@@ -346,14 +334,9 @@ document.addEventListener("DOMContentLoaded", () => {
         list.replaceChildren();
 
         /*
-         * 최신 최대 10개
-         */
-        const visibleDocuments = documents.slice(0, MAX_VISIBLE_DOCUMENTS);
-
-        /*
          * 정상적인 저장 데이터만 카드 생성
          */
-        visibleDocuments.forEach((saved, index) => {
+        documents.forEach((saved, index) => {
             if (!saved || !saved.rows) {
                 return;
             }

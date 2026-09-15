@@ -119,11 +119,11 @@ TOP BAR
 }
 
 .cb-open-topbar-inner {
-    width: min(var(--cb-content-width), calc(100% - 56px));
+    width: min(var(--assignment-width, 1500px), calc(100% - 56px));
     max-width: none;
     height: 100%;
     margin: 0 auto;
-    padding: 8px 18px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -283,6 +283,110 @@ TOP ACTIONS
     color: #ffffff;
 }
 
+.cb-open-top-btn-danger {
+    border-color: rgba(248, 113, 113, 0.5);
+    background: rgba(185, 28, 28, 0.2);
+    color: #fecaca;
+}
+
+.cb-open-top-btn-danger:hover {
+    border-color: #fca5a5;
+    background: #991b1b;
+    color: #fff;
+}
+
+.cb-open-top-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+TEMPLATE SAVE DIALOG
+========================================================= */
+
+body.cb-template-save-dialog-open {
+    overflow: hidden;
+}
+
+.cb-template-save-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(7, 17, 29, 0.68);
+    backdrop-filter: blur(5px);
+}
+
+.cb-template-save-dialog[hidden] {
+    display: none;
+}
+
+.cb-template-save-dialog-card {
+    width: min(480px, 100%);
+    padding: 24px;
+    display: grid;
+    gap: 14px;
+    border: 1px solid #b8c9dc;
+    border-radius: 18px;
+    background: #f4f7fb;
+    color: #172033;
+    box-shadow: 0 24px 70px rgba(7, 17, 29, 0.36);
+}
+
+.cb-template-save-dialog-icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 21px;
+}
+
+.cb-template-save-dialog h3 {
+    margin: 0 0 5px;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.cb-template-save-dialog p {
+    margin: 0;
+    color: #526176;
+    font-size: 0.9rem;
+}
+
+.cb-template-save-dialog label {
+    font-size: 0.85rem;
+    font-weight: 750;
+}
+
+.cb-template-save-dialog-status {
+    min-height: 1.3em;
+    color: #b42318 !important;
+    font-weight: 700;
+}
+
+.cb-template-save-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@media (max-width: 575.98px) {
+    .cb-template-save-dialog-card {
+        padding: 18px;
+        border-radius: 15px;
+    }
+
+    .cb-template-save-dialog-actions {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+    }
+}
+
 /* 저장 버튼 */
 #cbOpenListSave {
     background: #2563eb;
@@ -335,9 +439,9 @@ DOCUMENT INFORMATION BAR
 main 위
 ========================================================= */
 
-.cb-open-document-bar {    
+.cb-open-document-bar {
     width: min(var(--cb-content-width), calc(100% - 56px));
-    max-width: 1248px;    
+    max-width: 1248px;
     margin: 24px auto 0;
     background: var(--cb-card-soft);
     border: 1px solid var(--cb-border);
@@ -803,7 +907,6 @@ DOCUMENT HEADER
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
 }
 
-
 /* =========================================================
 TABLE HEADING / TABLE ACTIONS
 ========================================================= */
@@ -822,7 +925,6 @@ TABLE HEADING / TABLE ACTIONS
     gap: 16px;
 }
 
-
 /* 왼쪽 제목 영역 */
 .cb-open-table-heading > div:first-child {
     min-width: 0;
@@ -834,7 +936,6 @@ TABLE HEADING / TABLE ACTIONS
     gap: 2px;
 }
 
-
 .cb-open-table-heading strong {
     color: #1e293b;
 
@@ -843,13 +944,11 @@ TABLE HEADING / TABLE ACTIONS
     font-weight: 800;
 }
 
-
 .cb-open-table-heading small {
     color: #6b7280;
 
     font-size: 12px;
 }
-
 
 /* 오른쪽 버튼 영역 */
 .cb-open-table-actions {
@@ -868,13 +967,11 @@ TABLE HEADING / TABLE ACTIONS
     gap: 6px;
 }
 
-
 .cb-open-table-actions .btn {
     flex: 0 0 auto;
 
     white-space: nowrap;
 }
-
 
 /* =========================================================
 TABLE WRAP
@@ -1881,38 +1978,25 @@ SAVE MESSAGE
 
 .cb-open-save-message {
     position: fixed;
-
-    right: 24px;
-    bottom: 24px;
-
+    top: calc(var(--cb-topbar-height) + 14px);
+    left: 50%;
     z-index: 5000;
-
-    padding: 10px 15px;
-
+    width: min(560px, calc(100vw - 32px));
+    min-height: 58px;
+    padding: 14px 18px;
     display: flex;
-
     align-items: center;
-
-    gap: 7px;
-
-    border-radius: 10px;
-
-    background: #172033;
-
-    color: #ffffff;
-
-    font-size: 0.75rem;
-
+    gap: 10px;
+    border: 2px solid #86efac;
+    border-radius: 12px;
+    background: #14532d;
+    color: #f0fdf4;
+    font-size: 0.9375rem;
     font-weight: 700;
-
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
-
     opacity: 0;
-
-    transform: translateY(10px);
-
+    transform: translate(-50%, -12px);
     pointer-events: none;
-
     transition:
         opacity 0.2s ease,
         transform 0.2s ease;
@@ -1921,7 +2005,27 @@ SAVE MESSAGE
 .cb-open-save-message.is-visible {
     opacity: 1;
 
-    transform: translateY(0);
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+
+.cb-open-save-message > i {
+    color: #bbf7d0;
+    font-size: 1.3rem;
+}
+
+.cb-open-save-message-close {
+    margin-left: auto;
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: #dcfce7;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.cb-open-save-message-close:hover {
+    color: #ffffff;
 }
 
 /* =========================================================
@@ -2522,16 +2626,12 @@ PRINT
 
     /* 선택한 행의 화면용 효과는 인쇄하지 않음 */
     .cb-open-table tbody tr.cb-open-row-selected > td,
-    .cb-open-table tbody
-    tr.cb-open-row-selected
-    > .cb-open-number-cell {
+    .cb-open-table tbody tr.cb-open-row-selected > .cb-open-number-cell {
         background: #ffffff !important;
         color: #111827 !important;
         box-shadow: none !important;
     }
-
 }
-
 
 /* =========================================================
 ROW SELECT / DRAG
@@ -2558,19 +2658,16 @@ ROW SELECT / DRAG
         box-shadow 0.15s ease;
 }
 
-
 /* 마우스를 번호 위에 올렸을 때 */
 .cb-open-table tbody .cb-open-number-cell:hover {
     background: #e8f1fb !important;
     color: #1d4ed8;
 }
 
-
 /* 번호를 잡고 있는 상태 */
 .cb-open-table tbody .cb-open-number-cell:active {
     cursor: grabbing;
 }
-
 
 /* =========================================================
 선택된 행
@@ -2583,23 +2680,18 @@ ROW SELECT / DRAG
     background-color: rgba(13, 110, 253, 0.08) !important;
 }
 
-
 /*
  * 선택된 행의 NO 셀
  */
-.cb-open-table tbody
-tr.cb-open-row-selected
-> .cb-open-number-cell {
+.cb-open-table tbody tr.cb-open-row-selected > .cb-open-number-cell {
     background: #0d6efd !important;
 
     color: #ffffff !important;
 
     font-weight: 800;
 
-    box-shadow:
-        inset 0 0 0 2px rgba(13, 110, 253, 0.35);
+    box-shadow: inset 0 0 0 2px rgba(13, 110, 253, 0.35);
 }
-
 
 /*
  * 선택된 번호 hover
@@ -2607,14 +2699,11 @@ tr.cb-open-row-selected
  * 선택되어 있을 때는
  * 파란색을 그대로 유지합니다.
  */
-.cb-open-table tbody
-tr.cb-open-row-selected
-> .cb-open-number-cell:hover {
+.cb-open-table tbody tr.cb-open-row-selected > .cb-open-number-cell:hover {
     background: #0b5ed7 !important;
 
     color: #ffffff !important;
 }
-
 
 /* =========================================================
 행 드래그
@@ -2623,10 +2712,7 @@ tr.cb-open-row-selected
 /*
  * 이동 중인 행
  */
-.cb-open-table
-tbody
-tr.cb-open-row-dragging
-> td {
+.cb-open-table tbody tr.cb-open-row-dragging > td {
     background: #dbeafe !important;
 
     box-shadow:
@@ -2636,19 +2722,14 @@ tr.cb-open-row-dragging
     opacity: 0.92;
 }
 
-
 /*
  * 드래그 중인 NO 셀
  */
-.cb-open-table
-tbody
-tr.cb-open-row-dragging
-> .cb-open-number-cell {
+.cb-open-table tbody tr.cb-open-row-dragging > .cb-open-number-cell {
     background: #bfdbfe !important;
 
     color: #1d4ed8 !important;
 }
-
 
 /*
  * 드래그 중 페이지 텍스트 선택 방지
