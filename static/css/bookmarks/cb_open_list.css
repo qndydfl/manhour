@@ -115,6 +115,10 @@ TOP BAR
 
     backdrop-filter: blur(14px);
 
+    overflow: hidden;
+}
+
+.cb-open-topbar:has(.cb-open-tools-menu.show) {
     overflow: visible;
 }
 
@@ -223,6 +227,11 @@ TOP ACTIONS
 
 .cb-open-top-actions::-webkit-scrollbar {
     display: none;
+}
+
+.cb-open-top-actions:has(.cb-open-tools-menu.show) {
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .cb-open-top-btn-back {
@@ -851,7 +860,7 @@ SHEET STAGE
     height: auto;
     max-height: none;
     padding: 20px;
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid #bccad8;
     border-radius: 14px;
 
@@ -889,11 +898,8 @@ DOCUMENT HEADER
 
 .cb-open-sheet-header {
     position: relative;
-
     min-height: 58px;
-
-    margin-bottom: 10px;
-
+    margin-bottom: 8px !important;
     display: grid;
 
     grid-template-columns:
@@ -962,6 +968,17 @@ TABLE HEADING / TABLE ACTIONS
 
     margin-bottom: 10px;
 
+    position: sticky;
+    top: calc(var(--cb-topbar-height) + 6px);
+    z-index: 88;
+
+    padding: 9px 10px;
+
+    border: 1px solid #d5dfeb;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.1);
+
     display: flex;
 
     align-items: flex-end;
@@ -969,6 +986,16 @@ TABLE HEADING / TABLE ACTIONS
     justify-content: space-between;
 
     gap: 16px;
+}
+
+.cb-open-table-heading-anchor {
+    height: 0;
+}
+
+.cb-open-table-heading.is-fixed {
+    position: fixed;
+    margin: 0;
+    z-index: 989;
 }
 
 /* 왼쪽 제목 영역 */
@@ -2585,7 +2612,7 @@ PRINT
 
     .cb-print-page-footer {
         width: 100%;
-        min-height: 8mm;
+        min-height: 14mm;
         margin: 0;
         padding: 1.5mm 0 0;
         border-top: 0.2mm solid #7c8794;
@@ -2624,9 +2651,18 @@ PRINT
         font-size: var(--cb-document-number-font, 12px);
     }
 
+    .cb-print-page-number {
+        display: block;
+        margin-top: 0.8mm;
+        color: #374151;
+        font-size: 8pt;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
     .cb-print-page > .cb-open-sheet-footer {
         width: 100%;
-        min-height: 8mm;
+        min-height: 14mm;
         margin: auto 0 0;
         padding: 1.5mm 0 0;
         border-top: 0.2mm solid #7c8794;

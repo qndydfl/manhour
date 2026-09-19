@@ -693,7 +693,17 @@ test("document merges survive reload and print without empty continuation pages"
             window.dispatchEvent(new Event("beforeprint"));
         });
         await page.emulateMedia({ media: "print" });
-        assert.ok((await page.locator(".cb-print-page").count()) > 1);
+        const printedPageCount = await page.locator(".cb-print-page").count();
+        assert.ok(printedPageCount > 1);
+        assert.deepEqual(
+            await page
+                .locator(".cb-print-page-number")
+                .allTextContents(),
+            Array.from(
+                { length: printedPageCount },
+                (_, index) => `${index + 1} / ${printedPageCount}`,
+            ),
+        );
         const printState = await page
             .locator(".cb-print-page")
             .evaluateAll((pages) =>
@@ -771,7 +781,22 @@ test("editing toolbar sticks below the header on both pages and screen sizes", a
                                     ".cb-open-topbar, .assignment-topbar",
                                 )
                                 .getBoundingClientRect();
-                            return Math.abs(toolbar.top - header.bottom) < 2;
+                            const documentActions = document
+                                .querySelector(".cb-open-table-heading")
+                                ?.getBoundingClientRect();
+                            const expectedTop = documentActions
+                                ? header.bottom +
+                                  documentActions.height +
+                                  12
+                                : header.bottom;
+                            return (
+                                (!documentActions ||
+                                    Math.abs(
+                                        documentActions.top -
+                                            (header.bottom + 6),
+                                    ) < 2) &&
+                                Math.abs(toolbar.top - expectedTop) < 2
+                            );
                         },
                         null,
                         { timeout: 3000 },
@@ -786,11 +811,16 @@ test("editing toolbar sticks below the header on both pages and screen sizes", a
                         const header = document.querySelector(
                             ".cb-open-topbar, .assignment-topbar",
                         );
+                        const documentActions = document.querySelector(
+                            ".cb-open-table-heading",
+                        );
                         return {
                             scrollY,
                             toolbar: toolbar.getBoundingClientRect().toJSON(),
                             anchor: anchor.getBoundingClientRect().toJSON(),
                             header: header.getBoundingClientRect().toJSON(),
+                            documentActions:
+                                documentActions?.getBoundingClientRect().toJSON(),
                             className: toolbar.className,
                             position: getComputedStyle(toolbar).position,
                         };

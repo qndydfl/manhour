@@ -43,10 +43,55 @@ window.CBGridEditor = class {
         const topbar = document.querySelector(
             ".cb-open-topbar, .assignment-topbar",
         );
-        const updateStickyOffset = () => {
-            const offset = topbar
+        const documentActions = document.querySelector(
+            ".cb-open-table-heading",
+        );
+        const documentActionsAnchor = documentActions
+            ? document.createElement("div")
+            : null;
+        if (documentActionsAnchor) {
+            documentActionsAnchor.className =
+                "cb-open-table-heading-anchor";
+            documentActions.before(documentActionsAnchor);
+        }
+        const syncDocumentActions = () => {
+            if (!documentActions || !documentActionsAnchor) return;
+            const topbarBottom = topbar
                 ? Math.max(0, topbar.getBoundingClientRect().bottom)
                 : 0;
+            const top = topbarBottom + 6;
+            const anchorRect = documentActionsAnchor.getBoundingClientRect();
+            const hostRect = toolbarHost.getBoundingClientRect();
+            const actionsHeight = documentActions.offsetHeight;
+            const shouldPin =
+                anchorRect.top <= top &&
+                hostRect.bottom > top + actionsHeight;
+            documentActions.classList.toggle("is-fixed", shouldPin);
+            if (shouldPin) {
+                documentActions.style.top = `${top}px`;
+                documentActions.style.left = `${anchorRect.left}px`;
+                documentActions.style.width = `${anchorRect.width}px`;
+                documentActionsAnchor.style.height = `${actionsHeight}px`;
+                return;
+            }
+            documentActions.style.removeProperty("top");
+            documentActions.style.removeProperty("left");
+            documentActions.style.removeProperty("width");
+            documentActionsAnchor.style.removeProperty("height");
+        };
+        const updateStickyOffset = () => {
+            let offset = topbar
+                ? Math.max(0, topbar.getBoundingClientRect().bottom)
+                : 0;
+            const documentActions = document.querySelector(
+                ".cb-open-table-heading",
+            );
+            if (documentActions) {
+                const actionsRect = documentActions.getBoundingClientRect();
+                if (actionsRect.top <= offset + 8) {
+                    offset += actionsRect.height + 12;
+                }
+            }
             this.toolbar.style.setProperty(
                 "--cb-grid-sticky-top",
                 `${offset}px`,
@@ -56,6 +101,7 @@ window.CBGridEditor = class {
         let stickyFrame = 0;
         const syncToolbarPinning = () => {
             stickyFrame = 0;
+            syncDocumentActions();
             const offset = updateStickyOffset();
             const anchorRect = this.toolbarAnchor.getBoundingClientRect();
             const hostRect = toolbarHost.getBoundingClientRect();

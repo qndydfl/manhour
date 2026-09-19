@@ -61,82 +61,139 @@
     AIRCRAFT CARDS
     ================================================== -->
 
-    <section id="cbAircraftCardGrid" class="cb-aircraft-card-grid">
-        {% for group in aircraft_groups %}
+    <section
+    id="cbAircraftCardGrid"
+    class="cb-aircraft-card-grid"
+>
+    {% for group in aircraft_groups %}
 
-        <a
-            href="{% url 'bookmarks:cb_aircraft_home' group.aircraft_model %}"
-            class="cb-aircraft-card"
-            data-aircraft-card
-            data-aircraft="{{ group.aircraft_model }}"
-            data-aircraft-key="{{ group.aircraft_model|lower }}"
-            aria-label="{{ group.aircraft_model }} 템플릿 목록 열기"
-        >
-            <!-- IMAGE -->
+    <a
+        href="{% url 'bookmarks:cb_aircraft_home' group.aircraft_model %}"
+        class="cb-aircraft-card cb-aircraft-workspace-card"
+        data-aircraft-card
+        data-aircraft="{{ group.aircraft_model }}"
+        data-aircraft-key="{{ group.aircraft_model|lower }}"
+        aria-label="{{ group.aircraft_model }} C/B Workspace 열기"
+    >
 
-            <div class="cb-aircraft-card-image">
-                {% if group.image %}
+        <!-- =============================================
+            AIRCRAFT IMAGE
+        ============================================== -->
 
-                <img
-                    src="{{ group.image }}"
-                    alt="{{ group.aircraft_model }}"
-                    loading="lazy"
-                />
+        <div class="cb-aircraft-workspace-image">
+
+            {% if group.image %}
+
+            <img
+                src="{{ group.image }}"
+                alt="{{ group.aircraft_model }}"
+                loading="lazy"
+            />
+
+            {% else %}
+
+            <img
+                src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
+                alt="{{ group.aircraft_model }}"
+                loading="lazy"
+            />
+
+            {% endif %}
+
+
+            <!-- Manufacturer -->
+
+            <div class="cb-aircraft-workspace-brand">
+
+                {% if group.aircraft_model|slice:":1" == "A" %}
+
+                <i class="bi bi-airplane-engines"></i>
+                <span>AIRBUS</span>
+
+                {% elif group.aircraft_model|slice:":1" == "B" %}
+
+                <i class="bi bi-airplane-engines"></i>
+                <span>BOEING</span>
 
                 {% else %}
 
-                <img
-                    src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
-                    alt="{{ group.aircraft_model }}"
-                    loading="lazy"
-                />
+                <i class="bi bi-airplane"></i>
+                <span>AIRCRAFT</span>
 
                 {% endif %}
 
-                <span class="cb-aircraft-brand">
-                    {% if group.aircraft_model|slice:":1" == "A" %}
-
-                    <i class="bi bi-airplane-engines"></i>
-                    AIRBUS {% elif group.aircraft_model|slice:":1" == "B" %}
-
-                    <i class="bi bi-airplane-engines"></i>
-                    BOEING {% else %}
-
-                    <i class="bi bi-airplane"></i>
-                    AIRCRAFT {% endif %}
-                </span>
             </div>
 
-            <!-- INFO -->
-
-            <div class="cb-aircraft-card-content">
-                <div class="cb-aircraft-card-main">
-                    <strong> {{ group.aircraft_model }} </strong>
-
-                    <span> {{ group.template_count }} 개의 템플릿 </span>
-                </div>
-
-                <span class="cb-aircraft-card-arrow">
-                    <i class="bi bi-chevron-right" data-aircraft-arrow></i>
-                </span>
-            </div>
-        </a>
-
-        <!--
-            카드와 상세 패널을 JS에서 연결하기 위한
-            template data
-        -->
-
-        {% empty %}
-
-        <div class="cb-library-empty-aircraft">
-            <i class="bi bi-airplane"></i>
-
-            <strong> 등록된 기종이 없습니다. </strong>
         </div>
 
-        {% endfor %}
-    </section>
+
+        <!-- =============================================
+            WORKSPACE INFO
+        ============================================== -->
+
+        <div class="cb-aircraft-workspace-content">
+
+            <div class="cb-aircraft-workspace-copy">
+
+                <span class="cb-aircraft-workspace-eyebrow">
+                    AIRCRAFT WORKSPACE
+                </span>
+
+                <h2>
+                    {{ group.aircraft_model }}
+                </h2>
+
+                <p>
+                    C/B 문서 및 템플릿 관리
+                </p>
+
+
+                <div class="cb-aircraft-workspace-meta">
+
+                    <span>
+                        <i class="bi bi-collection"></i>
+
+                        {{ group.template_count }}
+                        개의 템플릿
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Arrow -->
+
+            <span class="cb-aircraft-workspace-arrow">
+
+                <i class="bi bi-arrow-right"></i>
+
+            </span>
+
+        </div>
+
+    </a>
+
+
+    {% empty %}
+
+    <div class="cb-library-empty-aircraft">
+
+        <i class="bi bi-airplane"></i>
+
+        <strong>
+            등록된 기종이 없습니다.
+        </strong>
+
+        <span>
+            관리자에서 기종을 등록해 주세요.
+        </span>
+
+    </div>
+
+    {% endfor %}
+</section>
+
 
     <!-- =================================================
     NO SEARCH RESULT

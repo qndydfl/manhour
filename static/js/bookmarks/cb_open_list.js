@@ -2002,6 +2002,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const footer = sourceFooter.cloneNode(true);
             printBody.replaceChildren();
 
+            const pageNumber = document.createElement("span");
+            pageNumber.className = "cb-print-page-number";
+            pageNumber.innerHTML = "&nbsp;";
+            (footer.querySelector(".cb-open-footer-right") || footer).appendChild(
+                pageNumber,
+            );
+
             [header, printTable, footer].forEach((element) => {
                 element
                     .querySelectorAll("[id]")
@@ -2099,6 +2106,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         } while (sourceIndex < sourceRows.length);
+
+        const printedPages = Array.from(
+            pages.querySelectorAll(".cb-print-page"),
+        );
+        if (printedPages.length > 1) {
+            printedPages.forEach((page, index) => {
+                const pageNumber = page.querySelector(
+                    ".cb-print-page-number",
+                );
+                pageNumber.textContent = `${index + 1} / ${printedPages.length}`;
+                pageNumber.setAttribute(
+                    "aria-label",
+                    `${printedPages.length}페이지 중 ${index + 1}페이지`,
+                );
+            });
+        } else {
+            printedPages[0]
+                ?.querySelector(".cb-print-page-number")
+                ?.remove();
+        }
     }
 
     /* =====================================================
