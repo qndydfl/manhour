@@ -171,7 +171,7 @@
 
                 {% empty %}
 
-                <option value="A350" selected>A350</option>
+                <option value="기종선택" selected>기종선택</option>
 
                 {% endfor %}
             </select>
@@ -206,23 +206,10 @@
                 class="form-control form-control-sm"
                 maxlength="100"
                 placeholder="템플릿 이름"
+                readonly
             />
         </div>
         {% endif %}
-
-        <!-- 문서 제목 -->
-        {% comment %}
-        <div class="cb-document-field cb-document-title-field">
-            <label for="cbOpenHeaderTitle"> 문서 제목 </label>
-
-            <input
-                id="cbOpenHeaderTitle"
-                type="text"
-                class="form-control form-control-sm"
-                value="CIRCUIT BREAKER OPEN LIST"
-            />
-        </div>
-        {% endcomment %}
     </div>
 </section>
 
@@ -232,53 +219,135 @@
 <main class="cb-open-page">
     {% if request.GET.from_template != "1" %}
     <!-- =================================================
-        붙여넣기 영역
+        붙여넣기 / 템플릿 가져오기 영역
     ================================================= -->
-    <section class="cb-open-paste-card">
-        <div class="cb-open-paste-head">
-            <div>
-                <strong>
-                    <i class="bi bi-clipboard"></i>
-                    표 데이터 붙여넣기
-                </strong>
+    <div class="cb-open-input-tools">
 
-                <small>
-                    Airbus 표 또는 Boeing 데이터를 붙여넣은 후 입력 하기 버튼을
-                    누르면 C/B 표에 추가됩니다.
-                </small>
+        <!-- =================================================
+            표 데이터 붙여넣기
+        ================================================= -->
+        <section class="cb-open-paste-card">
+
+            <div class="cb-open-paste-head">
+                <div>
+                    <strong>
+                        <i class="bi bi-clipboard"></i>
+                        표 데이터 붙여넣기
+                    </strong>
+
+                    <small>
+                        Airbus 표 또는 Boeing 데이터를 붙여넣은 후
+                        입력 하기 버튼을 누르면 C/B 표에 추가됩니다.
+                    </small>
+                </div>
+
+                <div class="cb-open-paste-map">
+                    <span>Airbus: Panel 있는 줄 부터 복사<br/>
+                        (예: PANEL	DESIGNATION	FIN	LOCATION)
+                    </span>
+                    <span>
+                        Boeing: Panel 번호가 있는 앞쪽 첫 번째 줄 부터 복사<br/>
+                        (예: Right Power Management Panel, P210)
+                    </span>
+                </div>
             </div>
 
-            <div class="cb-open-paste-map">
-                <span>Airbus: 1열 PANEL</span>
-                <span>2열 DESCRIPTION</span>
-                <span>3열 FIN</span>
-                <span>4열 LOC'</span>
-                <span>Boeing 직접 입력: PANEL, LOC', FIN, DESCRIPTION</span>
-            </div>
-        </div>
+            <textarea
+                id="cbOpenListPasteSource"
+                class="form-control cb-open-paste-area"
+                rows="2"
+                placeholder="여기에 붙여넣기 또는 직접 입력"
+            ></textarea>
 
-        <textarea
-            id="cbOpenListPasteSource"
-            class="form-control cb-open-paste-area"
-            rows="2"
-            placeholder="예: P110, P 23, , L ENG T/R CTRL&#10;여러 건은 한 줄에 하나씩 입력하세요."
-        ></textarea>
-        <div
-            class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2"
-        >
-            <small class="text-secondary"
-                >FIN이 없으면 쉼표 사이를 비워 주세요. 입력 하기 버튼 클릭시
-                표에 추가하고 이 브라우저에 저장합니다.
-            </small>
-            <button
-                type="button"
-                id="cbOpenManualImport"
-                class="btn btn-primary btn-sm"
+            <div
+                class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2"
             >
-                <i class="bi bi-floppy me-1"></i>입력 하기
-            </button>
-        </div>
-    </section>
+                <small class="text-secondary">
+                    직접 입력시: 예: P110, P 23, , L ENG T/R CTRL&#10;여러 건은 한 줄에 하나씩 입력하세요.<br/>
+                    FIN이 없으면 쉼표 사이를 비워 주세요.
+                </small>
+
+                <button
+                    type="button"
+                    id="cbOpenManualImport"
+                    class="btn btn-primary btn-sm"
+                >
+                    <i class="bi bi-floppy me-1"></i>
+                    입력 하기
+                </button>
+            </div>
+
+            <!-- Template API 설정 -->
+            <div
+                id="cbOpenListConfig"
+                data-aircraft-model="{{ default_aircraft_model }}"
+                data-template-api="{% url 'bookmarks:cb_templates' %}"
+                hidden
+            ></div>
+
+        </section>
+
+        <!-- =================================================
+            템플릿 가져오기
+        ================================================= -->
+        <section class="cb-open-template-import-card">
+
+            <div class="cb-open-template-import-head">
+
+                <div>
+                    <span class="cb-open-tool-eyebrow">
+                        AIRCRAFT TEMPLATE
+                    </span>
+
+                    <strong>
+                        템플릿 가져오기
+                    </strong>
+
+                    <p>
+                        현재 선택한 기종에 저장된
+                        C/B 템플릿을 불러옵니다.
+                    </p>
+                </div>
+
+                <div class="cb-open-template-import-icon">
+                    <i class="bi bi-collection"></i>
+                </div>
+
+            </div>
+
+            <div class="cb-open-template-import-control">
+
+                <select
+                    id="cbOpenTemplateSelect"
+                    class="form-select"
+                    aria-label="C/B 템플릿 선택"
+                >
+                    <option value="">
+                        템플릿을 선택하세요
+                    </option>
+                </select>
+
+                <button
+                    type="button"
+                    id="cbOpenTemplateImportBtn"
+                    class="btn btn-primary"
+                    disabled
+                >
+                    <i class="bi bi-box-arrow-in-down"></i>
+                    가져오기
+                </button>
+
+            </div>
+
+            <div
+                id="cbOpenTemplateImportStatus"
+                class="cb-open-template-import-status"
+                aria-live="polite"
+            ></div>
+
+        </section>
+
+    </div>
     {% endif %}
 
     <div class="cb-open-table-heading">
@@ -355,7 +424,7 @@
                         class="cb-open-model-title cb-open-header-editable"
                         contenteditable="plaintext-only"
                         spellcheck="false"
-                        data-fallback="({{ default_aircraft_model|default:'A350' }})"
+                        data-fallback="({{ default_aircraft_model|default:'' }})"
                     >
                         ({{ default_aircraft_model|default:"" }})
                     </div>

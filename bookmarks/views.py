@@ -11,7 +11,7 @@ from manhour.views import SimpleLoginRequiredMixin
 from .models import CBAircraftModel, CBTemplate
 from .cb_merges import clean_template_merges
 
-AIRCRAFT_MODELS = ["A320", "A330", "A350", "A380", "B747", "B777", "OTHER"]
+AIRCRAFT_MODELS = ["A320", "A330", "A350", "A380", "B737", "B747", "B777"]
 
 
 def get_aircraft_models():
@@ -78,61 +78,6 @@ class CBSavedDocumentsView(SimpleLoginRequiredMixin, TemplateView):
         return context
 
 
-# class CBTemplateLibraryView(
-#     SimpleLoginRequiredMixin,
-#     TemplateView,
-# ):
-#     template_name = "bookmarks/cb_template_library.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-
-#         site = get_current_workplace(self.request)
-#         get_aircraft_models()
-#         aircraft_models = list(CBAircraftModel.objects.all().order_by("code"))
-
-#         templates = list(
-#             CBTemplate.objects.filter(site=site)
-#             .order_by(
-#                 "aircraft_model",
-#                 "-created_at",
-#                 "-id",
-#             )
-#             .values(
-#                 "id",
-#                 "aircraft_model",
-#                 "name",
-#                 "created_at",
-#             )
-#         )
-
-#         aircraft_groups = []
-
-#         for aircraft in aircraft_models:
-
-#             model_templates = [
-#                 item for item in templates if item["aircraft_model"] == aircraft.code
-#             ]
-
-#             aircraft_groups.append(
-#                 {
-#                     "aircraft_model": aircraft.code,
-#                     "image": (aircraft.image.url if aircraft.image else ""),
-#                     "template_count": len(model_templates),
-#                     "templates": model_templates,
-#                 }
-#             )
-
-#         context["aircraft_groups"] = aircraft_groups
-#         context["aircraft_models"] = [item.code for item in aircraft_models]
-#         context["can_manage_cb"] = (
-#             self.request.session.get("user_role") == "admin"
-#             or self.request.user.is_superuser
-#         )
-
-#         return context
-
-
 class CBTemplateLibraryView(
     SimpleLoginRequiredMixin,
     TemplateView,
@@ -172,33 +117,6 @@ class CBTemplateLibraryView(
         context["aircraft_groups"] = aircraft_groups
 
         return context
-
-
-# class CBAircraftHomeView(SimpleLoginRequiredMixin, TemplateView):
-#     template_name = "bookmarks/cb_aircraft_home.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-
-#         aircraft_model = self.kwargs["aircraft_model"].strip().upper()
-
-#         get_aircraft_models()
-#         aircraft = CBAircraftModel.objects.filter(code=aircraft_model).first()
-#         if aircraft is None:
-#             raise Http404("등록되지 않은 기종입니다.")
-#         context["aircraft_model"] = aircraft_model
-#         context["aircraft_image"] = aircraft.image.url if aircraft.image else ""
-#         context["templates"] = CBTemplate.objects.filter(
-#             site=get_current_workplace(self.request),
-#             aircraft_model=aircraft_model,
-#         ).order_by("-updated_at", "name")
-#         context["aircraft_template_list_mode"] = True
-#         context["aircraft_models"] = get_aircraft_models()
-#         context["can_manage_cb"] = (
-#             self.request.session.get("user_role") == "admin"
-#             or self.request.user.is_superuser
-#         )
-#         return context
 
 
 class CBAircraftHomeView(
@@ -395,152 +313,6 @@ class CBAircraftModelView(
                 {"error": "기종은 1~20자의 문자로 " "입력해 주세요."},
                 status=400,
             )
-
-
-# class CBTemplateView(SimpleLoginRequiredMixin, View):
-#     def delete(self, request):
-#         try:
-#             data = json.loads(request.body)
-#             if (
-#                 not isinstance(data, dict)
-#                 or type(data.get("id")) is not int
-#                 or data["id"] < 1
-#             ):
-#                 raise ValueError
-#             model = clean_aircraft_code(data.get("aircraft_model"))
-#         except (ValueError, TypeError, UnicodeDecodeError):
-#             return JsonResponse({"error": "삭제할 템플릿을 선택해 주세요."}, status=400)
-#         template = CBTemplate.objects.filter(
-#             pk=data["id"],
-#             aircraft_model=model,
-#         ).first()
-#         if template is None:
-#             return JsonResponse(
-#                 {"error": "삭제할 템플릿을 찾을 수 없습니다."}, status=404
-#             )
-#         name = template.name
-#         template.delete()
-#         return JsonResponse({"name": name})
-
-#     def get(self, request):
-#         templates = CBTemplate.objects.filter(
-#             aircraft_model=request.GET.get("aircraft_model", ""),
-#         )
-#         return JsonResponse(
-#             {
-#                 "templates": list(
-#                     templates.values("id", "aircraft_model", "name", "rows", "updated_at")
-#                 )
-#             }
-#         )
-
-#     def post(self, request):
-#         try:
-#             data = json.loads(request.body)
-#             if not isinstance(data, dict):
-#                 raise ValueError
-#             model = clean_aircraft_code(data.get("aircraft_model"))
-#             name = data.get("name")
-#             rows = data.get("rows")
-#             template_id = data.get("id")
-#             original_model = clean_aircraft_code(
-#                 data.get("original_aircraft_model", model)
-#             )
-#             if template_id is not None and (
-#                 type(template_id) is not int or template_id < 1
-#             ):
-#                 raise ValueError
-#             get_aircraft_models()
-#             if not CBAircraftModel.objects.filter(code=model).exists():
-#                 raise ValueError
-#             if not isinstance(name, str) or not 1 <= len(name.strip()) <= 100:
-#                 raise ValueError
-#             if not isinstance(rows, list) or not 1 <= len(rows) <= 1000:
-#                 raise ValueError
-#             if not all(isinstance(row, dict) for row in rows):
-#                 raise ValueError
-#             merge_rows, _covered = clean_template_merges(rows)
-#             clean_rows = []
-#             for row_index, row in enumerate(rows):
-#                 if not isinstance(row, dict):
-#                     raise ValueError
-#                 cleaned = {}
-#                 for field in ("panel_loc", "cb_loc", "fin", "description", "warning"):
-#                     value = row.get(field, "")
-#                     if not isinstance(value, str) or len(value) > 2000:
-#                         raise ValueError
-#                     cleaned[field] = value.strip()
-#                 for field in ("cockpit", "ee", "etc"):
-#                     if field in row:
-#                         value = row[field]
-#                         if not isinstance(value, str) or value.strip().upper() not in (
-#                             "",
-#                             "V",
-#                         ):
-#                             raise ValueError
-#                         cleaned[field] = value.strip().upper()
-#                 if merge_rows[row_index]:
-#                     cleaned["_merges"] = merge_rows[row_index]
-#                 clean_rows.append(cleaned)
-#             if not any(
-#                 row.get(field, "")
-#                 for row in clean_rows
-#                 for field in (
-#                     "cockpit",
-#                     "ee",
-#                     "etc",
-#                     "panel_loc",
-#                     "cb_loc",
-#                     "fin",
-#                     "description",
-#                     "warning",
-#                 )
-#             ):
-#                 raise ValueError
-#         except (ValueError, TypeError, UnicodeDecodeError):
-#             return JsonResponse(
-#                 {
-#                     "error": "기종·템플릿 이름과 셀 데이터를 확인해 주세요. 템플릿에는 데이터가 하나 이상 있어야 하며 최대 1,000행까지 저장할 수 있습니다."
-#                 },
-#                 status=400,
-#             )
-#         try:
-#             with transaction.atomic():
-#                 if template_id is None:
-#                     template = CBTemplate.objects.create(
-#                         aircraft_model=model,
-#                         name=name.strip(),
-#                         rows=clean_rows,
-#                     )
-#                 else:
-#                     template = (
-#                         CBTemplate.objects.select_for_update()
-#                         .filter(
-#                             pk=template_id,
-#                             aircraft_model=original_model,
-#                             aircraft_model=original_model,
-#                         )
-#                         .first()
-#                     )
-#                     if template is None:
-#                         return JsonResponse(
-#                             {"error": "수정할 템플릿을 찾을 수 없습니다."}, status=404
-#                         )
-#                     template.name = name.strip()
-#                     template.aircraft_model = model
-#                     template.rows = clean_rows
-#                     template.save(update_fields=["aircraft_model", "name", "rows"])
-#         except IntegrityError:
-#             return JsonResponse(
-#                 {
-#                     "error": "이 기종에 같은 이름의 템플릿이 있습니다. 다른 이름으로 저장해 주세요."
-#                 },
-#                 status=409,
-#             )
-#         return JsonResponse(
-#             {"id": template.pk, "name": template.name},
-#             status=200 if template_id else 201,
-#         )
 
 
 class CBTemplateView(

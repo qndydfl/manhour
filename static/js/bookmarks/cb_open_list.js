@@ -2005,9 +2005,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const pageNumber = document.createElement("span");
             pageNumber.className = "cb-print-page-number";
             pageNumber.innerHTML = "&nbsp;";
-            (footer.querySelector(".cb-open-footer-right") || footer).appendChild(
-                pageNumber,
-            );
+            (
+                footer.querySelector(".cb-open-footer-right") || footer
+            ).appendChild(pageNumber);
 
             [header, printTable, footer].forEach((element) => {
                 element
@@ -2112,9 +2112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         if (printedPages.length > 1) {
             printedPages.forEach((page, index) => {
-                const pageNumber = page.querySelector(
-                    ".cb-print-page-number",
-                );
+                const pageNumber = page.querySelector(".cb-print-page-number");
                 pageNumber.textContent = `${index + 1} / ${printedPages.length}`;
                 pageNumber.setAttribute(
                     "aria-label",
@@ -2122,9 +2120,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             });
         } else {
-            printedPages[0]
-                ?.querySelector(".cb-print-page-number")
-                ?.remove();
+            printedPages[0]?.querySelector(".cb-print-page-number")?.remove();
         }
     }
 
@@ -3766,32 +3762,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     scheduleSheetScale();
 
+    /* =====================================================
+    TEMPLATE IMPORT
+    ===================================================== */
+
     function importSelectedTemplate() {
         const storageKey = "cb_open_template_import_v1";
+
         let pending;
+
         try {
             pending = JSON.parse(sessionStorage.getItem(storageKey));
         } catch (_error) {
             sessionStorage.removeItem(storageKey);
             return;
         }
-        if (!pending || !Array.isArray(pending.rows) || !pending.rows.length)
+
+        if (!pending || !Array.isArray(pending.rows) || !pending.rows.length) {
             return;
+        }
+
         sessionStorage.removeItem(storageKey);
-        if (pending.aircraft_model) {
+
+        if (pending.aircraft_model && aircraftModelSelect) {
             aircraftModelSelect.value = pending.aircraft_model;
+
             updateHeader();
         }
+
         const targetRow = getPasteTargetRow();
+
         const startRow = targetRow
             ? Array.from(tableBody.children).indexOf(targetRow)
             : getNextPasteRowIndex();
+
         const added = applyCBRecords(pending.rows, startRow, targetRow);
 
         if (added) {
             pending.rows.slice(0, added).forEach((record, index) => {
                 const row = tableBody.children[startRow + index];
-                if (!row) return;
+
+                if (!row) {
+                    return;
+                }
+
                 const summary = [
                     record.panel_loc,
                     record.fin,
@@ -3800,46 +3814,507 @@ document.addEventListener("DOMContentLoaded", () => {
                     .map(cleanText)
                     .filter(Boolean)
                     .join(" · ");
-                row.dataset.filterLabel = summary || `${index + 1}번 항목`;
+
+                row.dataset.filterLabel =
+                    summary || `${startRow + index + 1}번 항목`;
+
                 row.dataset.printIncluded = "true";
+
                 row.classList.remove("cb-open-row-excluded");
             });
+
             rebuildRowFilter();
+
             saveWorkspace();
         }
+
         showSaveMessage(
-            `${pending.name || "기본"} 템플릿 ${added}행을 문서에 추가했습니다.`,
+            `${
+                pending.name || "기본"
+            } 템플릿 ${added}행을 문서에 추가했습니다.`,
         );
     }
 
+    /* =====================================================
+    ROW FILTER EVENTS
+    ===================================================== */
+
     rowFilterApply?.addEventListener("click", applyAdvancedRowFilter);
+
     rowFilterPanelToggle?.addEventListener("click", () =>
         setRowFilterPanelVisible(true),
     );
+
     rowFilter?.addEventListener("shown.bs.offcanvas", () => {
         rowFilterPanelVisible = true;
+
         rowFilterPanelToggle?.setAttribute("aria-pressed", "true");
     });
+
     rowFilter?.addEventListener("hidden.bs.offcanvas", () => {
         rowFilterPanelVisible = false;
+
         rowFilterPanelToggle?.setAttribute("aria-pressed", "false");
+
         rowFilter.hidden = true;
     });
+
     [rowFilterSearch, rowFilterFrom, rowFilterTo].forEach((control) =>
         control?.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") applyAdvancedRowFilter();
+            if (event.key === "Enter") {
+                applyAdvancedRowFilter();
+            }
         }),
     );
+
     rowFilterAll?.addEventListener("click", () => setAllImportedRows(true));
+
     rowFilterNone?.addEventListener("click", () => setAllImportedRows(false));
+
     rowFilterToggle?.addEventListener("click", () => {
-        if (!rowFilterList) return;
+        if (!rowFilterList) {
+            return;
+        }
+
         const willOpen = rowFilterList.hidden;
+
         rowFilterList.hidden = !willOpen;
+
         rowFilterToggle.setAttribute("aria-expanded", String(willOpen));
+
         rowFilterToggle.innerHTML = willOpen
             ? '<i class="bi bi-chevron-up"></i> 개별 항목 닫기'
             : '<i class="bi bi-list-check"></i> 개별 항목 보기';
     });
+
+    /* =====================================================
+    DIRECT TEMPLATE IMPORT
+    ===================================================== */
+
+    async function importTemplateRows(template) {
+        const rows = Array.isArray(template?.rows) ? template.rows : [];
+
+        if (!rows.length) {
+            await window.AppDialog.alert(
+                "선택한 템플릿에 불러올 데이터가 없습니다.",
+                {
+                    title: "템플릿 가져오기",
+                },
+            );
+
+            return;
+        }
+
+        const currentAircraft = cleanText(aircraftModelSelect?.value);
+
+        /*
+         * 현재 C/B 문서의 기종과
+         * 템플릿 기종이 같은지 확인
+         */
+        if (
+            template.aircraft_model &&
+            currentAircraft &&
+            template.aircraft_model !== currentAircraft
+        ) {
+            await window.AppDialog.alert(
+                "현재 선택한 기종과 템플릿의 기종이 다릅니다.",
+                {
+                    title: "템플릿 가져오기",
+                },
+            );
+
+            return;
+        }
+
+        const confirmed = await window.AppDialog.confirm(
+            `'${template.name}' 템플릿을 C/B OPEN LIST에 추가하시겠습니까?`,
+            {
+                title: "템플릿 가져오기",
+                confirmText: "가져오기",
+            },
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        /*
+         * 현재 선택된 입력 행이 있으면
+         * 그 위치부터 Template을 입력합니다.
+         *
+         * 선택된 행이 없으면
+         * 다음 빈 위치에 추가합니다.
+         */
+        const targetRow = getPasteTargetRow();
+
+        const startRow = targetRow
+            ? Array.from(tableBody.children).indexOf(targetRow)
+            : getNextPasteRowIndex();
+
+        /*
+         * 기존 C/B 데이터 입력 엔진 사용
+         *
+         * - 일반 셀 데이터
+         * - Location
+         * - Warning
+         * - Merge
+         * - Row Number
+         * - Table Size
+         * - Filter
+         *
+         * 모두 기존 로직으로 처리합니다.
+         */
+        const added = applyCBRecords(rows, startRow, targetRow);
+
+        if (!added) {
+            return;
+        }
+
+        /*
+         * Template에서 추가된 행을
+         * 문서 필터 대상으로 등록
+         */
+        rows.slice(0, added).forEach((record, index) => {
+            const row = tableBody.children[startRow + index];
+
+            if (!row) {
+                return;
+            }
+
+            const summary = [record.panel_loc, record.fin, record.description]
+                .map(cleanText)
+                .filter(Boolean)
+                .join(" · ");
+
+            row.dataset.filterLabel =
+                summary || `${startRow + index + 1}번 항목`;
+
+            row.dataset.printIncluded = "true";
+
+            row.classList.remove("cb-open-row-excluded");
+        });
+
+        updateRowNumbers();
+
+        updateTableSizing();
+
+        scheduleSheetScale();
+
+        rebuildRowFilter();
+
+        /*
+         * 현재 브라우저 Workspace 저장
+         */
+        saveWorkspace();
+
+        showSaveMessage(
+            `${template.name} 템플릿 ${added}행을 문서에 추가했습니다.`,
+        );
+    }
+
+    /* =====================================================
+    TEMPLATE IMPORTER
+    ===================================================== */
+
+    function initTemplateImporter() {
+        const config = document.getElementById("cbOpenListConfig");
+
+        const select = document.getElementById("cbOpenTemplateSelect");
+
+        const importButton = document.getElementById("cbOpenTemplateImportBtn");
+
+        const status = document.getElementById("cbOpenTemplateImportStatus");
+
+        /*
+         * Template Import UI가 없는 페이지에서는
+         * 아무 작업도 하지 않습니다.
+         *
+         * template_manage_mode 또는
+         * from_template=1 등의 경우를 안전하게 처리합니다.
+         */
+        if (!config || !select || !importButton) {
+            return;
+        }
+
+        const templateApi = config.dataset.templateApi;
+
+        let templates = [];
+
+        /* =================================================
+        STATUS
+        ================================================= */
+
+        const setStatus = (message, isError = false) => {
+            if (!status) {
+                return;
+            }
+
+            status.textContent = message || "";
+
+            status.classList.toggle("is-error", isError);
+        };
+
+        /* =================================================
+        RESET TEMPLATE SELECT
+        ================================================= */
+
+        const resetTemplateSelect = (message = "템플릿을 선택하세요") => {
+            templates = [];
+
+            select.innerHTML = "";
+
+            const option = document.createElement("option");
+
+            option.value = "";
+            option.textContent = message;
+
+            select.appendChild(option);
+
+            select.value = "";
+
+            importButton.disabled = true;
+        };
+
+        /* =================================================
+        LOAD TEMPLATES
+        ================================================= */
+
+        const loadTemplates = async () => {
+            /*
+             * HTML 렌더링 당시의
+             * default_aircraft_model이 아니라
+             * 현재 Select에서 선택된 기종을 사용합니다.
+             */
+            const aircraftModel = cleanText(
+                aircraftModelSelect?.value || config.dataset.aircraftModel,
+            );
+
+            /*
+             * 기종이 선택되지 않은 경우
+             */
+            if (!aircraftModel) {
+                resetTemplateSelect("먼저 기종을 선택하세요");
+
+                select.disabled = true;
+
+                setStatus("기종을 선택하면 해당 기종의 템플릿을 불러옵니다.");
+
+                return;
+            }
+
+            select.innerHTML = "";
+
+            const loadingOption = document.createElement("option");
+
+            loadingOption.value = "";
+
+            loadingOption.textContent = "템플릿을 불러오는 중...";
+
+            select.appendChild(loadingOption);
+
+            select.disabled = true;
+
+            importButton.disabled = true;
+
+            setStatus(`${aircraftModel} 템플릿을 확인하는 중입니다.`);
+
+            try {
+                const url = new URL(templateApi, window.location.origin);
+
+                url.searchParams.set("aircraft_model", aircraftModel);
+
+                const response = await fetch(url.toString(), {
+                    method: "GET",
+
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                });
+
+                /*
+                 * 로그인 페이지 등으로
+                 * Redirect 된 경우
+                 */
+                if (response.redirected) {
+                    throw new Error("로그인 상태를 확인해 주세요.");
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || "템플릿을 불러올 수 없습니다.",
+                    );
+                }
+
+                templates = Array.isArray(data.templates) ? data.templates : [];
+
+                select.innerHTML = "";
+
+                const defaultOption = document.createElement("option");
+
+                defaultOption.value = "";
+
+                defaultOption.textContent = "템플릿을 선택하세요";
+
+                select.appendChild(defaultOption);
+
+                templates.forEach((template) => {
+                    const option = document.createElement("option");
+
+                    option.value = String(template.id);
+
+                    option.textContent = template.name;
+
+                    select.appendChild(option);
+                });
+
+                select.disabled = false;
+
+                /*
+                 * 해당 기종에 Template 없음
+                 */
+                if (templates.length === 0) {
+                    setStatus(`${aircraftModel}에 저장된 템플릿이 없습니다.`);
+
+                    return;
+                }
+
+                setStatus(
+                    `${aircraftModel} · ${templates.length}개의 템플릿을 불러왔습니다.`,
+                );
+            } catch (error) {
+                templates = [];
+
+                select.innerHTML = "";
+
+                const errorOption = document.createElement("option");
+
+                errorOption.value = "";
+
+                errorOption.textContent = "템플릿을 불러올 수 없습니다";
+
+                select.appendChild(errorOption);
+
+                select.disabled = true;
+
+                importButton.disabled = true;
+
+                setStatus(
+                    error.message || "템플릿을 불러올 수 없습니다.",
+                    true,
+                );
+            }
+        };
+
+        /* =================================================
+        TEMPLATE SELECT
+        ================================================= */
+
+        select.addEventListener("change", () => {
+            importButton.disabled = !select.value;
+
+            if (!select.value) {
+                return;
+            }
+
+            const selectedTemplate = templates.find(
+                (item) => String(item.id) === String(select.value),
+            );
+
+            if (selectedTemplate) {
+                setStatus(`'${selectedTemplate.name}' 템플릿을 선택했습니다.`);
+            }
+        });
+
+        /* =================================================
+        IMPORT BUTTON
+        ================================================= */
+
+        importButton.addEventListener("click", async () => {
+            const templateId = String(select.value || "");
+
+            if (!templateId) {
+                setStatus("불러올 템플릿을 선택해 주세요.", true);
+
+                return;
+            }
+
+            const template = templates.find(
+                (item) => String(item.id) === templateId,
+            );
+
+            if (!template) {
+                setStatus("선택한 템플릿 정보를 찾을 수 없습니다.", true);
+
+                return;
+            }
+
+            importButton.disabled = true;
+
+            try {
+                await importTemplateRows(template);
+
+                setStatus(
+                    `'${template.name}' 템플릿을 C/B OPEN LIST에 추가했습니다.`,
+                );
+
+                /*
+                 * 가져온 후 Select 초기화
+                 */
+                select.value = "";
+            } catch (error) {
+                console.error("C/B 템플릿 가져오기 오류", error);
+
+                setStatus(
+                    error.message || "템플릿을 가져오지 못했습니다.",
+                    true,
+                );
+            } finally {
+                importButton.disabled = !select.value;
+            }
+        });
+
+        /* =================================================
+        AIRCRAFT CHANGE
+        ================================================= */
+
+        aircraftModelSelect?.addEventListener("change", () => {
+            /*
+             * 기존 기종의 Template 목록 제거
+             */
+            resetTemplateSelect();
+
+            setStatus("");
+
+            /*
+             * 새 기종의 Template 목록 조회
+             */
+            void loadTemplates();
+        });
+
+        /* =================================================
+        INITIAL LOAD
+        ================================================= */
+
+        void loadTemplates();
+    }
+
+    /* =====================================================
+    READY
+    ===================================================== */
+
     document.body.dataset.cbOpenReady = "true";
+
+    /*
+     * Template Manager에서
+     * "C/B 문서에 적용"으로 넘어온 Template 처리
+     */
+    importSelectedTemplate();
+
+    /*
+     * Open List 오른쪽의
+     * Template 가져오기 UI 초기화
+     */
+    initTemplateImporter();
 });
