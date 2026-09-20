@@ -579,7 +579,7 @@ main 위
     font-weight: 600;
 }
 
-#cbManagedTemplateName[readonly] {
+#cbManagedTemplateName[type="text"] {
     background-color: #eef3f8;
     color: #34495e;
     border-color: #cbd5e1;

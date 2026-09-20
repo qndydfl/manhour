@@ -469,7 +469,7 @@
          *
          * C/B 데이터로 절대 처리하지 않음
          */
-        if (/^AAR(?:\s|,|\d|ALL\b)/i.test(raw)) {
+        if (/^AAR/i.test(raw)) {
             return null;
         }
 
@@ -549,13 +549,23 @@
         ===================================================== */
 
         function isEffectivityLine(line) {
-            return /^AAR(?:\s|,|\d|ALL\b)/i.test(clean(line));
+            return /^AAR/i.test(clean(line));
         }
 
         function normalizeEffectivity(line) {
-            return clean(line)
-                .replace(/^AAR(?=\d)/i, "AAR ")
-                .replace(/^AARALL\b/i, "AAR ALL");
+            const value = clean(line);
+
+            if (!/^AAR/i.test(value)) {
+                return value;
+            }
+
+            const body = value
+                .replace(/^AAR/i, "")
+                .trim();
+
+            return body
+                ? `AAR ${body}`
+                : "AAR";
         }
 
         function makeEffectivityRecord(line) {
@@ -588,7 +598,24 @@
         function isPanelTitle(line) {
             const value = clean(line);
 
-            return /\bPanel\b/i.test(value) && Boolean(extractPanelCode(value));
+            if (!value) {
+                return false;
+            }
+
+            /*
+            * 지원 예:
+            *
+            * Right Power Management Panel, P210
+            * Left Power Management Panel, P110
+            * LeftPowerManagementPanel,P110
+            * Overhead Circuit Breaker Panel, P11
+            */
+            return (
+                /Panel/i.test(value) &&
+                Boolean(
+                    extractPanelCode(value),
+                )
+            );
         }
 
         /* =====================================================
@@ -689,6 +716,121 @@
             const hasEffectivity = dataLines.some((line) =>
                 isEffectivityLine(line),
             );
+
+
+            /* =====================================================
+            BOEING SEQUENTIAL ROW-MAJOR
+
+            예:
+
+            A 2 C21303 FWDGLYHTR
+            B 2 C21304 AFTGLYHTR1
+            C 2 C21305 AFTGLYHTR2
+            AAR121,122PRESB777-24-0145
+            D 5 C21328 MIDGLYHTR(ZONEE)
+            AARALL
+            H 21 C21650 AFTGLYHTR1&2CTRL
+            H 22 C21649 FWDGLYHTRCTRL
+            AAR121,122PRESB777-24-0145
+            J 19 C21696 MIDGLYHTR(ZONEE)CTRL
+
+            AAR과 완전한 C/B Row가 순차적으로
+            섞여 있는 경우입니다.
+            ===================================================== */
+
+            let sequentialValid = true;
+            let sequentialCBCount = 0;
+
+            const sequentialRecords = [];
+
+
+            for (const line of dataLines) {
+                const value = clean(line);
+
+                if (!value) {
+                    continue;
+                }
+
+
+                /* -------------------------------------------------
+                AAR
+
+                AARALL
+                AAR121,122PRESB777-24-0145
+                ------------------------------------------------- */
+
+                if (isEffectivityLine(value)) {
+                    sequentialRecords.push(
+                        makeEffectivityRecord(
+                            value,
+                        ),
+                    );
+
+                    continue;
+                }
+
+
+                /* -------------------------------------------------
+                완전한 C/B Row
+
+                A 2 C21303 FWDGLYHTR
+                D 5 C21328 MIDGLYHTR(ZONEE)
+                H 21 C21650 AFTGLYHTR1&2CTRL
+                ------------------------------------------------- */
+
+                const parsed =
+                    parseBoeingRowLine(
+                        value,
+                    );
+
+
+                if (parsed) {
+                    sequentialRecords.push(
+                        makeRecord(
+                            panel,
+                            parsed.row,
+                            parsed.col,
+                            parsed.description,
+                        ),
+                    );
+
+                    sequentialCBCount += 1;
+
+                    continue;
+                }
+
+
+                /*
+                * 하나라도 알 수 없는 줄이 있으면
+                * sequential 형식이 아니므로
+                * 기존 parser에게 넘깁니다.
+                */
+                sequentialValid = false;
+
+                break;
+            }
+
+
+            /*
+            * 모든 줄이
+            *
+            * - AAR
+            * 또는
+            * - 완전한 C/B Row
+            *
+            * 로 구성된 경우에만 sequential parser 사용
+            */
+            if (
+                sequentialValid &&
+                sequentialCBCount > 0
+            ) {
+                records.push(
+                    ...sequentialRecords,
+                );
+
+                continue;
+            }
+
 
             /* =================================================
             CASE 1
