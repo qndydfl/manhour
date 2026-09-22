@@ -132,3 +132,24 @@ test("mixed Boeing copy styles in one panel are parsed by section", () => {
         ],
     );
 });
+
+test("Boeing dashed header and number-only panel are accepted", () => {
+    const rows = parse(
+        "Aft APU Equipment Control and Circuit Breaker Panel, P83\n" +
+            "Row Col Number Name------\n" +
+            "C08815\n" +
+            "APU PRIME CONTROL\n" +
+            "Main Power Distribution Panel, P6\n" +
+            "Row Col Number Name\n" +
+            "K\n" +
+            "18 C08814 APUALT CONTROL",
+    );
+
+    assert.deepEqual(
+        rows.map((row) => [row.panel_loc, row.cb_loc, row.description]),
+        [
+            ["P83", "", "APU PRIME CONTROL"],
+            ["P6", "K 18", "APUALT CONTROL"],
+        ],
+    );
+});

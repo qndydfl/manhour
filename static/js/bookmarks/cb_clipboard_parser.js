@@ -360,7 +360,7 @@
     ===================================================== */
 
     const BOEING_HEADER =
-        /^Row\s*(?:,|\s+)\s*Col(?:umn)?\s*(?:,|\s+)\s*Number\s*(?:,|\s+)\s*Name$/i;
+        /^Row\s*(?:,|\s+)\s*Col(?:umn)?\s*(?:,|\s+)\s*Number\s*(?:,|\s+)\s*Name(?:-+)?$/i;
 
     /* =====================================================
     PANEL
@@ -1011,6 +1011,36 @@
                 completedTailCount += 1;
             }
         });
+
+        /* =================================================
+        ROW/COL 없이 NUMBER + DESCRIPTION만 제공되는 PANEL
+
+        예:
+        C08815
+        APU PRIME CONTROL
+
+        위치는 공란으로 두고 PANEL과 DESCRIPTION을 보존합니다.
+        ================================================= */
+
+        if (
+            rows.length === 0 &&
+            cols.length === 0 &&
+            packedRows.length === 0 &&
+            completeRows.length === 0 &&
+            numbers.length > 0 &&
+            numbers.length === descriptions.length
+        ) {
+            return descriptions.map((description, index) => {
+                const result = [];
+                if (effectivities[index]) {
+                    result.push(
+                        makeBoeingEffectivityRecord(effectivities[index]),
+                    );
+                }
+                result.push(makeBoeingRecord(panel, "", "", description));
+                return result;
+            }).flat();
+        }
 
         /* =================================================
         CASE A
