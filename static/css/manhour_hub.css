@@ -534,6 +534,23 @@
     max-width: 370px;
 }
 
+.mh-session-list-page .mh-session-grid.mh-session-grid-centered {
+    width: 100%;
+    margin-inline: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.mh-session-list-page
+    .mh-session-grid.mh-session-grid-centered
+    > .mh-session-card {
+    width: min(100%, 370px);
+    max-width: 370px;
+    flex: 0 1 370px;
+}
+
 .mh-session-list-page .mh-session-card {
     position: relative;
     overflow: hidden;

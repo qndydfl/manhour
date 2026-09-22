@@ -6,7 +6,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manhour_hub.css' %}?v=20260904-3"
+    href="{% static 'css/manhour_hub.css' %}?v=20260922-4"
 />
 {% endblock css %} 
 
@@ -84,7 +84,7 @@
             </span>
         </div>
 
-        <div class="mh-session-grid{% if active_count == 1 %} mh-session-grid-single{% endif %}">
+        <div class="mh-session-grid{% if active_count == 1 %} mh-session-grid-single{% endif %}{% if active_count > 0 and active_count <= 3 %} mh-session-grid-centered{% endif %}">
             {% for session in active_sessions %}
 
             <article
