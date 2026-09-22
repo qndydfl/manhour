@@ -651,6 +651,14 @@ test("template import highlights rows that duplicate existing document data", as
             2,
         );
 
+        await page.evaluate(() =>
+            window.dispatchEvent(new Event("beforeprint")),
+        );
+        assert.equal(
+            await page.locator(".cb-print-page tr.cb-open-row-duplicate").count(),
+            0,
+        );
+
         await page
             .locator('#cbOpenListBody [data-field="fin"]')
             .nth(1)

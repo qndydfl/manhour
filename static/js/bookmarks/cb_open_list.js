@@ -2063,6 +2063,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 printTable.getBoundingClientRect().height <=
                 availableTableHeight();
             const appendRow = (row) => {
+                // 중복 표시는 편집 화면 전용입니다. 인쇄용 복제본에는
+                // 강조색과 번호 칸의 "중복" 표식을 전달하지 않습니다.
+                row.classList.remove("cb-open-row-duplicate");
                 row.querySelectorAll("[id]").forEach((child) =>
                     child.removeAttribute("id"),
                 );
