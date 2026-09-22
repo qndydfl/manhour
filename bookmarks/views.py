@@ -115,6 +115,11 @@ class CBTemplateLibraryView(
             )
 
         context["aircraft_groups"] = aircraft_groups
+        context["aircraft_models"] = [aircraft.code for aircraft in aircraft_models]
+        context["can_manage_cb"] = (
+            self.request.session.get("user_role") == "admin"
+            or self.request.user.is_superuser
+        )
 
         return context
 
@@ -128,18 +133,29 @@ class CBAircraftHomeView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        aircraft_model = self.kwargs.get("aircraft_model", "").strip().upper()
+        requested_model = self.kwargs.get("aircraft_model", "").strip().upper()
 
         aircraft = CBAircraftModel.objects.filter(
-            code=aircraft_model,
+            code__iexact=requested_model,
         ).first()
+        if aircraft is None:
+            aircraft = next(
+                (
+                    item
+                    for item in CBAircraftModel.objects.all()
+                    if item.code.strip().upper() == requested_model
+                ),
+                None,
+            )
         if aircraft is None:
             raise Http404(
                 "등록되지 않은 기종입니다."
             )
 
+        aircraft_model = aircraft.code.strip().upper()
+
         templates = CBTemplate.objects.filter(
-            aircraft_model=aircraft_model,
+            aircraft_model__iexact=aircraft.code,
         ).order_by(
             "name",
         )
@@ -202,7 +218,10 @@ class CBAircraftModelView(
         return JsonResponse({"aircraft_models": get_aircraft_models()})
 
     def post(self, request):
-        if request.session.get("user_role") != "admin":
+        if (
+            request.session.get("user_role") != "admin"
+            and not request.user.is_superuser
+        ):
             return JsonResponse(
                 {"error": "관리자만 기종을 " "변경할 수 있습니다."},
                 status=403,

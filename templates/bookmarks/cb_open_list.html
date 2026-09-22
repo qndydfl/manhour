@@ -18,7 +18,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260919-2"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260922-3"
 />
 {% endblock css %} {% block js %}
 <script
@@ -31,7 +31,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260919-1"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20260922-2"
 ></script>
 {% endblock js %} {% block content %}
 <!-- =====================================================
@@ -207,6 +207,16 @@
                 maxlength="100"
                 placeholder="템플릿 이름"
             />
+        </div>
+        {% else %}
+        <div class="cb-template-order-guide" role="note">
+            <span class="cb-template-order-guide-icon" aria-hidden="true">
+                <i class="bi bi-lightbulb-fill"></i>
+            </span>
+            <span>
+                <strong>입력 순서 안내</strong>
+                공통 C/B는 ENGINE C/B보다 위에 위치하세요.
+            </span>
         </div>
         {% endif %}
     </div>
@@ -819,8 +829,8 @@
             </button>
         </div>
         <small class="cb-open-row-filter-help"
-            >병합된 제목을 검색하면 다음 병합 제목 전까지 한 구역으로
-            선택됩니다.</small
+            >FOR FIN 키워드를 검색하면 다음 FOR FIN 제목 전까지 선택되며,
+            첫 FOR FIN 위의 공통 C/B는 항상 함께 표시됩니다.</small
         >
         <div
             id="cbOpenRowFilterList"

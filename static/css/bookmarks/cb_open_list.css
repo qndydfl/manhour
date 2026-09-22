@@ -579,6 +579,63 @@ main 위
     font-weight: 600;
 }
 
+.cb-template-order-guide {
+    margin-top: 8px;
+    padding: 9px 10px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid #e5a72e;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #fff8dd, #ffedb5);
+    color: #70420a;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.4;
+    box-shadow: 0 5px 14px rgba(180, 111, 10, 0.14);
+    animation: cbTemplateGuideAttention 0.9s ease-in-out 3;
+}
+
+.cb-template-order-guide strong {
+    display: block;
+    margin-bottom: 1px;
+    color: #8a4b05;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.cb-template-order-guide-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    flex: 0 0 30px;
+    place-items: center;
+    border-radius: 8px;
+    background: #f59e0b;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+@keyframes cbTemplateGuideAttention {
+    0%,
+    100% {
+        border-color: #e5a72e;
+        box-shadow: 0 5px 14px rgba(180, 111, 10, 0.14);
+        transform: translateY(0);
+    }
+    50% {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+        transform: translateY(-1px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-template-order-guide {
+        animation: none;
+    }
+}
+
 #cbManagedTemplateName[type="text"] {
     background-color: #eef3f8;
     color: #34495e;
@@ -1219,6 +1276,28 @@ EDITABLE CELL
 
 .cb-open-cell-editor.is-pasted {
     animation: cbPasteFlash 0.3s ease;
+}
+
+.cb-open-row-duplicate > td {
+    background: #fff4df !important;
+    box-shadow: inset 0 1px 0 #f4b860, inset 0 -1px 0 #f4b860;
+}
+
+.cb-open-row-duplicate > .cb-open-number-cell {
+    position: relative;
+    background: #f59e0b !important;
+    color: #ffffff;
+    font-weight: 850;
+}
+
+.cb-open-row-duplicate > .cb-open-number-cell::after {
+    content: "중복";
+    position: absolute;
+    right: 2px;
+    bottom: 1px;
+    font-size: 7px;
+    font-weight: 800;
+    line-height: 1;
 }
 
 @keyframes cbPasteFlash {
@@ -2462,6 +2541,19 @@ PRINT
     }
 
     .cb-open-page {
+        display: none !important;
+    }
+
+    .cb-open-row-duplicate > td {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .cb-open-row-duplicate > .cb-open-number-cell {
+        color: inherit !important;
+    }
+
+    .cb-open-row-duplicate > .cb-open-number-cell::after {
         display: none !important;
     }
 

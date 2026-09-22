@@ -857,6 +857,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        editor.addEventListener("input", () => {
+            refreshDuplicateRows();
+        });
+
         /*
          * 일반 셀 붙여넣기
          */
@@ -1325,14 +1329,29 @@ document.addEventListener("DOMContentLoaded", () => {
             .some((merge) => merge.r === rowIndex && merge.cols > 1);
     }
 
+    function isForFinSectionHeading(row) {
+        return (
+            isSectionHeading(row) &&
+            /(?:^|\s)FOR\s+FIN\b/i.test(rowSearchText(row))
+        );
+    }
+
+    function commonRowIndexes(rows) {
+        const firstSection = rows.findIndex(isForFinSectionHeading);
+        if (firstSection <= 0) return new Set();
+        return new Set(
+            Array.from({ length: firstSection }, (_value, index) => index),
+        );
+    }
+
     function keywordMatches(rows, keyword) {
         const matches = new Set();
         rows.forEach((row, index) => {
             if (!rowSearchText(row).includes(keyword)) return;
             matches.add(index);
-            if (!isSectionHeading(row)) return;
+            if (!isForFinSectionHeading(row)) return;
             for (let next = index + 1; next < rows.length; next += 1) {
-                if (isSectionHeading(rows[next])) break;
+                if (isForFinSectionHeading(rows[next])) break;
                 matches.add(next);
             }
         });
@@ -1366,9 +1385,11 @@ document.addEventListener("DOMContentLoaded", () => {
             conditions.push(keywordMatches(rows, keyword)),
         );
         const useAnd = rowFilterLogic?.value !== "or";
+        const commonMatches = commonRowIndexes(rows);
         rows.forEach((row, index) => {
             const included =
                 conditions.length === 0 ||
+                commonMatches.has(index) ||
                 (useAnd
                     ? conditions.every((matches) => matches.has(index))
                     : conditions.some((matches) => matches.has(index)));
@@ -3557,11 +3578,51 @@ document.addEventListener("DOMContentLoaded", () => {
         createRow: () => createRow(1),
         changed: () => {
             updateRowNumbers();
+            refreshDuplicateRows();
             updateTableSizing();
             scheduleSheetScale();
             saveWorkspace();
         },
     });
+
+    function duplicateRowKey(row) {
+        if (!rowHasData(row) || isSectionHeading(row)) return "";
+        return ["panel_loc", "cb_loc", "fin", "description", "warning"]
+            .map((field) =>
+                cleanText(
+                    row.querySelector(`[data-field="${field}"]`)?.innerText,
+                )
+                    .replace(/\s+/g, " ")
+                    .toUpperCase(),
+            )
+            .join("\u001f");
+    }
+
+    function refreshDuplicateRows(showNotice = false) {
+        const rows = Array.from(tableBody.children);
+        const groups = new Map();
+        rows.forEach((row) => {
+            row.classList.remove("cb-open-row-duplicate");
+            const key = duplicateRowKey(row);
+            if (!key) return;
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push(row);
+        });
+        const duplicateRows = [];
+        groups.forEach((group) => {
+            if (group.length < 2) return;
+            group.forEach((row) => {
+                row.classList.add("cb-open-row-duplicate");
+                duplicateRows.push(row);
+            });
+        });
+        if (showNotice && duplicateRows.length) {
+            showSaveMessage(
+                `기존 데이터와 겹치는 ${duplicateRows.length}개 행을 표시했습니다.`,
+            );
+        }
+        return duplicateRows.length;
+    }
 
     /*
      * 개별 행 드래그 이동
@@ -3825,14 +3886,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             rebuildRowFilter();
 
-            saveWorkspace();
-        }
+            const duplicateCount = refreshDuplicateRows(true);
 
-        showSaveMessage(
-            `${
-                pending.name || "기본"
-            } 템플릿 ${added}행을 문서에 추가했습니다.`,
-        );
+            saveWorkspace();
+
+            if (!duplicateCount) {
+                showSaveMessage(
+                    `${pending.name || "기본"} 템플릿 ${added}행을 문서에 추가했습니다.`,
+                );
+            }
+        }
     }
 
     /* =====================================================
@@ -4002,14 +4065,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         rebuildRowFilter();
 
+        const duplicateCount = refreshDuplicateRows(true);
+
         /*
          * 현재 브라우저 Workspace 저장
          */
         saveWorkspace();
 
-        showSaveMessage(
-            `${template.name} 템플릿 ${added}행을 문서에 추가했습니다.`,
-        );
+        if (!duplicateCount) {
+            showSaveMessage(
+                `${template.name} 템플릿 ${added}행을 문서에 추가했습니다.`,
+            );
+        }
     }
 
     /* =====================================================

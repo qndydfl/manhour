@@ -431,6 +431,12 @@ test("template application lets the user filter rows shown on screen and in prin
                     name: "Engine",
                     rows: [
                         {
+                            panel_loc: "P6",
+                            cb_loc: "A01",
+                            fin: "COMMON",
+                            description: "COMMON POWER",
+                        },
+                        {
                             panel_loc: "P11",
                             cb_loc: "",
                             fin: "",
@@ -501,16 +507,16 @@ test("template application lets the user filter rows shown on screen and in prin
         );
         assert.equal(
             await page.locator("#cbOpenRowFilterList input").count(),
-            5,
+            6,
         );
         assert.match(
             await page.locator("#cbOpenRowFilterStatus").textContent(),
-            /5개 중 5개/,
+            /6개 중 6개/,
         );
         assert.equal(
             await page
                 .locator('#cbOpenListBody [data-field="panel_loc"]')
-                .first()
+                .nth(1)
                 .evaluate((el) => el.closest("td").colSpan),
             4,
         );
@@ -526,7 +532,7 @@ test("template application lets the user filter rows shown on screen and in prin
         await page.locator("#cbOpenRowFilterList input").nth(1).uncheck();
         assert.match(
             await page.locator("#cbOpenRowFilterStatus").textContent(),
-            /5개 중 4개/,
+            /6개 중 5개/,
         );
         assert.equal(
             await page
@@ -538,7 +544,7 @@ test("template application lets the user filter rows shown on screen and in prin
         await page.click("#cbOpenRowFilterApply");
         assert.match(
             await page.locator("#cbOpenRowFilterStatus").textContent(),
-            /5개 중 3개/,
+            /6개 중 4개/,
         );
         assert.equal(
             await page
@@ -551,23 +557,91 @@ test("template application lets the user filter rows shown on screen and in prin
         await page.click("#cbOpenRowFilterApply");
         assert.match(
             await page.locator("#cbOpenRowFilterStatus").textContent(),
-            /5개 중 2개/,
+            /6개 중 3개/,
         );
         await page.selectOption("#cbOpenRowFilterLogic", "or");
         await page.click("#cbOpenRowFilterApply");
         assert.match(
             await page.locator("#cbOpenRowFilterStatus").textContent(),
-            /5개 중 3개/,
+            /6개 중 4개/,
         );
         await page.evaluate(() =>
             window.dispatchEvent(new Event("beforeprint")),
         );
         const printText = await page.locator(".cb-print-pages").innerText();
         assert.ok(printText.includes("FOR FIN 4000EM1(ENGINE-1)"));
+        assert.ok(printText.includes("COMMON POWER"));
         assert.ok(printText.includes("LP VLV MOT2 ENG 1"));
         assert.ok(printText.includes("LP VLV MOT1 ENG 1"));
         assert.ok(!printText.includes("FOR FIN 4000EM2(ENGINE-2)"));
         assert.ok(!printText.includes("LP VLV MOT1 ENG 2"));
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+    }
+});
+
+test("template import highlights rows that duplicate existing document data", async () => {
+    const browser = await chromium.launch({
+        channel: "msedge",
+        headless: true,
+    });
+    try {
+        const duplicate = {
+            panel_loc: "P11",
+            cb_loc: "A01",
+            fin: "1QG1",
+            description: "LP VLV MOT1 ENG 1",
+            warning: "",
+        };
+        const { page, errors } = await fixture(browser, "cb_open_list", [
+            {
+                id: 7,
+                aircraft_model: "B777",
+                name: "Engine",
+                rows: [duplicate],
+            },
+        ]);
+
+        for (const [field, value] of Object.entries(duplicate)) {
+            await page
+                .locator(`#cbOpenListBody [data-field="${field}"]`)
+                .first()
+                .fill(value);
+        }
+
+        await page.locator("#cbOpenAircraftModel").evaluate((select) => {
+            if (![...select.options].some((option) => option.value === "B777")) {
+                select.add(new Option("B777", "B777"));
+            }
+            select.value = "B777";
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        await page.waitForFunction(
+            () => document.querySelector("#cbOpenTemplateSelect option[value='7']"),
+        );
+        await page.selectOption("#cbOpenTemplateSelect", "7");
+        await page.click("#cbOpenTemplateImportBtn");
+
+        await page.waitForFunction(
+            () =>
+                document.querySelectorAll(
+                    "#cbOpenListBody tr.cb-open-row-duplicate",
+                ).length === 2,
+        );
+        assert.match(
+            await page.locator("#cbOpenSaveMessage").textContent(),
+            /겹치는 2개 행/,
+        );
+
+        await page
+            .locator('#cbOpenListBody [data-field="fin"]')
+            .nth(1)
+            .fill("2QG1");
+        assert.equal(
+            await page.locator("#cbOpenListBody tr.cb-open-row-duplicate").count(),
+            0,
+        );
         assert.deepEqual(errors, []);
     } finally {
         await browser.close();
