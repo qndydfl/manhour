@@ -10,7 +10,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260915-7"
+    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260922-8"
 />
 {% endblock css %} {% block js %} {{ block.super }}
 <script
@@ -142,6 +142,12 @@
                 <h2>
                     {{ group.aircraft_model }}
                 </h2>
+
+                {% if group.representative_submodel %}
+                <span class="cb-aircraft-representative-submodel">
+                    ({{ group.representative_submodel }})
+                </span>
+                {% endif %}
 
                 <p>
                     C/B 문서 및 템플릿 관리

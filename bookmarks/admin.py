@@ -21,6 +21,7 @@ class CBAircraftModelAdmin(admin.ModelAdmin):
 
     list_display = (
         "code",
+        "representative_submodel",
         "image_preview",
     )
 
@@ -30,6 +31,7 @@ class CBAircraftModelAdmin(admin.ModelAdmin):
 
     fields = (
         "code",
+        "representative_submodel",
         "image",
         "image_preview",
     )

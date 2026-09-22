@@ -11,7 +11,7 @@ from manhour.views import SimpleLoginRequiredMixin
 from .models import CBAircraftModel, CBTemplate
 from .cb_merges import clean_template_merges
 
-AIRCRAFT_MODELS = ["A320", "A330", "A350", "A380", "B737", "B747", "B777"]
+AIRCRAFT_MODELS = ["A220", "A321", "A330", "A350", "A380", "B737", "B747", "B777", "B787"]
 
 
 def get_aircraft_models():
@@ -108,6 +108,7 @@ class CBTemplateLibraryView(
             aircraft_groups.append(
                 {
                     "aircraft_model": aircraft.code,
+                    "representative_submodel": aircraft.representative_submodel,
                     "image": (aircraft.image.url if aircraft.image else ""),
                     "template_count": len(model_templates),
                     "templates": model_templates,

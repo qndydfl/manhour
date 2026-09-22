@@ -8,6 +8,13 @@ class CBAircraftModel(models.Model):
         verbose_name="기종",
     )
 
+    representative_submodel = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="대표 서브 기종",
+        help_text="기종 카드 아래에 작게 표시됩니다. 예: A321-200",
+    )
+
     image = models.ImageField(
         upload_to="images/bookmarks/aircraft/",
         blank=True,
