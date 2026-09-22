@@ -971,6 +971,47 @@
             }
         }
 
+        const effectivityTargetCount = completeRows.length + rows.length;
+        const canAttachEffectivity =
+            effectivityTargetCount > 0 &&
+            effectivities.length === effectivityTargetCount;
+        const effectivityGroups = Array.from(
+            { length: rows.length },
+            () => [],
+        );
+        let pendingEffectivities = [];
+        let effectivityRowIndex = -1;
+        let completedTailCount = 0;
+
+        tokens.forEach((token, index) => {
+            if (token.type === "effectivity") {
+                const nextToken = tokens[index + 1];
+                if (
+                    nextToken?.type === "row" ||
+                    effectivityRowIndex < 0 ||
+                    completedTailCount > effectivityRowIndex
+                ) {
+                    pendingEffectivities.push(token.value);
+                } else {
+                    effectivityGroups[effectivityRowIndex]?.push(token.value);
+                }
+                return;
+            }
+
+            if (token.type === "row") {
+                effectivityRowIndex += 1;
+                effectivityGroups[effectivityRowIndex]?.push(
+                    ...pendingEffectivities,
+                );
+                pendingEffectivities = [];
+                return;
+            }
+
+            if (token.type === "packed" || token.type === "description") {
+                completedTailCount += 1;
+            }
+        });
+
         /* =================================================
         CASE A
         모든 C/B가 complete row
@@ -1290,8 +1331,7 @@
                 "description"
             ) {
                 if (
-                    pendingCol &&
-                    pendingNumber
+                    pendingCol
                 ) {
                     semanticTails.push({
                         col:
@@ -1386,12 +1426,6 @@
             });
         }
 
-        const cbCount =
-            reconstructed.length;
-        
-        const canAttachEffectivity =
-            effectivities.length === cbCount;
-
         /* =================================================
         AAR + C/B OUTPUT
         ================================================= */
@@ -1408,19 +1442,10 @@
              * AAR가 C/B 수와 동일하게
              * 검출되었다면 index 기준 연결
              */
-            if (
-                effectivities[
-                    index
-                ]
-            ) {
-                records.push(
-                    makeBoeingEffectivityRecord(
-                        effectivities[
-                            index
-                        ],
-                    ),
-                );
-            }
+            const rowEffectivities = effectivityGroups[index] || [];
+            rowEffectivities.forEach((effectivity) => {
+                records.push(makeBoeingEffectivityRecord(effectivity));
+            });
 
             const item =
                 reconstructed[
