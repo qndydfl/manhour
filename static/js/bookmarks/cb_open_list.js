@@ -866,12 +866,16 @@ document.addEventListener("DOMContentLoaded", () => {
          */
         editor.addEventListener("paste", (event) => {
             const text = event.clipboardData.getData("text/plain");
+            const isVerticalTable =
+                /^\s*PANEL\s*\r?\n\s*(?:DESIGNATION|DESCRIPTION)\s*\r?\n\s*FIN\s*\r?\n\s*(?:LOCATION|C\/B\s*LOC'?|CB\s*LOC'?)\s*\r?\n/i.test(
+                    text,
+                );
 
             /*
              * TAB이 있으면
              * 전체 행 매핑 기능으로 넘김
              */
-            if (text.includes("\t")) {
+            if (text.includes("\t") || isVerticalTable) {
                 return;
             }
 
@@ -1795,6 +1799,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateTableSizing();
         scheduleSheetScale();
         rebuildRowFilter();
+        refreshDuplicateRows(true);
         return records.length;
     }
 
@@ -3505,12 +3510,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const text = event.clipboardData.getData("text/plain");
+        const isVerticalTable =
+            /^\s*PANEL\s*\r?\n\s*(?:DESIGNATION|DESCRIPTION)\s*\r?\n\s*FIN\s*\r?\n\s*(?:LOCATION|C\/B\s*LOC'?|CB\s*LOC'?)\s*\r?\n/i.test(
+                text,
+            );
 
         /*
          * 단일 셀 붙여넣기는
          * createCellEditor에서 처리
          */
-        if (!text.includes("\t")) {
+        if (!text.includes("\t") && !isVerticalTable) {
             return;
         }
 
@@ -3587,7 +3596,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function duplicateRowKey(row) {
         if (!rowHasData(row) || isSectionHeading(row)) return "";
-        return ["panel_loc", "cb_loc", "fin", "description", "warning"]
+        return TABLE_FIELDS
             .map((field) =>
                 cleanText(
                     row.querySelector(`[data-field="${field}"]`)?.innerText,
@@ -3618,7 +3627,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (showNotice && duplicateRows.length) {
             showSaveMessage(
-                `기존 데이터와 겹치는 ${duplicateRows.length}개 행을 표시했습니다.`,
+                `모든 값이 같은 중복 데이터 ${duplicateRows.length}개 행을 표시했습니다.`,
             );
         }
         return duplicateRows.length;

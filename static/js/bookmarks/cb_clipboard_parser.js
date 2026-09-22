@@ -46,6 +46,83 @@
     }
 
     /* =====================================================
+       AIRBUS VERTICAL TABLE
+       ===================================================== */
+
+    function parseVerticalAirbusTable(rawText) {
+        const rawLines = String(rawText ?? "")
+            .replace(/\r\n?/g, "\n")
+            .split("\n");
+
+        const headerIndexes = [];
+
+        for (let index = 0; index < rawLines.length; index += 1) {
+            if (!clean(rawLines[index])) {
+                continue;
+            }
+
+            headerIndexes.push(index);
+
+            if (headerIndexes.length === 4) {
+                break;
+            }
+        }
+
+        const headers = headerIndexes.map((index) =>
+            clean(rawLines[index]).toUpperCase(),
+        );
+
+        const matches =
+            headers.length === 4 &&
+            headers[0] === "PANEL" &&
+            ["DESIGNATION", "DESCRIPTION"].includes(headers[1]) &&
+            headers[2] === "FIN" &&
+            ["LOCATION", "C/B LOC'", "C/B LOC", "CB LOC'", "CB LOC"].includes(
+                headers[3],
+            );
+
+        if (!matches) {
+            return null;
+        }
+
+        const values = rawLines
+            .slice(headerIndexes[3] + 1)
+            .map((value) => clean(value));
+
+        while (values.length && !values[values.length - 1]) {
+            values.pop();
+        }
+
+        const records = [];
+
+        for (let index = 0; index < values.length; index += 4) {
+            const [panel, designation, fin, location] = values.slice(
+                index,
+                index + 4,
+            );
+
+            if (![panel, designation, fin, location].some(Boolean)) {
+                continue;
+            }
+
+            records.push({
+                cockpit: "",
+                ee: "",
+                etc: "",
+
+                panel_loc: panel || "",
+                cb_loc: location || "",
+                fin: fin || "",
+                description: designation || "",
+
+                warning: "",
+            });
+        }
+
+        return records;
+    }
+
+    /* =====================================================
        AIRBUS MERGED HEADING
        ===================================================== */
 
@@ -53,10 +130,8 @@
         const raw = String(originalLine ?? "");
 
         /*
-         * TAB 데이터는 제목행으로 보지 않습니다.
-         *
-         * DESCRIPTION 안에 쉼표가 있어도
-         * 정상적인 4열 TAB 데이터일 수 있습니다.
+         * TAB 데이터는 제목행으로
+         * 처리하지 않습니다.
          */
         if (raw.includes("\t")) {
             return false;
@@ -64,9 +139,6 @@
 
         const line = clean(raw);
 
-        /*
-         * 원본 HEADER 제외
-         */
         if (isAirbusTableHeader(line)) {
             return false;
         }
@@ -81,10 +153,6 @@
 
         const parts = line.split(",").map(clean).filter(Boolean);
 
-        /*
-         * 쉼표로 구분된 의미 있는 내용이
-         * 2개 이상일 때 제목행으로 판단합니다.
-         */
         return parts.length >= 2;
     }
 
@@ -102,14 +170,12 @@
             warning: "",
 
             /*
-             * PANEL ~ DESCRIPTION
+             * PANEL
+             * C/B LOC'
+             * FIN
+             * DESCRIPTION
              *
-             * panel_loc
-             * cb_loc
-             * fin
-             * description
-             *
-             * 총 4칸 병합
+             * 4칸 병합
              */
             _merges: [
                 {
@@ -119,9 +185,6 @@
                 },
             ],
 
-            /*
-             * 내부 파싱용 임시 Flag
-             */
             _templateMergedHeading: true,
         };
     }
@@ -135,21 +198,17 @@
 
         const records = [];
 
-        /* =================================================
+        /* =============================================
            DESCRIPTION CONTINUATION
-           ================================================= */
+           ============================================= */
 
         function appendDescription(text) {
             if (!records.length) {
                 return false;
             }
 
-            const previous = records.at(-1);
+            const previous = records[records.length - 1];
 
-            /*
-             * 병합 제목행에는
-             * DESCRIPTION을 붙이지 않습니다.
-             */
             if (previous._templateMergedHeading) {
                 return false;
             }
@@ -167,45 +226,28 @@
             return true;
         }
 
-        /* =================================================
-           MERGED HEADING ADD
-           ================================================= */
-
         function pushMergedHeading(line) {
             records.push(makeMergedHeading(line));
         }
 
-        /* =================================================
-           LINE PARSE
-           ================================================= */
-
         lines.forEach((originalLine) => {
-            /*
-             * 비교용 문자열
-             *
-             * originalLine은 TAB 보존용으로
-             * 별도로 계속 사용합니다.
-             */
             const line = clean(originalLine);
 
             if (!line) {
                 return;
             }
 
-            /* =========================================
-                   1. HEADER 제거
-                   ========================================= */
+            /* -----------------------------
+                   HEADER
+                   ----------------------------- */
 
             if (isAirbusTableHeader(originalLine)) {
                 return;
             }
 
-            /* =========================================
-                   2. FOR FIN / ON A/C
-
-                   작업 범위 제목은
-                   PANEL ~ DESCRIPTION 병합
-                   ========================================= */
+            /* -----------------------------
+                   FOR FIN / ON A/C
+                   ----------------------------- */
 
             if (/^FOR\s+FIN\b/i.test(line) || /\bON\s+A\/C\b/i.test(line)) {
                 pushMergedHeading(line);
@@ -213,21 +255,13 @@
                 return;
             }
 
-            /* =========================================
-                   3. TAB DATA
-
-                   가장 먼저 검사합니다.
-
-                   DESCRIPTION 안에 쉼표가 있어도
-                   정상 TAB 데이터일 수 있습니다.
-                   ========================================= */
+            /* -----------------------------
+                   TAB DATA
+                   ----------------------------- */
 
             if (originalLine.includes("\t")) {
                 const columns = originalLine.split("\t").map(clean);
 
-                /*
-                 * TAB 형태 Header 재확인
-                 */
                 if (isAirbusTableHeader(columns.join(" "))) {
                     return;
                 }
@@ -240,15 +274,9 @@
 
                 const location = columns[3] || "";
 
-                /* -------------------------------------
-                       DESCRIPTION continuation
-
-                       빈 PANEL
-                       DESCRIPTION
-                       빈 FIN
-                       빈 LOCATION
-                       ------------------------------------- */
-
+                /*
+                 * DESCRIPTION continuation
+                 */
                 if (!panel && designation && !fin && !location) {
                     if (appendDescription(designation)) {
                         return;
@@ -261,19 +289,8 @@
                     etc: "",
 
                     panel_loc: panel,
-
-                    /*
-                     * Airbus LOCATION
-                     * → C/B LOC'
-                     */
                     cb_loc: location,
-
                     fin,
-
-                    /*
-                     * Airbus DESIGNATION
-                     * → DESCRIPTION
-                     */
                     description: designation,
 
                     warning: "",
@@ -282,12 +299,9 @@
                 return;
             }
 
-            /* =========================================
-                   4. 일반 For ... 문장
-
-                   FOR FIN은 위에서 이미 처리됨.
-                   나머지는 이전 DESCRIPTION에 연결
-                   ========================================= */
+            /* -----------------------------
+                   일반 FOR 문장
+                   ----------------------------- */
 
             if (/^for\b/i.test(line)) {
                 if (appendDescription(line)) {
@@ -295,13 +309,9 @@
                 }
             }
 
-            /* =========================================
-                   5. 쉼표 제목행
-
-                   ENGINE 1, LEFT SIDE, COMMON,
-
-                   → PANEL ~ DESCRIPTION 병합
-                   ========================================= */
+            /* -----------------------------
+                   쉼표 제목행
+                   ----------------------------- */
 
             if (isMergedHeadingLine(originalLine)) {
                 pushMergedHeading(line);
@@ -309,19 +319,16 @@
                 return;
             }
 
-            /* =========================================
-                   6. 나머지 단독 문장
-
-                   이전 DESCRIPTION 뒤에 연결
-                   ========================================= */
+            /* -----------------------------
+                   DESCRIPTION continuation
+                   ----------------------------- */
 
             appendDescription(line);
         });
 
-        /* =================================================
-           내부 임시 Flag 제거
-           ================================================= */
-
+        /*
+         * 내부 flag 제거
+         */
         return records.map((record) => {
             const { _templateMergedHeading, ...publicRecord } = record;
 
@@ -329,337 +336,351 @@
         });
     }
 
-    /* =====================================================
-       BOEING
+        /* =====================================================
+       BOEING — SEMANTIC PDF PARSER V2
+
+       목적:
+       Boeing PDF Clipboard가 화면과 다른 순서로 복사되어도
+
+       PANEL
+       ROW
+       COL
+       NUMBER
+       DESCRIPTION
+       AAR
+
+       의미를 먼저 추출한 뒤 최종적으로:
+
+       PANEL | C/B LOC' | FIN | DESCRIPTION
+
+       형태로 복원합니다.
+
+       Boeing Number는 행 복원에만 사용하고
+       최종 OPEN LIST에는 저장하지 않습니다.
        ===================================================== */
 
     const BOEING_HEADER =
         /^Row\s*(?:,|\s+)\s*Col(?:umn)?\s*(?:,|\s+)\s*Number\s*(?:,|\s+)\s*Name$/i;
 
     /* =====================================================
-       BOEING PANEL
+       PANEL
        ===================================================== */
 
     function extractPanelCode(line) {
-        const match = clean(line).match(/\bP\d+[A-Z]?\b/i);
+        const match = clean(line).match(
+            /\bP\d+[A-Z]?\b/i,
+        );
 
-        return match ? match[0].toUpperCase() : "";
+        return match
+            ? match[0].toUpperCase()
+            : "";
+    }
+
+    function isBoeingPanelTitle(line) {
+        const value = clean(line);
+
+        return (
+            /panel/i.test(value) &&
+            Boolean(
+                extractPanelCode(value),
+            )
+        );
     }
 
     /* =====================================================
-       BOEING TOKEN CHECK
+       BASIC TOKEN
        ===================================================== */
 
+    function isBoeingNumberToken(value) {
+        return /^[A-Z]+\d+[A-Z0-9-]*$/i.test(
+            clean(value),
+        );
+    }
+
     function isBoeingRowToken(value) {
-        return (
-            typeof value === "string" && /^[A-Z][A-Z0-9]*$/i.test(value.trim())
+        const token = clean(value);
+
+        if (!token) {
+            return false;
+        }
+
+        /*
+         * C28001 같은 Number가
+         * ROW로 오인되지 않도록 제외
+         */
+        if (
+            isBoeingNumberToken(token)
+        ) {
+            return false;
+        }
+
+        /*
+         * 일반 Boeing Row:
+         *
+         * A
+         * B
+         * C
+         * ...
+         * AA
+         * AB
+         *
+         * 필요하면 향후 확장 가능
+         */
+        return /^[A-Z]{1,2}$/i.test(
+            token,
         );
     }
 
     function isBoeingColToken(value) {
-        return typeof value === "string" && /^\d+$/.test(value.trim());
-    }
-
-    /*
-     * Boeing Circuit Breaker Number
-     *
-     * 예:
-     *
-     * C27607
-     * C27630
-     *
-     * 현재 C/B OPEN LIST에서는
-     * 이 값을 FIN으로 사용하지 않습니다.
-     *
-     * Boeing 행을 구분하기 위한
-     * 데이터로만 사용합니다.
-     */
-    function isBoeingNumberToken(value) {
-        return (
-            typeof value === "string" &&
-            /^[A-Z]+\d+[A-Z0-9-]*$/i.test(value.trim())
+        return /^\d+$/.test(
+            clean(value),
         );
     }
 
     /* =====================================================
-       BOEING MANUAL CSV
+       AAR
        ===================================================== */
 
-    /*
-     * 직접 입력 형식:
-     *
-     * PANEL,C/B LOC,FIN,DESCRIPTION
-     *
-     * 예:
-     *
-     * P210,K 5,,SLATS PRI DR CTRL 2
-     * P210,K 8,,SLATS ELEC CTRL RLY PWR
-     */
-    function parseBoeingManualCsv(rawText) {
-        const lines = normalizeLines(rawText);
+    function isBoeingEffectivity(value) {
+        return /^AAR/i.test(
+            clean(value),
+        );
+    }
 
-        return lines.map((line, index) => {
-            const columns = line.split(",").map((value) => value.trim());
+    function normalizeBoeingEffectivity(value) {
+        const raw = clean(value);
 
-            const [panel_loc, cb_loc, fin] = columns;
+        if (
+            !isBoeingEffectivity(raw)
+        ) {
+            return raw;
+        }
 
-            /*
-             * DESCRIPTION 안에 쉼표가
-             * 있을 수 있으므로
-             * 4열 이후는 다시 합칩니다.
-             */
-            const description = columns.slice(3).join(", ").trim();
+        const body = raw
+            .replace(/^AAR/i, "")
+            .trim();
 
-            if (columns.length < 4 || !panel_loc || !cb_loc || !description) {
-                throw new Error(
-                    `${index + 1}번째 줄을 확인해 주세요. ` +
-                        "PANEL, C/B LOC', FIN, DESCRIPTION 순서로 입력하세요. " +
-                        "FIN이 없으면 쉼표 사이를 비워 주세요.",
-                );
-            }
-
-            return {
-                cockpit: "",
-                ee: "",
-                etc: "",
-
-                panel_loc,
-                cb_loc,
-                fin,
-                description,
-
-                warning: "",
-            };
-        });
+        return body
+            ? `AAR ${body}`
+            : "AAR";
     }
 
     /* =====================================================
-       BOEING AUTO DETECTION
-       ===================================================== */
+    PDF NOISE
+    ===================================================== */
 
-    function looksLikeBoeing(lines) {
-        return lines.some((line) => BOEING_HEADER.test(clean(line)));
-    }
+    function isBoeingNoiseLine(value) {
+        const line = clean(value);
 
-    /* =====================================================
-       BOEING SINGLE LINE
-       ===================================================== */
-
-    /*
-     * 지원:
-     *
-     * K 5 C27607 SLATS PRI DR CTRL 2
-     *
-     * 또는
-     *
-     * K,5,C27607,SLATS PRI DR CTRL 2
-     */
-
-    function parseBoeingRowLine(line) {
-        const raw = clean(line);
-
-        if (!raw) {
-            return null;
+        if (!line) {
+            return true;
         }
 
         /*
-         * AAR107...
-         * AAR116...
-         * AARALL
-         *
-         * C/B 데이터로 절대 처리하지 않음
-         */
-        if (/^AAR/i.test(raw)) {
-            return null;
+        * Boeing PDF 문서 구조
+        */
+        if (/^SUBTASK\b/i.test(line)) {
+            return true;
         }
 
-        if (raw.includes(",")) {
-            const cells = raw.split(",").map((value) => clean(value));
-
-            if (cells.length >= 4) {
-                const row = cells[0];
-
-                const col = cells[1];
-
-                const number = cells[2];
-
-                const description = cells.slice(3).join(" ").trim();
-
-                if (
-                    isBoeingRowToken(row) &&
-                    isBoeingColToken(col) &&
-                    isBoeingNumberToken(number) &&
-                    description
-                ) {
-                    return {
-                        row,
-                        col,
-                        number,
-                        description,
-                    };
-                }
-            }
+        if (/^TASK\b/i.test(line)) {
+            return true;
         }
 
-        const tokens = raw.split(/\s+/).filter(Boolean);
-
-        if (tokens.length >= 4) {
-            const row = tokens[0];
-
-            const col = tokens[1];
-
-            const number = tokens[2];
-
-            const description = tokens.slice(3).join(" ").trim();
-
-            if (
-                isBoeingRowToken(row) &&
-                isBoeingColToken(col) &&
-                isBoeingNumberToken(number) &&
-                description
-            ) {
-                return {
-                    row,
-                    col,
-                    number,
-                    description,
-                };
-            }
+        if (/^WARNING\b/i.test(line)) {
+            return true;
         }
 
-        return null;
+        if (/^CAUTION\b/i.test(line)) {
+            return true;
+        }
+
+        if (/^NOTE\b/i.test(line)) {
+            return true;
+        }
+
+        if (/^EFFECTIVITY\b/i.test(line)) {
+            return true;
+        }
+
+        if (/^\([A-Z0-9]+\)$/i.test(line)) {
+            return true;
+        }
+
+        return false;
     }
 
     /* =====================================================
-       BOEING TABLE PARSER
-       ===================================================== */
+    OUTPUT RECORD
+    ===================================================== */
 
-    function parseBoeing(rawText) {
-        const lines = String(rawText ?? "")
-            .replace(/\r/g, "")
-            .replace(/\u00a0/g, " ")
-            .split("\n")
-            .map((line) => clean(line))
-            .filter(Boolean);
+    function makeBoeingRecord(
+        panel,
+        row,
+        col,
+        description,
+    ) {
+        return {
+            cockpit: "",
+            ee: "",
+            etc: "",
 
-        const records = [];
+            panel_loc:
+                clean(panel),
 
-        /* =====================================================
-        AAR / EFFECTIVITY
-        ===================================================== */
-
-        function isEffectivityLine(line) {
-            return /^AAR/i.test(clean(line));
-        }
-
-        function normalizeEffectivity(line) {
-            const value = clean(line);
-
-            if (!/^AAR/i.test(value)) {
-                return value;
-            }
-
-            const body = value
-                .replace(/^AAR/i, "")
-                .trim();
-
-            return body
-                ? `AAR ${body}`
-                : "AAR";
-        }
-
-        function makeEffectivityRecord(line) {
-            return {
-                cockpit: "",
-                ee: "",
-                etc: "",
-
-                panel_loc: normalizeEffectivity(line),
-
-                cb_loc: "",
-                fin: "",
-                description: "",
-                warning: "",
-
-                _merges: [
-                    {
-                        field: "panel_loc",
-                        rows: 1,
-                        cols: 4,
-                    },
-                ],
-            };
-        }
-
-        /* =====================================================
-        PANEL
-        ===================================================== */
-
-        function isPanelTitle(line) {
-            const value = clean(line);
-
-            if (!value) {
-                return false;
-            }
+            cb_loc:
+                `${clean(row)} ${clean(col)}`.trim(),
 
             /*
-            * 지원 예:
-            *
-            * Right Power Management Panel, P210
-            * Left Power Management Panel, P110
-            * LeftPowerManagementPanel,P110
-            * Overhead Circuit Breaker Panel, P11
-            */
-            return (
-                /Panel/i.test(value) &&
-                Boolean(
-                    extractPanelCode(value),
-                )
-            );
+             * Boeing Number는
+             * FIN으로 사용하지 않음
+             */
+            fin: "",
+
+            description:
+                clean(description),
+
+            warning: "",
+        };
+    }
+
+    function makeBoeingEffectivityRecord(
+        value,
+    ) {
+        return {
+            cockpit: "",
+            ee: "",
+            etc: "",
+
+            panel_loc:
+                normalizeBoeingEffectivity(
+                    value,
+                ),
+
+            cb_loc: "",
+            fin: "",
+            description: "",
+            warning: "",
+
+            /*
+             * PANEL ~ DESCRIPTION
+             * 4열 병합
+             */
+            _merges: [
+                {
+                    field:
+                        "panel_loc",
+
+                    rows: 1,
+                    cols: 4,
+                },
+            ],
+        };
+    }
+
+    /* =====================================================
+       COMPLETE ROW
+       ===================================================== */
+
+    /*
+     * 예:
+     *
+     * A 5 C28001 L ENGINE FUEL SPAR VALVE
+     *
+     * A,5,C28001,L ENGINE FUEL SPAR VALVE
+     */
+
+    function parseBoeingCompleteRow(line) {
+        const value = clean(line);
+
+        if (
+            !value ||
+            isBoeingEffectivity(value) ||
+            isBoeingNoiseLine(value)
+        ) {
+            return null;
         }
 
-        /* =====================================================
-        C/B RECORD
-        ===================================================== */
+        const match = value.match(
+            /^([A-Z]{1,2})[\s,]+(\d+)[\s,]+([A-Z]+\d+[A-Z0-9-]*)[\s,]+(.+)$/i,
+        );
 
-        function makeRecord(panel, row, col, description) {
-            return {
-                cockpit: "",
-                ee: "",
-                etc: "",
-
-                panel_loc: panel,
-
-                cb_loc: `${clean(row)} ${clean(col)}`,
-
-                /*
-                 * Boeing Number는
-                 * 현재 FIN에 넣지 않습니다.
-                 */
-                fin: "",
-
-                description: clean(description),
-
-                warning: "",
-            };
+        if (!match) {
+            return null;
         }
 
-        /* =====================================================
-        PANEL BLOCK 분리
-        ===================================================== */
+        return {
+            row:
+                clean(match[1]),
 
+            col:
+                clean(match[2]),
+
+            number:
+                clean(match[3]),
+
+            description:
+                clean(match[4]),
+        };
+    }
+
+    /* =====================================================
+       PACKED COL + NUMBER + DESCRIPTION
+       ===================================================== */
+
+    /*
+     * 예:
+     *
+     * 18 C28001 L ENGINE FUEL SPAR VALVE
+     */
+
+    function parseBoeingPackedTail(line) {
+        const value = clean(line);
+
+        const match = value.match(
+            /^(\d+)\s+([A-Z]+\d+[A-Z0-9-]*)\s+(.+)$/i,
+        );
+
+        if (!match) {
+            return null;
+        }
+
+        return {
+            col:
+                clean(match[1]),
+
+            number:
+                clean(match[2]),
+
+            description:
+                clean(match[3]),
+        };
+    }
+
+    /* =====================================================
+       PANEL BLOCK
+       ===================================================== */
+
+    function splitBoeingPanelBlocks(lines) {
         const blocks = [];
 
-        let currentBlock = null;
+        let current = null;
 
         for (const line of lines) {
-            if (isPanelTitle(line)) {
-                if (currentBlock) {
-                    blocks.push(currentBlock);
+            if (
+                isBoeingPanelTitle(line)
+            ) {
+                if (current) {
+                    blocks.push(
+                        current,
+                    );
                 }
 
-                currentBlock = {
-                    panel: extractPanelCode(line),
+                current = {
+                    panel:
+                        extractPanelCode(
+                            line,
+                        ),
 
                     lines: [],
                 };
@@ -667,805 +688,1216 @@
                 continue;
             }
 
-            if (!currentBlock) {
-                continue;
+            if (current) {
+                current.lines.push(
+                    line,
+                );
             }
-
-            currentBlock.lines.push(line);
         }
 
-        if (currentBlock) {
-            blocks.push(currentBlock);
+        if (current) {
+            blocks.push(
+                current,
+            );
         }
 
-        if (!blocks.length) {
-            throw new Error("Boeing Panel 정보(P210 등)를 찾을 수 없습니다.");
-        }
+        return blocks;
+    }
 
-        /* =====================================================
-        PANEL별 처리
-        ===================================================== */
+    /* =====================================================
+       TOKEN COLLECTION
+       ===================================================== */
 
-        for (const block of blocks) {
-            const panel = block.panel;
+    function collectBoeingTokens(lines) {
+        const tokens = [];
 
-            const blockLines = block.lines;
-
-            /* =================================================
-            HEADER 찾기
-            ================================================= */
-
-            const headerIndex = blockLines.findIndex((line) =>
-                BOEING_HEADER.test(clean(line)),
+        for (const originalLine of lines) {
+            const line = clean(
+                originalLine,
             );
 
-            if (headerIndex < 0) {
+            if (!line) {
                 continue;
             }
-
-            const dataLines = blockLines.slice(headerIndex + 1);
-
-            if (!dataLines.length) {
-                continue;
-            }
-
-            /* =================================================
-            AAR 존재 여부
-            ================================================= */
-
-            const hasEffectivity = dataLines.some((line) =>
-                isEffectivityLine(line),
-            );
-
-
-            /* =====================================================
-            BOEING SEQUENTIAL ROW-MAJOR
-
-            예:
-
-            A 2 C21303 FWDGLYHTR
-            B 2 C21304 AFTGLYHTR1
-            C 2 C21305 AFTGLYHTR2
-            AAR121,122PRESB777-24-0145
-            D 5 C21328 MIDGLYHTR(ZONEE)
-            AARALL
-            H 21 C21650 AFTGLYHTR1&2CTRL
-            H 22 C21649 FWDGLYHTRCTRL
-            AAR121,122PRESB777-24-0145
-            J 19 C21696 MIDGLYHTR(ZONEE)CTRL
-
-            AAR과 완전한 C/B Row가 순차적으로
-            섞여 있는 경우입니다.
-            ===================================================== */
-
-            let sequentialValid = true;
-            let sequentialCBCount = 0;
-
-            const sequentialRecords = [];
-
-
-            for (const line of dataLines) {
-                const value = clean(line);
-
-                if (!value) {
-                    continue;
-                }
-
-
-                /* -------------------------------------------------
-                AAR
-
-                AARALL
-                AAR121,122PRESB777-24-0145
-                ------------------------------------------------- */
-
-                if (isEffectivityLine(value)) {
-                    sequentialRecords.push(
-                        makeEffectivityRecord(
-                            value,
-                        ),
-                    );
-
-                    continue;
-                }
-
-
-                /* -------------------------------------------------
-                완전한 C/B Row
-
-                A 2 C21303 FWDGLYHTR
-                D 5 C21328 MIDGLYHTR(ZONEE)
-                H 21 C21650 AFTGLYHTR1&2CTRL
-                ------------------------------------------------- */
-
-                const parsed =
-                    parseBoeingRowLine(
-                        value,
-                    );
-
-
-                if (parsed) {
-                    sequentialRecords.push(
-                        makeRecord(
-                            panel,
-                            parsed.row,
-                            parsed.col,
-                            parsed.description,
-                        ),
-                    );
-
-                    sequentialCBCount += 1;
-
-                    continue;
-                }
-
-
-                /*
-                * 하나라도 알 수 없는 줄이 있으면
-                * sequential 형식이 아니므로
-                * 기존 parser에게 넘깁니다.
-                */
-                sequentialValid = false;
-
-                break;
-            }
-
 
             /*
-            * 모든 줄이
-            *
-            * - AAR
-            * 또는
-            * - 완전한 C/B Row
-            *
-            * 로 구성된 경우에만 sequential parser 사용
-            */
+             * Header 제외
+             */
             if (
-                sequentialValid &&
-                sequentialCBCount > 0
+                BOEING_HEADER.test(line)
             ) {
-                records.push(
-                    ...sequentialRecords,
+                continue;
+            }
+
+            /*
+             * SUBTASK / WARNING / NOTE...
+             */
+            if (
+                isBoeingNoiseLine(line)
+            ) {
+                continue;
+            }
+
+            /* =========================================
+               AAR
+               ========================================= */
+
+            if (
+                isBoeingEffectivity(line)
+            ) {
+                tokens.push({
+                    type:
+                        "effectivity",
+
+                    value:
+                        normalizeBoeingEffectivity(
+                            line,
+                        ),
+                });
+
+                continue;
+            }
+
+            /* =========================================
+               COMPLETE ROW
+               ========================================= */
+
+            const complete =
+                parseBoeingCompleteRow(
+                    line,
                 );
 
-                continue;
-            }
-
-
-            /* =================================================
-            CASE 1
-            AAR 없는 PANEL
-
-            P210:
-
-            K
-            K
-            5
-            8
-            C27607
-            C27630
-            DESCRIPTION 1
-            DESCRIPTION 2
-            ================================================= */
-
-            if (!hasEffectivity) {
-                /* =================================================
-            1. 완전한 ROW-MAJOR
-
-            K 5 C27607 DESCRIPTION
-            ================================================= */
-
-                const normalRecords = [];
-
-                for (const line of dataLines) {
-                    const parsed = parseBoeingRowLine(line);
-
-                    if (!parsed) {
-                        continue;
-                    }
-
-                    normalRecords.push(
-                        makeRecord(
-                            panel,
-                            parsed.row,
-                            parsed.col,
-                            parsed.description,
-                        ),
-                    );
-                }
-
-                /*
-                 * 모든 C/B가 한 줄 완성형인 경우만
-                 * 여기서 바로 반환합니다.
-                 *
-                 * mixed 형식에서는 마지막 한 줄만
-                 * parseBoeingRowLine()에 잡힐 수 있으므로
-                 * normalRecords가 있다고 무조건 반환하면 안 됩니다.
-                 */
-                if (
-                    normalRecords.length > 0 &&
-                    normalRecords.length === dataLines.length
-                ) {
-                    records.push(...normalRecords);
-
-                    continue;
-                }
-
-                /* =================================================
-            2. TWO-LINE
-
-            P
-            23 C78605 L ENG T/R CTRL
-
-            이 형식은 정확히 2줄일 때 처리
-            ================================================= */
-
-                if (
-                    dataLines.length === 2 &&
-                    isBoeingRowToken(dataLines[0]) &&
-                    !isBoeingNumberToken(dataLines[0])
-                ) {
-                    const match = clean(dataLines[1]).match(
-                        /^(\d+)\s+([A-Z]+\d+[A-Z0-9-]*)\s+(.+)$/i,
-                    );
-
-                    if (match) {
-                        const col = clean(match[1]);
-
-                        const number = clean(match[2]);
-
-                        const description = clean(match[3]);
-
-                        if (
-                            isBoeingColToken(col) &&
-                            isBoeingNumberToken(number) &&
-                            description
-                        ) {
-                            records.push(
-                                makeRecord(
-                                    panel,
-                                    dataLines[0],
-                                    col,
-                                    description,
-                                ),
-                            );
-
-                            continue;
-                        }
-                    }
-                }
-
-                /* =================================================
-            3. MIXED COLUMN-MAJOR
-
-            지원 예 1:
-
-            K
-            K
-            5
-            8
-            C27607
-            C27630
-            DESCRIPTION 1
-            DESCRIPTION 2
-
-
-            지원 예 2:
-
-            A
-            A
-            E
-            E
-            1
-            2
-            1
-            C74401
-            C74407
-            C74403
-            DESCRIPTION 1
-            DESCRIPTION 2
-            DESCRIPTION 3
-            14 C74405 DESCRIPTION 4
-
-            두 번째 형식에서는 마지막 ROW(E)는
-            ROW 영역에 있지만,
-
-            COL + NUMBER + DESCRIPTION은
-            마지막 줄에 같이 있습니다.
-            ================================================= */
-
-                /* -------------------------------------------------
-            시작 부분의 ROW token을 모두 수집
-            ------------------------------------------------- */
-
-                const rows = [];
-
-                let cursor = 0;
-
-                while (
-                    cursor < dataLines.length &&
-                    isBoeingRowToken(dataLines[cursor]) &&
-                    !isBoeingNumberToken(dataLines[cursor])
-                ) {
-                    rows.push(clean(dataLines[cursor]));
-
-                    cursor += 1;
-                }
-
-                if (!rows.length) {
-                    continue;
-                }
-
-                const rowCount = rows.length;
-
-                /* -------------------------------------------------
-            남은 데이터에서 마지막 Mixed Line 확인
-
-            예:
-
-            14 C74405 L ENG IGN 2
-
-            여기에는 ROW는 없습니다.
-            마지막 ROW(E)는 rows 배열에 이미 존재합니다.
-            ------------------------------------------------- */
-
-                let mixedTail = null;
-
-                if (cursor < dataLines.length) {
-                    const lastLine = clean(dataLines.at(-1));
-
-                    const match = lastLine.match(
-                        /^(\d+)\s+([A-Z]+\d+[A-Z0-9-]*)\s+(.+)$/i,
-                    );
-
-                    if (match) {
-                        mixedTail = {
-                            col: clean(match[1]),
-
-                            number: clean(match[2]),
-
-                            description: clean(match[3]),
-                        };
-                    }
-                }
-
-                /*
-                 * Mixed Tail이 있으면
-                 * 앞부분에는 rowCount - 1개의
-                 * 완전한 column-major 데이터가 있어야 합니다.
-                 *
-                 * 마지막 ROW는 mixedTail과 결합합니다.
-                 */
-                const regularCount = mixedTail ? rowCount - 1 : rowCount;
-
-                if (regularCount < 0) {
-                    continue;
-                }
-
-                /* =================================================
-            4. COL 추출
-            ================================================= */
-
-                const cols = [];
-
-                for (let index = 0; index < regularCount; index += 1) {
-                    if (cursor >= dataLines.length) {
-                        break;
-                    }
-
-                    const value = clean(dataLines[cursor]);
-
-                    if (!isBoeingColToken(value)) {
-                        break;
-                    }
-
-                    cols.push(value);
-
-                    cursor += 1;
-                }
-
-                if (cols.length !== regularCount) {
-                    continue;
-                }
-
-                /* =================================================
-            5. NUMBER 추출
-            ================================================= */
-
-                const numbers = [];
-
-                for (let index = 0; index < regularCount; index += 1) {
-                    if (cursor >= dataLines.length) {
-                        break;
-                    }
-
-                    const value = clean(dataLines[cursor]);
-
-                    if (!isBoeingNumberToken(value)) {
-                        break;
-                    }
-
-                    numbers.push(value);
-
-                    cursor += 1;
-                }
-
-                if (numbers.length !== regularCount) {
-                    continue;
-                }
-
-                /* =================================================
-            6. DESCRIPTION 추출
-            ================================================= */
-
-                const descriptions = [];
-
-                /*
-                 * Mixed Tail이 있으면 마지막 줄은 제외
-                 */
-                const descriptionEnd = mixedTail
-                    ? dataLines.length - 1
-                    : dataLines.length;
-
-                while (cursor < descriptionEnd) {
-                    descriptions.push(clean(dataLines[cursor]));
-
-                    cursor += 1;
-                }
-
-                if (descriptions.length < regularCount) {
-                    continue;
-                }
-
-                /* =================================================
-            7. 일반 COLUMN-MAJOR 행 생성
-            ================================================= */
-
-                for (let index = 0; index < regularCount; index += 1) {
-                    records.push(
-                        makeRecord(
-                            panel,
-                            rows[index],
-                            cols[index],
-                            descriptions[index],
-                        ),
-                    );
-                }
-
-                /* =================================================
-            8. 마지막 MIXED 행
-
-            rows 마지막:
-            E
-
-            mixedTail:
-            14 C74405 L ENG IGN 2
-
-            →
-
-            P11 | E 14 | | L ENG IGN 2
-            ================================================= */
-
-                if (mixedTail) {
-                    records.push(
-                        makeRecord(
-                            panel,
-                            rows[rowCount - 1],
-                            mixedTail.col,
-                            mixedTail.description,
-                        ),
-                    );
-                }
+            if (complete) {
+                tokens.push({
+                    type:
+                        "complete",
+
+                    ...complete,
+                });
 
                 continue;
             }
 
-            /* =================================================
-            CASE 2
-            AAR 있는 PANEL
+            /* =========================================
+               COL + NUMBER + DESCRIPTION
+               ========================================= */
 
-            P200 / P310
-            ================================================= */
+            const packed =
+                parseBoeingPackedTail(
+                    line,
+                );
 
-            /*
-             * AAR 기준으로 먼저 Group을 나눕니다.
-             */
-            const groups = [];
+            if (packed) {
+                tokens.push({
+                    type:
+                        "packed",
 
-            let currentGroup = null;
+                    ...packed,
+                });
 
-            for (const line of dataLines) {
-                if (isEffectivityLine(line)) {
-                    if (currentGroup) {
-                        groups.push(currentGroup);
-                    }
-
-                    currentGroup = {
-                        effectivity: line,
-
-                        lines: [],
-                    };
-
-                    continue;
-                }
-
-                if (!currentGroup) {
-                    continue;
-                }
-
-                currentGroup.lines.push(line);
-            }
-
-            if (currentGroup) {
-                groups.push(currentGroup);
-            }
-
-            if (!groups.length) {
                 continue;
             }
 
-            /* =================================================
-            AAR GROUP에서
+            /* =========================================
+               ROW
+               ========================================= */
 
-            ROW
-            COL
-            NUMBER
+            if (
+                isBoeingRowToken(line)
+            ) {
+                tokens.push({
+                    type:
+                        "row",
 
-            만 먼저 추출합니다.
+                    value:
+                        line,
+                });
 
-            DESCRIPTION은 나중에 별도로 배정합니다.
-            ================================================= */
+                continue;
+            }
 
-            const cbItems = [];
+            /* =========================================
+               COL
+               ========================================= */
 
-            const descriptionPool = [];
+            if (
+                isBoeingColToken(line)
+            ) {
+                tokens.push({
+                    type:
+                        "col",
+
+                    value:
+                        line,
+                });
+
+                continue;
+            }
+
+            /* =========================================
+               NUMBER
+               ========================================= */
+
+            if (
+                isBoeingNumberToken(line)
+            ) {
+                tokens.push({
+                    type:
+                        "number",
+
+                    value:
+                        line,
+                });
+
+                continue;
+            }
+
+            /* =========================================
+               DESCRIPTION
+               ========================================= */
+
+            tokens.push({
+                type:
+                    "description",
+
+                value:
+                    line,
+            });
+        }
+
+        return tokens;
+    }
+
+    /* =====================================================
+       SEMANTIC ROW RECONSTRUCTION
+       ===================================================== */
+
+    function reconstructBoeingRows(
+        panel,
+        tokens,
+    ) {
+        /*
+         * 이미 완전한 행이 포함되어 있고
+         * 다른 조각들과 섞여 있을 수도 있으므로
+         * 먼저 각 의미별 queue를 만듭니다.
+         */
+
+        const effectivities = [];
+
+        const rows = [];
+
+        const cols = [];
+
+        const numbers = [];
+
+        const descriptions = [];
+
+        const completeRows = [];
+
+        /*
+         * packed는
+         *
+         * COL
+         * NUMBER
+         * DESCRIPTION
+         *
+         * 세 값을 동시에 공급합니다.
+         */
+        const packedRows = [];
+
+        for (const token of tokens) {
+            switch (token.type) {
+                case "effectivity":
+                    effectivities.push(
+                        token.value,
+                    );
+                    break;
+
+                case "row":
+                    rows.push(
+                        token.value,
+                    );
+                    break;
+
+                case "col":
+                    cols.push(
+                        token.value,
+                    );
+                    break;
+
+                case "number":
+                    numbers.push(
+                        token.value,
+                    );
+                    break;
+
+                case "description":
+                    descriptions.push(
+                        token.value,
+                    );
+                    break;
+
+                case "packed":
+                    packedRows.push({
+                        col:
+                            token.col,
+
+                        number:
+                            token.number,
+
+                        description:
+                            token.description,
+                    });
+                    break;
+
+                case "complete":
+                    completeRows.push({
+                        row:
+                            token.row,
+
+                        col:
+                            token.col,
+
+                        number:
+                            token.number,
+
+                        description:
+                            token.description,
+                    });
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        /* =================================================
+        CASE A
+        모든 C/B가 complete row
+        ================================================= */
+
+        if (
+            completeRows.length &&
+            rows.length === 0 &&
+            cols.length === 0 &&
+            numbers.length === 0 &&
+            descriptions.length === 0 &&
+            packedRows.length === 0
+        ) {
+            const records = [];
 
             for (
-                let groupIndex = 0;
-                groupIndex < groups.length;
-                groupIndex += 1
+                let index = 0;
+                index <
+                completeRows.length;
+                index += 1
             ) {
-                const group = groups[groupIndex];
-
-                const groupLines = group.lines;
-
-                let row = "";
-                let col = "";
-                let number = "";
-
-                let consumedCount = 0;
-
-                /* =============================================
-                형태 1
-
-                B
-                3
-                C27300
-
-                또는
-
-                D
-                8
-                C27300
-                ============================================= */
-
                 if (
-                    groupLines.length >= 3 &&
-                    isBoeingRowToken(groupLines[0]) &&
-                    isBoeingColToken(groupLines[1]) &&
-                    isBoeingNumberToken(groupLines[2])
+                    canAttachEffectivity &&
+                    effectivities[index]
                 ) {
-                    row = clean(groupLines[0]);
-
-                    col = clean(groupLines[1]);
-
-                    number = clean(groupLines[2]);
-
-                    consumedCount = 3;
-                }
-
-                /* =============================================
-                형태 2
-
-                G
-                12 C27606 SLATS PRI DR CTRL 1
-
-                P310 형태
-                ============================================= */
-
-                if (
-                    !row &&
-                    groupLines.length >= 2 &&
-                    isBoeingRowToken(groupLines[0])
-                ) {
-                    const inlineMatch = clean(groupLines[1]).match(
-                        /^(\d+)\s+([A-Z]+\d+[A-Z0-9-]*)\s+(.+)$/i,
+                    records.push(
+                        makeBoeingEffectivityRecord(
+                            effectivities[index],
+                        ),
                     );
-
-                    if (inlineMatch) {
-                        row = clean(groupLines[0]);
-
-                        col = clean(inlineMatch[1]);
-
-                        number = clean(inlineMatch[2]);
-
-                        /*
-                         * P310은 DESCRIPTION이
-                         * 같은 줄에 들어 있습니다.
-                         */
-                        const inlineDescription = clean(inlineMatch[3]);
-
-                        cbItems.push({
-                            effectivity: group.effectivity,
-
-                            row,
-                            col,
-                            number,
-
-                            description: inlineDescription,
-                        });
-
-                        /*
-                         * 나머지 Line이 있다면
-                         * DESCRIPTION Pool에 보관
-                         */
-                        groupLines.slice(2).forEach((line) => {
-                            const value = clean(line);
-
-                            if (value) {
-                                descriptionPool.push(value);
-                            }
-                        });
-
-                        continue;
-                    }
                 }
 
-                /* =============================================
-                형태 3
+                const item =
+                    completeRows[index];
 
-                G 12 C27606 DESCRIPTION
-                ============================================= */
-
-                if (!row) {
-                    const joined = groupLines.join(" ");
-
-                    const inlineMatch = clean(joined).match(
-                        /^([A-Z][A-Z0-9]*)\s+(\d+)\s+([A-Z]+\d+[A-Z0-9-]*)\s+(.+)$/i,
-                    );
-
-                    if (inlineMatch) {
-                        cbItems.push({
-                            effectivity: group.effectivity,
-
-                            row: clean(inlineMatch[1]),
-
-                            col: clean(inlineMatch[2]),
-
-                            number: clean(inlineMatch[3]),
-
-                            description: clean(inlineMatch[4]),
-                        });
-
-                        continue;
-                    }
-                }
-
-                /* =============================================
-                B / 3 / C27300 형태
-                ============================================= */
-
-                if (row && col && number) {
-                    cbItems.push({
-                        effectivity: group.effectivity,
-
-                        row,
-                        col,
-                        number,
-
-                        /*
-                         * 아직 DESCRIPTION 없음
-                         */
-                        description: "",
-                    });
-
-                    /*
-                     * Row / Col / Number 뒤의 모든 문자열은
-                     * DESCRIPTION Pool로 보냅니다.
-                     *
-                     * P200 두 번째 Group:
-                     *
-                     * D
-                     * 8
-                     * C27300
-                     * SLATS ELEC MOT PWR
-                     * SLATS ELEC MOT PWR
-                     *
-                     * ↓
-                     *
-                     * Pool:
-                     *
-                     * [
-                     *   "SLATS ELEC MOT PWR",
-                     *   "SLATS ELEC MOT PWR"
-                     * ]
-                     */
-                    groupLines.slice(consumedCount).forEach((line) => {
-                        const value = clean(line);
-
-                        if (value) {
-                            descriptionPool.push(value);
-                        }
-                    });
-                }
-            }
-
-            /* =================================================
-            DESCRIPTION 배정
-
-            DESCRIPTION이 비어 있는 C/B에
-            Pool을 순서대로 하나씩 배정합니다.
-            ================================================= */
-
-            let descriptionIndex = 0;
-
-            for (const item of cbItems) {
-                /*
-                 * P310처럼 이미 DESCRIPTION이 있으면
-                 * 그대로 유지
-                 */
-                if (clean(item.description)) {
-                    continue;
-                }
-
-                if (descriptionIndex < descriptionPool.length) {
-                    item.description = clean(descriptionPool[descriptionIndex]);
-
-                    descriptionIndex += 1;
-                }
-            }
-
-            /* =================================================
-            AAR + C/B 출력
-            ================================================= */
-
-            for (const item of cbItems) {
-                /*
-                 * AAR
-                 *
-                 * 4열 병합
-                 */
-                records.push(makeEffectivityRecord(item.effectivity));
-
-                /*
-                 * DESCRIPTION이 없으면
-                 * 불완전한 데이터이므로 C/B는 생략
-                 */
-                if (!clean(item.description)) {
-                    continue;
-                }
-
-                /*
-                 * C/B
-                 */
                 records.push(
-                    makeRecord(panel, item.row, item.col, item.description),
+                    makeBoeingRecord(
+                        panel,
+                        item.row,
+                        item.col,
+                        item.description,
+                    ),
                 );
+            }
+
+            return records;
+        }
+
+        /* =================================================
+        일반 복원용 배열
+        ================================================= */
+
+        const finalRows = [];
+
+        /*
+         * complete row도 하나의 완성된
+         * C/B로 보관
+         */
+        for (
+            const item of completeRows
+        ) {
+            finalRows.push({
+                row:
+                    item.row,
+
+                col:
+                    item.col,
+
+                number:
+                    item.number,
+
+                description:
+                    item.description,
+            });
+        }
+
+        /* =================================================
+        ROW 수
+        ================================================= */
+
+        const expectedCount =
+            rows.length;
+                
+        /*
+         * ROW가 없는데 complete row만 있었다면
+         * 위에서 이미 처리됨.
+         */
+        if (
+            expectedCount === 0
+        ) {
+            if (
+                finalRows.length
+            ) {
+                return finalRows.map(
+                    (item, index) => {
+                        const result = [];
+
+                        if (
+                            canAttachEffectivity &&
+                            effectivities[index]
+                        ) {
+                            result.push(
+                                makeBoeingEffectivityRecord(
+                                    effectivities[index],
+                                ),
+                            );
+                        }
+
+                        result.push(
+                            makeBoeingRecord(
+                                panel,
+                                item.row,
+                                item.col,
+                                item.description,
+                            ),
+                        );
+
+                        return result;
+                    },
+                ).flat();
+            }
+
+            return null;
+        }
+
+        /* =================================================
+        COL / NUMBER / DESCRIPTION를
+        하나의 tail 배열로 복원
+        ================================================= */
+
+        const tails = [];
+
+        /*
+         * 먼저 일반 분리형:
+         *
+         * COL
+         * NUMBER
+         * DESCRIPTION
+         */
+        const separatedCount =
+            Math.min(
+                cols.length,
+                numbers.length,
+                descriptions.length,
+            );
+
+        for (
+            let index = 0;
+            index <
+            separatedCount;
+            index += 1
+        ) {
+            tails.push({
+                col:
+                    cols[index],
+
+                number:
+                    numbers[index],
+
+                description:
+                    descriptions[index],
+            });
+        }
+
+        /*
+         * packed:
+         *
+         * 18 C28001 DESCRIPTION
+         */
+        for (
+            const packed of
+                packedRows
+        ) {
+            tails.push({
+                col:
+                    packed.col,
+
+                number:
+                    packed.number,
+
+                description:
+                    packed.description,
+            });
+        }
+
+        /* =================================================
+        특별 복원
+        ================================================= */
+
+        /*
+         * 이번 P11 예제:
+         *
+         * ROW:
+         * A
+         * A
+         * B
+         *
+         * 분리 tail:
+         * 5 / C28001 / DESCRIPTION
+         *
+         * packed:
+         * 18 C28001 DESCRIPTION
+         *
+         * 남은 분리 tail:
+         * 4 / C76601 / DESCRIPTION
+         *
+         * 단순 separatedCount 계산만으로는
+         * 순서를 잃을 수 있습니다.
+         *
+         * 따라서 아래에서 원본 token 순서를 다시 사용해
+         * tail들을 복원합니다.
+         */
+
+        const semanticTails = [];
+
+        let pendingCol = "";
+        let pendingNumber = "";
+
+        for (const token of tokens) {
+            /*
+             * 이미 complete는 별도 처리
+             */
+            if (
+                token.type ===
+                "complete"
+            ) {
+                continue;
+            }
+
+            /*
+             * ROW / AAR은 tail 구성에서 제외
+             */
+            if (
+                token.type === "row" ||
+                token.type ===
+                    "effectivity"
+            ) {
+                continue;
+            }
+
+            /*
+             * PACKED
+             */
+            if (
+                token.type ===
+                "packed"
+            ) {
+                /*
+                 * 기존에 완성되지 않은
+                 * COL/NUMBER가 없다면
+                 * 그대로 완성 tail
+                 */
+                if (
+                    !pendingCol &&
+                    !pendingNumber
+                ) {
+                    semanticTails.push({
+                        col:
+                            token.col,
+
+                        number:
+                            token.number,
+
+                        description:
+                            token.description,
+                    });
+
+                    continue;
+                }
+            }
+
+            /*
+             * COL
+             */
+            if (
+                token.type === "col"
+            ) {
+                /*
+                 * 이전 COL이 남아 있다면
+                 * 구조가 불명확
+                 */
+                if (pendingCol) {
+                    return null;
+                }
+
+                pendingCol =
+                    token.value;
+
+                continue;
+            }
+
+            /*
+             * NUMBER
+             */
+            if (
+                token.type ===
+                "number"
+            ) {
+                if (
+                    !pendingCol ||
+                    pendingNumber
+                ) {
+                    return null;
+                }
+
+                pendingNumber =
+                    token.value;
+
+                continue;
+            }
+
+            /*
+             * DESCRIPTION
+             */
+            if (
+                token.type ===
+                "description"
+            ) {
+                if (
+                    pendingCol &&
+                    pendingNumber
+                ) {
+                    semanticTails.push({
+                        col:
+                            pendingCol,
+
+                        number:
+                            pendingNumber,
+
+                        description:
+                            token.value,
+                    });
+
+                    pendingCol = "";
+                    pendingNumber = "";
+
+                    continue;
+                }
             }
         }
 
-        /* =====================================================
-        FINAL
-        ===================================================== */
+        /*
+         * 마지막에 미완성 값이 남으면
+         * 정상 복원 실패
+         */
+        if (
+            pendingCol ||
+            pendingNumber
+        ) {
+            return null;
+        }
 
-        if (!records.length) {
-            throw new Error(
-                "붙여넣을 Boeing C/B 데이터 행을 찾을 수 없습니다.",
+        /* =================================================
+        semanticTails가 충분하면 우선 사용
+        ================================================= */
+
+        let resolvedTails =
+            semanticTails;
+
+        /*
+         * semantic parser가 PDF column-major 때문에
+         * 실패할 경우 기존 의미별 배열을 fallback으로 사용
+         */
+        if (
+            resolvedTails.length !==
+            expectedCount
+        ) {
+            /*
+             * packed + separated 전체 수가
+             * ROW 수와 정확히 맞는 경우에만 허용
+             */
+            if (
+                tails.length ===
+                expectedCount
+            ) {
+                resolvedTails =
+                    tails;
+            } else {
+                return null;
+            }
+        }
+
+        /* =================================================
+        ROW + TAIL
+        ================================================= */
+
+        const reconstructed = [];
+
+        for (
+            let index = 0;
+            index <
+            expectedCount;
+            index += 1
+        ) {
+            reconstructed.push({
+                row:
+                    rows[index],
+
+                col:
+                    resolvedTails[
+                        index
+                    ].col,
+
+                number:
+                    resolvedTails[
+                        index
+                    ].number,
+
+                description:
+                    resolvedTails[
+                        index
+                    ].description,
+            });
+        }
+
+        const cbCount =
+            reconstructed.length;
+        
+        const canAttachEffectivity =
+            effectivities.length === cbCount;
+
+        /* =================================================
+        AAR + C/B OUTPUT
+        ================================================= */
+
+        const records = [];
+
+        for (
+            let index = 0;
+            index <
+            reconstructed.length;
+            index += 1
+        ) {
+            /*
+             * AAR가 C/B 수와 동일하게
+             * 검출되었다면 index 기준 연결
+             */
+            if (
+                effectivities[
+                    index
+                ]
+            ) {
+                records.push(
+                    makeBoeingEffectivityRecord(
+                        effectivities[
+                            index
+                        ],
+                    ),
+                );
+            }
+
+            const item =
+                reconstructed[
+                    index
+                ];
+
+            records.push(
+                makeBoeingRecord(
+                    panel,
+                    item.row,
+                    item.col,
+                    item.description,
+                ),
             );
         }
 
         return records;
     }
+
+    /* =====================================================
+    COLUMN-MAJOR FALLBACK
+    ===================================================== */
+
+    /*
+     * 기존에 확인했던:
+     *
+     * K
+     * K
+     * 5
+     * 8
+     * C27607
+     * C27630
+     * DESC1
+     * DESC2
+     *
+     * 같은 완전 column-major를 위한 fallback입니다.
+     */
+
+    function parseBoeingColumnMajorFallback(
+        panel,
+        lines,
+    ) {
+        const values = lines
+            .map(clean)
+            .filter(Boolean)
+            .filter(
+                (line) =>
+                    !BOEING_HEADER.test(
+                        line,
+                    ),
+            )
+            .filter(
+                (line) =>
+                    !isBoeingNoiseLine(
+                        line,
+                    ),
+            );
+
+        /*
+         * AAR가 있는 복잡한 경우는
+         * semantic parser에 맡김
+         */
+        if (
+            values.some(
+                isBoeingEffectivity,
+            )
+        ) {
+            return null;
+        }
+
+        let cursor = 0;
+
+        const rows = [];
+
+        while (
+            cursor <
+                values.length &&
+            isBoeingRowToken(
+                values[cursor],
+            )
+        ) {
+            rows.push(
+                values[cursor],
+            );
+
+            cursor += 1;
+        }
+
+        if (!rows.length) {
+            return null;
+        }
+
+        const rowCount =
+            rows.length;
+
+        /*
+         * MIXED LAST ROW:
+         *
+         * 14 C74405 L ENG IGN 2
+         */
+        let mixedTail = null;
+
+        const last =
+            values[
+                values.length - 1
+            ];
+
+        const packedLast =
+            parseBoeingPackedTail(
+                last,
+            );
+
+        if (packedLast) {
+            mixedTail =
+                packedLast;
+        }
+
+        const regularCount =
+            mixedTail
+                ? rowCount - 1
+                : rowCount;
+
+        if (
+            regularCount < 0
+        ) {
+            return null;
+        }
+
+        const cols = [];
+
+        for (
+            let index = 0;
+            index <
+            regularCount;
+            index += 1
+        ) {
+            const value =
+                values[cursor];
+
+            if (
+                !isBoeingColToken(
+                    value,
+                )
+            ) {
+                return null;
+            }
+
+            cols.push(
+                value,
+            );
+
+            cursor += 1;
+        }
+
+        const numbers = [];
+
+        for (
+            let index = 0;
+            index <
+            regularCount;
+            index += 1
+        ) {
+            const value =
+                values[cursor];
+
+            if (
+                !isBoeingNumberToken(
+                    value,
+                )
+            ) {
+                return null;
+            }
+
+            numbers.push(
+                value,
+            );
+
+            cursor += 1;
+        }
+
+        const descriptionEnd =
+            mixedTail
+                ? values.length - 1
+                : values.length;
+
+        const descriptions =
+            values.slice(
+                cursor,
+                descriptionEnd,
+            );
+
+        if (
+            descriptions.length !==
+            regularCount
+        ) {
+            return null;
+        }
+
+        const records = [];
+
+        for (
+            let index = 0;
+            index <
+            regularCount;
+            index += 1
+        ) {
+            records.push(
+                makeBoeingRecord(
+                    panel,
+                    rows[index],
+                    cols[index],
+                    descriptions[
+                        index
+                    ],
+                ),
+            );
+        }
+
+        if (mixedTail) {
+            records.push(
+                makeBoeingRecord(
+                    panel,
+
+                    rows[
+                        rowCount - 1
+                    ],
+
+                    mixedTail.col,
+
+                    mixedTail.description,
+                ),
+            );
+        }
+
+        return records.length
+            ? records
+            : null;
+    }
+
+    /* =====================================================
+       PANEL PARSER
+       ===================================================== */
+
+    function parseBoeingPanel(
+        panel,
+        blockLines,
+    ) {
+        /*
+         * Header 제거
+         */
+        const headerIndex =
+            blockLines.findIndex(
+                (line) =>
+                    BOEING_HEADER.test(
+                        clean(line),
+                    ),
+            );
+
+        let dataLines =
+            headerIndex >= 0
+                ? blockLines.slice(
+                      headerIndex + 1,
+                  )
+                : [...blockLines];
+
+        /*
+         * 기본 정리
+         */
+        dataLines = dataLines
+            .map(clean)
+            .filter(Boolean);
+
+        if (!dataLines.length) {
+            return [];
+        }
+
+        /* =============================================
+           1. SEMANTIC TOKEN PARSER
+           ============================================= */
+
+        const tokens =
+            collectBoeingTokens(
+                dataLines,
+            );
+
+        const semantic =
+            reconstructBoeingRows(
+                panel,
+                tokens,
+            );
+
+        if (
+            semantic &&
+            semantic.length
+        ) {
+            return semantic;
+        }
+
+        /* =============================================
+           2. COLUMN-MAJOR FALLBACK
+           ============================================= */
+
+        const columnMajor =
+            parseBoeingColumnMajorFallback(
+                panel,
+                dataLines,
+            );
+
+        if (
+            columnMajor &&
+            columnMajor.length
+        ) {
+            return columnMajor;
+        }
+
+        /*
+         * 잘못된 데이터 자동 입력 방지
+         */
+        const rowCount =
+            tokens.filter(
+                (token) =>
+                    token.type ===
+                    "row",
+            ).length;
+
+        const colCount =
+            tokens.filter(
+                (token) =>
+                    token.type ===
+                        "col" ||
+                    token.type ===
+                        "packed" ||
+                    token.type ===
+                        "complete",
+            ).length;
+
+        const descriptionCount =
+            tokens.filter(
+                (token) =>
+                    token.type ===
+                        "description" ||
+                    token.type ===
+                        "packed" ||
+                    token.type ===
+                        "complete",
+            ).length;
+
+        throw new Error(
+            `${panel} Boeing PDF 표를 완전히 복원하지 못했습니다. ` +
+                `ROW ${rowCount}개 / ` +
+                `COL ${colCount}개 / ` +
+                `DESCRIPTION ${descriptionCount}개를 확인했습니다.`,
+        );
+    }
+
+    /* =====================================================
+       BOEING MAIN
+       ===================================================== */
+
+    function parseBoeing(rawText) {
+        const lines =
+            normalizeLines(
+                rawText,
+            );
+
+        const blocks =
+            splitBoeingPanelBlocks(
+                lines,
+            );
+
+        if (!blocks.length) {
+            throw new Error(
+                "Boeing PANEL 정보(P11, P110, P210 등)를 찾을 수 없습니다.",
+            );
+        }
+
+        const records = [];
+
+        for (
+            const block of blocks
+        ) {
+            const parsed =
+                parseBoeingPanel(
+                    block.panel,
+                    block.lines,
+                );
+
+            records.push(
+                ...parsed,
+            );
+        }
+
+        if (!records.length) {
+            throw new Error(
+                "붙여넣을 Boeing C/B 데이터를 찾을 수 없습니다.",
+            );
+        }
+
+        return records;
+    }
+
+    /* =====================================================
+       BOEING MANUAL CSV
+       ===================================================== */
+
+    function parseBoeingManualCsv(
+        rawText,
+    ) {
+        const lines =
+            normalizeLines(
+                rawText,
+            );
+
+        return lines.map(
+            (line, index) => {
+                const columns =
+                    line
+                        .split(",")
+                        .map(clean);
+
+                const [
+                    panel_loc,
+                    cb_loc,
+                    fin,
+                ] = columns;
+
+                const description =
+                    columns
+                        .slice(3)
+                        .join(", ")
+                        .trim();
+
+                if (
+                    columns.length < 4 ||
+                    !panel_loc ||
+                    !cb_loc ||
+                    !description
+                ) {
+                    throw new Error(
+                        `${index + 1}번째 줄을 확인해 주세요. ` +
+                            "PANEL, C/B LOC', FIN, DESCRIPTION 순서로 입력하세요.",
+                    );
+                }
+
+                return {
+                    cockpit: "",
+                    ee: "",
+                    etc: "",
+
+                    panel_loc,
+                    cb_loc,
+                    fin,
+                    description,
+
+                    warning: "",
+                };
+            },
+        );
+    }
+
+    /* =====================================================
+       BOEING AUTO DETECTION
+       ===================================================== */
+
+    function looksLikeBoeing(lines) {
+        return lines.some(
+            (line) =>
+                BOEING_HEADER.test(
+                    clean(line),
+                ) ||
+                isBoeingPanelTitle(
+                    line,
+                ),
+        );
+    }
+
+
 
     /* =====================================================
        PUBLIC API
@@ -1480,41 +1912,51 @@
             return [];
         }
 
-        /* -------------------------------------------------
-           BOEING MANUAL DIRECT INPUT
-           ------------------------------------------------- */
+        /* =============================================
+           AIRBUS VERTICAL
+           ============================================= */
+
+        const verticalAirbusRecords = parseVerticalAirbusTable(text);
+
+        if (verticalAirbusRecords) {
+            return verticalAirbusRecords;
+        }
+
+        /* =============================================
+           BOEING MANUAL
+           ============================================= */
 
         if (format === "boeing-manual") {
             return parseBoeingManualCsv(text);
         }
 
-        /* -------------------------------------------------
+        /* =============================================
            BOEING
-           ------------------------------------------------- */
+           ============================================= */
 
         if (format === "boeing") {
             return parseBoeing(text);
         }
 
-        /* -------------------------------------------------
-           AIRBUS / GENERAL
-           ------------------------------------------------- */
+        /* =============================================
+           AIRBUS
+           ============================================= */
 
         if (format === "airbus" || format === "general") {
             return parseAirbus(text);
         }
 
-        /* -------------------------------------------------
+        /* =============================================
            UNKNOWN FORMAT
-           ------------------------------------------------- */
+           ============================================= */
 
         if (format !== "auto") {
             throw new Error(`지원하지 않는 붙여넣기 형식입니다: ${format}`);
         }
 
-        /* -------------------------------------------------
+        /* =============================================
            AUTO DETECTION
-           ------------------------------------------------- */
+           ============================================= */
 
         if (looksLikeBoeing(lines)) {
             return parseBoeing(text);
@@ -1532,8 +1974,9 @@
      *
      * window.parseCBClipboard(...)
      *
-     * 형태로 호출할 수 있도록 등록합니다.
+     * 형태로 호출
      */
+
     if (typeof window !== "undefined") {
         window.parseCBClipboard = parseClipboard;
     }

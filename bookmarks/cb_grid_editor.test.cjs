@@ -631,7 +631,24 @@ test("template import highlights rows that duplicate existing document data", as
         );
         assert.match(
             await page.locator("#cbOpenSaveMessage").textContent(),
-            /겹치는 2개 행/,
+            /모든 값이 같은 중복 데이터 2개 행/,
+        );
+
+        await page
+            .locator('#cbOpenListBody [data-field="open_shop"]')
+            .nth(1)
+            .fill("MCC");
+        assert.equal(
+            await page.locator("#cbOpenListBody tr.cb-open-row-duplicate").count(),
+            0,
+        );
+        await page
+            .locator('#cbOpenListBody [data-field="open_shop"]')
+            .first()
+            .fill("MCC");
+        assert.equal(
+            await page.locator("#cbOpenListBody tr.cb-open-row-duplicate").count(),
+            2,
         );
 
         await page
