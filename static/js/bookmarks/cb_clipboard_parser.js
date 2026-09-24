@@ -1912,13 +1912,21 @@
             );
         }
 
-        if (!records.length) {
+        const printableRecords = records.filter(
+            (record) =>
+                !(
+                    record?._merges &&
+                    /^AAR\s*ALL$/i.test(clean(record.panel_loc))
+                ),
+        );
+
+        if (!printableRecords.length) {
             throw new Error(
                 "붙여넣을 Boeing C/B 데이터를 찾을 수 없습니다.",
             );
         }
 
-        return records;
+        return printableRecords;
     }
 
     /* =====================================================

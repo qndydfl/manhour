@@ -60,7 +60,6 @@ test("split Boeing rows allow a missing number and AAR between row and column", 
             { panel_loc: "AAR 122-124", cb_loc: "", description: "", merged: true },
             { panel_loc: "P11", cb_loc: "A 5", description: "L ENGINE FUELSPAR VALVE", merged: false },
             { panel_loc: "AAR 107, 116-121, 201, 202, 205-999", cb_loc: "", description: "", merged: true },
-            { panel_loc: "AAR ALL", cb_loc: "", description: "", merged: true },
             { panel_loc: "P11", cb_loc: "A 18", description: "L ENGINE FUEL SPAR VALVE", merged: false },
         ],
     );
@@ -90,7 +89,6 @@ test("Boeing AAR and row pairs map to following mixed column data", () => {
         [
             ["AAR 107, 116-121, 201, 202, 205-999", "", "", true],
             ["P11", "A 18", "L ENGINE FUEL SPAR VALVE", false],
-            ["AAR ALL", "", "", true],
             ["P11", "B 4", "L ENG FUELVALVE", false],
         ],
     );
@@ -127,7 +125,6 @@ test("mixed Boeing copy styles in one panel are parsed by section", () => {
             ["P11", "A 5", "L ENGINE FUELSPAR VALVE", false],
             ["AAR 107, 116-121, 201, 202, 205-999", "", "", true],
             ["P11", "A 18", "L ENGINE FUEL SPAR VALVE", false],
-            ["AAR ALL", "", "", true],
             ["P11", "B 4", "L ENG FUELVALVE", false],
         ],
     );
@@ -181,7 +178,6 @@ test("multiple Boeing panels support column-major and AAR grouped rows", () => {
             ["P200", "B 3", "SLATS ELEC MOT PWR", false],
             ["AAR 116, 201, 202, 205-999", "", "", true],
             ["P200", "D 8", "SLATS ELEC MOT PWR", false],
-            ["AAR ALL", "", "", true],
             ["P310", "G 12", "SLATS PRI DR CTRL 1", false],
         ],
     );
