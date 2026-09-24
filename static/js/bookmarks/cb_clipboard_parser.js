@@ -368,7 +368,7 @@
 
     function extractPanelCode(line) {
         const match = clean(line).match(
-            /\bP\d+[A-Z]?\b/i,
+            /\b[PM]\d+[A-Z]?\b/i,
         );
 
         return match
@@ -380,9 +380,10 @@
         const value = clean(line);
 
         return (
-            /panel/i.test(value) &&
-            Boolean(
-                extractPanelCode(value),
+            Boolean(extractPanelCode(value)) &&
+            (
+                /panel/i.test(value) ||
+                /,\s*[PM]\d+[A-Z]?\s*$/i.test(value)
             )
         );
     }
@@ -799,6 +800,25 @@
             }
 
             /* =========================================
+            NUMBER + DESCRIPTION
+
+            예: CBA1-C ACE PWR
+            ========================================= */
+
+            const numberDescription = line.match(
+                /^([A-Z]+\d+[A-Z0-9-]*)\s+(.+)$/i,
+            );
+
+            if (numberDescription) {
+                tokens.push({
+                    type: "number_description",
+                    number: clean(numberDescription[1]),
+                    description: clean(numberDescription[2]),
+                });
+                continue;
+            }
+
+            /* =========================================
             ROW
             ========================================= */
 
@@ -904,6 +924,7 @@
          * 세 값을 동시에 공급합니다.
          */
         const packedRows = [];
+        const numberDescriptionRows = [];
 
         for (const token of tokens) {
             switch (token.type) {
@@ -947,6 +968,13 @@
 
                         description:
                             token.description,
+                    });
+                    break;
+
+                case "number_description":
+                    numberDescriptionRows.push({
+                        number: token.number,
+                        description: token.description,
                     });
                     break;
 
@@ -1007,7 +1035,11 @@
                 return;
             }
 
-            if (token.type === "packed" || token.type === "description") {
+            if (
+                token.type === "packed" ||
+                token.type === "description" ||
+                token.type === "number_description"
+            ) {
                 completedTailCount += 1;
             }
         });
@@ -1227,6 +1259,16 @@
             });
         }
 
+        numberDescriptionRows.forEach((item, index) => {
+            const col = cols[separatedCount + index];
+            if (!col) return;
+            tails.push({
+                col,
+                number: item.number,
+                description: item.description,
+            });
+        });
+
         /* =================================================
         특별 복원
         ================================================= */
@@ -1259,6 +1301,7 @@
 
         let pendingCol = "";
         let pendingNumber = "";
+        let semanticInvalid = false;
 
         for (const token of tokens) {
             /*
@@ -1324,7 +1367,8 @@
                  * 구조가 불명확
                  */
                 if (pendingCol) {
-                    return null;
+                    semanticInvalid = true;
+                    break;
                 }
 
                 pendingCol =
@@ -1344,7 +1388,8 @@
                     !pendingCol ||
                     pendingNumber
                 ) {
-                    return null;
+                    semanticInvalid = true;
+                    break;
                 }
 
                 pendingNumber =
@@ -1387,18 +1432,17 @@
          * 정상 복원 실패
          */
         if (
-            pendingCol ||
-            pendingNumber
+            !semanticInvalid &&
+            (pendingCol || pendingNumber)
         ) {
-            return null;
+            semanticInvalid = true;
         }
 
         /* =================================================
         semanticTails가 충분하면 우선 사용
         ================================================= */
 
-        let resolvedTails =
-            semanticTails;
+        let resolvedTails = semanticInvalid ? [] : semanticTails;
 
         /*
          * semantic parser가 PDF column-major 때문에
