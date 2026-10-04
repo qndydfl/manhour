@@ -71,7 +71,7 @@ DEFAULT_HISTORY_VISIBILITY_HOURS = 24
 DEFAULT_AUTO_ARCHIVE_HOURS = 12
 DEFAULT_WORKER_LIMIT_MH = 9.0
 
-CHECKWX_CACHE_KEY = "checkwx:metar:v1"
+CHECKWX_CACHE_KEY = "checkwx:metar:v2"
 
 
 def set_workplace_in_session(request, workplace: str | None) -> str:
@@ -3063,20 +3063,46 @@ def _fetch_checkwx_metar():
     data = payload.get("data", []) if payload else []
     results = []
     for item in data:
-        wind_dir = item.get("wind", {}).get("direction")
-        wind_speed = item.get("wind", {}).get("speed_kts")
+        wind_data = item.get("wind") or {}
+        wind_dir = wind_data.get("degrees")
+        wind_speed = wind_data.get("speed_kts")
         pressure_hpa = item.get("barometer", {}).get("hpa") or item.get(
             "altimeter", {}
         ).get("hpa")
+
+        raw_text = item.get("raw_text") or ""
+        condition = "-"
+        if "CAVOK" in raw_text.upper():
+            condition = "CAVOK"
+        else:
+            clouds = item.get("clouds") or []
+            ceiling = next(
+                (
+                    cloud
+                    for cloud in clouds
+                    if (cloud.get("code") or "").upper() in {"BKN", "OVC", "VV"}
+                ),
+                clouds[0] if clouds else None,
+            )
+            if ceiling:
+                cloud_code = (ceiling.get("code") or "").upper()
+                cloud_base = ceiling.get("base_feet_agl")
+                if cloud_code and cloud_base is not None:
+                    condition = f"{cloud_code} {cloud_base}ft"
+                elif cloud_code:
+                    condition = cloud_code
 
         results.append(
             {
                 "icao": item.get("icao"),
                 "station": item.get("station", {}).get("name"),
                 "observed": item.get("observed"),
-                "raw_text": item.get("raw_text"),
+                "raw_text": raw_text,
                 "flight_category": item.get("flight_category"),
                 "temp_c": item.get("temperature", {}).get("celsius"),
+                "dewpoint_c": item.get("dewpoint", {}).get("celsius"),
+                "humidity": item.get("humidity"),
+                "condition": condition,
                 "wind": wind_dir and wind_speed and f"{wind_dir}° {wind_speed}kt",
                 "wind_dir": wind_dir,
                 "wind_speed": wind_speed,
@@ -3090,12 +3116,16 @@ def _fetch_checkwx_metar():
 class CheckWxMetarApiView(View):
     def get(self, request, *args, **kwargs):
         cached = cache.get(CHECKWX_CACHE_KEY)
-        if cached is not None:
+        # 일시적인 외부 통신 실패로 저장된 빈 목록은 사용하지 않습니다.
+        if cached:
             return JsonResponse({"stations": cached})
 
         stations = _fetch_checkwx_metar()
-        cache_seconds = getattr(settings, "CHECKWX_CACHE_SECONDS", 600)
-        cache.set(CHECKWX_CACHE_KEY, stations, cache_seconds)
+        if stations:
+            cache_seconds = getattr(settings, "CHECKWX_CACHE_SECONDS", 600)
+            cache.set(CHECKWX_CACHE_KEY, stations, cache_seconds)
+        else:
+            cache.delete(CHECKWX_CACHE_KEY)
         return JsonResponse({"stations": stations})
 
 

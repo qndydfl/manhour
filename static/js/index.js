@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const indexElement = (attribute, value, legacySelector) =>
+        document.querySelector(`[data-index-${attribute}="${value}"]`) ||
+        document.querySelector(legacySelector);
+
     window.addEventListener("pageshow", (event) => {
         if (event.persisted) {
             window.location.reload();
@@ -19,55 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const mobileWorkspaceQuery = window.matchMedia("(max-width: 700px)");
-    const mobileWorkspaces = document.querySelectorAll("[data-mobile-workspace]");
-
-    function setWorkspaceExpanded(workspace, isExpanded) {
-        workspace.classList.toggle("is-mobile-expanded", isExpanded);
-        workspace.setAttribute("aria-expanded", String(isExpanded));
-    }
-
-    function syncMobileWorkspaces() {
-        mobileWorkspaces.forEach((workspace) => {
-            if (mobileWorkspaceQuery.matches) {
-                setWorkspaceExpanded(workspace, false);
-            } else {
-                workspace.classList.remove("is-mobile-expanded");
-                workspace.removeAttribute("aria-expanded");
-            }
-        });
-    }
-
-    mobileWorkspaces.forEach((workspace) => {
-        workspace.addEventListener("click", (event) => {
-            if (!mobileWorkspaceQuery.matches) return;
-
-            const isExpanded = workspace.classList.contains("is-mobile-expanded");
-            const toggleHeader = event.target.closest(".portal-workspace-top");
-
-            if (isExpanded && !toggleHeader) return;
-
-            event.preventDefault();
-
-            mobileWorkspaces.forEach((otherWorkspace) => {
-                if (otherWorkspace !== workspace) {
-                    setWorkspaceExpanded(otherWorkspace, false);
-                }
-            });
-
-            setWorkspaceExpanded(workspace, !isExpanded);
-        });
-    });
-
-    mobileWorkspaceQuery.addEventListener("change", syncMobileWorkspaces);
-    syncMobileWorkspaces();
-
-    const timeEl = document.getElementById("digital-time");
-    const dateEl = document.getElementById("digital-date");
-    const weekdayEl = document.getElementById("digital-weekday");
-    const utcEl = document.getElementById("digital-time-utc");
-    const utcDateEl = document.getElementById("digital-date-utc");
-    const utcWeekdayEl = document.getElementById("digital-weekday-utc");
+    const timeEl = indexElement("clock", "local-time", "#digital-time");
+    const dateEl = indexElement("clock", "local-date", "#digital-date");
+    const weekdayEl = indexElement("clock", "local-weekday", "#digital-weekday");
+    const utcEl = indexElement("clock", "utc-time", "#digital-time-utc");
+    const utcDateEl = indexElement("clock", "utc-date", "#digital-date-utc");
+    const utcWeekdayEl = indexElement("clock", "utc-weekday", "#digital-weekday-utc");
 
     function formatDateParts(date, useUTC = false) {
         const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
@@ -141,8 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.requestAnimationFrame(step);
     }
 
-    animateNumber(document.querySelector(".active-count-num"));
-    animateNumber(document.querySelector(".history-count-num"));
+    animateNumber(indexElement("count", "active", ".active-count-num"));
+    animateNumber(indexElement("count", "history", ".history-count-num"));
 
     window.addEventListener("beforeunload", () => {
         if (clockTimer) window.clearInterval(clockTimer);
@@ -150,6 +111,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+    const countElement = (name, legacySelector) =>
+        document.querySelector(`[data-index-count="${name}"]`) ||
+        document.querySelector(legacySelector);
+
     async function loadDashboardCounts() {
         const url = window.INDEX_PAGE?.dashboardCountsUrl;
 
@@ -177,9 +142,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateDashboardNumbers(data) {
-        const activeEl = document.querySelector(".active-count-num");
-        const historyEl = document.querySelector(".history-count-num");
-        const masterDataEl = document.querySelector(".master-data-count-num");
+        const activeEl = countElement("active", ".active-count-num");
+        const historyEl = countElement("history", ".history-count-num");
+        const masterDataEl = countElement("master", ".master-data-count-num");
         const masterBadgeEls = document.querySelectorAll("#masterDataBadge");
 
         if (activeEl) activeEl.textContent = data.activeCount;
@@ -204,18 +169,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // METAR (CheckWX)
 document.addEventListener("DOMContentLoaded", function () {
-    const panel = document.getElementById("metarPanel");
-    if (!panel) return;
-    if (window.matchMedia("(max-width: 700px)").matches) return;
+    const metarElement = (name, legacyId) =>
+        document.querySelector(`[data-index-metar="${name}"]`) ||
+        document.getElementById(legacyId);
 
-    const tabsEl = document.getElementById("metarTabs");
-    const stationEl = document.getElementById("metarStation");
-    const updatedEl = document.getElementById("metarUpdated");
-    const tempEl = document.getElementById("metarTemp");
-    const windEl = document.getElementById("metarWind");
-    const visibilityEl = document.getElementById("metarVisibility");
-    const pressureEl = document.getElementById("metarPressure");
-    const rawEl = document.getElementById("metarRaw");
+    const panel = metarElement("panel", "metarPanel");
+    if (!panel) return;
+
+    const tabsEl = metarElement("tabs", "metarTabs");
+    const stationEl = metarElement("station", "metarStation");
+    const updatedEl = metarElement("updated", "metarUpdated");
+    const tempEl = metarElement("temp", "metarTemp");
+    const windEl = metarElement("wind", "metarWind");
+    const visibilityEl = metarElement("visibility", "metarVisibility");
+    const pressureEl = metarElement("pressure", "metarPressure");
+    const categoryEl = metarElement("category", "metarCategory");
+    const rawEl = metarElement("raw", "metarRaw");
+    const dewpointEl = metarElement("dewpoint");
+    const humidityEl = metarElement("humidity");
+    const conditionEl = metarElement("condition");
+    const conditionNoteEl = metarElement("condition-note");
+    const summaryStationEl = metarElement("summary-station");
+    const summaryTempEl = metarElement("summary-temp");
+    const summaryWindEl = metarElement("summary-wind");
+    const summaryCategoryEl = metarElement("summary-category");
 
     let metarStations = [];
     let activeIndex = 0;
@@ -242,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return `
                     <button
                         type="button"
-                        class="btn btn-sm ${isActive ? "btn-light" : "btn-outline-light"}"
+                        class="btn btn-sm ${isActive ? "active" : ""}"
                         data-metar-index="${index}"
                     >
                         ${label}
@@ -273,7 +250,22 @@ document.addEventListener("DOMContentLoaded", function () {
             if (windEl) windEl.textContent = "-";
             if (visibilityEl) visibilityEl.textContent = "-";
             if (pressureEl) pressureEl.textContent = "-";
+            if (categoryEl) {
+                categoryEl.textContent = "--";
+                delete categoryEl.dataset.category;
+            }
             if (rawEl) rawEl.textContent = "-";
+            if (dewpointEl) dewpointEl.textContent = "-";
+            if (humidityEl) humidityEl.textContent = "-";
+            if (conditionEl) conditionEl.textContent = "-";
+            if (conditionNoteEl) conditionNoteEl.textContent = "기상 정보 없음";
+            if (summaryStationEl) summaryStationEl.textContent = "AIRPORT";
+            if (summaryTempEl) summaryTempEl.textContent = "--";
+            if (summaryWindEl) summaryWindEl.textContent = "Unavailable";
+            if (summaryCategoryEl) {
+                summaryCategoryEl.textContent = "--";
+                delete summaryCategoryEl.dataset.category;
+            }
             return;
         }
 
@@ -335,9 +327,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 ? "-"
                 : `${station.pressure_hpa}hPa`;
 
-        const updated = station.observed
-            ? `Updated: ${station.observed}`
-            : "Updated: -";
+        let updated = "Updated: -";
+        if (station.observed) {
+            const observedAt = new Date(station.observed);
+            updated = Number.isNaN(observedAt.getTime())
+                ? `Updated: ${station.observed}`
+                : `Updated ${observedAt.toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      timeZone: "UTC",
+                  })} UTC`;
+        }
+
+        const category = station.flight_category || "--";
+        const dewpoint =
+            station.dewpoint_c === null || station.dewpoint_c === undefined
+                ? "-"
+                : `${station.dewpoint_c}°C`;
+        const humidity =
+            station.humidity === null || station.humidity === undefined
+                ? "-"
+                : `${Math.round(Number(station.humidity))}%`;
+        const condition = station.condition || "-";
+        const conditionCode = condition.split(/\s+/)[0].toUpperCase();
+        const conditionNotes = {
+            CAVOK: "시정 양호 · 중요 기상 없음",
+            FEW: "구름 적음",
+            SCT: "구름 다소",
+            BKN: "구름 많음",
+            OVC: "흐림",
+            VV: "수직 시정",
+            SKC: "맑음",
+            CLR: "맑음",
+            NSC: "중요한 구름 없음",
+            NCD: "구름 관측 없음",
+        };
+        const conditionNote =
+            condition === "-"
+                ? "기상 정보 없음"
+                : conditionNotes[conditionCode] || "현재 기상 상태";
 
         if (stationEl) stationEl.textContent = `${title} ${icao}`.trim();
         if (updatedEl) updatedEl.textContent = updated;
@@ -345,7 +373,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (windEl) windEl.textContent = wind;
         if (visibilityEl) visibilityEl.textContent = vis;
         if (pressureEl) pressureEl.textContent = pressure;
+        if (categoryEl) {
+            categoryEl.textContent = category;
+            if (category === "--") delete categoryEl.dataset.category;
+            else categoryEl.dataset.category = category;
+        }
         if (rawEl) rawEl.textContent = station.raw_text || "-";
+        if (dewpointEl) dewpointEl.textContent = dewpoint;
+        if (humidityEl) humidityEl.textContent = humidity;
+        if (conditionEl) conditionEl.textContent = condition;
+        if (conditionNoteEl) conditionNoteEl.textContent = conditionNote;
+        if (summaryStationEl) summaryStationEl.textContent = station.icao || "AIRPORT";
+        if (summaryTempEl) summaryTempEl.textContent = temp;
+        if (summaryWindEl) summaryWindEl.textContent = wind;
+        if (summaryCategoryEl) {
+            summaryCategoryEl.textContent = category;
+            if (category === "--") delete summaryCategoryEl.dataset.category;
+            else summaryCategoryEl.dataset.category = category;
+        }
 
     }
 
@@ -387,7 +432,22 @@ document.addEventListener("DOMContentLoaded", function () {
             if (windEl) windEl.textContent = "-";
             if (visibilityEl) visibilityEl.textContent = "-";
             if (pressureEl) pressureEl.textContent = "-";
+            if (categoryEl) {
+                categoryEl.textContent = "--";
+                delete categoryEl.dataset.category;
+            }
             if (rawEl) rawEl.textContent = "-";
+            if (dewpointEl) dewpointEl.textContent = "-";
+            if (humidityEl) humidityEl.textContent = "-";
+            if (conditionEl) conditionEl.textContent = "-";
+            if (conditionNoteEl) conditionNoteEl.textContent = "기상 정보 없음";
+            if (summaryStationEl) summaryStationEl.textContent = "AIRPORT";
+            if (summaryTempEl) summaryTempEl.textContent = "--";
+            if (summaryWindEl) summaryWindEl.textContent = "Unavailable";
+            if (summaryCategoryEl) {
+                summaryCategoryEl.textContent = "--";
+                delete summaryCategoryEl.dataset.category;
+            }
         }
     }
 

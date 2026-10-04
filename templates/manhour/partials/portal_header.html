@@ -39,6 +39,46 @@
             </div>
             {% endif %}
 
+            <div class="dropdown portal-quick-dropdown">
+                <button
+                    type="button"
+                    class="portal-quick-button dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="즐겨 찾기 열기"
+                >
+                    <i class="bi bi-grid-fill"></i>
+                    <span>즐겨 찾기</span>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-end portal-quick-menu">
+                    <div class="portal-quick-menu__heading">
+                        <span>즐겨 찾기</span>
+                        <small>자주 사용하는 운영 시스템</small>
+                    </div>
+                    <a class="dropdown-item portal-quick-menu__primary" href="{% url 'bookmarks:cb_template_library' %}" target="_blank">
+                        <span class="portal-quick-menu__icon"><i class="bi bi-clipboard2-pulse"></i></span>
+                        <span><strong>C/B Open List</strong><small>Clipboard worksheet</small></span>
+                    </a>
+                    <a class="dropdown-item" href="https://login.koreanair.com/" target="_blank" rel="noopener noreferrer">
+                        <span class="portal-quick-menu__icon"><i class="bi bi-box-arrow-up-right"></i></span>
+                        <span><strong>Korean Air</strong><small>External system</small></span>
+                    </a>
+                    <a class="dropdown-item" href="https://www.flightradar24.com/" target="_blank" rel="noopener noreferrer">
+                        <span class="portal-quick-menu__icon"><i class="bi bi-radar"></i></span>
+                        <span><strong>Flight Radar</strong><small>Flight tracking</small></span>
+                    </a>
+                    <a class="dropdown-item" href="https://ammis.flyasiana.com/kor" target="_blank" rel="noopener noreferrer">
+                        <span class="portal-quick-menu__icon"><i class="bi bi-journal-text"></i></span>
+                        <span><strong>AMMIS</strong><small>Maintenance system</small></span>
+                    </a>
+                    <a class="dropdown-item" href="https://mae.flyasiana.com/nexa/" target="_blank" rel="noopener noreferrer">
+                        <span class="portal-quick-menu__icon"><i class="bi bi-tools"></i></span>
+                        <span><strong>정비 홈페이지</strong><small>Maintenance portal</small></span>
+                    </a>
+                </div>
+            </div>
+
             {% if request.session.is_authenticated %}
             <div class="dropdown portal-account-dropdown">
                 <button
