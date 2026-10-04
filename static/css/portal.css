@@ -1294,7 +1294,7 @@ body.portal-body {
 
     min-height: 100vh;
 
-    padding-top: 76px;
+    padding-top: 60px;
 
     background: var(--portal-bg);
 
@@ -1337,7 +1337,7 @@ body.portal-body {
 .portal-header-inner {
     width: min(var(--portal-width), calc(100% - 64px));
 
-    min-height: 76px;
+    min-height: 60px;
 
     margin: 0 auto;
 
@@ -1367,8 +1367,8 @@ body.portal-body {
 }
 
 .portal-brand-icon {
-    width: 42px;
-    height: 42px;
+    width: 34px;
+    height: 34px;
 
     display: flex;
 
@@ -1382,7 +1382,7 @@ body.portal-body {
 
     background: rgba(255, 255, 255, 0.06);
 
-    font-size: 19px;
+    font-size: 16px;
 }
 
 .portal-brand-name {
@@ -1481,7 +1481,7 @@ body.portal-body {
 }
 
 .portal-account-button {
-    min-height: 48px;
+    min-height: 38px;
     padding: 5px 12px 5px 6px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
@@ -1500,26 +1500,22 @@ body.portal-body {
 }
 
 .portal-account-avatar {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     border-radius: 9px;
     display: grid;
     place-items: center;
     background: #2563eb;
     color: #ffffff;
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: 0.02em;
 }
 
 .portal-account-copy {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     min-width: 92px;
-}
-
-.portal-account-copy small {
-    color: #60a5fa;
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-    letter-spacing: 0.12em;
 }
 
 .portal-account-copy strong {
@@ -1584,7 +1580,7 @@ body.portal-body {
 }
 
 .portal-login-button {
-    min-height: 42px;
+    min-height: 38px;
     padding: 0 15px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 10px;
@@ -1725,11 +1721,10 @@ body.portal-body {
 @media (max-width: 575.98px) {
     .portal-header-inner {
         width: calc(100% - 28px);
-        min-height: 68px;
+        min-height: 48px;
     }
 
-    .portal-brand-description,
-    .portal-account-copy small {
+    .portal-brand-description {
         display: none;
     }
 

@@ -448,7 +448,7 @@ body.worker-panel-open .manning-main {
 
 /* Worker directory */
 #loadWorkersPanel.worker-offcanvas {
-    top: 88px;
+    top: 60px;
     bottom: 0;
     left: 0;
     width: var(--worker-panel-width) !important;
@@ -613,7 +613,7 @@ body.worker-panel-open .manning-main {
 
 @media (min-width: 901px) and (max-width: 1100px) {
     #loadWorkersPanel.worker-offcanvas {
-        top: 88px;
+        top: 60px;
         width: var(--worker-panel-width) !important;
     }
 }

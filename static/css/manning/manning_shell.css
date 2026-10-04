@@ -157,7 +157,7 @@ body.manning-v2-body {
 }
 
 .manning-brand {
-    min-height: 88px;
+    min-height: 60px;
 
     padding: 0 22px;
 
@@ -185,8 +185,8 @@ body.manning-v2-body {
 }
 
 .manning-brand-symbol {
-    width: 43px;
-    height: 43px;
+    width: 34px;
+    height: 34px;
 
     display: flex;
 
@@ -202,7 +202,7 @@ body.manning-v2-body {
 
     color: #60a5fa;
 
-    font-size: 19px;
+    font-size: 16px;
 }
 
 .manning-brand-copy strong {
@@ -377,7 +377,7 @@ body.manning-v2-body {
 ========================================================= */
 
 .manning-topbar {
-    min-height: 88px;
+    min-height: 60px;
 
     padding: 0 34px;
 
@@ -539,7 +539,7 @@ body.manning-v2-body {
 
     margin: 0 auto;
 
-    padding: calc(88px + var(--nav-content-gap)) 36px var(--nav-content-gap);
+    padding: calc(60px + var(--nav-content-gap)) 36px var(--nav-content-gap);
 }
 
 .manning-sidebar-overlay {
@@ -623,7 +623,7 @@ body.manning-v2-body {
     }
 
     .manning-content {
-        padding: calc(88px + var(--nav-content-gap-mobile)) 20px
+        padding: calc(60px + var(--nav-content-gap-mobile)) 20px
             var(--nav-content-gap-mobile);
     }
 
