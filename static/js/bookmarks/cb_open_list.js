@@ -1442,22 +1442,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "aria-pressed",
                 String(rowFilterPanelVisible),
             );
-
-            // const label = rowFilterPanelToggle.querySelector("span");
-
-            // if (label) {
-            //     label.textContent = rowFilterPanelVisible
-            //         ? " 문서 항목 필터 숨기기"
-            //         : " 문서 항목 필터 표시";
-            // }
-
-            // const icon = rowFilterPanelToggle.querySelector("i");
-
-            // if (icon) {
-            //     icon.className = rowFilterPanelVisible
-            //         ? "bi bi-eye-slash"
-            //         : "bi bi-funnel";
-            // }
         }
     }
 
@@ -2012,6 +1996,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ];
 
         let sourceIndex = 0;
+        let nextPrintRowNumber = 1;
         do {
             const page = document.createElement("section");
             page.className = "cb-print-page";
@@ -2076,10 +2061,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     ".cb-open-col-resizer, .cb-open-row-resizer",
                 ).forEach((child) => child.remove());
                 const numberCell = row.querySelector(".cb-open-number-cell");
-                if (numberCell)
-                    numberCell.textContent = String(
-                        printBody.children.length + 1,
-                    );
+                const isMergedRow = Array.from(row.cells).some(
+                    (cell) => cell.colSpan > 1 || cell.rowSpan > 1,
+                );
+                if (numberCell) {
+                    numberCell.textContent = isMergedRow
+                        ? ""
+                        : String(nextPrintRowNumber);
+                }
+                row.dataset.printConsumesNumber = String(!isMergedRow);
+                if (!isMergedRow) nextPrintRowNumber += 1;
                 printBody.appendChild(row);
             };
             while (
@@ -2107,7 +2098,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     .map((row) => row.cloneNode(true));
                 group.forEach(appendRow);
                 if (!fits() && previousCount) {
+                    const consumedNumbers = group.filter(
+                        (row) => row.dataset.printConsumesNumber === "true",
+                    ).length;
                     group.forEach((row) => row.remove());
+                    nextPrintRowNumber -= consumedNumbers;
                     break;
                 }
                 sourceIndex = groupEnd;
@@ -2130,6 +2125,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     appendRow(blank);
                     if (!fits()) {
                         blank.remove();
+                        nextPrintRowNumber -= 1;
                         break;
                     }
                 }

@@ -803,6 +803,31 @@ test("document merges survive reload and print without empty continuation pages"
                 (_, index) => `${index + 1} / ${printedPageCount}`,
             ),
         );
+        const printedRowNumbers = (
+            await page
+                .locator(".cb-print-page .cb-open-number-cell")
+                .allTextContents()
+        )
+            .filter((value) => value.trim())
+            .map(Number);
+        assert.deepEqual(
+            printedRowNumbers,
+            Array.from(
+                { length: printedRowNumbers.length },
+                (_, index) => index + 1,
+            ),
+        );
+        assert.equal(
+            await page
+                .locator('.cb-print-page td[rowspan="2"]')
+                .first()
+                .evaluate(
+                    (cell) =>
+                        cell.closest("tr").querySelector(".cb-open-number-cell")
+                            .textContent,
+                ),
+            "",
+        );
         const printState = await page
             .locator(".cb-print-page")
             .evaluateAll((pages) =>
