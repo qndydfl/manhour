@@ -1387,26 +1387,20 @@ body.portal-body {
 
 .portal-brand-name {
     font-size: 14px;
-
     font-weight: 800;
-
     letter-spacing: 0.13em;
 }
 
 .portal-brand-description {
     margin-top: 2px;
-
     color: #94a3b8;
-
     font-size: var(--font-size-sm);
 }
 
 .portal-header-right {
     display: flex;
-
     align-items: center;
-
-    gap: 24px;
+    gap: 9px;
 }
 
 .portal-shift-badge {
