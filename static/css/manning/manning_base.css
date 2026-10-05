@@ -465,6 +465,10 @@ body.manning-v2-body {
     letter-spacing: -0.03em;
 }
 
+.manning-topbar .bi {
+    font-size: 0.85em;
+}
+
 .manning-topbar-right {
     display: flex;
 

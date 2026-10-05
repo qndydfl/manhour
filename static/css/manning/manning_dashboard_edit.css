@@ -635,6 +635,10 @@ body.worker-panel-open .manning-main {
         gap: 12px;
     }
 
+    .edit-memo-panel {
+        order: -1;
+    }
+
     .edit-main-panel,
     .memo-card {
         border-radius: 12px;
@@ -792,9 +796,14 @@ body.worker-panel-open .manning-main {
         flex-direction: column;
     }
 
+    .memo-card-header .text-primary {
+        font-size: 13px;
+    }
+
     .memo-save-btn {
         width: 100%;
-        min-height: 40px;
+        min-height: 36px;
+        font-size: 12px;
     }
 
     .memo-body {
@@ -876,31 +885,57 @@ body.worker-panel-open .manning-main {
 /* Keep this page's toolbar and content offset in sync on phones. */
 @media (max-width: 700px) {
     .manning-dashboard-edit-body .manning-topbar {
-        flex-wrap: wrap;
-        gap: 6px;
-        padding: 6px 10px;
+        padding: 0;
     }
 
-    .manning-dashboard-edit-body .manning-topbar-right {
-        display: contents;
-    }
-
-    .manning-dashboard-edit-body .edit-topbar-cluster {
-        order: 3;
-        flex: 0 0 100%;
-    }
-
-    .manning-dashboard-edit-body .edit-header-actions {
-        grid-template-columns: 36px 36px 50px 36px 36px;
+    .manning-dashboard-edit-body .manning-topbar-inner {
+        min-height: 48px;
+        padding: 6px 8px;
+        flex-wrap: nowrap;
         gap: 5px;
     }
 
-    .manning-dashboard-edit-body .edit-header-actions > .edit-toolbar-btn {
-        width: 100%;
+    .manning-dashboard-edit-body .manning-topbar-left {
         min-width: 0;
-        min-height: 36px;
+        flex: 1 1 auto;
+    }
+
+    .manning-dashboard-edit-body .manning-topbar-left > div {
+        min-width: 0;
+        display: block;
+    }
+
+    .manning-dashboard-edit-body .manning-topbar-right {
+        width: auto;
+        min-width: 0;
+        margin-left: auto;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .manning-dashboard-edit-body .edit-topbar-cluster {
+        width: auto;
+        order: initial;
+        flex: 0 0 auto;
+    }
+
+    .manning-dashboard-edit-body .edit-header-actions {
+        grid-template-columns: repeat(5, 32px);
+        gap: 5px;
+    }
+
+    .manning-dashboard-edit-body .edit-toolbar-label {
+        display: none;
+    }
+
+    .manning-dashboard-edit-body .edit-header-actions > .edit-toolbar-btn {
+        width: 32px;
+        min-width: 0;
+        min-height: 32px;
         padding: 4px;
-        font-size: 12px;
+        font-size: 14px;
         white-space: nowrap;
         grid-column: auto;
     }

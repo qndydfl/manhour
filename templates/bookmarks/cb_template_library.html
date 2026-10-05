@@ -10,18 +10,22 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20260922-8"
+    href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20261005-7"
 />
-{% endblock css %} {% block js %} {{ block.super }}
-<script
-    defer
-    src="{% static 'js/bookmarks/cb_home.js' %}?v=20260913-1"
-></script>
-<script
-    defer
-    src="{% static 'js/bookmarks/cb_template_library.js' %}?v=20260915-3"
-></script>
-{% endblock js %} {% block content %}
+{% endblock css %} 
+{% block js %} 
+    {{ block.super }}
+    <script
+        defer
+        src="{% static 'js/bookmarks/cb_home.js' %}?v=20260913-1"
+    ></script>
+    <script
+        defer
+        src="{% static 'js/bookmarks/cb_template_library.js' %}?v=20260915-3"
+    ></script>
+{% endblock js %} 
+
+{% block content %}
 
 <header class="assignment-topbar">
     <div class="assignment-topbar-inner">
@@ -57,153 +61,137 @@
 </header>
 
 <main id="cbTemplateLibrary" class="cb-library-page">
-    <!-- =================================================
-    AIRCRAFT CARDS
-    ================================================== -->
 
-    <section
-    id="cbAircraftCardGrid"
-    class="cb-aircraft-card-grid"
->
-    {% for group in aircraft_groups %}
+    <section id="cbAircraftCardGrid" class="cb-aircraft-card-grid">
+        {% for group in aircraft_groups %}
 
-    <a
-        href="{% url 'bookmarks:cb_aircraft_home' group.aircraft_model %}"
-        class="cb-aircraft-card cb-aircraft-workspace-card"
-        data-aircraft-card
-        data-aircraft="{{ group.aircraft_model }}"
-        data-aircraft-key="{{ group.aircraft_model|lower }}"
-        aria-label="{{ group.aircraft_model }} C/B Workspace 열기"
-    >
+        <a
+            href="{% url 'bookmarks:cb_aircraft_home' group.aircraft_model %}"
+            class="cb-aircraft-card cb-aircraft-workspace-card"
+            data-aircraft-card
+            data-aircraft="{{ group.aircraft_model }}"
+            data-aircraft-key="{{ group.aircraft_model|lower }}"
+            aria-label="{{ group.aircraft_model }} C/B Workspace 열기"
+        >
 
-        <!-- =============================================
-            AIRCRAFT IMAGE
-        ============================================== -->
+            <!-- =============================================
+                AIRCRAFT IMAGE
+            ============================================== -->
 
-        <div class="cb-aircraft-workspace-image">
+            <div class="cb-aircraft-workspace-image">
 
-            {% if group.image %}
+                {% if group.image %}
 
-            <img
-                src="{{ group.image }}"
-                alt="{{ group.aircraft_model }}"
-                loading="lazy"
-            />
-
-            {% else %}
-
-            <img
-                src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
-                alt="{{ group.aircraft_model }}"
-                loading="lazy"
-            />
-
-            {% endif %}
-
-
-            <!-- Manufacturer -->
-
-            <div class="cb-aircraft-workspace-brand">
-
-                {% if group.aircraft_model|slice:":1" == "A" %}
-
-                <i class="bi bi-airplane-engines"></i>
-                <span>AIRBUS</span>
-
-                {% elif group.aircraft_model|slice:":1" == "B" %}
-
-                <i class="bi bi-airplane-engines"></i>
-                <span>BOEING</span>
+                <img
+                    src="{{ group.image }}"
+                    alt="{{ group.aircraft_model }}"
+                    loading="lazy"
+                />
 
                 {% else %}
 
-                <i class="bi bi-airplane"></i>
-                <span>AIRCRAFT</span>
+                <img
+                    src="{% static 'images/bookmarks/aircraft/default.jpg' %}"
+                    alt="{{ group.aircraft_model }}"
+                    loading="lazy"
+                />
 
                 {% endif %}
 
-            </div>
 
-        </div>
+                <!-- Manufacturer -->
 
+                <div class="cb-aircraft-workspace-brand">
 
-        <!-- =============================================
-            WORKSPACE INFO
-        ============================================== -->
+                    {% if group.aircraft_model|slice:":1" == "A" %}
 
-        <div class="cb-aircraft-workspace-content">
+                    <i class="bi bi-airplane-engines"></i>
+                    <span>AIRBUS</span>
 
-            <div class="cb-aircraft-workspace-copy">
+                    {% elif group.aircraft_model|slice:":1" == "B" %}
 
-                <span class="cb-aircraft-workspace-eyebrow">
-                    AIRCRAFT WORKSPACE
-                </span>
+                    <i class="bi bi-airplane-engines"></i>
+                    <span>BOEING</span>
 
-                <h2>
-                    {{ group.aircraft_model }}
-                </h2>
+                    {% else %}
 
-                {% if group.representative_submodel %}
-                <span class="cb-aircraft-representative-submodel">
-                    ({{ group.representative_submodel }})
-                </span>
-                {% endif %}
+                    <i class="bi bi-airplane"></i>
+                    <span>AIRCRAFT</span>
 
-                <p>
-                    C/B 문서 및 템플릿 관리
-                </p>
-
-
-                <div class="cb-aircraft-workspace-meta">
-
-                    <span>
-                        <i class="bi bi-collection"></i>
-
-                        {{ group.template_count }}
-                        개의 템플릿
-                    </span>
+                    {% endif %}
 
                 </div>
 
             </div>
 
+            <div class="cb-aircraft-workspace-content">
 
-            <!-- Arrow -->
+                <div class="cb-aircraft-workspace-copy">
 
-            <span class="cb-aircraft-workspace-arrow">
+                    <span class="cb-aircraft-workspace-eyebrow">
+                        AIRCRAFT WORKSPACE
+                    </span>
 
-                <i class="bi bi-arrow-right"></i>
+                    <h2>
+                        {{ group.aircraft_model }}
+                    </h2>
 
+                    {% if group.representative_submodel %}
+                    <span class="cb-aircraft-representative-submodel">
+                        ({{ group.representative_submodel }})
+                    </span>
+                    {% endif %}
+
+                    <p>
+                        C/B 문서 및 템플릿 관리
+                    </p>
+
+
+                    <div class="cb-aircraft-workspace-meta">
+
+                        <span>
+                            <i class="bi bi-collection"></i>
+
+                            {{ group.template_count }}
+                            개의 템플릿
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Arrow -->
+
+                <span class="cb-aircraft-workspace-arrow">
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </span>
+
+            </div>
+
+        </a>
+
+
+        {% empty %}
+
+        <div class="cb-library-empty-aircraft">
+
+            <i class="bi bi-airplane"></i>
+
+            <strong>
+                등록된 기종이 없습니다.
+            </strong>
+
+            <span>
+                관리자에서 기종을 등록해 주세요.
             </span>
 
         </div>
 
-    </a>
-
-
-    {% empty %}
-
-    <div class="cb-library-empty-aircraft">
-
-        <i class="bi bi-airplane"></i>
-
-        <strong>
-            등록된 기종이 없습니다.
-        </strong>
-
-        <span>
-            관리자에서 기종을 등록해 주세요.
-        </span>
-
-    </div>
-
-    {% endfor %}
-</section>
-
-
-    <!-- =================================================
-    NO SEARCH RESULT
-    ================================================== -->
+        {% endfor %}
+    </section>
 
     <div id="cbAircraftSearchEmpty" class="cb-library-search-empty" hidden>
         <i class="bi bi-search"></i>
@@ -212,10 +200,6 @@
 
         <span> 다른 기종명을 입력해 주세요. </span>
     </div>
-
-    <!-- =================================================
-    SELECTED AIRCRAFT PANEL
-    ================================================== -->
 
     <section id="cbTemplateResultPanel" class="cb-template-result-panel" hidden>
         <!-- POINTER -->

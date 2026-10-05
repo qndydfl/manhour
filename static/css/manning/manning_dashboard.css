@@ -610,9 +610,16 @@
 }
 
 @media (max-width: 700px) {
+    .manning-dashboard-content-stack {
+        gap: 14px;
+    }
+
+    .manning-dashboard-content-stack > .manning-dashboard-section {
+        margin: 0;
+    }
+
     .manning-dashboard-memo-section {
         order: 0;
-        margin-top: 0;
     }
 
     .manning-dashboard-memo-head strong {
@@ -621,7 +628,6 @@
 
     .manning-dashboard-area-section {
         order: 1;
-        margin-top: 14px;
     }
 
     .manning-dashboard-section-head h3 {

@@ -8,9 +8,14 @@
 {% block page_title %} 세션 보기 {% endblock page_title %}
 
 {% block topbar_right %}
-<a href="{% url 'manning:create_session' %}" class="manning-primary-button">
+<a
+    href="{% url 'manning:create_session' %}"
+    class="manning-primary-button"
+    aria-label="세션 생성"
+    title="세션 생성"
+>
     <i class="bi bi-plus-lg"></i>
-    세션 생성
+    <span class="manning-topbar-action-label">세션 생성</span>
 </a>
 {% endblock topbar_right %} 
 

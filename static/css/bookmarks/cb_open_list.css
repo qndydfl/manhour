@@ -1,12 +1,3 @@
-/* =========================================================
-BOOKMARKS — C/B OPEN LIST
-========================================================= */
-
-/* =========================================================
-    ROOT
-========================================================= */
-
-/* Document typography applies equally to the screen preview and print. */
 #cbOpenSheet .cb-open-aircraft-number {
     font-size: var(--cb-document-aircraft-font, 18px);
 }
@@ -1097,17 +1088,11 @@ TABLE HEADING / TABLE ACTIONS
 /* 오른쪽 버튼 영역 */
 .cb-open-table-actions {
     flex: 0 0 auto;
-
     margin-left: auto;
-
     display: flex;
-
     align-items: center;
-
     justify-content: flex-end;
-
     flex-wrap: nowrap;
-
     gap: 6px;
 }
 
@@ -2245,6 +2230,7 @@ RESPONSIVE — TABLET
     }
 
     .cb-open-topbar-inner {
+        width: 100%;
         height: 100%;
 
         padding: 7px 10px;
@@ -2306,6 +2292,7 @@ RESPONSIVE — TABLET
     }
 
     .cb-open-page {
+        width: 100%;
         padding: 10px;
     }
 
@@ -2359,7 +2346,7 @@ RESPONSIVE — MOBILE
     }
 
     .cb-open-brand-text strong {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .cb-open-brand-text small {
@@ -2375,7 +2362,7 @@ RESPONSIVE — MOBILE
 
         align-items: center;
 
-        justify-content: flex-start;
+        justify-content: flex-end;
 
         flex-wrap: nowrap;
 
@@ -2386,19 +2373,17 @@ RESPONSIVE — MOBILE
     }
 
     .cb-open-top-btn {
+        width: 30px;
         flex: 0 0 auto;
-
-        min-width: auto;
-
-        min-height: 34px;
-
-        padding: 5px 8px;
-
-        gap: 4px;
+        min-height: 30px;
+        padding: 0;
 
         font-size: 11px;
+    }
 
-        white-space: nowrap;
+    .cb-open-top-btn > span,
+    .cb-open-tools-menu .dropdown-toggle::after {
+        display: none;
     }
 
     .cb-open-document-bar {
@@ -2429,6 +2414,25 @@ RESPONSIVE — MOBILE
 
     .cb-open-page {
         padding: 10px;
+    }
+
+    .cb-open-table-heading {
+        align-items: center;
+        gap: 0;
+    }
+
+    .cb-open-table-heading > div:first-child {
+        display: none;
+    }
+
+    .cb-open-table-actions .btn {
+        width: 34px;
+        min-height: 34px;
+        padding: 0;
+    }
+
+    .cb-open-table-actions .btn > span {
+        display: none;
     }
 
     .cb-open-paste-card {
@@ -3087,10 +3091,6 @@ TEMPLATE ICON
     font-size: 17px;
 }
 
-/* =========================================================
-TEMPLATE SELECT / BUTTON
-========================================================= */
-
 .cb-open-template-import-control {
     width: 100%;
 
@@ -3106,10 +3106,6 @@ TEMPLATE SELECT / BUTTON
 
     gap: 8px;
 }
-
-/* =========================================================
-TEMPLATE SELECT
-========================================================= */
 
 .cb-open-template-import-control .form-select {
     width: 100%;
@@ -3268,21 +3264,9 @@ TEMPLATE CARD — LOADING / DISABLED VISUAL
     color: #94a3b8;
 }
 
-/* =========================================================
-PREVIEW MODE
-========================================================= */
-
-/*
- * A4 미리보기에서는
- * 붙여넣기 / Template 가져오기 도구를 모두 숨깁니다.
- */
 .cb-open-preview-mode .cb-open-input-tools {
     display: none !important;
 }
-
-/* =========================================================
-RESPONSIVE — TABLET
-========================================================= */
 
 @media screen and (max-width: 900px) {
     .cb-open-input-tools {
@@ -3302,10 +3286,6 @@ RESPONSIVE — TABLET
         padding-top: 0;
     }
 }
-
-/* =========================================================
-RESPONSIVE — MOBILE
-========================================================= */
 
 @media screen and (max-width: 700px) {
     .cb-open-input-tools {
@@ -3341,12 +3321,8 @@ RESPONSIVE — MOBILE
         font-size: 11px;
     }
 
-    /*
-     * 모바일 Safari/Chrome에서
-     * select 선택 시 자동 확대 방지
-     */
     .cb-open-template-import-control .form-select {
-        font-size: 16px;
+        font-size: 0.85rem;
     }
 }
 

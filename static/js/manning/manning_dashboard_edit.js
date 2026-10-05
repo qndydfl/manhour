@@ -695,11 +695,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = `'${areaName}' 구역을 삭제하시겠습니까?`;
         const confirmed = window.AppDialog
             ? await window.AppDialog.confirm(message, {
-                  title: "구역 삭제",
-                  variant: "danger",
-                  confirmText: "삭제",
-                  cancelText: "취소",
-              })
+                title: "구역 삭제",
+                variant: "danger",
+                confirmText: "삭제",
+                cancelText: "취소",
+            })
             : window.confirm(message);
 
         if (!confirmed) return;
@@ -1066,7 +1066,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (clearAssignedBtn) {
-        clearAssignedBtn.addEventListener("click", () => {
+        clearAssignedBtn.addEventListener("click", async () => {
+            const message =
+                "모든 구역에 입력된 작업자 이름을 삭제하시겠습니까?\n저장하기 전까지는 변경 사항을 취소할 수 있습니다.";
+            const confirmed = window.AppDialog
+                ? await window.AppDialog.confirm(message, {
+                    title: "전체 이름 삭제",
+                    variant: "danger",
+                    confirmText: "전체 삭제",
+                    cancelText: "취소",
+                })
+                : window.confirm(message);
+
+            if (!confirmed) return;
+
             document
                 .querySelectorAll(
                     "textarea[name='area_workers'], textarea[name='new_area_workers'], textarea#newAreaWorkersInput",

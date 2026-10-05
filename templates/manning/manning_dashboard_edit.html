@@ -27,6 +27,7 @@
             data-bs-toggle="offcanvas"
             data-bs-target="#loadWorkersPanel"
             aria-label="작업자 명단"
+            title="작업자 명단"
         >
             <i class="bi bi-people"></i>
             <span class="edit-toolbar-label">작업자 명단</span>
@@ -38,6 +39,8 @@
             class="edit-toolbar-btn edit-toolbar-btn-primary
             edit-toolbar-btn-mobile-icon"
             data-bs-toggle="modal"
+            aria-label="행 추가"
+            title="행 추가"
         >
             <i class="bi bi-plus-circle"></i>
             <span class="edit-toolbar-label"> 행 추가</span>
@@ -46,6 +49,8 @@
         <a
             href="{% url 'manning:manning_dashboard' session.id %}"
             class="edit-toolbar-btn edit-toolbar-btn-light"
+            aria-label="편집 취소"
+            title="취소"
         >
             <i class="bi bi-x-lg"></i> 
             <span class="edit-toolbar-label">취소</span>
@@ -56,6 +61,7 @@
             class="edit-toolbar-btn edit-toolbar-btn-danger edit-toolbar-btn-mobile-icon"
             id="btn-clear-assigned"
             aria-label="전체 이름 삭제"
+            title="전체 이름 삭제"
         >
             <i class="bi bi-person-x"></i>
             <span class="edit-toolbar-label">전체 이름 삭제</span>
@@ -66,6 +72,8 @@
             class="edit-toolbar-btn edit-toolbar-btn-primary
             edit-toolbar-btn-mobile-icon"
             form="areaEditForm"
+            aria-label="변경 사항 저장"
+            title="저장"
         >
             <i class="bi bi-check-lg"></i>
             <span class="edit-toolbar-label">저장</span>
@@ -81,7 +89,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20261005-2"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20261005-9"
 />
 {% endblock css %} 
 
@@ -94,7 +102,7 @@
 </script>
 <script
     defer
-    src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20260905-1"
+    src="{% static 'js/manning/manning_dashboard_edit.js' %}?v=20261005-1"
 ></script>
 {{ worker_names|json_script:"manhourWorkers" }}
 {{default_worker_names|json_script:"defaultWorkerNames" }} 

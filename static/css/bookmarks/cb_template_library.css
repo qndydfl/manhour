@@ -1065,23 +1065,112 @@ button.cb-library-card {
 
 @media (max-width: 700px) {
 
+    .cb-aircraft-settings {
+        --bs-offcanvas-width: min(360px, 92vw);
+    }
+
+    .cb-aircraft-settings-header {
+        min-height: 62px;
+        padding: 10px 12px;
+    }
+
+    .cb-aircraft-settings-header .offcanvas-title {
+        font-size: 14px;
+    }
+
+    .cb-aircraft-settings-header small {
+        font-size: 10px;
+    }
+
+    .cb-aircraft-settings-body {
+        padding: 8px;
+    }
+
+    .cb-aircraft-settings-section {
+        margin-bottom: 8px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .cb-aircraft-settings-section .form-label {
+        margin-bottom: 4px;
+        font-size: 12px;
+    }
+
+    .cb-aircraft-settings-section .form-control,
+    .cb-aircraft-settings-section .form-select,
+    .cb-aircraft-settings-section button {
+        min-height: 36px;
+        font-size: 13px;
+    }
+
+    .cb-aircraft-settings-section .form-text,
+    .cb-aircraft-settings-status {
+        font-size: 11px;
+    }
+
+    .cb-library-body .assignment-topbar-inner {
+        width: 100%;
+        padding: 0 8px;
+        justify-content: space-between;
+        gap: 6px;
+    }
+
+    .cb-library-body .assignment-topbar-actions {
+        flex: 0 0 auto;
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+
+    .cb-library-page {
+        width: calc(100% - 16px);
+    }
+
     .cb-aircraft-list-hero {
         grid-template-columns:
-            80px minmax(0, 1fr);
+            72px minmax(0, 1fr);
 
-        gap:
-            13px;
-
-        padding:
-            13px;
+        gap: 10px;
+        padding: 10px;
     }
-
 
     .cb-aircraft-list-image {
-        height:
-            68px;
+        height: 62px;
     }
 
+    .cb-library-eyebrow {
+        margin-bottom: 4px;
+        font-size: 10px;
+    }
+
+    .cb-aircraft-list-copy h1 {
+        font-size: 22px;
+    }
+
+    .cb-aircraft-list-copy p {
+        margin-top: 4px;
+        font-size: 12px;
+    }
+
+    .cb-aircraft-action-grid .cb-library-card {
+        min-height: 118px;
+        padding: 12px;
+        gap: 5px;
+    }
+
+    .cb-aircraft-action-grid .cb-library-card > i {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+
+    .cb-aircraft-action-grid .cb-library-card strong {
+        font-size: 15px;
+    }
+
+    .cb-aircraft-action-grid .cb-library-card span {
+        font-size: 11px;
+    }
 
     .cb-aircraft-list-hero >
     .cb-template-new-button {
@@ -1110,11 +1199,30 @@ button.cb-library-card {
 
 
     .cb-aircraft-template-row {
-        gap:
-            9px;
+        gap: 8px;
+        padding: 10px;
+    }
 
-        padding:
-            12px;
+    .cb-template-item-icon {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        font-size: 15px;
+    }
+
+    .cb-template-item-copy strong {
+        font-size: 14px;
+    }
+
+    .cb-template-item-copy small,
+    .cb-template-item-edit {
+        font-size: 11px;
+    }
+
+    .cb-template-new-button {
+        min-height: 36px;
+        padding: 0 12px;
+        font-size: 12px;
     }
 
 }
@@ -1129,13 +1237,16 @@ button.cb-library-card {
     .cb-library-body
     .assignment-topbar-inner {
         width:
-            min(100% - 24px, 1320px);
+            100%;
+
+        padding:
+            0 8px;
     }
 
 
     .cb-library-page {
         width:
-            min(100% - 24px, 1320px);
+            calc(100% - 16px);
 
         padding-top:
             22px;

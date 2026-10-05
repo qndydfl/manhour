@@ -9,23 +9,28 @@
 
 {% block topbar_right %}
 <div class="manning-dashboard-topbar-actions">
+    <a
+        href="{% url 'manning:manning_list' %}"
+        class="manning-dashboard-btn manning-dashboard-btn-topbar-light"
+        aria-label="세션 목록"
+        title="세션 목록"
+    >
+        <i class="bi bi-arrow-left"></i>
+        <span class="manning-topbar-action-label">세션</span>
+    </a>
+
     {% if is_same_site %}
     <a
         href="{% url 'manning:manning_dashboard_edit' session.id %}"
         class="manning-dashboard-btn manning-dashboard-btn-primary"
+        aria-label="세션 구역 편집"
+        title="편집"
     >
         <i class="bi bi-pencil-square"></i>
-        편집
+        <span class="manning-topbar-action-label">편집</span>
     </a>
     {% endif %}
-
-    <a
-        href="{% url 'manning:manning_list' %}"
-        class="manning-dashboard-btn manning-dashboard-btn-topbar-light"
-    >
-        <i class="bi bi-arrow-left"></i>
-        Sessions
-    </a>
+    
 </div>
 {% endblock topbar_right %}
 
@@ -131,7 +136,7 @@
         <div class="manning-dashboard-section-head">
             <div>
                 <h3 class="manning-dashboard-section-title">
-                    Session Manning
+                    세션 구역
                 </h3>
             </div>
         </div>

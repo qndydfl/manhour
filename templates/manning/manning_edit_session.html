@@ -1,7 +1,7 @@
 {% extends 'manning/base/manning_base.html' %} 
 {% load static %} 
 
-{% block title %} Edit Maintenance Session | Manning {% endblock title %} 
+{% block title %} 세션 수정 하기 | Manning {% endblock title %} 
 
 {% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
@@ -25,15 +25,20 @@
     <a
         href="{% url 'manning:manning_list' %}"
         class="manning-form-topbar-action manning-form-topbar-action-secondary"
+        aria-label="세션 목록"
+        title="세션 목록"
     >
         <i class="bi bi-arrow-left"></i>
-        <span class="manning-form-topbar-label">Session</span>
+        <span class="manning-form-topbar-label">세션</span>
     </a>
     <a
         href="{% url 'manning:manning_list' %}"
         class="manning-form-topbar-action manning-form-topbar-action-secondary"
+        aria-label="수정 취소"
+        title="취소"
     >
-        취소
+        <i class="bi bi-x-lg"></i>
+        <span class="manning-form-topbar-label">취소</span>
     </a>
 
     <button
@@ -41,9 +46,10 @@
         form="editSessionForm"
         class="manning-form-topbar-action manning-form-topbar-action-primary"
         aria-label="세션 변경 사항 저장"
+        title="저장"
     >
         <i class="bi bi-check2"></i>
-        저장
+        <span class="manning-form-topbar-label">저장</span>
     </button>
 {% endblock topbar_right %}
 
@@ -66,10 +72,10 @@
                             <div class="manning-form-panel-number">01</div>
 
                             <div>
-                                <strong> Session Information </strong>
+                                <strong> 세션 정보 </strong>
 
                                 <small>
-                                    Update maintenance operation details
+                                    정비 작업 세부 정보를 업데이트합니다.
                                 </small>
                             </div>
                         </div>
@@ -83,7 +89,7 @@
 
                             <div class="manning-form-field">
                                 <label class="manning-form-label">
-                                    Aircraft Registration
+                                    항공기 등록
 
                                     <span class="manning-form-required">
                                         *
@@ -103,7 +109,7 @@
 
                             <div class="manning-form-field">
                                 <label class="manning-form-label">
-                                    Work Package
+                                    작업 패키지
 
                                     <span class="manning-form-required">
                                         *
@@ -187,9 +193,9 @@
                             <div class="manning-form-panel-number">02</div>
 
                             <div>
-                                <strong> Area Configuration </strong>
+                                <strong> 세션 구역 설정 </strong>
 
-                                <small> Change session area layout </small>
+                                <small> 세션 구역 레이아웃 변경 </small>
                             </div>
                         </div>
 
@@ -199,10 +205,10 @@
                     <div class="manning-form-panel-body">
                         <div class="manning-template-heading">
                             <div>
-                                <strong> Base Template </strong>
+                                <strong> 기본 템플릿 </strong>
 
                                 <span>
-                                    변경 시 현재 Area 구성이 새 Template
+                                    변경 시 현재 구역 구성이 새 템플릿
                                     기준으로 다시 생성됩니다.
                                 </span>
                             </div>

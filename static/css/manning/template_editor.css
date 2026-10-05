@@ -63,44 +63,30 @@
 
 .template-summary-card {
     min-height: 100px;
-
     padding: 19px 20px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     gap: 20px;
-
     border: 1px solid var(--manning-border-soft);
-
     border-radius: 15px;
-
     background: var(--manning-surface);
-
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
 }
 
 .template-summary-card span {
     display: block;
-
     color: var(--manning-text-3);
-
     font-size: var(--font-size-xs);
     font-weight: 800;
-
     letter-spacing: 0.12em;
 }
 
 .template-summary-card strong {
     display: block;
-
     margin-top: 8px;
-
-    font-size: 28px;
-
     line-height: 1;
-
     letter-spacing: -0.04em;
 }
 
@@ -144,19 +130,6 @@
     justify-content: space-between;
 
     gap: 20px;
-}
-
-.template-editor-section-label {
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: var(--manning-blue);
-
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-
-    letter-spacing: 0.15em;
 }
 
 .template-editor-section-title {
@@ -360,9 +333,24 @@
 }
 
 .template-delete-wrap label {
+    margin: 0;
     color: #dc2626;
 
     font-size: var(--font-size-xs);
+}
+
+.template-delete-wrap .form-check {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.template-delete-wrap .form-check-input {
+    flex: 0 0 auto;
+    width: var(--font-size-xs);
+    height: var(--font-size-xs);
+    margin: 0;
 }
 
 /* =========================================================
@@ -707,19 +695,117 @@
 }
 
 @media (max-width: 760px) {
-
-
-
-
     .template-editor-summary {
+        margin-bottom: 16px;
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .template-summary-card {
+        min-height: 76px;
+        padding: 14px;
+    }
+
+    .template-summary-card strong {
+        margin-top: 5px;
+        font-size: 22px;
+    }
+
+    .template-summary-card span {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+    }
+
+    .template-summary-card .template-summary-copy {
+        font-size: 15px;
+        letter-spacing: -0.02em;
+    }
+
+    .template-summary-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        font-size: 14px;
+    }
+
+    .template-editor-form {
+        gap: 18px;
+    }
+
+    .template-editor-section-head {
+        margin-bottom: 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .template-editor-section-note {
+        line-height: 1.45;
     }
 
     .template-meta-grid {
         grid-template-columns: 1fr;
+        margin-bottom: 16px;
     }
 
+    .template-block {
+        margin-bottom: 10px;
+        border-radius: 12px;
+    }
 
+    .template-accordion .accordion-button,
+    .new-template-accordion .accordion-button {
+        padding: 12px;
+    }
+
+    .template-accordion .accordion-button > .w-100 {
+        padding-right: 28px !important;
+    }
+
+    .template-block-title {
+        min-width: 0;
+        gap: 9px;
+    }
+
+    .template-block-title-copy {
+        min-width: 0;
+    }
+
+    .template-block-title-copy strong,
+    .template-block-title-copy small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .template-block-side {
+        display: none;
+    }
+
+    .template-accordion .accordion-body,
+    .new-template-accordion .accordion-body {
+        padding: 14px;
+    }
+
+    .template-dnd-toolbar,
+    .template-raw-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .template-position-grid,
+    .template-text-grid {
+        gap: 8px;
+    }
+
+    .dnd-column {
+        padding: 10px;
+    }
+
+    .dnd-item {
+        min-height: 40px;
+    }
 
     .template-save-btn {
         width: 100%;

@@ -12,22 +12,32 @@
     <a
         href="{% url 'manning:manning_list' %}"
         class="template-editor-header-btn"
+        aria-label="세션 목록"
+        title="세션 목록"
     >
         <i class="bi bi-arrow-left"></i>
-        세션
+        <span class="manning-topbar-action-label">세션</span>
     </a>
 
     <a
         href="{% url 'manning:create_session' %}"
         class="template-editor-header-btn"
+        aria-label="세션 생성"
+        title="세션 생성"
     >
         <i class="bi bi-plus-lg"></i>
-        세션 생성
+        <span class="manning-topbar-action-label">세션 생성</span>
     </a>
 
-    <button type="submit" form="templateEditorForm" class="template-save-btn">
+    <button
+        type="submit"
+        form="templateEditorForm"
+        class="template-save-btn"
+        aria-label="템플릿 저장"
+        title="저장"
+    >
         <i class="bi bi-check2 me-1"></i>
-        저장
+        <span class="manning-topbar-action-label">저장</span>
     </button>
 </div>
 {% endblock topbar_right %} 
@@ -35,7 +45,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/template_editor.css' %}?v=20261005-1"
+    href="{% static 'css/manning/template_editor.css' %}?v=20261005-6"
 />
 {% endblock css %} 
 
@@ -46,9 +56,6 @@
 {% block content %}
 
 <div class="template-editor-page">
-    <!-- =====================================================
-        SUMMARY
-    ====================================================== -->
 
     <section class="template-editor-summary">
         <article class="template-summary-card">
@@ -67,7 +74,7 @@
             <div>
                 <span> CONFIGURATION </span>
 
-                <strong style="font-size: 18px"> LEFT / NONE / RIGHT </strong>
+                <strong class="template-summary-copy"> LEFT / NONE / RIGHT </strong>
             </div>
 
             <div class="template-summary-icon">
@@ -79,7 +86,7 @@
             <div>
                 <span> EDIT MODE </span>
 
-                <strong style="font-size: 18px"> DRAG & DROP </strong>
+                <strong class="template-summary-copy"> DRAG & DROP </strong>
             </div>
 
             <div class="template-summary-icon">
@@ -88,24 +95,12 @@
         </article>
     </section>
 
-    <!-- =====================================================
-        FORM
-    ====================================================== -->
-
     <form method="post" id="templateEditorForm" class="template-editor-form">
         {% csrf_token %}
-
-        <!-- =================================================
-            EXISTING TEMPLATES
-        ================================================== -->
 
         <section>
             <div class="template-editor-section-head">
                 <div>
-                    <span class="template-editor-section-label">
-                        EXISTING CONFIGURATIONS
-                    </span>
-
                     <h3 class="template-editor-section-title">
                         현재 템플릿
                     </h3>
@@ -212,8 +207,6 @@
                                 </div>
 
                                 <div class="template-field">
-                                    <label> DELETE </label>
-
                                     <div class="template-delete-wrap">
                                         <div class="form-check">
                                             <input
@@ -228,7 +221,7 @@
                                                 class="form-check-label"
                                                 for="delete-template-{{ template.id }}"
                                             >
-                                                Delete Template
+                                                DELETE
                                             </label>
                                         </div>
                                     </div>
@@ -416,17 +409,9 @@
             {% endif %}
         </section>
 
-        <!-- =================================================
-            NEW TEMPLATE
-        ================================================== -->
-
         <section>
             <div class="template-editor-section-head">
                 <div>
-                    <span class="template-editor-section-label">
-                        NEW CONFIGURATION
-                    </span>
-
                     <h3 class="template-editor-section-title">템플릿 추가</h3>
                 </div>
 

@@ -18,7 +18,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20260922-3"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261005-9"
 />
 {% endblock css %} {% block js %}
 <script
@@ -33,10 +33,9 @@
     defer
     src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20261004-7"
 ></script>
-{% endblock js %} {% block content %}
-<!-- =====================================================
-    TOP BAR
-===================================================== -->
+{% endblock js %} 
+
+{% block content %}
 <header class="cb-open-topbar">
     <div class="cb-open-topbar-inner">
         <!-- 브랜드 -->
@@ -147,9 +146,6 @@
     </div>
 </header>
 
-<!-- =====================================================
-    DOCUMENT INFORMATION
-===================================================== -->
 <section class="cb-open-document-bar">
     <div class="cb-open-document-bar-inner">
         <!-- 기종 -->
@@ -222,19 +218,10 @@
     </div>
 </section>
 
-<!-- =====================================================
-    MAIN
-===================================================== -->
 <main class="cb-open-page">
     {% if request.GET.from_template != "1" %}
-    <!-- =================================================
-        붙여넣기 / 템플릿 가져오기 영역
-    ================================================= -->
     <div class="cb-open-input-tools">
 
-        <!-- =================================================
-            표 데이터 붙여넣기
-        ================================================= -->
         <section class="cb-open-paste-card">
 
             <div class="cb-open-paste-head">
@@ -295,10 +282,6 @@
             ></div>
 
         </section>
-
-        <!-- =================================================
-            템플릿 가져오기
-        ================================================= -->
         <section class="cb-open-template-import-card">
 
             <div class="cb-open-template-import-head">
@@ -365,33 +348,27 @@
             <small>필요한 행을 선택하여 이동, 삭제하거나 새 행을 추가할 수 있습니다.</small>
         </div>
         <div class="cb-open-table-actions">
-            <button id="cbOpenRowFilterPanelToggle" type="button" class="btn btn-outline-secondary btn-sm" aria-pressed="false" disabled>
-                <i class="bi bi-funnel"></i> 문서 항목 필터
+            <button id="cbOpenRowFilterPanelToggle" type="button" class="btn btn-outline-secondary btn-sm" aria-label="문서 항목 필터" aria-pressed="false" disabled>
+                <i class="bi bi-funnel"></i><span>문서 항목 필터</span>
             </button>
-            <button id="cbOpenGridToolsToggle" type="button" class="btn btn-outline-secondary btn-sm" aria-pressed="false">
-                <i class="bi bi-tools"></i> 표 편집 도구
+            <button id="cbOpenGridToolsToggle" type="button" class="btn btn-outline-secondary btn-sm" aria-label="표 편집 도구" aria-pressed="false">
+                <i class="bi bi-tools"></i><span>표 편집 도구</span>
             </button>
-            <button id="cbOpenDeleteSelected" type="button" class="btn btn-outline-danger btn-sm" disabled>
-                <i class="bi bi-trash3"></i> 선택 삭제
+            <button id="cbOpenDeleteSelected" type="button" class="btn btn-outline-danger btn-sm" aria-label="선택 삭제" disabled>
+                <i class="bi bi-trash3"></i><span>선택 삭제</span>
             </button>
-            <button id="cbOpenListAddRow" type="button" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-plus-lg"></i> 행 추가
+            <button id="cbOpenListAddRow" type="button" class="btn btn-outline-primary btn-sm" aria-label="행 추가">
+                <i class="bi bi-plus-lg"></i><span>행 추가</span>
             </button>
         </div>
     </div>
 
-    <!-- =================================================
-        A4 문서
-    ================================================= -->
     <section
         class="cb-open-sheet-stage"
         tabindex="0"
         aria-label="C/B 문서 표 — 작은 화면에서는 좌우로 스크롤하세요"
     >
         <div class="cb-open-sheet" id="cbOpenSheet">
-            <!-- =========================================
-                        문서 제목
-                    ========================================= -->
             <div class="cb-open-sheet-header">
                 <!-- 기번 -->
                 <div class="cb-open-aircraft-number">
@@ -480,10 +457,6 @@
 
                         <col data-col="confirm" />
                     </colgroup>
-
-                    <!-- =================================
-                        TABLE HEADER
-                    ================================= -->
                     <thead>
                         <!-- 1단 헤더 -->
                         <tr>
@@ -631,18 +604,9 @@
                             </th>
                         </tr>
                     </thead>
-
-                    <!-- =================================
-                        TABLE BODY
-                        JS에서 자동 생성
-                    ================================= -->
                     <tbody id="cbOpenListBody"></tbody>
                 </table>
             </div>
-
-            <!-- =========================================
-            DOCUMENT FOOTER
-            ========================================= -->
             <footer class="cb-open-sheet-footer">
                 <!-- 왼쪽 -->
                 <div class="cb-open-footer-left" id="cbOpenFooterIssueDate">
@@ -840,9 +804,6 @@
     </div>
 </aside>
 
-<!-- =====================================================
-    설정 OFFCANVAS
-===================================================== -->
 {% if request.session.user_role == 'admin' %}
 <div
     class="offcanvas offcanvas-end cb-open-settings"
@@ -850,9 +811,7 @@
     id="cbOpenSettingsPanel"
     aria-labelledby="cbOpenSettingsTitle"
 >
-    <!-- =================================================
-        SETTINGS HEADER
-    ================================================= -->
+    
     <div class="offcanvas-header cb-open-settings-header">
         <div class="cb-open-settings-heading">
             <div class="cb-open-settings-icon">
@@ -876,9 +835,6 @@
         ></button>
     </div>
 
-    <!-- =================================================
-        SETTINGS BODY
-    ================================================= -->
     <div class="offcanvas-body cb-open-settings-body">
         <section class="cb-setting-section">
             <div class="cb-setting-section-header">
@@ -893,24 +849,6 @@
                     >
                 </div>
             </div>
-            {% comment %}
-            <div class="d-flex gap-2">
-                <button
-                    type="button"
-                    id="cbOpenListAddRow"
-                    class="btn cb-setting-action-btn flex-fill"
-                >
-                    <i class="bi bi-plus-lg"></i> 줄 추가
-                </button>
-                <button
-                    type="button"
-                    id="cbOpenListDeleteRow"
-                    class="btn cb-setting-action-btn flex-fill"
-                >
-                    <i class="bi bi-dash-lg"></i> 줄 삭제
-                </button>
-            </div>
-            {% endcomment %}
         </section>
 
         <section class="cb-setting-section">
@@ -989,9 +927,6 @@
                 />
             </div>
         </section>
-        <!-- =============================================
-            표 기본 설정
-        ============================================= -->
         <section class="cb-setting-section">
             <div class="cb-setting-section-header">
                 <div class="cb-setting-section-icon">
@@ -1080,10 +1015,6 @@
                 />
             </div>
         </section>
-
-        <!-- =============================================
-            선택한 셀
-        ============================================= -->
         <section class="cb-setting-section">
             <div class="cb-setting-section-header">
                 <div class="cb-setting-section-icon">
@@ -1140,10 +1071,6 @@
                 </button>
             </div>
         </section>
-
-        <!-- =============================================
-            문서 하단 정보
-        ============================================= -->
         <section class="cb-setting-section">
             <div class="cb-setting-section-header">
                 <div class="cb-setting-section-icon">
@@ -1255,9 +1182,6 @@
             </div>
         </section>
 
-        <!-- =============================================
-            고급 열 너비
-        ============================================= -->
         <section class="cb-setting-section">
             <details class="cb-setting-details">
                 <summary>
@@ -1430,9 +1354,6 @@
         </section>
     </div>
 
-    <!-- =================================================
-        SETTINGS FOOTER
-    ================================================= -->
     <div class="cb-open-settings-footer">
         <div class="cb-open-settings-save-info">
             <i class="bi bi-info-circle"></i>
@@ -1450,4 +1371,5 @@
         </button>
     </div>
 </div>
-{% endif %} {% endblock content %}
+{% endif %} 
+{% endblock content %}
