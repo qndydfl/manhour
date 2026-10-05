@@ -5,50 +5,51 @@
 
 {% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block page_title %} Edit Session {% endblock page_title %} 
+{% block page_title %} 세션 수정 하기 {% endblock page_title %} 
 
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_form.css' %}?v=20260827-1"
+    href="{% static 'css/manning/manning_form.css' %}?v=20261005-2"
 />
 {% endblock css %} 
 
 {% block js %}
 <script
     defer
-    src="{% static 'js/manning/manning_create_session.js' %}?v=20260827-2"
+    src="{% static 'js/manning/manning_create_session.js' %}?v=20261005-1"
 ></script>
 {% endblock js %} 
+
+{% block topbar_right %}
+    <a
+        href="{% url 'manning:manning_list' %}"
+        class="manning-form-topbar-action manning-form-topbar-action-secondary"
+    >
+        <i class="bi bi-arrow-left"></i>
+        <span class="manning-form-topbar-label">Session</span>
+    </a>
+    <a
+        href="{% url 'manning:manning_list' %}"
+        class="manning-form-topbar-action manning-form-topbar-action-secondary"
+    >
+        취소
+    </a>
+
+    <button
+        type="submit"
+        form="editSessionForm"
+        class="manning-form-topbar-action manning-form-topbar-action-primary"
+        aria-label="세션 변경 사항 저장"
+    >
+        <i class="bi bi-check2"></i>
+        저장
+    </button>
+{% endblock topbar_right %}
 
 {% block content %}
 
 <div class="manning-form-page">
-    <!-- =====================================================
-        HEADER
-    ====================================================== -->
-
-    <section class="manning-form-header">
-        <div>
-            <div class="manning-form-eyebrow">SESSION CONFIGURATION</div>
-
-            <h2 class="manning-form-title">Edit Maintenance Session</h2>
-
-            <p class="manning-form-description">
-                현재 Session의 Aircraft, Work Package, Shift 및 Area Template
-                구성을 수정합니다.
-            </p>
-        </div>
-
-        <a
-            href="{% url 'manning:manning_list' %}"
-            class="manning-form-header-back"
-        >
-            <i class="bi bi-arrow-left"></i>
-
-            Sessions
-        </a>
-    </section>
 
     <form method="post" id="editSessionForm" novalidate>
         {% csrf_token %}
@@ -285,23 +286,6 @@
                         </div>
                     </div>
 
-                    <footer class="manning-form-actions">
-                        <a
-                            href="{% url 'manning:manning_list' %}"
-                            class="manning-form-action manning-form-action-secondary"
-                        >
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="manning-form-action manning-form-action-primary"
-                        >
-                            <i class="bi bi-check2"></i>
-
-                            Save Changes
-                        </button>
-                    </footer>
                 </section>
             </div>
 

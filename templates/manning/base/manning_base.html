@@ -34,130 +34,25 @@
 
         <link
             rel="stylesheet"
-            href="{% static 'css/manning/manning_shell.css' %}?v=20261004-1"
+            href="{% static 'css/manning/manning_base.css' %}?v=20261005-4"
         />
 
         <link rel="stylesheet" href="{% static 'css/loader.css' %}" />
         <link rel="stylesheet" href="{% static 'css/app_dialog.css' %}" />
         <script src="{% static 'js/loader.js' %}" defer></script>
         <script defer src="{% static 'js/app_dialog.js' %}"></script>
+        <script
+            defer
+            src="{% static 'js/manning/manning_base.js' %}?v=20261005-2"
+        ></script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const sidebar = document.getElementById("manningSidebar");
-
-                const toggle = document.getElementById("manningSidebarToggle");
-
-                if (toggle && sidebar) {
-                    const overlay = document.getElementById(
-                        "manningSidebarOverlay",
-                    );
-
-                    const setSidebarOpen = function (isOpen) {
-                        sidebar.classList.toggle("is-open", isOpen);
-                        document.body.classList.toggle(
-                            "manning-sidebar-open",
-                            isOpen,
-                        );
-                        toggle.setAttribute("aria-expanded", String(isOpen));
-                    };
-
-                    toggle.addEventListener("click", function () {
-                        setSidebarOpen(!sidebar.classList.contains("is-open"));
-                    });
-
-                    if (overlay) {
-                        overlay.addEventListener("click", function () {
-                            setSidebarOpen(false);
-                        });
-                    }
-
-                    document.addEventListener("keydown", function (event) {
-                        if (event.key === "Escape") {
-                            setSidebarOpen(false);
-                        }
-                    });
-                }
-
-                const dateTarget =
-                    document.getElementById("manningCurrentDate");
-
-                if (dateTarget) {
-                    const now = new Date();
-
-                    dateTarget.textContent = new Intl.DateTimeFormat("ko-KR", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        weekday: "short",
-                    }).format(now);
-                }
-
-                const mobileViewport = window.matchMedia("(max-width: 700px)");
-                const mobileFolds =
-                    document.querySelectorAll("[data-mobile-fold]");
-
-                mobileFolds.forEach(function (fold, index) {
-                    const hasVisibleError = fold.querySelector(
-                        ".manning-form-error:not(.d-none), .manning-form-alert:not(.d-none), .alert-danger:not(.d-none)",
-                    );
-                    let isOpen =
-                        fold.dataset.mobileFoldOpen === "true" ||
-                        Boolean(hasVisibleError);
-                    const title = fold.dataset.mobileFoldTitle || "상세 내용";
-                    const toggleButton = document.createElement("button");
-                    const toggleCopy = document.createElement("span");
-                    const toggleIcon = document.createElement("i");
-                    const toggleTitle = document.createElement("strong");
-                    const toggleState = document.createElement("small");
-                    const contentId = fold.id || `mobile-fold-${index + 1}`;
-
-                    toggleButton.type = "button";
-                    toggleButton.className = "mobile-fold-toggle";
-                    toggleButton.setAttribute("aria-controls", contentId);
-                    toggleCopy.className = "mobile-fold-toggle-copy";
-                    toggleIcon.className = "bi bi-chevron-down";
-                    toggleTitle.textContent = title;
-                    toggleState.textContent = "펼쳐보기";
-                    toggleCopy.append(toggleIcon, toggleTitle);
-                    toggleButton.append(toggleCopy, toggleState);
-
-                    fold.id = contentId;
-                    fold.insertBefore(toggleButton, fold.firstChild);
-
-                    const syncFold = function () {
-                        const isMobile = mobileViewport.matches;
-                        fold.classList.toggle("is-mobile-fold", isMobile);
-                        fold.classList.toggle(
-                            "is-mobile-collapsed",
-                            isMobile && !isOpen,
-                        );
-                        toggleButton.hidden = !isMobile;
-                        toggleButton.setAttribute(
-                            "aria-expanded",
-                            String(!isMobile || isOpen),
-                        );
-                        toggleState.textContent = isOpen ? "접기" : "펼쳐보기";
-                    };
-
-                    toggleButton.addEventListener("click", function () {
-                        isOpen = !isOpen;
-                        syncFold();
-                    });
-
-                    mobileViewport.addEventListener("change", syncFold);
-                    syncFold();
-                });
-            });
-        </script>
 
         {% block js %} {% endblock js %} {% block css %} {% endblock css %}
 
         <link
             rel="stylesheet"
-            href="{% static 'css/mobile.css' %}?v=20260905-1"
+            href="{% static 'css/mobile.css' %}?v=20261005-3"
         />
     </head>
 
@@ -258,6 +153,7 @@
                 <!-- Top bar -->
 
                 <header class="manning-topbar">
+                    <div class="manning-topbar-inner">
                     <div class="manning-topbar-left">
                         <button
                             type="button"
@@ -284,7 +180,7 @@
                     <div class="manning-topbar-right">
                         {% block topbar_right %}{% endblock topbar_right %}
 
-                        <div class="manning-topbar-date">
+                        <div class="manning-topbar-date text-white">
                             <i class="bi bi-calendar3"></i>
 
                             <span id="manningCurrentDate"> - </span>
@@ -304,9 +200,6 @@
                                     <strong>
                                         {{ request.session.workplace_label|default:request.session.workplace }}
                                     </strong>
-                                    <span>
-                                        {% if request.session.user_role == "admin" %}Administrator{% else %}Operator{% endif %}
-                                    </span>
                                 </span>
                             </button>
 
@@ -339,7 +232,7 @@
                                             id="manningWorkplaceSelect"
                                             name="workplace"
                                             class="form-select form-select-sm"
-                                            onchange="this.form.submit()"
+                                            data-auto-submit
                                         >
                                             {% for workplace_code, workplace_label in navbar_workplace_options %}
                                             <option
@@ -375,6 +268,7 @@
                                 </a>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </header>
 

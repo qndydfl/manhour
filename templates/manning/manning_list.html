@@ -5,17 +5,17 @@
 
 {% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block page_title %} Sessions {% endblock page_title %} 
+{% block page_title %} 세션 보기 {% endblock page_title %}
 
 {% block topbar_right %}
 <a href="{% url 'manning:create_session' %}" class="manning-primary-button">
     <i class="bi bi-plus-lg"></i>
-    New Session
+    세션 생성
 </a>
 {% endblock topbar_right %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/manning/manning_list.css' %}" />
+<link rel="stylesheet" href="{% static 'css/manning/manning_list.css' %}?v=20261005-2" />
 {% endblock css %} 
 
 {% block js %}
@@ -47,7 +47,7 @@
         <!-- BODY -->
 
         <div class="manning-session-body">
-            <div class="manning-session-type">MAINTENANCE SESSION</div>
+            <div class="manning-session-type">세션 이름</div>
 
             <h3 class="manning-session-name">
                 {{ session.work_package_name }}
@@ -77,14 +77,12 @@
         <!-- FOOTER -->
 
         <div class="manning-session-footer">
-            <div class="manning-area-count">Session #{{ session.id }}</div>
-
             <div class="manning-session-actions">
                 <a
                     href="{% url 'manning:manning_dashboard' session.id %}"
                     class="manning-session-action manning-session-action-primary"
                 >
-                    Dashboard
+                    대시보드
 
                     <i class="bi bi-arrow-right"></i>
                 </a>
@@ -97,7 +95,7 @@
                 >
                     <i class="bi bi-pencil"></i>
 
-                    Edit
+                    편집
                 </a>
 
                 <form
@@ -114,6 +112,7 @@
                     <button
                         type="submit"
                         class="manning-session-action manning-session-action-danger"
+                        title="삭제"
                     >
                         <i class="bi bi-trash3"></i>
                     </button>
@@ -141,7 +140,7 @@
         >
             <i class="bi bi-plus-lg"></i>
 
-            Create Session
+            세션 생성
         </a>
     </div>
 

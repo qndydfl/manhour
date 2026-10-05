@@ -282,13 +282,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
     http_method_names = ["get", "post"]
 
     def get(self, request):
-        active_shift_combos = list(
-            WorkSession.objects.filter(
-                is_active=True, site=_get_current_workplace(request)
-            )
-            .values("aircraft_reg", "block_check", "shift_type")
-            .order_by("id")
-        )
         form = WorkSessionCreateForm()
         templates = _get_area_template_choices()
         if not templates:
@@ -300,7 +293,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                 "form": form,
                 "templates": templates,
                 "selected_template": "",
-                "active_shift_combos": active_shift_combos,
             },
         )
 
@@ -334,11 +326,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     request,
                     "같은 기번/A-Check/Shift로 이미 활성 세션이 있습니다.",
                 )
-                active_shift_combos = list(
-                    WorkSession.objects.filter(is_active=True, site=workplace)
-                    .values("aircraft_reg", "block_check", "shift_type")
-                    .order_by("id")
-                )
                 return render(
                     request,
                     "manning/manning_create_session.html",
@@ -346,17 +333,11 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         "form": form,
                         "templates": _get_area_template_choices(),
                         "selected_template": area_template,
-                        "active_shift_combos": active_shift_combos,
                     },
                 )
 
             if not area_template:
                 messages.error(request, "구역 템플릿 선택은 필수입니다.")
-                active_shift_combos = list(
-                    WorkSession.objects.filter(is_active=True, site=workplace)
-                    .values("aircraft_reg", "block_check", "shift_type")
-                    .order_by("id")
-                )
                 return render(
                     request,
                     "manning/manning_create_session.html",
@@ -364,7 +345,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         "form": form,
                         "templates": _get_area_template_choices(),
                         "selected_template": "",
-                        "active_shift_combos": active_shift_combos,
                     },
                 )
 
@@ -376,11 +356,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                     request,
                     "선택한 Work Package에서 사용할 수 없는 템플릿입니다.",
                 )
-                active_shift_combos = list(
-                    WorkSession.objects.filter(is_active=True, site=workplace)
-                    .values("aircraft_reg", "block_check", "shift_type")
-                    .order_by("id")
-                )
                 return render(
                     request,
                     "manning/manning_create_session.html",
@@ -388,18 +363,12 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         "form": form,
                         "templates": _get_area_template_choices(),
                         "selected_template": "",
-                        "active_shift_combos": active_shift_combos,
                     },
                 )
 
             selected_areas = _get_area_template_items(area_template)
             if not selected_areas:
                 messages.error(request, "선택한 템플릿에 구역이 없습니다.")
-                active_shift_combos = list(
-                    WorkSession.objects.filter(is_active=True, site=workplace)
-                    .values("aircraft_reg", "block_check", "shift_type")
-                    .order_by("id")
-                )
                 return render(
                     request,
                     "manning/manning_create_session.html",
@@ -407,7 +376,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                         "form": form,
                         "templates": _get_area_template_choices(),
                         "selected_template": area_template,
-                        "active_shift_combos": active_shift_combos,
                     },
                 )
 
@@ -449,11 +417,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
             request,
             "입력값을 확인해 주세요. 빨간색으로 표시된 필수 항목을 확인하세요.",
         )
-        active_shift_combos = list(
-            WorkSession.objects.filter(is_active=True, site=workplace)
-            .values("aircraft_reg", "block_check", "shift_type")
-            .order_by("id")
-        )
         return render(
             request,
             "manning/manning_create_session.html",
@@ -461,7 +424,6 @@ class CreateSessionView(ManningSessionRequiredMixin, View):
                 "form": form,
                 "templates": _get_area_template_choices(),
                 "selected_template": (request.POST.get("area_template") or "").strip(),
-                "active_shift_combos": active_shift_combos,
             },
         )
 

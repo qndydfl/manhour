@@ -5,7 +5,7 @@
 
 {% block nav_template_active %} active {% endblock nav_template_active %} 
 
-{% block page_title %} Template Configuration {% endblock page_title %} 
+{% block page_title %} 템플릿 구성 {% endblock page_title %} 
 
 {% block topbar_right %}
 <div class="template-editor-header-actions">
@@ -14,7 +14,7 @@
         class="template-editor-header-btn"
     >
         <i class="bi bi-arrow-left"></i>
-        Sessions
+        세션
     </a>
 
     <a
@@ -22,7 +22,7 @@
         class="template-editor-header-btn"
     >
         <i class="bi bi-plus-lg"></i>
-        New Session
+        세션 생성
     </a>
 
     <button type="submit" form="templateEditorForm" class="template-save-btn">
@@ -35,7 +35,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/template_editor.css' %}?v=20260829-1"
+    href="{% static 'css/manning/template_editor.css' %}?v=20261005-1"
 />
 {% endblock css %} 
 
@@ -107,7 +107,7 @@
                     </span>
 
                     <h3 class="template-editor-section-title">
-                        Current Templates
+                        현재 템플릿
                     </h3>
                 </div>
             </div>
@@ -427,7 +427,7 @@
                         NEW CONFIGURATION
                     </span>
 
-                    <h3 class="template-editor-section-title">Add Template</h3>
+                    <h3 class="template-editor-section-title">템플릿 추가</h3>
                 </div>
 
                 <p class="template-editor-section-note">
@@ -458,10 +458,10 @@
                                 </div>
 
                                 <div class="template-block-title-copy">
-                                    <strong> Create New Template </strong>
+                                    <strong> 새 템플릿 생성 </strong>
 
                                     <small>
-                                        Add a new maintenance area configuration
+                                        새로운 유지보수 영역 구성을 추가합니다.
                                     </small>
                                 </div>
                             </div>

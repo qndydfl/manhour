@@ -1,9 +1,3 @@
-/* =========================================================
-    SHARED MOBILE FOUNDATION
-    Loaded after page styles so every screen follows the same
-    spacing, touch-target, form and overflow rules.
-========================================================= */
-
 html,
 body {
     max-width: 100%;
@@ -275,6 +269,11 @@ iframe {
         z-index: 50;
         width: 100%;
         min-height: 48px;
+        padding: 0;
+        gap: 6px;
+    }
+
+    .manning-topbar-inner {
         padding: 0 8px;
         gap: 6px;
     }
@@ -313,7 +312,7 @@ iframe {
     }
 
     .manning-content {
-        padding: 58px 7px 10px;
+        padding: calc(var(--manning-topbar-height, 48px) + 10px) 7px 10px;
     }
 
     .manning-form-page {
@@ -540,11 +539,40 @@ iframe {
     }
 
     .manning-session-actions .manning-delete-form {
-        display: block;
+        width: auto;
+        display: inline-flex;
     }
 
-    .manning-session-action {
-        width: 100%;
+    .manning-session-footer {
+        align-items: center;
+        flex-direction: row;
+    }
+
+    .manning-session-actions {
+        width: auto;
+        margin-left: auto;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .manning-session-actions > * {
+        width: auto;
+        margin: 0;
+    }
+
+    .manning-session-actions .manning-session-action {
+        width: auto;
+        padding: 0 8px;
+        gap: 4px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .manning-delete-form .manning-session-action-danger {
+        width: 36px;
+        padding: 0;
     }
 
     #pasteDataModal .modal-body,
@@ -724,9 +752,35 @@ iframe {
         gap: 10px;
     }
 
-    .manning-session-card .manning-session-body,
+    .manning-session-card {
+        min-height: 0;
+        padding: 10px;
+    }
+
+    .manning-session-card .manning-session-top {
+        gap: 8px;
+    }
+
+    .manning-session-card .manning-aircraft-badge {
+        padding: 4px 7px;
+    }
+
+    .manning-session-card .manning-session-body {
+        padding: 9px 0 8px;
+    }
+
+    .manning-session-card .manning-session-name {
+        margin: 2px 0 8px;
+        font-size: 17px;
+    }
+
+    .manning-session-card .manning-session-meta-item {
+        padding: 4px 7px;
+    }
+
     .manning-session-card .manning-session-footer {
-        padding: 9px 8px;
+        margin-top: 0;
+        padding: 8px 0 0;
     }
 
     .manning-session-meta {

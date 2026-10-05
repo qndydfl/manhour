@@ -5,7 +5,7 @@
 {% block title %} Aircraft Area Editor | {{ session.aircraft_reg }} {% endblock title %}
 {% block nav_sessions_active %} active {% endblock nav_sessions_active %} 
 
-{% block page_title %} Aircraft Area Editor {% endblock page_title %}
+{% block page_title %} 세션 구역 보기 {% endblock page_title %}
 
 {% block topbar_right %}
 <div class="manning-dashboard-topbar-actions">
@@ -62,7 +62,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard.css' %}?v=20260831-4"
+    href="{% static 'css/manning/manning_dashboard.css' %}?v=20261005-2"
 />
 {% endblock css %} 
 
@@ -106,17 +106,13 @@
     <section class="manning-dashboard-section manning-dashboard-memo-section">
         <div class="manning-dashboard-section-head">
             <div>
-                <span class="manning-dashboard-section-label">
-                    SESSION INFORMATION
-                </span>
-
-                <h3 class="manning-dashboard-section-title">Session Memo</h3>
+                <h3 class="manning-dashboard-section-title">세션 메모</h3>
             </div>
         </div>
 
         <article class="manning-dashboard-memo">
             <div class="manning-dashboard-memo-head">
-                <strong> OPERATION NOTES </strong>
+                <strong> 작업 메모 </strong>
 
                 <i class="bi bi-journal-text"></i>
             </div>
@@ -135,7 +131,7 @@
         <div class="manning-dashboard-section-head">
             <div>
                 <h3 class="manning-dashboard-section-title">
-                    항공기 session Manning
+                    Session Manning
                 </h3>
             </div>
         </div>
