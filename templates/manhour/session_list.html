@@ -33,7 +33,7 @@
                 class="assignment-topbar-btn assignment-topbar-btn-primary"
             >
                 <i class="bi bi-plus-lg"></i>
-                <span>New Session</span>
+                <span>세션 생성</span>
             </a>
 
             {% if request.session.user_role == 'admin' and active_count > 0 %}
@@ -45,7 +45,7 @@
                 data-bs-target="#resetAllModal"
             >
                 <i class="bi bi-trash3"></i>
-                <span>Reset All</span>
+                <span>모두 삭제</span>
             </button>
 
             {% endif %}
@@ -73,7 +73,7 @@
                 </span>
 
                 <div>
-                    <h2 id="activeSessionListTitle">Active Session List</h2>
+                    <h2 id="activeSessionListTitle">활성 세션 목록</h2>
                     <p>진행 중인 세션을 선택하여 작업 현황을 확인하세요.</p>
                 </div>
             </div>
@@ -184,8 +184,8 @@
                         href="{% url 'manhour:assigned_summary' session.id %}?from=session_list"
                         class="mh-btn"
                     >
-                        <i class="bi bi-clock-history"></i>
-                        시간별 보기
+                        <i class="bi bi-calendar-date"></i>
+                        개인 시간표
                     </a>
 
                     {% if request.session.user_role == 'admin' or request.user.is_superuser %}
@@ -221,7 +221,7 @@
                     class="mh-btn mh-btn-primary"
                 >
                     <i class="bi bi-plus-lg"></i>
-                    New Session
+                    세션 생성
                 </a>
             </div>
 
@@ -264,11 +264,11 @@
                         class="btn btn-light flex-fill"
                         data-bs-dismiss="modal"
                     >
-                        Cancel
+                        취소
                     </button>
 
                     <button type="submit" class="btn btn-danger flex-fill">
-                        Delete All
+                        모두 삭제
                     </button>
                 </form>
             </div>

@@ -5,7 +5,7 @@
 {% block title %} Aviation Operations | Manning System {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261004-24" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261006-1" />
 {% endblock css %} 
 
 {% block js %}
@@ -15,7 +15,7 @@
         checkwxMetarUrl: "{% url 'manhour:checkwx_metar_api' %}",
     };
 </script>
-<script defer src="{% static 'js/index.js' %}?v=20261004-11"></script>
+<script defer src="{% static 'js/index.js' %}?v=20261006-1"></script>
 {% endblock js %} 
 
 {% block content %} 
@@ -149,54 +149,71 @@
         <article class="bento-card bento-card-clock">
             <div class="bento-card-head">
                 <span class="bento-badge">TIME CONSOLE</span>
-                <i class="bi bi-clock-history"></i>
+                <i class="bi bi-clock"></i>
             </div>
 
-            <div class="clock-block local-clock">
-                <span class="clock-label">LOCAL TIME</span>
-                <div
-                    id="digital-time"
-                    class="clock-main"
-                    data-index-clock="local-time"
-                >
-                    --:--:--
-                </div>
-                <div class="clock-sub">
-                    <span id="digital-date" data-index-clock="local-date"
-                        >---- -- --</span
-                    >
-                    ·
-                    <span id="digital-weekday" data-index-clock="local-weekday"
-                        >---</span
-                    >
-                </div>
-            </div>
+            <div class="clock-console-grid">
+                <section class="clock-console-item local-clock">
+                    <div class="clock-console-label-row">
+                        <span class="clock-label">LOCAL</span>
+                        <span class="clock-zone-tag">KST</span>
+                    </div>
 
-            <div class="clock-divider"></div>
+                    <div class="analog-clock" aria-label="현재 현지 시간">
+                        <span class="clock-number clock-number-12">12</span>
+                        <span class="clock-number clock-number-3">3</span>
+                        <span class="clock-number clock-number-6">6</span>
+                        <span class="clock-number clock-number-9">9</span>
+                        <span class="clock-hand clock-hand-hour" data-clock-hand="local-hour"></span>
+                        <span class="clock-hand clock-hand-minute" data-clock-hand="local-minute"></span>
+                        <span class="clock-hand clock-hand-second" data-clock-hand="local-second"></span>
+                        <span class="clock-center-dot"></span>
+                    </div>
 
-            <div class="clock-block utc-clock">
-                <div class="utc-badge-row">
-                    <span class="clock-label">UTC TIME</span>
-                    <span class="utc-tag">ZULU</span>
-                </div>
-                <div
-                    id="digital-time-utc"
-                    class="clock-main-utc"
-                    data-index-clock="utc-time"
-                >
-                    --:--
-                </div>
-                <div class="clock-sub">
-                    <span id="digital-date-utc" data-index-clock="utc-date"
-                        >---- -- --</span
+                    <div
+                        id="digital-time"
+                        class="clock-main clock-digital"
+                        data-index-clock="local-time"
                     >
-                    ·
-                    <span
-                        id="digital-weekday-utc"
-                        data-index-clock="utc-weekday"
-                        >---</span
+                        --:--:--
+                    </div>
+                    <div class="clock-sub">
+                        <span id="digital-date" data-index-clock="local-date">---- -- --</span>
+                        ·
+                        <span id="digital-weekday" data-index-clock="local-weekday">---</span>
+                    </div>
+                </section>
+
+                <section class="clock-console-item utc-clock">
+                    <div class="clock-console-label-row">
+                        <span class="clock-label">UTC</span>
+                        <span class="utc-tag">ZULU</span>
+                    </div>
+
+                    <div class="analog-clock analog-clock-utc" aria-label="현재 UTC 시간">
+                        <span class="clock-number clock-number-12">12</span>
+                        <span class="clock-number clock-number-3">3</span>
+                        <span class="clock-number clock-number-6">6</span>
+                        <span class="clock-number clock-number-9">9</span>
+                        <span class="clock-hand clock-hand-hour" data-clock-hand="utc-hour"></span>
+                        <span class="clock-hand clock-hand-minute" data-clock-hand="utc-minute"></span>
+                        <span class="clock-hand clock-hand-second" data-clock-hand="utc-second"></span>
+                        <span class="clock-center-dot"></span>
+                    </div>
+
+                    <div
+                        id="digital-time-utc"
+                        class="clock-main-utc clock-digital"
+                        data-index-clock="utc-time"
                     >
-                </div>
+                        --:--
+                    </div>
+                    <div class="clock-sub">
+                        <span id="digital-date-utc" data-index-clock="utc-date">---- -- --</span>
+                        ·
+                        <span id="digital-weekday-utc" data-index-clock="utc-weekday">---</span>
+                    </div>
+                </section>
             </div>
         </article>
 
@@ -292,15 +309,15 @@
 
             <div class="metar-details" aria-label="추가 기상 정보">
                 <div class="metar-detail-item">
-                    <small>DEW POINT</small>
+                    <small>DEW POINT(이슬점)</small>
                     <strong data-index-metar="dewpoint">--</strong>
                 </div>
                 <div class="metar-detail-item">
-                    <small>HUMIDITY</small>
+                    <small>HUMIDITY(습도)</small>
                     <strong data-index-metar="humidity">--</strong>
                 </div>
                 <div class="metar-detail-item metar-detail-condition">
-                    <small>CONDITION</small>
+                    <small>CONDITION(기상 상태)</small>
                     <strong data-index-metar="condition">--</strong>
                     <span class="metar-condition-note" data-index-metar="condition-note">기상 정보 확인 중</span>
                 </div>

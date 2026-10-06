@@ -24,15 +24,16 @@
 }
 
 .mh-summary-count-badge {
+    min-height: 38px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 12px;
+    padding: 0 14px;
     border: 1px solid #bfdbfe;
     border-radius: 999px;
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     color: #1d4ed8;
-    font-size: var(--font-size-sm);
+    font-size: 16px;
     font-weight: 800;
     letter-spacing: 0.02em;
     white-space: nowrap;
@@ -50,7 +51,11 @@
     margin-left: auto;
 }
 
-.mh-page-header-summary .assignment-topbar-btn {
+.mh-summary-view-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
     font-size: var(--font-size-sm);
     min-height: 38px;
     padding: 0 14px;
@@ -61,18 +66,18 @@
     box-shadow: 0 6px 16px rgba(30, 64, 104, 0.1);
 }
 
-.mh-page-header-summary .assignment-topbar-btn i {
+.mh-summary-view-label i {
     color: #2563eb;
 }
 
-.mh-page-header-summary .assignment-topbar-btn span {
+.mh-summary-view-label span {
     color: #17324d;
     font-weight: 800;
-    font-size: 12px;
+    font-size: 16px;
     white-space: nowrap;
 }
 
-.mh-page-header-summary .assignment-topbar-btn i {
+.mh-summary-view-label i {
     font-size: 13px;
 }
 
@@ -1040,7 +1045,39 @@
 
     .mh-assigned-summary-page .mh-page-header-summary {
         margin-bottom: 8px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
         gap: 8px;
+    }
+
+    .mh-assigned-summary-page .mh-summary-view-label {
+        min-width: 0;
+        min-height: 32px;
+        padding: 0 9px;
+        flex: 0 1 auto;
+        gap: 5px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .mh-assigned-summary-page .mh-page-header-summary > .text-end {
+        min-width: 0;
+        margin-left: 0;
+        flex: 0 1 auto;
+    }
+
+    .mh-assigned-summary-page .mh-summary-count-badge {
+        min-height: 32px;
+        padding: 0 9px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .mh-assigned-summary-page .mh-summary-view-label span {
+        font-size: 11px;
     }
 
     .mh-assigned-summary-page .mh-summary-notice {

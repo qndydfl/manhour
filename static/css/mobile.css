@@ -257,6 +257,30 @@ iframe {
         gap: 8px;
     }
 
+    .mh-assigned-summary-page .mh-page-header-summary {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .mh-assigned-summary-page .mh-summary-view-label,
+    .mh-assigned-summary-page .mh-page-header-summary > .text-end {
+        width: auto;
+        min-width: 0;
+        margin: 0;
+        flex: 0 1 auto;
+        white-space: nowrap;
+    }
+
+    .mh-assigned-summary-page .mh-summary-view-label span,
+    .mh-assigned-summary-page .mh-summary-count-badge {
+        font-size: 11px;
+    }
+
     .manning-form-description,
     .edit-session-meta {
         line-height: 1.6;

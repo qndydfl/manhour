@@ -434,6 +434,164 @@
     color: #38bdf8;
 }
 
+.clock-console-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.8rem;
+}
+
+.clock-console-item {
+    min-width: 0;
+    padding: 0.65rem 0.55rem 0.55rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.clock-console-label-row {
+    width: 100%;
+    margin-bottom: 0.45rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+}
+
+.clock-zone-tag,
+.utc-tag {
+    min-height: 1.25rem;
+    padding: 0 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(14, 165, 233, 0.18);
+    color: #7dd3fc;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.analog-clock {
+    position: relative;
+    width: clamp(6.4rem, 8.5vw, 8rem);
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, #172235 0 66%, transparent 67%),
+        repeating-conic-gradient(
+            from -1deg,
+            rgba(226, 232, 240, 0.9) 0deg 2deg,
+            transparent 2deg 30deg
+        ),
+        #0b1322;
+    box-shadow:
+        inset 0 0 0 0.35rem rgba(255, 255, 255, 0.025),
+        inset 0 0 1.25rem rgba(0, 0, 0, 0.35),
+        0 0.8rem 1.8rem rgba(0, 0, 0, 0.22);
+}
+
+.analog-clock-utc {
+    border-color: rgba(56, 189, 248, 0.32);
+}
+
+.clock-number {
+    position: absolute;
+    z-index: 2;
+    color: #cbd5e1;
+    font-size: clamp(0.52rem, 0.7vw, 0.65rem);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.clock-number-12 {
+    top: 0.72rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.clock-number-3 {
+    top: 50%;
+    right: 0.78rem;
+    transform: translateY(-50%);
+}
+
+.clock-number-6 {
+    bottom: 0.72rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.clock-number-9 {
+    top: 50%;
+    left: 0.78rem;
+    transform: translateY(-50%);
+}
+
+.clock-hand {
+    --clock-rotation: 0deg;
+    position: absolute;
+    z-index: 4;
+    bottom: 50%;
+    left: 50%;
+    border-radius: 999px;
+    transform: translateX(-50%) rotate(var(--clock-rotation));
+    transform-origin: 50% 100%;
+}
+
+.clock-hand-hour {
+    width: 0.22rem;
+    height: 25%;
+    background: #f8fafc;
+}
+
+.clock-hand-minute {
+    width: 0.16rem;
+    height: 34%;
+    background: #cbd5e1;
+}
+
+.clock-hand-second {
+    width: 0.09rem;
+    height: 38%;
+    background: #38bdf8;
+}
+
+.clock-center-dot {
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    left: 50%;
+    width: 0.52rem;
+    height: 0.52rem;
+    border: 0.12rem solid #e0f2fe;
+    border-radius: 50%;
+    background: #0284c7;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0.55rem rgba(56, 189, 248, 0.55);
+}
+
+.clock-digital {
+    margin-top: 0.5rem;
+    font-size: clamp(0.92rem, 1.4vw, 1.15rem);
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.clock-console-item .clock-sub {
+    margin-top: 0.18rem;
+    font-size: clamp(0.58rem, 0.7vw, 0.68rem);
+    text-align: center;
+    white-space: nowrap;
+}
+
 .clock-block {
     display: flex;
     flex-direction: column;
@@ -1224,6 +1382,43 @@
 }
 
 @media (max-width: 640px) {
+    .bento-card-clock {
+        padding: 0.85rem;
+    }
+
+    .clock-console-grid {
+        gap: 0.5rem;
+    }
+
+    .clock-console-item {
+        padding: 0.5rem 0.35rem 0.45rem;
+        border-radius: 0.8rem;
+    }
+
+    .analog-clock {
+        width: min(29vw, 6.75rem);
+    }
+
+    .clock-number-12 {
+        top: 0.6rem;
+    }
+
+    .clock-number-3 {
+        right: 0.62rem;
+    }
+
+    .clock-number-6 {
+        bottom: 0.6rem;
+    }
+
+    .clock-number-9 {
+        left: 0.62rem;
+    }
+
+    .clock-console-item .clock-sub {
+        font-size: 0.56rem;
+    }
+
     .hero-weather-summary {
         min-height: 2.35rem;
         padding: 0.3rem 0.4rem;

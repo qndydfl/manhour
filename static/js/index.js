@@ -29,6 +29,47 @@ document.addEventListener("DOMContentLoaded", () => {
     const utcEl = indexElement("clock", "utc-time", "#digital-time-utc");
     const utcDateEl = indexElement("clock", "utc-date", "#digital-date-utc");
     const utcWeekdayEl = indexElement("clock", "utc-weekday", "#digital-weekday-utc");
+    const clockHands = {
+        localHour: document.querySelector('[data-clock-hand="local-hour"]'),
+        localMinute: document.querySelector('[data-clock-hand="local-minute"]'),
+        localSecond: document.querySelector('[data-clock-hand="local-second"]'),
+        utcHour: document.querySelector('[data-clock-hand="utc-hour"]'),
+        utcMinute: document.querySelector('[data-clock-hand="utc-minute"]'),
+        utcSecond: document.querySelector('[data-clock-hand="utc-second"]'),
+    };
+
+    function setClockHand(element, degrees) {
+        element?.style.setProperty("--clock-rotation", `${degrees}deg`);
+    }
+
+    function updateAnalogClock(now) {
+        const localSeconds = now.getSeconds();
+        const localMinutes = now.getMinutes();
+        const localHours = now.getHours();
+        const utcSeconds = now.getUTCSeconds();
+        const utcMinutes = now.getUTCMinutes();
+        const utcHours = now.getUTCHours();
+
+        setClockHand(
+            clockHands.localHour,
+            ((localHours % 12) + localMinutes / 60 + localSeconds / 3600) * 30,
+        );
+        setClockHand(
+            clockHands.localMinute,
+            (localMinutes + localSeconds / 60) * 6,
+        );
+        setClockHand(clockHands.localSecond, localSeconds * 6);
+
+        setClockHand(
+            clockHands.utcHour,
+            ((utcHours % 12) + utcMinutes / 60 + utcSeconds / 3600) * 30,
+        );
+        setClockHand(
+            clockHands.utcMinute,
+            (utcMinutes + utcSeconds / 60) * 6,
+        );
+        setClockHand(clockHands.utcSecond, utcSeconds * 6);
+    }
 
     function formatDateParts(date, useUTC = false) {
         const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
@@ -45,6 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateClock() {
         const now = new Date();
         const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        updateAnalogClock(now);
 
         safeText(
             timeEl,
