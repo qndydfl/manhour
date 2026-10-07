@@ -7,6 +7,7 @@
     const sort = document.getElementById("cbTemplateSort");
     const resultCount = document.getElementById("cbTemplateResultCount");
     const noResults = document.getElementById("cbTemplateNoResults");
+    const panel = document.getElementById("cbAircraftTemplates");
 
     if (!list || !search || !sort) return;
 
@@ -41,7 +42,9 @@
         const firstRowTop = visibleRows[0].offsetTop;
         const tenthRow = visibleRows[9];
         const tenRowsHeight = tenthRow.offsetTop + tenthRow.offsetHeight - firstRowTop;
-        list.style.setProperty("--cb-template-list-height", tenRowsHeight + "px");
+        if (tenRowsHeight > 0) {
+            list.style.setProperty("--cb-template-list-height", tenRowsHeight + "px");
+        }
     }
 
     function updateList() {
@@ -73,6 +76,9 @@
         updateList();
     });
     window.addEventListener("resize", updateListHeight);
+    if (panel) {
+        panel.addEventListener("shown.bs.collapse", updateListHeight);
+    }
 
     updateList();
 })();

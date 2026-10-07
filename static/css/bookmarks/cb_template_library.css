@@ -893,7 +893,7 @@ button.cb-library-card {
 
 .cb-aircraft-template-list.is-scrollable {
     max-height: var(--cb-template-list-height, 720px);
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .cb-aircraft-template-list::-webkit-scrollbar { width: 8px; }
