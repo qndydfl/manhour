@@ -857,7 +857,7 @@ button.cb-library-card {
     align-items: center;
     gap: 7px;
     color: #62758c;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 800;
     white-space: nowrap;
 }
@@ -867,7 +867,7 @@ button.cb-library-card {
     min-height: 38px;
     border-color: #cbd9e8;
     color: #274564;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 
