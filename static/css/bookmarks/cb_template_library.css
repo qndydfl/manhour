@@ -780,6 +780,97 @@ button.cb-library-card {
         10px;
 }
 
+.cb-aircraft-template-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    color: #17365f;
+}
+
+.cb-template-result-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #eaf3ff;
+    color: #2564ad;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.cb-aircraft-template-toolbar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    border: 1px solid #d7e2ef;
+    border-radius: 14px;
+    background: #f5f8fc;
+}
+
+.cb-template-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 38px;
+    padding: 0 11px;
+    border: 1px solid #cbd9e8;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #667b96;
+}
+
+.cb-template-search:focus-within {
+    border-color: #6ea8e8;
+    box-shadow: 0 0 0 3px rgba(44, 126, 220, 0.12);
+}
+
+.cb-template-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #17365f;
+    font-size: 14px;
+}
+
+.cb-template-search button {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: #e9f0f8;
+    color: #4e6682;
+}
+
+.cb-template-sort {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #62758c;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.cb-template-sort select {
+    width: 130px;
+    min-height: 38px;
+    border-color: #cbd9e8;
+    color: #274564;
+    font-size: 12px;
+    font-weight: 700;
+}
+
 
 /* =========================================================
    AIRCRAFT TEMPLATE LIST
@@ -793,7 +884,21 @@ button.cb-library-card {
 
     font-size:
         14px;
+
+    padding-right: 4px;
+    overflow-y: visible;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
+
+.cb-aircraft-template-list.is-scrollable {
+    max-height: var(--cb-template-list-height, 720px);
+    overflow-y: auto;
+}
+
+.cb-aircraft-template-list::-webkit-scrollbar { width: 8px; }
+.cb-aircraft-template-list::-webkit-scrollbar-track { background: #edf2f7; border-radius: 999px; }
+.cb-aircraft-template-list::-webkit-scrollbar-thumb { background: #b3c4d8; border-radius: 999px; }
 
 
 .cb-aircraft-template-row {
@@ -1195,6 +1300,23 @@ button.cb-library-card {
     .cb-template-new-button {
         width:
             100%;
+    }
+
+    .cb-aircraft-template-toolbar {
+        grid-template-columns: 1fr;
+        padding: 8px;
+    }
+
+    .cb-template-sort {
+        justify-content: space-between;
+    }
+
+    .cb-template-sort select {
+        width: min(160px, 58%);
+    }
+
+    .cb-aircraft-template-list.is-scrollable {
+        max-height: min(var(--cb-template-list-height, 720px), 62vh);
     }
 
 
