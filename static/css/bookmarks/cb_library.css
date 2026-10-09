@@ -76,7 +76,7 @@
     place-items: center;
     border-radius: 15px;
     color: white;
-    font-size: 25px;
+    font-size: var(--font-size-lg);
 }
 .cb-library-card.is-new > i {
     background: #2563eb;

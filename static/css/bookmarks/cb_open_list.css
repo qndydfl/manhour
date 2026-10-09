@@ -2387,19 +2387,34 @@ RESPONSIVE — MOBILE
     }
 
     .cb-open-document-bar {
-        width: calc(100% - 20px);
+        width: calc(100% - 8px);
 
-        margin-top: 10px;
+        margin-top: 6px;
 
-        border-radius: 12px;
+        border-radius: 9px;
     }
 
     .cb-open-document-bar-inner {
         grid-template-columns: repeat(2, minmax(0, 1fr));
 
-        gap: 10px;
+        gap: 6px;
 
-        padding: 12px;
+        padding: 8px;
+    }
+
+    .cb-document-field label {
+        margin-bottom: 3px;
+        font-size: 11px;
+    }
+
+    .cb-document-field .form-control,
+    .cb-document-field .form-select,
+    .cb-document-field .input-group-text {
+        min-height: 34px;
+    }
+
+    .cb-template-order-guide {
+        display: none;
     }
 
     .cb-document-title-field {
@@ -2413,7 +2428,7 @@ RESPONSIVE — MOBILE
     }
 
     .cb-open-page {
-        padding: 10px;
+        padding: 5px 4px 10px;
     }
 
     .cb-open-table-heading {
@@ -2436,9 +2451,65 @@ RESPONSIVE — MOBILE
     }
 
     .cb-open-paste-card {
-        margin-bottom: 10px;
+        margin-bottom: 7px;
 
-        padding: 12px;
+        padding: 8px;
+        border-radius: 9px;
+    }
+
+    .cb-open-paste-head {
+        margin-bottom: 5px;
+        gap: 4px;
+    }
+
+    .cb-open-paste-head small {
+        display: none;
+    }
+
+    .cb-open-paste-head strong {
+        font-size: 13px;
+    }
+
+    .cb-open-paste-map span {
+        padding: 2px 4px;
+        font-size: 10px;
+    }
+
+    .cb-open-paste-area {
+        min-height: 44px;
+    }
+
+    .cb-open-table-heading {
+        min-height: 38px;
+        padding-block: 3px;
+    }
+
+    .cb-open-sheet-stage {
+        padding: 2px;
+        border-radius: 8px;
+    }
+
+    .cb-open-sheet {
+        padding: 6px;
+        border-radius: 5px;
+    }
+
+    .cb-open-sheet-header {
+        min-height: 42px;
+        margin-bottom: 4px !important;
+    }
+
+    .cb-open-main-title {
+        font-size: clamp(13px, 4vw, 18px);
+    }
+
+    .cb-open-aircraft-number {
+        font-size: 13px;
+    }
+
+    .cb-open-model-title {
+        padding-left: 4px;
+        font-size: 10px;
     }
 
     .cb-open-settings {
@@ -2472,11 +2543,15 @@ RESPONSIVE — MOBILE
 
 @media screen and (max-width: 480px) {
     .cb-open-document-bar-inner {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .cb-document-title-field {
-        grid-column: auto;
+        grid-column: 1 / -1;
+    }
+
+    .cb-document-field:has(#cbManagedTemplateName) {
+        grid-column: 1 / -1;
     }
 
     .cb-cell-button-grid {
@@ -3289,17 +3364,17 @@ TEMPLATE CARD — LOADING / DISABLED VISUAL
 
 @media screen and (max-width: 700px) {
     .cb-open-input-tools {
-        gap: 10px;
+        gap: 6px;
     }
 
     .cb-open-template-import-card {
-        padding: 12px;
+        padding: 8px;
 
-        border-radius: 12px;
+        border-radius: 9px;
     }
 
     .cb-open-template-import-head {
-        gap: 10px;
+        gap: 6px;
     }
 
     .cb-open-template-import-icon {
@@ -3318,6 +3393,17 @@ TEMPLATE CARD — LOADING / DISABLED VISUAL
     }
 
     .cb-open-template-import-head p {
+        display: none;
+    }
+
+    .cb-open-template-import-control {
+        margin-top: 8px;
+    }
+
+    .cb-open-template-import-status,
+    .cb-open-template-import-status:empty {
+        min-height: 14px;
+        margin-top: 4px;
         font-size: 11px;
     }
 

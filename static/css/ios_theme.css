@@ -85,12 +85,12 @@
     --font-main:
         -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
         Pretendard, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
-    --font-size-micro: 11px;
-    --font-size-xs: 13px;
-    --font-size-sm: 15px;
+    --font-size-micro: 10px;
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
     --font-size-base: 16px;
     --font-size-lg: 18px;
-    --font-size-page-title: clamp(28px, 2.7vw, 34px);
+    --font-size-page-title: clamp(22px, 2.7vw, 28px);
 }
 
 html {

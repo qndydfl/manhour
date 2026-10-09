@@ -724,7 +724,8 @@ iframe {
     }
 
     .mh-session-list-page .mh-session-meta,
-    .mh-session-list-page .mh-session-stats {
+    .mh-session-list-page .mh-session-stats,
+    .mh-session-list-page .mh-session-summary {
         display: none;
     }
 
@@ -1015,6 +1016,113 @@ iframe {
     .duplicate-confirm-actions .btn {
         min-height: 34px;
         font-size: 11px;
+    }
+
+    /* Personal schedule: compact, full-width mobile header. */
+    .personal-v2-header {
+        padding: 9px 10px;
+        border-radius: 10px;
+    }
+
+    .personal-v2-header-inner {
+        gap: 7px;
+    }
+
+    .personal-v2-header-copy {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .personal-v2-header-copy .personal-v2-eyebrow,
+    .personal-v2-name::before {
+        display: none;
+    }
+
+    .personal-v2-name {
+        min-width: 0;
+        overflow: hidden;
+        font-size: 17px;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .personal-v2-sub {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 0;
+        border: 0;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .personal-v2-header-tools {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: stretch;
+        gap: 5px;
+    }
+
+    .personal-v2-header-stats {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(max-content, 1fr));
+        gap: 4px;
+    }
+
+    .personal-v2-header-stat {
+        min-width: 0;
+        min-height: 36px;
+        padding: 4px 6px;
+        gap: 5px;
+        border-radius: 7px;
+    }
+
+    .personal-v2-header-stat > i {
+        font-size: 12px;
+    }
+
+    .personal-v2-header-stat span {
+        min-width: 0;
+        overflow: hidden;
+        font-size: 8px;
+        letter-spacing: 0.03em;
+        text-overflow: ellipsis;
+    }
+
+    .personal-v2-header-stat strong {
+        margin-top: 0;
+        overflow: hidden;
+        font-size: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .personal-v2-actions {
+        width: auto;
+        display: flex;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .personal-v2-header .personal-v2-btn {
+        width: auto;
+        min-height: 36px;
+        padding: 0 7px;
+        display: inline-flex;
+        gap: 4px;
+        border-radius: 7px;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .personal-v2-header #copy-schedule-btn {
+        display: none;
     }
 }
 
@@ -1354,6 +1462,17 @@ iframe {
 
     .login-v2-card-head {
         margin-block: 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .personal-v2-header-stat strong {
+        font-size: 9px;
+    }
+
+    .personal-v2-header .personal-v2-btn {
+        padding-inline: 5px;
+        font-size: 10px;
     }
 }
 

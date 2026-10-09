@@ -50,15 +50,13 @@
 
 .master-btn-primary {
     border-color: #2563eb;
-
     background: #2563eb;
-
     color: #ffffff;
+    font-size: var(--font-size-sm);
 }
 
 .master-btn-primary:hover {
     background: #1d4ed8;
-
     color: #ffffff;
 }
 
@@ -120,7 +118,7 @@
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     color: #1d4ed8 !important;
 
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-sm)!important;
     font-weight: 800;
     letter-spacing: -0.02em;
 

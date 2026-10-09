@@ -6,7 +6,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/personal_schedule.css' %}?v=20260904-1"
+    href="{% static 'css/personal_schedule.css' %}?v=20261009-2"
 />
 {% endblock css %} 
 
@@ -41,7 +41,7 @@
                 class="assignment-topbar-btn"
             >
                 <i class="bi bi-arrow-left"></i>
-                <span>개인 시간표</span>
+                <span>작업자별 시간표</span>
             </a>
 
             <a href="{% url 'manhour:index' %}" class="assignment-topbar-btn">
@@ -67,9 +67,7 @@
 
     <section class="personal-v2-header">
         <div class="personal-v2-header-inner">
-            <div>
-                <div class="personal-v2-eyebrow">WORKER ASSIGNMENT</div>
-
+            <div class="personal-v2-header-copy">
                 <h1 class="personal-v2-name">{{ worker_name }}</h1>
 
                 <div class="personal-v2-sub">
@@ -81,18 +79,12 @@
                 <div class="personal-v2-header-stats">
                     <div class="personal-v2-header-stat">
                         <i class="bi bi-clock-history"></i>
-                        <span>
-                            TOTAL MANHOUR
-                            <strong>{{ total_mh }} M/H</strong>
-                        </span>
+                        <strong>총: {{ total_mh }} M/H</strong>
                     </div>
 
                     <div class="personal-v2-header-stat">
                         <i class="bi bi-list-check"></i>
-                        <span>
-                            WORK ITEMS
-                            <strong>{{ task_count|default:0 }}</strong>
-                        </span>
+                        <strong>작업항목: {{ task_count|default:0 }}</strong>
                     </div>
                 </div>
 

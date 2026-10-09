@@ -198,8 +198,9 @@
 }
 
 .workspace-pill-analysis {
-    border-color: #bfdbfe;
-    background: linear-gradient(135deg, #ffffff 48%, #eff6ff 100%);
+    border-color: #93c5fd;
+    background: linear-gradient(135deg, #eaf4ff 0%, #dbeafe 100%);
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.04);
 }
 
 .workspace-pill-analysis .pill-icon,
@@ -207,9 +208,14 @@
     color: #2563eb;
 }
 
+.workspace-pill-analysis .pill-icon {
+    background: rgba(37, 99, 235, 0.13);
+}
+
 .workspace-pill-data {
-    border-color: #ddd6fe;
-    background: linear-gradient(135deg, #ffffff 48%, #f5f3ff 100%);
+    border-color: #c4b5fd;
+    background: linear-gradient(135deg, #f1edff 0%, #e4ddff 100%);
+    box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.04);
 }
 
 .workspace-pill-data .pill-icon,
@@ -217,7 +223,17 @@
     color: #7c3aed;
 }
 
+.workspace-pill-data .pill-icon {
+    background: rgba(124, 58, 237, 0.13);
+}
+
 .pill-icon {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    flex: 0 0 2.4rem;
+    border-radius: 0.7rem;
     font-size: 1.5rem;
     line-height: 1;
     transition:
@@ -1062,104 +1078,6 @@
     color: var(--ios-secondary-label);
 }
 
-/* Workspace pills */
-.workspace-pill {
-    border: 0;
-    border-radius: 18px;
-    background: var(--ios-tertiary-background);
-}
-.workspace-pill-analysis,
-.workspace-pill-data {
-    border: 0;
-    background: var(--ios-tertiary-background);
-    box-shadow: none;
-}
-.workspace-pill .pill-icon {
-    width: 2.4rem;
-    height: 2.4rem;
-    flex: 0 0 2.4rem;
-    border-radius: 11px;
-    display: grid;
-    place-items: center;
-    color: #ffffff;
-    font-size: 1.15rem;
-}
-.workspace-pill-analysis .pill-icon {
-    background: var(--ios-blue);
-    color: #ffffff;
-}
-.workspace-pill-data .pill-icon {
-    background: var(--ios-orange);
-    color: #ffffff;
-}
-.workspace-pill.primary .pill-icon {
-    background: var(--ios-green);
-    color: #ffffff;
-}
-.workspace-pill .pill-tag,
-.workspace-pill-analysis .pill-tag,
-.workspace-pill-data .pill-tag {
-    color: var(--ios-tertiary-label);
-}
-.workspace-pill .pill-info strong {
-    color: var(--ios-label);
-}
-.workspace-pill .pill-arrow {
-    color: var(--ios-tertiary-label);
-}
-.workspace-pill.primary {
-    background: var(--ios-tertiary-background);
-    box-shadow: none;
-    color: var(--ios-label);
-}
-.workspace-pill.primary .pill-tag {
-    color: var(--ios-tertiary-label);
-}
-.workspace-pill.primary .pill-info strong {
-    color: var(--ios-label);
-}
-.workspace-pill.primary .pill-arrow {
-    color: var(--ios-tertiary-label);
-}
-
-@media (hover: hover) {
-    .workspace-pill:hover,
-    .workspace-pill.primary:hover,
-    .workspace-pill-analysis:hover,
-    .workspace-pill-data:hover {
-        transform: none;
-        border: 0;
-        background: var(--ios-fill);
-        box-shadow: none;
-    }
-    .workspace-pill.primary:hover .pill-icon,
-    .workspace-pill:hover .pill-icon {
-        transform: none;
-        color: #ffffff;
-    }
-    .workspace-pill-analysis:hover .pill-icon {
-        background: var(--ios-blue);
-    }
-    .workspace-pill-data:hover .pill-icon {
-        background: var(--ios-orange);
-    }
-    .workspace-pill.primary:hover .pill-icon {
-        background: var(--ios-green);
-    }
-    .workspace-pill.primary:hover .pill-tag {
-        color: var(--ios-tertiary-label);
-    }
-    .workspace-pill.primary:hover .pill-info strong {
-        color: var(--ios-label);
-    }
-    .workspace-pill.primary:hover .pill-arrow {
-        color: var(--ios-tertiary-label);
-    }
-}
-.workspace-pill:active {
-    background: var(--ios-fill);
-}
-
 /* Metrics */
 .metric-item,
 .metric-item-master,
@@ -1213,10 +1131,6 @@
         box-shadow:
             inset 0 0 0 1.5px rgba(0, 122, 255, 0.5),
             0 10px 22px rgba(0, 122, 255, 0.2);
-    }
-    .metric-item-history:hover .metric-label,
-    .metric-item-history:hover .metric-value {
-        color: var(--ios-blue);
     }
 }
 .metric-item:active {
@@ -1937,6 +1851,69 @@ body.portal-body {
 
     .portal-shift-caption {
         display: none;
+    }
+}
+
+/* Mobile index: show the compact digital clock before every dashboard card. */
+@media (max-width: 700px) {
+    .bento-grid > .bento-card-clock {
+        order: -10;
+        min-height: 0;
+        padding: 10px 14px;
+        border-radius: 14px;
+    }
+
+    .bento-card-clock .bento-card-head,
+    .bento-card-clock .analog-clock,
+    .bento-card-clock .clock-sub {
+        display: none;
+    }
+
+    .bento-card-clock .clock-console-label-row {
+        width: auto;
+        margin: 0 0 4px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .bento-card-clock .clock-label {
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+    }
+
+    .bento-card-clock .clock-zone-tag,
+    .bento-card-clock .utc-tag {
+        display: none;
+    }
+
+    .bento-card-clock .clock-console-grid {
+        min-height: 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+    }
+
+    .bento-card-clock .clock-console-item {
+        min-height: 42px;
+        padding: 0 10px;
+        justify-content: center;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .bento-card-clock .clock-console-item + .clock-console-item {
+        border-left: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .bento-card-clock .clock-digital,
+    .bento-card-clock .clock-main,
+    .bento-card-clock .clock-main-utc {
+        margin: 0;
+        font-size: clamp(20px, 6.5vw, 28px);
+        line-height: 1;
+        letter-spacing: 0.02em;
     }
 }
 
