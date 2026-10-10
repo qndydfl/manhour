@@ -18,11 +18,13 @@
 
 /* Common Bento Card Style */
 .bento-card {
-    background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: 1.25rem;
+    background: var(--ios-secondary-background);
+    border: 0;
+    border-radius: 24px;
     padding: 1.5rem;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 8px 24px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -32,7 +34,9 @@
 }
 
 .bento-card:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .bento-card-head {
@@ -60,25 +64,25 @@
 .hero-weather-summary {
     min-height: 2.85rem;
     padding: 0.42rem 0.55rem;
-    border: 1px solid #dbeafe;
-    border-radius: 0.85rem;
+    border: 0;
+    border-radius: 999px;
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    background: linear-gradient(135deg, #f0f9ff, #eff6ff);
-    color: #0f172a;
+    background: var(--ios-fill);
+    color: var(--ios-label);
 }
 
 .hero-weather-icon {
     width: 2rem;
     height: 2rem;
     flex: 0 0 auto;
-    border-radius: 0.62rem;
+    border-radius: 50%;
     display: grid;
     place-items: center;
     background: #ffffff;
-    color: #0284c7;
-    box-shadow: 0 2px 7px rgba(2, 132, 199, 0.12);
+    color: var(--ios-blue);
+    box-shadow: none;
 }
 
 .hero-weather-copy {
@@ -99,8 +103,8 @@
 }
 .hero-weather-detail {
     padding-left: 0.55rem;
-    border-left: 1px solid #cbd5e1;
-    color: #475569;
+    border-left: 1px solid var(--ios-separator);
+    color: var(--ios-secondary-label);
     font-size: 0.68rem;
     font-weight: 650;
     white-space: nowrap;
@@ -137,7 +141,7 @@
    -------------------------------------------------------------------------- */
 .bento-card-hero {
     grid-column: span 8;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: var(--ios-secondary-background);
 }
 
 .workspace-action-grid {
@@ -285,11 +289,12 @@
     text-decoration: none;
     color: #334155;
     padding: 0.65rem 0.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    background: #ffffff;
+    border: 0;
+    border-radius: 18px;
+    background: var(--ios-tertiary-background);
     transition:
         transform 0.2s ease,
+        background-color 0.2s ease,
         box-shadow 0.2s ease;
 }
 
@@ -317,8 +322,8 @@
 }
 
 .metric-item-master {
-    border-color: #ddd6fe;
-    background: linear-gradient(135deg, #ffffff 52%, #f5f3ff 100%);
+    background: #fff1dc;
+    box-shadow: inset 0 0 0 1px rgba(255, 149, 0, 0.18);
 }
 .metric-item-master .metric-label,
 .metric-item-master .metric-value {
@@ -326,8 +331,8 @@
 }
 
 .metric-item-active {
-    border-color: #bbf7d0;
-    background: linear-gradient(135deg, #ffffff 52%, #ecfdf5 100%);
+    background: #e8f7ed;
+    box-shadow: inset 0 0 0 1px rgba(52, 199, 89, 0.17);
 }
 .metric-item-active .metric-label,
 .metric-item-active .metric-value {
@@ -335,8 +340,8 @@
 }
 
 .metric-item-history {
-    border-color: #fed7aa;
-    background: linear-gradient(135deg, #ffffff 52%, #fff7ed 100%);
+    background: #eaf3ff;
+    box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.14);
 }
 .metric-item-history .metric-label,
 .metric-item-history .metric-value {
@@ -388,22 +393,6 @@
     .metric-item:hover .metric-value {
         transform: scale(1.08);
     }
-    .metric-item-master:hover {
-        border-color: #a78bfa;
-        background: linear-gradient(135deg, #ffffff 28%, #ede9fe 100%);
-        box-shadow: 0 9px 20px rgba(124, 58, 237, 0.14);
-    }
-    .metric-item-active:hover {
-        border-color: #4ade80;
-        background: linear-gradient(135deg, #ffffff 28%, #dcfce7 100%);
-        box-shadow: 0 9px 20px rgba(21, 128, 61, 0.14);
-    }
-    .metric-item-history:hover {
-        border-color: #fb923c;
-        background: linear-gradient(135deg, #ffffff 28%, #ffedd5 100%);
-        box-shadow: 0 9px 20px rgba(194, 65, 12, 0.14);
-    }
-
     .metar-item:hover {
         border-color: #93c5fd;
         background: #eff6ff;
@@ -438,16 +427,16 @@
    -------------------------------------------------------------------------- */
 .bento-card-clock {
     grid-column: span 4;
-    background: #0f172a;
+    background: #1c1c1e;
     color: #ffffff;
     border: none;
 }
 
 .bento-card-clock .bento-badge {
-    color: #94a3b8;
+    color: #8e8e93;
 }
 .bento-card-clock i {
-    color: #38bdf8;
+    color: #0a84ff;
 }
 
 .clock-console-grid {
@@ -601,6 +590,13 @@
     font-variant-numeric: tabular-nums;
 }
 
+.clock-time-seconds {
+    margin-left: 0.04em;
+    font-size: 0.68em;
+    font-weight: 650;
+    opacity: 0.68;
+}
+
 .clock-console-item .clock-sub {
     margin-top: 0.18rem;
     font-size: clamp(0.58rem, 0.7vw, 0.68rem);
@@ -608,44 +604,35 @@
     white-space: nowrap;
 }
 
-.clock-block {
-    display: flex;
-    flex-direction: column;
-}
 .clock-label {
     font-size: 0.7rem;
     font-weight: 700;
-    color: #64748b;
+    color: #8e8e93;
     letter-spacing: 0.05em;
 }
 
 .clock-main {
     font-size: 2.1rem;
-    font-weight: 700;
-    font-family: monospace;
-    color: #f8fafc;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+        sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: #ffffff;
 }
 .clock-main-utc {
     font-size: 1.6rem;
-    font-weight: 700;
-    font-family: monospace;
-    color: #38bdf8;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+        sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: #0a84ff;
 }
 
 .clock-sub {
     font-size: 0.8rem;
-    color: #94a3b8;
-}
-.clock-divider {
-    height: 1px;
-    background: #334155;
-    margin: 1rem 0;
-}
-
-.utc-badge-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    color: #8e8e93;
 }
 .utc-tag {
     background: #0284c7;
@@ -938,9 +925,9 @@
     height: 540px;
     min-height: 0;
     position: relative;
-    border-radius: 0.875rem;
+    border-radius: 18px;
     overflow: hidden;
-    background: #f1f5f9;
+    background: var(--ios-fill);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -955,7 +942,7 @@
 }
 .media-placeholder {
     text-align: center;
-    color: #64748b;
+    color: var(--ios-tertiary-label);
 }
 .media-placeholder i {
     font-size: 2.5rem;
@@ -964,68 +951,8 @@
 }
 
 /* --------------------------------------------------------------------------
-   CARD 5: QUICK LINKS BAR (Span 12)
-   -------------------------------------------------------------------------- */
-.bento-card-links {
-    grid-column: span 12;
-}
-
-.links-flex-wrapper {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
-}
-
-.quick-link-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    text-decoration: none;
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-
-.quick-link-btn:hover {
-    background: #ffffff;
-    border-color: #3b82f6;
-    color: #2563eb;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-}
-
-.quick-link-btn i {
-    font-size: 1.1rem;
-}
-.link-arrow {
-    margin-left: auto;
-    color: #94a3b8;
-    font-size: 0.85rem;
-}
-
-/* --------------------------------------------------------------------------
    iOS STYLE OVERRIDES (index) - tokens from ios_theme.css
    -------------------------------------------------------------------------- */
-.bento-card {
-    border: 0;
-    border-radius: 24px;
-    background: var(--ios-secondary-background);
-    box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.04),
-        0 8px 24px rgba(0, 0, 0, 0.05);
-}
-.bento-card:hover {
-    box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.04),
-        0 8px 24px rgba(0, 0, 0, 0.05);
-}
-.bento-card-hero {
-    background: var(--ios-secondary-background);
-}
 .bento-badge,
 .metar-station-label,
 .metar-item small,
@@ -1061,51 +988,6 @@
     color: var(--ios-secondary-label);
 }
 
-.hero-weather-summary {
-    border: 0;
-    border-radius: 999px;
-    background: var(--ios-fill);
-    color: var(--ios-label);
-}
-.hero-weather-icon {
-    border-radius: 50%;
-    background: #ffffff;
-    color: var(--ios-blue);
-    box-shadow: none;
-}
-.hero-weather-detail {
-    border-left-color: var(--ios-separator);
-    color: var(--ios-secondary-label);
-}
-
-/* Metrics */
-.metric-item,
-.metric-item-master,
-.metric-item-active,
-.metric-item-history {
-    border: 0;
-    border-radius: 18px;
-    background: var(--ios-tertiary-background);
-    transition:
-        transform 0.2s ease,
-        background-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.metric-item-master {
-    background: #fff1dc;
-    box-shadow: inset 0 0 0 1px rgba(255, 149, 0, 0.18);
-}
-
-.metric-item-active {
-    background: #e8f7ed;
-    box-shadow: inset 0 0 0 1px rgba(52, 199, 89, 0.17);
-}
-
-.metric-item-history {
-    background: #eaf3ff;
-    box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.14);
-}
 @media (hover: hover) {
     .metric-item:hover,
     .metric-item-master:hover,
@@ -1137,39 +1019,6 @@
     transform: scale(0.98);
 }
 
-/* Clock */
-.bento-card-clock {
-    background: #1c1c1e;
-}
-.bento-card-clock .bento-badge,
-.clock-sub {
-    color: #8e8e93;
-}
-.bento-card-clock i,
-.clock-main-utc {
-    color: #0a84ff;
-}
-.clock-main {
-    color: #ffffff;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
-        sans-serif;
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-}
-.clock-main-utc {
-    font-family:
-        -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
-        sans-serif;
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-}
-.clock-label {
-    color: #8e8e93;
-}
-.clock-divider {
-    background: rgba(255, 255, 255, 0.12);
-}
 .utc-tag {
     border-radius: 999px;
     background: var(--ios-blue);
@@ -1252,19 +1101,11 @@
     color: #0a84ff;
 }
 
-/* Media */
-.media-container {
-    border-radius: 18px;
-    background: var(--ios-fill);
-}
-.media-placeholder {
-    color: var(--ios-tertiary-label);
-}
-
 /* --------------------------------------------------------------------------
    RESPONSIVE LAYOUT (Mobile & Tablet)
    -------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
+/* TABLET - portal card stacking */
+@media (max-width: 900px) {
     .bento-card-hero {
         grid-column: span 12;
     }
@@ -1280,11 +1121,9 @@
     .media-container {
         height: 240px;
     }
-    .links-flex-wrapper {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
+/* MOBILE - portal content and weather visibility */
 @media (max-width: 700px) {
     .portal-main-container {
         width: calc(100% - 16px);
@@ -1295,7 +1134,8 @@
     }
 }
 
-@media (max-width: 640px) {
+/* MOBILE - clock, weather summary, and action-card compaction */
+@media (max-width: 700px) {
     .bento-card-clock {
         padding: 0.85rem;
     }
@@ -1352,9 +1192,6 @@
     }
     .workspace-action-grid,
     .status-metrics-row {
-        grid-template-columns: 1fr;
-    }
-    .links-flex-wrapper {
         grid-template-columns: 1fr;
     }
 }
@@ -1821,7 +1658,8 @@ body.portal-body {
     }
 }
 
-@media (max-width: 575.98px) {
+/* MOBILE - compact portal header */
+@media (max-width: 700px) {
     .portal-header-inner {
         width: calc(100% - 28px);
         min-height: 48px;
@@ -1856,64 +1694,220 @@ body.portal-body {
 
 /* Mobile index: show the compact digital clock before every dashboard card. */
 @media (max-width: 700px) {
+    .bento-grid {
+        gap: 10px;
+    }
+
+    .bento-card {
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .bento-card-head {
+        margin-bottom: 10px;
+    }
+
+    .bento-badge {
+        font-size: 9px;
+        letter-spacing: 0.06em;
+    }
+
+    .bento-title {
+        margin-top: 1px;
+        font-size: 16px;
+        line-height: 1.25;
+    }
+
+    .workspace-action-grid,
+    .status-metrics-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .workspace-action-grid {
+        margin-bottom: 8px;
+    }
+
+    .workspace-pill {
+        min-width: 0;
+        min-height: 58px;
+        padding: 7px 5px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        border-radius: 11px;
+        text-align: center;
+    }
+
+    .workspace-pill .pill-icon,
+    .workspace-pill.primary .pill-icon {
+        width: 28px;
+        height: 28px;
+        flex-basis: 28px;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    .workspace-pill .pill-info {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .workspace-pill .pill-tag,
+    .workspace-pill .pill-arrow {
+        display: none;
+    }
+
+    .workspace-pill .pill-info strong {
+        display: block;
+        overflow: hidden;
+        font-size: 12px;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .metric-item {
+        min-width: 0;
+        min-height: 52px;
+        padding: 6px 3px;
+        justify-content: center;
+        border-radius: 11px;
+    }
+
+    .metric-label {
+        max-width: 100%;
+        gap: 2px;
+        overflow: hidden;
+        font-size: 9px;
+        line-height: 1.15;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .metric-value {
+        margin-top: 2px;
+        font-size: 17px;
+        line-height: 1;
+    }
+
     .bento-grid > .bento-card-clock {
         order: -10;
         min-height: 0;
-        padding: 10px 14px;
-        border-radius: 14px;
+        padding: 0;
+        border-radius: 16px;
+
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
     }
 
     .bento-card-clock .bento-card-head,
     .bento-card-clock .analog-clock,
-    .bento-card-clock .clock-sub {
+    .bento-card-clock .analog-clock {
         display: none;
     }
 
     .bento-card-clock .clock-console-label-row {
-        width: auto;
-        margin: 0 0 4px;
+        width: 100%;
+        margin: 0;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
     }
 
     .bento-card-clock .clock-label {
-        color: #94a3b8;
-        font-size: 9px;
+        color: #dbeafe;
+        font-size: 10px;
         font-weight: 800;
         letter-spacing: 0.12em;
     }
 
     .bento-card-clock .clock-zone-tag,
     .bento-card-clock .utc-tag {
-        display: none;
+        min-height: 18px;
+        padding: 0 6px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #bfdbfe;
+        font-size: 8px;
+        font-weight: 800;
     }
 
     .bento-card-clock .clock-console-grid {
         min-height: 0;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0;
+        gap: 8px;
     }
 
     .bento-card-clock .clock-console-item {
-        min-height: 42px;
-        padding: 0 10px;
-        justify-content: center;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
+        min-width: 0;
+        min-height: 82px;
+        padding: 9px 10px 8px;
+        justify-content: space-between;
+        gap: 3px;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 14px;
+        background:
+            radial-gradient(circle at 90% 0%, rgba(59, 130, 246, 0.2), transparent 42%),
+            linear-gradient(145deg, #111c2e, #07111f);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
     }
 
     .bento-card-clock .clock-console-item + .clock-console-item {
-        border-left: 1px solid rgba(255, 255, 255, 0.14);
+        border-left: 1px solid rgba(148, 163, 184, 0.18);
+        background:
+            radial-gradient(circle at 90% 0%, rgba(139, 92, 246, 0.22), transparent 42%),
+            linear-gradient(145deg, #17152e, #0b1020);
     }
 
     .bento-card-clock .clock-digital,
     .bento-card-clock .clock-main,
     .bento-card-clock .clock-main-utc {
         margin: 0;
-        font-size: clamp(20px, 6.5vw, 28px);
+        color: #f8fafc;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: clamp(17px, 5.7vw, 23px);
+        font-variant-numeric: tabular-nums;
+        font-weight: 750;
         line-height: 1;
-        letter-spacing: 0.02em;
+        letter-spacing: -0.035em;
+        white-space: nowrap;
+    }
+
+    .bento-card-clock .local-clock .clock-digital {
+        color: #dbeafe;
+        font-weight: 750;
+    }
+
+    .bento-card-clock .utc-clock .clock-digital {
+        color: #ede9fe;
+    }
+
+    .bento-card-clock .clock-sub {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        overflow: hidden;
+        color: #94a3b8;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 8px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+    }
+
+    .bento-card-clock .clock-time-seconds {
+        color: #93c5fd;
+        opacity: 0.78;
+    }
+
+    .bento-card-clock .utc-clock .clock-time-seconds {
+        color: #c4b5fd;
     }
 }
 

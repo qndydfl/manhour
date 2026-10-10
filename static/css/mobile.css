@@ -1,3 +1,19 @@
+/* ==========================================================================
+   SHARED MOBILE STYLES
+
+   Breakpoints
+   - 900px: tablet / compact desktop
+   - 700px: phone layout (project default)
+   - 480px: small phone
+   - 420px: very small phone
+
+   Keep only rules shared by multiple pages in this file: viewport safety,
+   common header, controls, dialogs, spacing, and shared component sizing.
+   Page-only responsive rules belong in that page's CSS under a
+   "MOBILE - PAGE NAME" section (for example personal_schedule.css).
+   ========================================================================== */
+
+/* SHARED - viewport and horizontal-overflow safety */
 html,
 body {
     max-width: 100%;
@@ -22,6 +38,7 @@ iframe {
     -webkit-overflow-scrolling: touch;
 }
 
+/* SHARED - tablet and compact desktop */
 @media (max-width: 900px) {
     :root {
         --nav-content-gap-mobile: 22px;
@@ -57,6 +74,7 @@ iframe {
     }
 }
 
+/* SHARED - standard phone layout */
 @media (max-width: 700px) {
     :root {
         --nav-content-gap-mobile: 12px;
@@ -334,37 +352,6 @@ iframe {
 
     .manning-topbar .bi {
         font-size: 0.75em;
-    }
-
-    .manning-topbar-action-label,
-    .manning-form-topbar-label,
-    .manning-topbar-right .edit-toolbar-label {
-        display: none;
-    }
-
-    .manning-dashboard-topbar-actions,
-    .template-editor-header-actions {
-        width: auto;
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 5px;
-    }
-
-    .manning-topbar-right .manning-primary-button,
-    .manning-topbar-right .manning-dashboard-btn,
-    .manning-topbar-right .manning-form-topbar-action,
-    .manning-topbar-right .template-editor-header-btn,
-    .manning-topbar-right .template-save-btn {
-        width: 32px;
-        min-width: 32px;
-        min-height: 32px;
-        padding: 0;
-        flex: 0 0 32px;
-        gap: 0;
-    }
-
-    .manning-topbar-right .template-save-btn i {
-        margin-right: 0 !important;
     }
 
     .manning-topbar-action-label,
@@ -723,67 +710,6 @@ iframe {
         padding: 10px;
     }
 
-    .mh-session-list-page .mh-session-meta,
-    .mh-session-list-page .mh-session-stats,
-    .mh-session-list-page .mh-session-summary {
-        display: none;
-    }
-
-    .mh-session-list-page .mh-session-actions {
-        margin-top: 8px;
-    }
-
-    .mh-session-list-page .mh-session-grid {
-        padding: 8px;
-        gap: 8px;
-    }
-
-    /* Session list: keep the summary and primary actions on one row. */
-    .mh-session-list-page .mh-page-header {
-        gap: 8px;
-    }
-
-    .mh-session-list-page .mh-session-panel-heading p,
-    .mh-session-list-page .mh-session-panel-count {
-        display: none;
-    }
-
-    .mh-session-list-page .mh-session-panel-heading h2 {
-        font-size: 15px;
-    }
-
-    .mh-session-list-page .mh-session-panel-heading p,
-    .mh-session-list-page .mh-session-panel-count {
-        font-size: 11px;
-    }
-
-    .mh-session-list-page .mh-session-card h3 {
-        font-size: 16px;
-        line-height: 1.3;
-    }
-
-    .mh-session-list-page .mh-session-date {
-        font-size: 11px;
-    }
-
-    .mh-session-list-page .mh-shift {
-        font-size: 10px;
-    }
-
-    .mh-session-list-page .mh-session-actions .mh-btn {
-        min-height: 36px;
-        padding: 7px 6px;
-        font-size: 12px;
-    }
-
-    .mh-session-list-page .mh-empty h3 {
-        font-size: 16px;
-    }
-
-    .mh-session-list-page .mh-empty p {
-        font-size: 12px;
-    }
-
     .mh-create-sessions-link,
     .mh-create-session-guide {
         display: none !important;
@@ -1018,114 +944,9 @@ iframe {
         font-size: 11px;
     }
 
-    /* Personal schedule: compact, full-width mobile header. */
-    .personal-v2-header {
-        padding: 9px 10px;
-        border-radius: 10px;
-    }
-
-    .personal-v2-header-inner {
-        gap: 7px;
-    }
-
-    .personal-v2-header-copy {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        gap: 8px;
-    }
-
-    .personal-v2-header-copy .personal-v2-eyebrow,
-    .personal-v2-name::before {
-        display: none;
-    }
-
-    .personal-v2-name {
-        min-width: 0;
-        overflow: hidden;
-        font-size: 17px;
-        line-height: 1.2;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .personal-v2-sub {
-        width: auto;
-        flex: 0 0 auto;
-        padding: 0;
-        border: 0;
-        font-size: 10px;
-        white-space: nowrap;
-    }
-
-    .personal-v2-header-tools {
-        width: 100%;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: stretch;
-        gap: 5px;
-    }
-
-    .personal-v2-header-stats {
-        min-width: 0;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(max-content, 1fr));
-        gap: 4px;
-    }
-
-    .personal-v2-header-stat {
-        min-width: 0;
-        min-height: 36px;
-        padding: 4px 6px;
-        gap: 5px;
-        border-radius: 7px;
-    }
-
-    .personal-v2-header-stat > i {
-        font-size: 12px;
-    }
-
-    .personal-v2-header-stat span {
-        min-width: 0;
-        overflow: hidden;
-        font-size: 8px;
-        letter-spacing: 0.03em;
-        text-overflow: ellipsis;
-    }
-
-    .personal-v2-header-stat strong {
-        margin-top: 0;
-        overflow: hidden;
-        font-size: 10px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .personal-v2-actions {
-        width: auto;
-        display: flex;
-        align-items: stretch;
-        gap: 4px;
-    }
-
-    .personal-v2-header .personal-v2-btn {
-        width: auto;
-        min-height: 36px;
-        padding: 0 7px;
-        display: inline-flex;
-        gap: 4px;
-        border-radius: 7px;
-        font-size: 10px;
-        white-space: nowrap;
-    }
-
-    .personal-v2-header #copy-schedule-btn {
-        display: none;
-    }
 }
 
+/* SHARED - small phones */
 @media (max-width: 480px) {
     :root {
         --nav-content-gap-mobile: 10px;
@@ -1223,7 +1044,7 @@ iframe {
     Final readability layer for common 360px-430px phones.
 ========================================================= */
 
-@media (max-width: 576px) {
+@media (max-width: 700px) {
     html {
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
@@ -1451,6 +1272,148 @@ iframe {
     }
 }
 
+/* ==========================================================================
+   SHARED MOBILE READABILITY
+   Final screen-only baseline used across all project templates.
+   Page CSS should override this only for a page-specific requirement.
+   ========================================================================== */
+@media screen and (max-width: 700px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body {
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    h1,
+    .h1 {
+        font-size: clamp(20px, 5.8vw, 24px);
+        line-height: 1.2;
+    }
+
+    h2,
+    .h2 {
+        font-size: clamp(18px, 5vw, 21px);
+        line-height: 1.25;
+    }
+
+    h3,
+    .h3 {
+        font-size: clamp(16px, 4.4vw, 18px);
+        line-height: 1.3;
+    }
+
+    p,
+    li,
+    .form-text,
+    .help-text,
+    small {
+        line-height: 1.45;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea,
+    .form-control,
+    .form-select {
+        min-height: 40px;
+        padding: 7px 9px;
+        border-radius: 8px;
+        font-size: 16px;
+        line-height: 1.3;
+    }
+
+    textarea,
+    textarea.form-control {
+        min-height: 84px;
+    }
+
+    button,
+    .btn,
+    [role="button"],
+    .assignment-topbar-btn,
+    .mh-btn,
+    .master-btn,
+    .manning-form-action,
+    .manning-primary-button,
+    .manning-session-action {
+        min-height: 36px;
+        font-size: 13px;
+        line-height: 1.2;
+    }
+
+    .container,
+    .container-fluid {
+        --bs-gutter-x: 20px;
+    }
+
+    .card,
+    .modal-content,
+    .accordion-item,
+    .mh-session-panel,
+    .mh-create-panel,
+    .master-v2-panel,
+    .personal-v2-table-card,
+    .workforce-editor-panel,
+    .manning-form-panel {
+        border-radius: 12px;
+    }
+
+    .card-header,
+    .card-body,
+    .modal-header,
+    .modal-body,
+    .modal-footer,
+    .accordion-body {
+        padding: 10px;
+    }
+
+    .modal-title,
+    .card-title,
+    .accordion-button {
+        font-size: 15px;
+    }
+
+    .badge {
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .table-responsive,
+    .assignment-table-wrap,
+    .mh-worker-table-wrap,
+    .master-v2-table-wrap,
+    .edit-table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table:not(.cb-open-table) th,
+    .table:not(.cb-open-table) td {
+        padding: 6px 7px;
+        font-size: 12px;
+        line-height: 1.35;
+        vertical-align: middle;
+    }
+
+    .dropdown-menu {
+        max-width: calc(100vw - 16px);
+        font-size: 13px;
+    }
+
+    .alert,
+    .toast-body {
+        padding: 9px 10px;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+}
+
 @media (max-height: 650px) and (min-width: 521px) {
     .login-v2 {
         padding-block: 18px;
@@ -1462,17 +1425,6 @@ iframe {
 
     .login-v2-card-head {
         margin-block: 20px;
-    }
-}
-
-@media (max-width: 420px) {
-    .personal-v2-header-stat strong {
-        font-size: 9px;
-    }
-
-    .personal-v2-header .personal-v2-btn {
-        padding-inline: 5px;
-        font-size: 10px;
     }
 }
 

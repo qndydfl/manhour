@@ -13,6 +13,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (el) el.textContent = value;
     }
 
+    function renderDigitalTime(el, hours, minutes, seconds) {
+        if (!el) return;
+
+        const main = document.createElement("span");
+        main.className = "clock-time-main";
+        main.textContent = `${hours}:${minutes}`;
+
+        const second = document.createElement("span");
+        second.className = "clock-time-seconds";
+        second.textContent = `:${seconds}`;
+
+        el.replaceChildren(main, second);
+    }
+
     const toastEls = document.querySelectorAll(".toast");
     if (toastEls.length > 0 && window.bootstrap) {
         toastEls.forEach((toastEl) => {
@@ -89,19 +103,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateAnalogClock(now);
 
-        safeText(
-            timeEl,
-            now.toLocaleTimeString("en-US", {
-                hour12: false,
-            }),
-        );
+        const localHour = String(now.getHours()).padStart(2, "0");
+        const localMin = String(now.getMinutes()).padStart(2, "0");
+        const localSec = String(now.getSeconds()).padStart(2, "0");
+        renderDigitalTime(timeEl, localHour, localMin, localSec);
 
         safeText(dateEl, formatDateParts(now, false));
         safeText(weekdayEl, weekdays[now.getDay()]);
 
         const utcHour = String(now.getUTCHours()).padStart(2, "0");
         const utcMin = String(now.getUTCMinutes()).padStart(2, "0");
-        safeText(utcEl, `${utcHour}:${utcMin}`);
+        const utcSec = String(now.getUTCSeconds()).padStart(2, "0");
+        renderDigitalTime(utcEl, utcHour, utcMin, utcSec);
 
         safeText(utcDateEl, formatDateParts(now, true));
         safeText(utcWeekdayEl, weekdays[now.getUTCDay()]);
