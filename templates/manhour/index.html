@@ -5,7 +5,7 @@
 {% block title %} Aviation Operations | Manning System {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261010-4" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261010-5" />
 {% endblock css %} 
 
 {% block js %}
@@ -15,11 +15,11 @@
         checkwxMetarUrl: "{% url 'manhour:checkwx_metar_api' %}",
     };
 </script>
-<script defer src="{% static 'js/index.js' %}?v=20261010-1"></script>
+<script defer src="{% static 'js/index.js' %}?v=20261010-2"></script>
 {% endblock js %} 
 
 {% block content %} 
-{% background_config "index_operations_image" as index_operations_image %} 
+{% background_gallery "index_operations_image" as index_operations_images %}
 {% include "manhour/partials/portal_header.html" %}
 
 <main class="portal-main-container" data-index-page>
@@ -340,13 +340,51 @@
                 <i class="bi bi-image"></i>
             </div>
 
-            <div class="media-container">
-                {% if index_operations_image.image_url %}
-                <img
-                    src="{{ index_operations_image.image_url }}"
-                    class="media-img"
-                    alt="항공 정비 운영 이미지"
-                />
+            <div
+                class="media-container media-slideshow"
+                data-media-slideshow
+                aria-roledescription="carousel"
+                aria-label="항공 정비 운영 이미지"
+            >
+                {% if index_operations_images %}
+                <div class="media-slides" aria-live="polite">
+                    {% for operation_image in index_operations_images %}
+                    <figure
+                        class="media-slide{% if forloop.first %} is-active{% endif %}"
+                        data-media-slide
+                        aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+                    >
+                        <img
+                            src="{{ operation_image.image_url }}"
+                            class="media-img"
+                            alt="항공 정비 운영 이미지 {{ forloop.counter }}"
+                            {% if not forloop.first %}loading="lazy"{% endif %}
+                        />
+                    </figure>
+                    {% endfor %}
+                </div>
+
+                {% if index_operations_images|length > 1 %}
+                <button type="button" class="media-slide-control media-slide-prev" data-media-prev aria-label="이전 이미지">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="media-slide-control media-slide-next" data-media-next aria-label="다음 이미지">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+
+                <div class="media-slide-dots" aria-label="이미지 선택">
+                    {% for operation_image in index_operations_images %}
+                    <button
+                        type="button"
+                        class="media-slide-dot{% if forloop.first %} is-active{% endif %}"
+                        data-media-dot="{{ forloop.counter0 }}"
+                        aria-label="{{ forloop.counter }}번 이미지 보기"
+                        aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                    ></button>
+                    {% endfor %}
+                </div>
+                <span class="media-slide-counter" data-media-counter>1 / {{ index_operations_images|length }}</span>
+                {% endif %}
                 {% else %}
                 <div class="media-placeholder">
                     <i class="bi bi-airplane-engines"></i>
@@ -354,7 +392,7 @@
                     {% if request.session.user_role == "admin" %}
                     <small>
                         관리자 페이지의 Background images에서<br />
-                        key를 <b>index_operations_image</b>로 등록하세요.
+                        key를 <b>index_operations_image_01</b> 형식으로 등록하세요.
                     </small>
                     {% endif %}
                 </div>

@@ -507,6 +507,89 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function initializeMediaSlideshow() {
+        const slideshow = document.querySelector("[data-media-slideshow]");
+        if (!slideshow) return;
+
+        const slides = [...slideshow.querySelectorAll("[data-media-slide]")];
+        const dots = [...slideshow.querySelectorAll("[data-media-dot]")];
+        const previousButton = slideshow.querySelector("[data-media-prev]");
+        const nextButton = slideshow.querySelector("[data-media-next]");
+        const counter = slideshow.querySelector("[data-media-counter]");
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (slides.length < 2) return;
+
+        let activeSlide = 0;
+        let autoplayTimer = null;
+        let pointerStartX = null;
+
+        function showSlide(index) {
+            activeSlide = (index + slides.length) % slides.length;
+
+            slides.forEach((slide, slideIndex) => {
+                const isActive = slideIndex === activeSlide;
+                slide.classList.toggle("is-active", isActive);
+                slide.setAttribute("aria-hidden", String(!isActive));
+            });
+
+            dots.forEach((dot, dotIndex) => {
+                const isActive = dotIndex === activeSlide;
+                dot.classList.toggle("is-active", isActive);
+                dot.setAttribute("aria-current", String(isActive));
+            });
+
+            if (counter) counter.textContent = `${activeSlide + 1} / ${slides.length}`;
+        }
+
+        function stopAutoplay() {
+            if (autoplayTimer) window.clearInterval(autoplayTimer);
+            autoplayTimer = null;
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            if (reduceMotion || document.hidden) return;
+            autoplayTimer = window.setInterval(() => showSlide(activeSlide + 1), 5000);
+        }
+
+        function moveSlide(step) {
+            showSlide(activeSlide + step);
+            startAutoplay();
+        }
+
+        previousButton?.addEventListener("click", () => moveSlide(-1));
+        nextButton?.addEventListener("click", () => moveSlide(1));
+        dots.forEach((dot) => {
+            dot.addEventListener("click", () => {
+                showSlide(Number(dot.dataset.mediaDot));
+                startAutoplay();
+            });
+        });
+
+        slideshow.addEventListener("mouseenter", stopAutoplay);
+        slideshow.addEventListener("mouseleave", startAutoplay);
+        slideshow.addEventListener("focusin", stopAutoplay);
+        slideshow.addEventListener("focusout", startAutoplay);
+        slideshow.addEventListener("pointerdown", (event) => {
+            pointerStartX = event.clientX;
+        });
+        slideshow.addEventListener("pointerup", (event) => {
+            if (pointerStartX === null) return;
+            const distance = event.clientX - pointerStartX;
+            pointerStartX = null;
+            if (Math.abs(distance) >= 45) moveSlide(distance > 0 ? -1 : 1);
+        });
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) stopAutoplay();
+            else startAutoplay();
+        });
+
+        showSlide(0);
+        startAutoplay();
+    }
+
+    initializeMediaSlideshow();
     loadMetar();
     window.setInterval(loadMetar, 10 * 60 * 1000);
 });

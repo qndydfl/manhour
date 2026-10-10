@@ -8,6 +8,12 @@ from manhour.models import BackgroundImage
 register = template.Library()
 
 
+def _record_image_url(record) -> str:
+    if record.image_file:
+        return record.image_file.url
+    return record.image_url or ""
+
+
 def _extract_youtube_id(url: str) -> str:
     if not url:
         return ""
@@ -66,3 +72,19 @@ def background_config(key, default_url=""):
         "image_url": image_url,
         "youtube_embed_url": youtube_embed_url,
     }
+
+
+@register.simple_tag
+def background_gallery(key_prefix):
+    """Return uploaded images whose keys share a configured gallery prefix."""
+    try:
+        records = BackgroundImage.objects.filter(
+            key__startswith=key_prefix,
+        ).order_by("key", "pk")
+        return [
+            {"key": record.key, "image_url": image_url}
+            for record in records
+            if (image_url := _record_image_url(record))
+        ]
+    except (OperationalError, ProgrammingError):
+        return []
