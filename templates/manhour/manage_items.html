@@ -14,7 +14,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manage_items.css' %}?v=20260904-1"
+    href="{% static 'css/manage_items.css' %}?v=20261011-3"
 />
 {% endblock css %} 
 
@@ -42,7 +42,7 @@
 </script>
 
 <script defer src="{% static 'js/paste_data.js' %}?v=20260831-1"></script>
-<script defer src="{% static 'js/manage_items.js' %}?v=20260830-1"></script>
+<script defer src="{% static 'js/manage_items.js' %}?v=20261011-2"></script>
 {% endblock js %} 
 
 
@@ -178,6 +178,35 @@
 
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-0">
+                <div class="mh-adjust-toolbar" aria-label="M/H 수정 방식">
+                    <div class="manage-reorder-guide">
+                        <i class="bi bi-tools" aria-hidden="true"></i>
+                        <span>
+                            각 행의 <strong>⋮⋮</strong>&nbsp;&nbsp;이 부분을 마우스로 잡고 이동해 순서를 수정하세요.
+                        </span>
+                    </div>
+                    <div class="mh-adjust-toolbar-copy">
+                        <span class="mh-adjust-control-label">
+                            <i class="bi bi-pencil-square"></i>
+                            M/H 수정 방식
+                        </span>
+                        <small>오른쪽 선택해서 적용할 방식을 선택하세요</small>
+                    </div>
+                    <div class="mh-adjust-control">
+                        <select
+                            id="mhAdjustSelect"
+                            class="form-select form-select-sm mh-adjust-select fw-bold"
+                            name="mh_percent"
+                            title="클릭하여 M/H 수정 방식을 선택하세요"
+                        >
+                            <option value="0">원래값 유지</option>
+                            <option value="10">전체 +10%</option>
+                            <option value="20">전체 +20%</option>
+                            <option value="30">전체 +30%</option>
+                            <option value="custom">직접 입력</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table
                         id="manageItemsTable"
@@ -210,26 +239,7 @@
                                 <th class="col-desc">작업 내용</th>
                                 <th class="col-mh">Plan M/H</th>
                                 <th class="col-mh-adjust">
-                                    <div
-                                        class="d-flex align-items-center justify-content-center gap-2"
-                                    >
-                                        <select
-                                            class="form-select form-select-sm mh-adjust-select text-primary fw-bold"
-                                            name="mh_percent"
-                                            style="
-                                                min-width: 100px;
-                                                display: inline-block;
-                                            "
-                                        >
-                                            <option value="0">원래값</option>
-                                            <option value="10">+10%</option>
-                                            <option value="20">+20%</option>
-                                            <option value="30">+30%</option>
-                                            <option value="custom">
-                                                개별수정
-                                            </option>
-                                        </select>
-                                    </div>
+                                    수정 M/H
                                 </th>
                                 <th
                                     class="bg-primary bg-opacity-10 text-primary col-assign"
