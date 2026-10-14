@@ -78,17 +78,12 @@
 
 .master-v2-panel-head {
     min-height: 67px;
-
     padding: 0 21px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 20px;
-
     border-bottom: 1px solid #dbe4ed;
-
     background: #eef4fa;
 }
 
@@ -100,7 +95,7 @@
 .master-v2-panel-head span {
     display: block;
     margin-top: 3px;
-    color: #94a3b8;
+    color: #0951b6;
     font-size: var(--font-size-xs);
 }
 
@@ -111,7 +106,7 @@
     min-width: 0;
     margin-inline: auto;
     color: #64748b;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: 650;
     line-height: 1.35;
     text-align: center;
@@ -387,9 +382,28 @@ CHECKBOX
 
     overflow: hidden;
 
-    border: 1px solid #e2e8f0;
+    border: 1px solid #b8c7d8;
 
     border-radius: 13px;
+}
+
+.master-import-panel-guide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    margin-inline: auto;
+    color: #475569;
+    font-size: var(--font-size-sm);
+    font-weight: 650;
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.master-import-panel-guide strong {
+    color: #1d4ed8;
+    font-weight: 800;
 }
 
 .master-import-panel-body {
@@ -417,11 +431,11 @@ CHECKBOX
 #gridTable thead th {
     padding: 11px 8px;
 
-    border: 1px solid #edf1f5;
+    border: 1px solid #b8c7d8;
 
-    background: #f8fafc;
+    background: #dce7f2;
 
-    color: #64748b;
+    color: #334155;
 
     font-size: var(--font-size-sm);
 
@@ -431,19 +445,19 @@ CHECKBOX
 #gridTable tbody td {
     padding: 5px;
 
-    border: 1px solid #edf1f5;
+    border: 1px solid #cbd7e4;
 
-    background: #ffffff;
+    background: #f6f9fc;
 }
 
 #gridTable .input-cell {
     min-height: 35px;
 
-    border: 1px solid transparent;
+    border: 1px solid #c3cfdd;
 
     border-radius: 6px;
 
-    background: transparent;
+    background: #ffffff;
 
     color: #0f172a;
 
@@ -856,6 +870,10 @@ CHECKBOX
 
     .master-v2-import-page .master-v2-panel-head strong {
         font-size: 14px;
+    }
+
+    .master-v2-import-page .master-import-panel-guide {
+        display: none;
     }
 
     .master-v2-import-page .master-v2-panel-head span,

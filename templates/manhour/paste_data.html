@@ -11,7 +11,7 @@
 
 <link
     rel="stylesheet"
-    href="{% static 'css/master_data.css' %}?v=20261014-2"
+    href="{% static 'css/master_data.css' %}?v=20261014-3"
 />
 {% endblock css %} 
 
@@ -132,6 +132,12 @@
                 <span> 데이터를 직접 테이블에 붙여넣기 하세요. </span>
             </div>
 
+            <div class="master-import-panel-guide">
+                Aircraft는 숫자 4자리 입력 시 자동으로 &nbsp;
+                <strong>HL</strong> &nbsp;
+                prefix가 적용됩니다.
+            </div>
+
             <i class="bi bi-file-earmark-spreadsheet text-muted"></i>
         </header>
 
@@ -165,12 +171,6 @@
                 </div>
             </form>
         </div>
-
-        <footer class="master-v2-panel-footer">
-            Aircraft는 숫자 4자리 입력 시 자동으로
-            <strong>HL</strong>
-            prefix가 적용됩니다.
-        </footer>
     </section>
 </main>
 
