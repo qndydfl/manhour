@@ -6,7 +6,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/master_data.css' %}?v=20261014-2"
+    href="{% static 'css/master_data.css' %}?v=20261014-3"
 />
 {% endblock css %} 
 
@@ -90,6 +90,12 @@
                 </div>
             </div>
 
+            <div class="master-v2-panel-guide">
+                데이터 변경이 필요한 경우 &nbsp;
+                <strong>데이터 수정</strong> &nbsp;
+                메뉴를 사용하세요.
+            </div>
+
             <div class="text-end">
                 <span class="master-v2-count-badge">총 입력 : {{ total_count }} 건</span>
             </div>
@@ -161,12 +167,6 @@
                 </tbody>
             </table>
         </div>
-
-        <footer class="master-v2-panel-footer">
-            데이터 변경이 필요한 경우
-            <strong>Edit Data</strong>
-            메뉴를 사용하세요.
-        </footer>
     </section>
 </main>
 

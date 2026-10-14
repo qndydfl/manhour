@@ -104,6 +104,25 @@
     font-size: var(--font-size-xs);
 }
 
+.master-v2-panel-guide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    margin-inline: auto;
+    color: #64748b;
+    font-size: var(--font-size-xs);
+    font-weight: 650;
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.master-v2-panel-guide strong {
+    color: #2563eb;
+    font-weight: 800;
+}
+
 .master-v2-count-badge {
     display: inline-flex !important;
     align-items: center;
@@ -135,28 +154,19 @@
 
 .master-v2-table {
     width: 100%;
-
     margin: 0;
-
     border-collapse: collapse;
-
     font-size: var(--font-size-sm);
 }
 
 .master-v2-table thead th {
     padding: 12px 11px;
-
     background: #edf3f8;
-
     color: #64748b;
-
     border-bottom: 1px solid #d5dde7;
-
     font-size: var(--font-size-sm);
     font-weight: 800;
-
     letter-spacing: 0.05em;
-
     text-transform: uppercase;
 }
 
@@ -166,6 +176,7 @@
     border-bottom: 1px solid #dbe4ed;
     background: var(--assignment-white);
     font-size: var(--font-size-sm);
+    font-weight: 700;
 }
 
 .master-v2-table tbody tr:hover td {
@@ -177,18 +188,13 @@
 }
 
 .master-code {
-    font-family: Consolas, "Courier New", monospace;
-
     color: #0f172a;
-
     font-weight: 600;
 }
 
 .master-description {
     min-width: 300px;
-
     color: #334155;
-
     line-height: 1.55;
 }
 
@@ -699,6 +705,10 @@ CHECKBOX
         min-height: 40px;
         padding: 5px 8px;
         gap: 6px;
+    }
+
+    .master-v2-panel-guide {
+        display: none;
     }
 
     .master-v2-list-page .master-v2-panel-head strong {
