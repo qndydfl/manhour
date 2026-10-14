@@ -11,19 +11,19 @@
     --ios-orange: #ff9500;
     --ios-red: #ff3b30;
     --ios-label: #1c1c1e;
-    --ios-secondary-label: #636366;
-    --ios-tertiary-label: #8e8e93;
-    --ios-grouped-background: #f2f2f7;
-    --ios-secondary-background: #ffffff;
-    --ios-tertiary-background: #f8f8fa;
+    --ios-secondary-label: #4b5563;
+    --ios-tertiary-label: #5f6f85;
+    --ios-grouped-background: #e8eef5;
+    --ios-secondary-background: #f3f6fa;
+    --ios-tertiary-background: #eaf0f6;
     --ios-fill: rgba(118, 118, 128, 0.12);
-    --ios-separator: rgba(60, 60, 67, 0.18);
-    --ios-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+    --ios-separator: rgba(51, 65, 85, 0.3);
+    --ios-shadow: 0 8px 28px rgba(15, 23, 42, 0.1);
 
     --surface-page: var(--ios-grouped-background);
     --surface-card: var(--ios-secondary-background);
     --border-soft: var(--ios-separator);
-    --border-default: rgba(60, 60, 67, 0.24);
+    --border-default: rgba(51, 65, 85, 0.36);
     --color-blue-700: #0062cc;
     --color-blue-600: var(--ios-blue);
     --color-blue-500: #0a84ff;
@@ -43,7 +43,7 @@
     --assignment-text: var(--ios-label);
     --assignment-text-2: var(--ios-secondary-label);
     --assignment-text-3: var(--ios-tertiary-label);
-    --assignment-border: rgba(60, 60, 67, 0.24);
+    --assignment-border: rgba(51, 65, 85, 0.36);
     --assignment-border-soft: var(--ios-separator);
     --assignment-blue: var(--ios-blue);
     --assignment-blue-hover: var(--ios-blue-pressed);
@@ -57,7 +57,7 @@
     --portal-text: var(--ios-label);
     --portal-text-2: var(--ios-secondary-label);
     --portal-text-3: var(--ios-tertiary-label);
-    --portal-border: rgba(60, 60, 67, 0.24);
+    --portal-border: rgba(51, 65, 85, 0.36);
     --portal-border-soft: var(--ios-separator);
     --portal-blue: var(--ios-blue);
     --portal-blue-hover: var(--ios-blue-pressed);
@@ -71,7 +71,7 @@
     --manning-text: var(--ios-label);
     --manning-text-2: var(--ios-secondary-label);
     --manning-text-3: var(--ios-tertiary-label);
-    --manning-border: rgba(60, 60, 67, 0.24);
+    --manning-border: rgba(51, 65, 85, 0.36);
     --manning-border-soft: var(--ios-separator);
     --manning-blue: var(--ios-blue);
     --manning-blue-hover: var(--ios-blue-pressed);
@@ -185,7 +185,7 @@ small,
 .portal-link-card,
 .portal-status-card {
     border-color: var(--portal-border-soft);
-    background: #ffffff;
+    background: var(--ios-secondary-background);
     box-shadow: var(--portal-shadow);
 }
 
@@ -221,9 +221,9 @@ form
         .form-select
     ) {
     min-height: 44px;
-    border-color: rgba(60, 60, 67, 0.24);
+    border-color: var(--border-default);
     border-radius: 11px;
-    background-color: rgba(255, 255, 255, 0.94);
+    background-color: var(--ios-secondary-background);
     color: var(--ios-label);
     font-size: 16px;
     box-shadow: inset 0 0 0 0.5px rgba(60, 60, 67, 0.04);

@@ -28,10 +28,7 @@ urlpatterns = [
     ),
     path(
         "cb-templates/library/<str:aircraft_model>/",
-        views.RedirectView.as_view(
-            pattern_name="bookmarks:cb_aircraft_home",
-            permanent=False,
-        ),
+        views.CBAircraftTemplateListView.as_view(),
         name="cb_template_aircraft_list",
     ),
     path(

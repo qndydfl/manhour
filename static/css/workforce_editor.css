@@ -191,7 +191,7 @@
 .workforce-field-help {
     margin-top: 8px;
 
-    color: #94a3b8;
+    color: #64748b;
 
     font-size: var(--font-size-xs);
 }
@@ -227,7 +227,7 @@
 .workforce-guide {
     padding: 21px;
 
-    border: 1px solid #edf1f5;
+    border: 1px solid #cbd5e1;
 
     border-radius: 15px;
 

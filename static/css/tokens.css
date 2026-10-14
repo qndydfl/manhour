@@ -18,8 +18,8 @@
     --color-slate-900: #172033;
     --color-slate-700: #334155;
     --color-slate-600: #475569;
-    --color-slate-500: #64748b;
-    --color-slate-400: #94a3b8;
+    --color-slate-500: #56667a;
+    --color-slate-400: #64748b;
     --color-slate-300: #cbd5e1;
     --color-slate-200: #e2e8f0;
     --color-slate-100: #f1f5f9;
@@ -37,8 +37,8 @@
     |--------------------------------------------------------------------------
     */
 
-    --surface-page: #e9eff5;
-    --surface-card: #ffffff;
+    --surface-page: #e8eef5;
+    --surface-card: #f3f6fa;
     --surface-dark: #07111f;
 
     /*
@@ -47,8 +47,8 @@
     |--------------------------------------------------------------------------
     */
 
-    --border-soft: #d8e1eb;
-    --border-default: #c8d3df;
+    --border-soft: #b4c1cf;
+    --border-default: #aebdcc;
 
     /*
     |--------------------------------------------------------------------------

@@ -10,15 +10,15 @@
     --manning-blue: #2563eb;
     --manning-blue-hover: #1d4ed8;
 
-    --manning-bg: #dfe7f0;
-    --manning-surface: #f4f8fc;
+    --manning-bg: #e8eef5;
+    --manning-surface: #f3f6fa;
 
     --manning-text: #0f172a;
     --manning-text-2: #475569;
     --manning-text-3: #64748b;
 
-    --manning-border: #b7c5d3;
-    --manning-border-soft: #c8d5e2;
+    --manning-border: #c0ccd9;
+    --manning-border-soft: #c8d3df;
 
     --manning-green: #22c55e;
     --manning-red: #ef4444;
@@ -712,7 +712,7 @@ body.manning-v2-body {
 
     .manning-dashboard-section.is-mobile-fold > .mobile-fold-toggle {
         margin-bottom: 10px;
-        background: #ffffff;
+        background: var(--manning-surface);
     }
 
     .manning-dashboard-section.is-mobile-collapsed > .mobile-fold-toggle {

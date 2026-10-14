@@ -735,6 +735,100 @@ button.cb-library-card {
    AIRCRAFT TEMPLATE PANEL
 ========================================================= */
 
+.cb-template-list-page {
+    display: grid;
+    align-content: start;
+    gap: 18px;
+}
+
+.cb-template-list-page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    border: 1px solid #cbd8e6;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f8fbff 0%, #e9f1fa 100%);
+    box-shadow: 0 12px 28px rgba(35, 55, 78, 0.09);
+}
+
+.cb-template-list-page-heading,
+.cb-template-list-page-tools {
+    display: flex;
+    align-items: center;
+}
+
+.cb-template-list-page-heading {
+    gap: 15px;
+    min-width: 0;
+}
+
+.cb-template-list-page-icon {
+    display: grid;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #2369b5, #194f8e);
+    color: #fff;
+    font-size: 21px;
+    box-shadow: 0 8px 18px rgba(35, 105, 181, 0.24);
+}
+
+.cb-template-list-eyebrow {
+    display: block;
+    margin-bottom: 3px;
+    color: #2563a8;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+}
+
+.cb-template-list-page-heading h1 {
+    margin: 0;
+    color: #17365f;
+    font-size: clamp(20px, 2.2vw, 27px);
+    font-weight: 850;
+    letter-spacing: -0.02em;
+}
+
+.cb-template-list-page-heading p {
+    margin: 5px 0 0;
+    color: #5e7187;
+    font-size: 13px;
+}
+
+.cb-template-list-page-tools {
+    flex: 0 0 auto;
+    gap: 10px;
+}
+
+.cb-template-list-surface {
+    padding: 18px;
+    border: 1px solid #cbd8e6;
+    border-radius: 20px;
+    background: #f7f9fc;
+    box-shadow: 0 12px 28px rgba(35, 55, 78, 0.08);
+}
+
+.cb-template-list-content {
+    padding: 2px;
+}
+
+.cb-template-empty-icon {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 10px;
+    place-items: center;
+    border-radius: 14px;
+    background: #e5eef8;
+    color: #346da9;
+    font-size: 20px;
+}
+
 .cb-aircraft-template-panel {
     scroll-margin-top:
         76px;
@@ -1147,6 +1241,48 @@ button.cb-library-card {
 
 @media (max-width: 700px) {
 
+    .cb-template-list-page {
+        gap: 10px;
+    }
+
+    .cb-template-list-page-head {
+        display: grid;
+        gap: 14px;
+        padding: 14px;
+        border-radius: 15px;
+    }
+
+    .cb-template-list-page-icon {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 18px;
+    }
+
+    .cb-template-list-page-heading h1 {
+        font-size: 18px;
+    }
+
+    .cb-template-list-eyebrow {
+        font-size: 10px;
+    }
+
+    .cb-template-list-page-heading p {
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .cb-template-list-page-tools {
+        justify-content: space-between;
+    }
+
+    .cb-template-list-surface {
+        padding: 9px;
+        border-radius: 15px;
+    }
+
     .cb-aircraft-settings {
         --bs-offcanvas-width: min(360px, 92vw);
     }
@@ -1281,8 +1417,9 @@ button.cb-library-card {
 
     .cb-aircraft-template-toolbar {
         grid-template-columns: minmax(0, 1fr) 112px;
-        gap: 6px;
-        padding: 7px;
+        align-items: center;
+        gap: 8px;
+        padding: 9px;
         border-radius: 11px;
     }
 
@@ -1305,33 +1442,31 @@ button.cb-library-card {
 
     .cb-template-sort select {
         width: 100%;
-        min-height: 34px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        padding-left: 8px;
-        font-size: 11px;
+        min-height: 42px;
+        padding: 6px 8px;
+        font-size: 13px;
     }
 
     .cb-template-search {
-        min-height: 34px;
-        gap: 6px;
-        padding: 0 8px;
-        border-radius: 8px;
+        min-height: 44px;
+        gap: 8px;
+        padding: 0 10px;
+        border-radius: 10px;
     }
 
     .cb-template-search > i {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .cb-template-search input {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .cb-template-search button {
-        width: 22px;
-        height: 22px;
-        flex: 0 0 22px;
-        font-size: 10px;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        font-size: 12px;
     }
 
     .cb-aircraft-template-list.is-scrollable {
@@ -1340,30 +1475,51 @@ button.cb-library-card {
 
 
     .cb-aircraft-template-row {
-        gap: 8px;
-        padding: 10px;
+        grid-template-columns: 36px minmax(0, 1fr) auto;
+        gap: 8px 10px;
+        padding: 12px;
     }
 
     .cb-template-item-icon {
-        width: 34px;
-        height: 34px;
-        flex-basis: 34px;
-        font-size: 15px;
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        font-size: 16px;
     }
 
     .cb-template-item-copy strong {
+        display: block;
+        overflow: hidden;
         font-size: 14px;
+        line-height: 1.4;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
-    .cb-template-item-copy small,
-    .cb-template-item-edit {
-        font-size: 11px;
+    .cb-template-item-copy small {
+        overflow: hidden;
+        font-size: 12px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .cb-aircraft-template-row .cb-template-item-edit {
+        grid-column: auto;
+        grid-row: auto;
+        justify-self: auto;
+        min-height: 40px;
+        margin-top: 0;
+        padding: 0 10px;
+        border: 1px solid #c4d8ee;
+        border-radius: 9px;
+        background: #edf5ff;
+        font-size: 13px;
     }
 
     .cb-template-new-button {
-        min-height: 36px;
+        min-height: 40px;
         padding: 0 12px;
-        font-size: 12px;
+        font-size: 13px;
     }
 
 }
@@ -1374,6 +1530,19 @@ button.cb-library-card {
 ========================================================= */
 
 @media (max-width: 560px) {
+
+    .cb-template-list-page-head {
+        display: grid;
+    }
+
+    .cb-template-list-page-tools {
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .cb-template-result-count {
+        font-size: 12px;
+    }
 
     .cb-library-body
     .assignment-topbar-inner {
@@ -1490,24 +1659,6 @@ button.cb-library-card {
     }
 
 
-    .cb-aircraft-template-row {
-        grid-template-columns:
-            auto minmax(0, 1fr);
-    }
-
-
-    .cb-aircraft-template-row
-    .cb-template-item-edit {
-        grid-column:
-            2;
-
-        justify-self:
-            start;
-
-        margin-top:
-            3px;
-    }
-
 }
 
 
@@ -1518,16 +1669,7 @@ button.cb-library-card {
 @media (max-width: 420px) {
 
     .cb-aircraft-template-toolbar {
-        grid-template-columns: minmax(0, 1fr) 102px;
-    }
-
-    .cb-template-search input {
-        font-size: 11px;
-    }
-
-    .cb-template-sort select {
-        padding-left: 6px;
-        font-size: 10px;
+        grid-template-columns: minmax(0, 1fr) 104px;
     }
 
     .cb-aircraft-workspace-card {

@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.staticfiles import finders
 
 from manhour.models import Workplace
-from .models import CBTemplate
+from .models import CBAircraftModel, CBTemplate
 
 
 @override_settings(
@@ -68,6 +68,7 @@ class CircuitBreakerOpenListTests(TestCase):
         session = self.client.session
         session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
         session.save()
+        CBAircraftModel.objects.create(code="B777")
         template = CBTemplate.objects.create(
             site="SITE-A", aircraft_model="B777", name="Engine change",
             rows=[{"panel_loc": "P11", "cb_loc": "A1", "description": "TEST"}],
@@ -109,37 +110,55 @@ class CircuitBreakerOpenListTests(TestCase):
         self.assertContains(response, 'id="cbOpenManagedTemplateDelete"')
         self.assertContains(response, 'id="cbOpenGibun"')
 
-    def test_aircraft_template_list_uses_separate_aircraft_home(self):
+    def test_aircraft_template_list_uses_dedicated_page(self):
         Workplace.objects.get_or_create(code="SITE-A", defaults={"label": "Site A"})
         session = self.client.session
         session.update({"is_authenticated": True, "workplace": "SITE-A", "user_role": "admin"})
         session.save()
+        CBAircraftModel.objects.create(code="B777")
         template = CBTemplate.objects.create(
-            site="SITE-A", aircraft_model="B777", name="Engine",
+            aircraft_model="B777", name="Engine",
             rows=[{"panel_loc": "P11", "description": "TEST"}],
         )
         library = self.client.get(reverse("bookmarks:cb_template_library"))
-        list_url = reverse("bookmarks:cb_aircraft_home", args=["B777"])
-        self.assertContains(library, list_url)
-        response = self.client.get(list_url)
+        home_url = reverse("bookmarks:cb_aircraft_home", args=["B777"])
+        template_list_url = reverse(
+            "bookmarks:cb_template_aircraft_list",
+            args=["B777"],
+        )
+        self.assertContains(library, home_url)
+
+        home = self.client.get(home_url)
+        self.assertEqual(home.status_code, 200)
+        self.assertTemplateUsed(home, "bookmarks/cb_aircraft_home.html")
+        self.assertContains(home, template_list_url)
+        self.assertNotContains(home, 'id="cbAircraftTemplates"')
+        self.assertNotContains(home, f"template_id={template.pk}")
+
+        response = self.client.get(template_list_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "bookmarks/cb_aircraft_home.html")
-        self.assertTrue(response.context["aircraft_template_list_mode"])
+        self.assertTemplateUsed(
+            response,
+            "bookmarks/cb_aircraft_template_list.html",
+        )
         self.assertContains(response, "Engine")
         self.assertContains(response, f"template_id={template.pk}")
-        self.assertContains(response, "새로운 C/B 문서 작성하기")
-        self.assertContains(response, "저장된 C/B 문서 불러오기")
-        self.assertContains(response, "aircraft_model=B777")
-        self.assertContains(response, 'data-bs-target="#cbAircraftTemplates"')
-        self.assertContains(response, "<span>기종 목록</span>", html=True)
+        self.assertContains(response, "B777 기종별 템플릿")
+        self.assertContains(response, home_url)
 
     def test_cb_library_pages_require_login(self):
         for name in (
             "bookmarks:cb_home",
             "bookmarks:cb_saved_documents",
             "bookmarks:cb_template_library",
+            "bookmarks:cb_template_aircraft_list",
         ):
-            self.assertRedirects(self.client.get(reverse(name)), reverse("manhour:login"))
+            url = (
+                reverse(name, args=["B777"])
+                if name == "bookmarks:cb_template_aircraft_list"
+                else reverse(name)
+            )
+            self.assertRedirects(self.client.get(url), reverse("manhour:login"))
 
 
 @override_settings(

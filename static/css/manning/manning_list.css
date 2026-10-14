@@ -148,7 +148,7 @@
     gap: 6px;
     border: 1px solid var(--manning-border);
     border-radius: 7px;
-    background: #ffffff;
+    background: var(--manning-surface);
     color: var(--manning-text);
     text-decoration: none;
     font-size: var(--font-size-xs);
@@ -157,7 +157,7 @@
 }
 
 .manning-session-action:hover {
-    background: #f8fafc;
+    background: #eaf0f6;
     color: var(--manning-text);
 }
 

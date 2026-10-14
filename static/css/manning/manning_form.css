@@ -99,7 +99,7 @@
 
     border-radius: 9px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     color: var(--manning-text);
 
@@ -451,7 +451,7 @@
 
     border-radius: 12px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     color: var(--manning-text-2);
 
@@ -518,7 +518,7 @@
 
     border: 1px solid var(--manning-border-soft);
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     box-shadow: 0 5px 20px rgba(15, 23, 42, 0.035);
 }
@@ -655,13 +655,13 @@
 .manning-form-action-secondary {
     border: 1px solid var(--manning-border);
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     color: var(--manning-text);
 }
 
 .manning-form-action-secondary:hover {
-    background: #f8fafc;
+    background: #eaf0f6;
 
     color: var(--manning-text);
 }

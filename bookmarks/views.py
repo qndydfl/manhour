@@ -172,6 +172,12 @@ class CBAircraftHomeView(
         return context
 
 
+class CBAircraftTemplateListView(CBAircraftHomeView):
+    """Show one aircraft's saved templates on a dedicated page."""
+
+    template_name = "bookmarks/cb_aircraft_template_list.html"
+
+
 class CBTemplateManageView(SimpleLoginRequiredMixin, TemplateView):
     template_name = "bookmarks/cb_open_list.html"
 

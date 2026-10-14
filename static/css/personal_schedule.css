@@ -291,7 +291,7 @@
 
 .personal-v2-table-card {
     overflow: hidden;
-    border: 1px solid #edf1f5;
+    border: 1px solid #cbd5e1;
     border-radius: 15px;
     background: #ffffff;
     box-shadow: 0 5px 22px rgba(15, 23, 42, 0.04);
@@ -315,7 +315,7 @@
 
 #scheduleTable tbody td {
     padding: 13px 12px;
-    border-bottom: 1px solid #edf1f5;
+    border-bottom: 1px solid #d4dde7;
     background: #ffffff;
     color: #0f172a;
     -webkit-user-select: text;
@@ -392,7 +392,7 @@
 }
 
 .personal-v2-empty p {
-    color: #94a3b8;
+    color: #64748b;
     font-size: var(--font-size-xs);
 }
 
@@ -423,7 +423,7 @@
 }
 
 .manual-input-card {
-    border-color: #edf1f5 !important;
+    border-color: #cbd5e1 !important;
     border-radius: 11px !important;
     overflow: hidden;
 }

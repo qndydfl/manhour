@@ -11,7 +11,7 @@
     padding: 0.75rem;
     border: 1px solid #dee2e6;
     border-radius: 1rem;
-    background-color: #fff;
+    background-color: var(--manning-surface);
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
@@ -84,7 +84,7 @@
 .worker-item:hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-    background: #fff !important;
+    background: var(--manning-surface) !important;
 }
 
 .worker-item.dragging {
@@ -143,7 +143,7 @@
 
 .custom-modal {
     width: min(520px, 92vw);
-    background: #ffffff;
+    background: var(--manning-surface);
     border-radius: 18px;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
     overflow: hidden;
@@ -193,7 +193,7 @@
     min-height: 140px;
     padding: 10px;
     border-radius: 10px;
-    background: #ffffff;
+    background: var(--manning-surface);
     border: 1px solid #e2e8f0;
     transition:
         background-color 0.2s ease,
@@ -278,7 +278,7 @@
 }
 
 .dnd-empty {
-    color: #94a3b8;
+    color: #64748b;
     font-size: 0.85rem;
     text-align: center;
     padding: 12px 0;

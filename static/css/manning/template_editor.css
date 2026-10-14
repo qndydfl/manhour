@@ -458,7 +458,7 @@
 
     border-radius: 8px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     color: var(--manning-text);
 
@@ -490,7 +490,7 @@
     align-items: center;
     justify-content: center;
 
-    color: #94a3b8;
+    color: #64748b;
 
     font-size: var(--font-size-xs);
 }
@@ -528,7 +528,7 @@
 
     border-radius: 7px;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     color: var(--manning-text);
 
@@ -615,7 +615,7 @@
 .template-items:focus {
     border-color: #60a5fa;
 
-    background: #ffffff;
+    background: var(--manning-surface);
 
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.07);
 }

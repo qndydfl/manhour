@@ -306,7 +306,7 @@ CHECKBOX
 
     background: #f8fafc;
 
-    border-top: 1px solid #edf1f5;
+    border-top: 1px solid #d4dde7;
 
     color: #64748b;
 
@@ -368,7 +368,7 @@ CHECKBOX
 }
 
 .master-import-arrow {
-    color: #94a3b8;
+    color: #64748b;
 
     font-size: var(--font-size-xs);
 }
@@ -487,7 +487,7 @@ CHECKBOX
 
     text-align: center;
 
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .master-v2-empty i {
@@ -776,7 +776,7 @@ CHECKBOX
         min-width: 0;
         padding: 4px 5px;
         border: 0;
-        border-right: 1px solid #edf1f5;
+        border-right: 1px solid #d4dde7;
         background: transparent;
         font-size: 12px;
         line-height: 1.25;
@@ -787,7 +787,7 @@ CHECKBOX
     .master-v2-list-page .master-v2-table tbody td::before {
         display: block;
         margin-bottom: 2px;
-        color: #94a3b8;
+        color: #64748b;
         font-family: Pretendard, sans-serif;
         font-size: 12px;
         font-weight: 800;
@@ -820,7 +820,7 @@ CHECKBOX
 
     .master-v2-list-page .master-v2-table tbody td:nth-child(4) {
         grid-area: description;
-        border-top: 1px solid #edf1f5;
+        border-top: 1px solid #d4dde7;
         border-right: 0;
         color: #475569;
     }
