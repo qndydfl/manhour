@@ -5,7 +5,7 @@
 {% block title %} Aviation Operations | Manning System {% endblock title %} 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261014-2" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261014-3" />
 {% endblock css %} 
 
 {% block js %}
@@ -14,6 +14,20 @@
         dashboardCountsUrl: "{% url 'manhour:dashboard_counts_api' %}",
         checkwxMetarUrl: "{% url 'manhour:checkwx_metar_api' %}",
     };
+</script>
+<script>
+    document.addEventListener("click", function (e) {
+        var link = e.target.closest("a.metric-item-active");
+        if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        e.preventDefault();
+        link.classList.remove("is-bouncing");
+        void link.offsetWidth;
+        link.classList.add("is-bouncing");
+        setTimeout(function () {
+            window.location.href = link.href;
+        }, 260);
+    });
 </script>
 <script defer src="{% static 'js/index.js' %}?v=20261010-2"></script>
 {% endblock js %} 

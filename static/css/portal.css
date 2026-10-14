@@ -1110,6 +1110,40 @@
     transform: scale(0.98);
 }
 
+.metric-item-active {
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+.metric-item-active:active {
+    transform: scale(0.92);
+    transition-duration: 0.12s;
+}
+.metric-item-active.is-bouncing {
+    animation: metricBounce 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes metricBounce {
+    0% {
+        transform: scale(0.92);
+    }
+    45% {
+        transform: scale(1.07);
+    }
+    70% {
+        transform: scale(0.98);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .metric-item-active.is-bouncing {
+        animation: none;
+    }
+}
+
 .utc-tag {
     border-radius: 999px;
     background: var(--ios-blue);
