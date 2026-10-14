@@ -118,7 +118,7 @@
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     color: #1d4ed8 !important;
 
-    font-size: var(--font-size-sm)!important;
+    font-size: var(--font-size-sm) !important;
     font-weight: 800;
     letter-spacing: -0.02em;
 
@@ -194,8 +194,7 @@
 
 .master-mh {
     font-weight: 700;
-
-    color: #2563eb;
+    color: #2563eb !important;
 }
 
 /* =========================================================
@@ -313,65 +312,6 @@ CHECKBOX
     text-align: center;
 
     font-size: var(--font-size-xs);
-}
-
-/* =========================================================
-    IMPORT HERO
-========================================================= */
-
-.master-import-hero {
-    position: relative;
-
-    margin-bottom: 22px;
-
-    padding: 28px;
-
-    overflow: hidden;
-
-    border-radius: 18px;
-
-    background:
-        radial-gradient(
-            circle at 90% 15%,
-            rgba(37, 99, 235, 0.28),
-            transparent 28%
-        ),
-        linear-gradient(135deg, #07111f, #0b1729);
-
-    color: #ffffff;
-}
-
-.master-import-eyebrow {
-    margin-bottom: 7px;
-
-    color: #60a5fa;
-
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-
-    letter-spacing: 0.17em;
-}
-
-.master-import-hero h1 {
-    margin: 0;
-
-    font-size: 33px;
-
-    font-weight: 700;
-
-    letter-spacing: -0.04em;
-}
-
-.master-import-hero p {
-    max-width: 660px;
-
-    margin: 10px 0 0;
-
-    color: #94a3b8;
-
-    font-size: var(--font-size-sm);
-
-    line-height: 1.7;
 }
 
 /* =========================================================
@@ -519,23 +459,6 @@ CHECKBOX
 }
 
 /* =========================================================
-   IMPORT ACTION
-========================================================= */
-
-.master-import-actions {
-    margin-top: 17px;
-
-    display: grid;
-
-    grid-template-columns:
-        150px
-        150px
-        minmax(220px, 1fr);
-
-    gap: 9px;
-}
-
-/* =========================================================
    EMPTY
 ========================================================= */
 
@@ -560,51 +483,6 @@ CHECKBOX
     color: #0f172a;
 
     font-size: var(--font-size-base);
-}
-
-/* =========================================================
-   STICKY EDIT BAR
-========================================================= */
-
-.master-edit-savebar {
-    position: sticky;
-
-    bottom: 16px;
-
-    z-index: 30;
-
-    margin-top: 18px;
-
-    padding: 12px 14px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 15px;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 12px;
-
-    background: rgba(255, 255, 255, 0.95);
-
-    backdrop-filter: blur(14px);
-
-    box-shadow: 0 14px 38px rgba(15, 23, 42, 0.11);
-}
-
-.master-edit-savebar span {
-    color: #64748b;
-
-    font-size: var(--font-size-xs);
-}
-
-.master-edit-savebar-actions {
-    display: flex;
-
-    gap: 8px;
 }
 
 /* =========================================================
@@ -651,10 +529,8 @@ CHECKBOX
         COUNT BADGE
     ====================================================== */
 
-    .master-v2-edit-page .master-v2-count-badge {
-        margin-top: 0;
-        padding: 4px 8px;
-        font-size: 12px;
+    .master-v2-count-badge {
+        font-size: var(--font-size-xs) !important;
     }
 
     /* =====================================================
@@ -754,7 +630,7 @@ CHECKBOX
     .master-v2-edit-page .master-v2-table textarea,
     .master-v2-edit-page .master-v2-table select {
         width: 100%;
-        min-width: 0 ;
+        min-width: 0;
         min-height: 24px;
         padding: 4px 5px;
         border-radius: 5px;
@@ -776,7 +652,7 @@ CHECKBOX
 
     .master-v2-edit-page .master-v2-table .form-check-input {
         width: 16px;
-        /* height: 16px; */
+        height: 16px;
         margin: 0;
         cursor: pointer;
     }
@@ -795,7 +671,7 @@ CHECKBOX
 
     .master-v2-edit-page .master-row-delete-btn {
         width: 28px;
-        /* height: 28px; */
+        height: 28px;
         padding: 0;
         border-radius: 6px;
         font-size: 12px;
@@ -817,17 +693,6 @@ CHECKBOX
         margin: 3px;
         padding: 5px 7px;
         font-size: 10px;
-    }
-
-
-
-
-    .master-import-actions {
-        grid-template-columns: 1fr;
-    }
-
-    .master-import-actions .master-btn {
-        width: 100%;
     }
 
     .master-v2-list-page .master-v2-panel-head {
@@ -970,7 +835,6 @@ CHECKBOX
     }
 
     /* Clipboard import: show the grid immediately on phones. */
-    .master-v2-import-page .master-import-hero,
     .master-v2-import-page .master-import-guide {
         display: none;
     }
@@ -1033,21 +897,6 @@ CHECKBOX
 
     .master-v2-import-page #gridTable .input-cell::placeholder {
         font-size: 12px;
-    }
-
-    .master-v2-import-page .master-import-actions {
-        margin-top: 6px;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 4px;
-    }
-
-    .master-v2-import-page .master-import-actions .master-btn {
-        min-height: 34px;
-        padding: 0 6px;
-        gap: 4px;
-        border-radius: 7px;
-        font-size: 11px;
-        white-space: nowrap;
     }
 
     .master-v2-import-page .master-v2-panel-footer {
