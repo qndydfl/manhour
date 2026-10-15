@@ -862,14 +862,44 @@ button.cb-library-card {
 .cb-template-result-count {
     display: inline-flex;
     align-items: center;
-    min-height: 25px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: #eaf3ff;
-    color: #2564ad;
+    gap: 3px;
+    min-height: 32px;
+    padding: 4px 10px 4px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.86);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #5f6f82;
+    box-shadow:
+        0 5px 14px rgba(39, 63, 91, 0.1),
+        inset 0 0 0 1px rgba(132, 157, 184, 0.12);
+    backdrop-filter: blur(14px) saturate(145%);
+    -webkit-backdrop-filter: blur(14px) saturate(145%);
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     white-space: nowrap;
+}
+
+.cb-template-result-count i {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    margin-right: 2px;
+    place-items: center;
+    border-radius: 7px;
+    background: linear-gradient(145deg, #1683ff, #0869d8);
+    color: #fff;
+    font-size: 11px;
+    box-shadow: 0 3px 8px rgba(10, 111, 226, 0.24);
+}
+
+.cb-template-result-count strong {
+    margin-left: 3px;
+    color: #0878ed;
+    font-size: 14px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
 }
 
 .cb-aircraft-template-toolbar {
@@ -1239,6 +1269,39 @@ button.cb-library-card {
    RESPONSIVE - AIRCRAFT DETAIL
 ========================================================= */
 
+@media (max-width: 767.98px) {
+    .cb-template-list-page-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        padding: 10px 12px;
+        border-radius: 15px;
+    }
+
+    .cb-template-list-page-heading {
+        display: none;
+    }
+
+    .cb-template-list-page-tools.cb-saved-page-tools {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .cb-template-list-page-tools .cb-saved-count {
+        flex: 0 0 auto;
+        margin-right: auto;
+    }
+
+    .cb-template-list-page-tools .cb-saved-create-button {
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+}
+
 @media (max-width: 700px) {
 
     .cb-template-list-page {
@@ -1247,9 +1310,14 @@ button.cb-library-card {
 
     .cb-template-list-page-head {
         display: grid;
-        gap: 14px;
-        padding: 14px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        padding: 10px 12px;
         border-radius: 15px;
+    }
+
+    .cb-template-list-page-heading {
+        display: none;
     }
 
     .cb-template-list-page-icon {
@@ -1275,7 +1343,18 @@ button.cb-library-card {
     }
 
     .cb-template-list-page-tools {
+        width: 100%;
         justify-content: space-between;
+        gap: 10px;
+    }
+
+    .cb-template-list-page-tools .cb-saved-count {
+        flex: 0 0 auto;
+    }
+
+    .cb-template-list-page-tools .cb-saved-create-button {
+        flex: 0 0 auto;
+        margin-left: auto;
     }
 
     .cb-template-list-surface {
@@ -1537,11 +1616,7 @@ button.cb-library-card {
 
     .cb-template-list-page-tools {
         justify-content: space-between;
-        gap: 8px;
-    }
-
-    .cb-template-result-count {
-        font-size: 12px;
+        gap: 10px;
     }
 
     .cb-library-body

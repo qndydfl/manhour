@@ -2318,6 +2318,11 @@ RESPONSIVE — MOBILE
         --cb-topbar-height: 48px;
     }
 
+    #cbOpenListPrint,
+    .cb-open-tools-menu {
+        display: none !important;
+    }
+
     .cb-open-topbar-inner {
         height: 100%;
 
@@ -2486,12 +2491,46 @@ RESPONSIVE — MOBILE
 
     .cb-open-sheet-stage {
         padding: 2px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x pan-y;
+        -webkit-overflow-scrolling: touch;
         border-radius: 8px;
+        scrollbar-width: thin;
+        scrollbar-color: #8da4bc #dbe4ed;
+    }
+
+    .cb-open-preview-mode .cb-open-sheet-stage {
+        overflow-x: auto;
+        overflow-y: hidden;
     }
 
     .cb-open-sheet {
+        width: 900px;
+        min-width: 900px;
         padding: 6px;
         border-radius: 5px;
+    }
+
+    .cb-open-preview-mode .cb-open-sheet {
+        width: 900px;
+        min-width: 900px;
+    }
+
+    .cb-open-sheet-stage::-webkit-scrollbar {
+        height: 7px;
+    }
+
+    .cb-open-sheet-stage::-webkit-scrollbar-track {
+        background: #dbe4ed;
+        border-radius: 999px;
+    }
+
+    .cb-open-sheet-stage::-webkit-scrollbar-thumb {
+        background: #8da4bc;
+        border: 1px solid #dbe4ed;
+        border-radius: 999px;
     }
 
     .cb-open-sheet-header {

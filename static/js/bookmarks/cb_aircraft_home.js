@@ -5,7 +5,8 @@
     const search = document.getElementById("cbTemplateSearch");
     const clearButton = document.getElementById("cbTemplateSearchClear");
     const sort = document.getElementById("cbTemplateSort");
-    const resultCount = document.getElementById("cbTemplateResultCount");
+    const resultLabel = document.getElementById("cbTemplateResultLabel");
+    const resultValue = document.getElementById("cbTemplateResultValue");
     const noResults = document.getElementById("cbTemplateNoResults");
 
     if (!list || !search || !sort) return;
@@ -58,9 +59,8 @@
         });
 
         clearButton.hidden = !search.value;
-        resultCount.textContent = query
-            ? "검색 결과 " + visibleCount + "개"
-            : "총 " + visibleCount + "개";
+        resultLabel.textContent = query ? "검색 결과" : "템플릿";
+        resultValue.textContent = visibleCount;
         noResults.hidden = visibleCount !== 0;
         list.hidden = visibleCount === 0;
 

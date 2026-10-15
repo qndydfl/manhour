@@ -1874,6 +1874,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function scaleSheetToViewport() {
+        if (window.matchMedia("(max-width: 700px)").matches) {
+            sheet.style.removeProperty("zoom");
+            return;
+        }
+
         const stage = sheet.closest(".cb-open-sheet-stage");
         if (!stage) return;
         const stageStyle = window.getComputedStyle(stage);

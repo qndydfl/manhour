@@ -6,7 +6,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_library.css' %}?v=20261014-3"
+    href="{% static 'css/bookmarks/cb_library.css' %}?v=20261015-2"
 />
 {% endblock css %} {% block js %}
 <script
@@ -64,9 +64,13 @@
             </div>
         </div>
         <div class="cb-saved-page-tools">
-            <span class="cb-saved-count"><strong id="cbSavedDocumentCount">0</strong>개 문서</span>
-            <a href="{% url 'bookmarks:cb_open_list' %}?new=1&amp;aircraft_model={{ selected_aircraft_model|urlencode }}" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i>새 문서
+            <span class="cb-saved-count" aria-live="polite">
+                <i class="bi bi-folder2" aria-hidden="true"></i>
+                <span>저장 문서</span>
+                <strong id="cbSavedDocumentCount">0</strong><span>개</span>
+            </span>
+            <a href="{% url 'bookmarks:cb_open_list' %}?new=1&amp;aircraft_model={{ selected_aircraft_model|urlencode }}" class="cb-saved-create-button">
+                <i class="bi bi-plus-lg"></i>새 문서
             </a>
         </div>
     </section>

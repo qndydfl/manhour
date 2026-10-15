@@ -1053,14 +1053,54 @@
         margin-bottom: 24px;
     }
 
+    .mh-history-meta {
+        display: none;
+    }
+
+    .mh-history-toolbar {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .mh-history-info {
+        font-size: 12px;
+    }
+
+    .mh-search-form input {
+        min-height: 34px !important;
+        padding: 6px 10px !important;
+        border-radius: 8px !important;
+        font-size: 12px !important;
+    }
+
+    .mh-search-form .mh-btn {
+        width: 34px;
+        min-height: 34px !important;
+        flex-basis: 34px;
+    }
+
     .mh-history-actions {
         width: 100%;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        gap: 6px;
     }
 
     .mh-history-actions .mh-btn,
     .mh-history-actions form {
         flex: 1;
+        min-width: 0;
+    }
+
+    .mh-history-actions .mh-btn {
+        min-height: 34px;
+        padding: 6px 8px;
+        gap: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .mh-history-actions form {
+        flex: 0 0 40px;
     }
 
     .mh-history-actions form .mh-btn {
@@ -1110,10 +1150,6 @@
 
     .mh-session-meta {
         gap: 12px;
-    }
-
-    .mh-history-actions {
-        flex-wrap: wrap;
     }
 
     .mh-summary-notice {

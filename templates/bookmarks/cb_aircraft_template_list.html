@@ -3,11 +3,11 @@
 {% block title %}{{ aircraft_model }} 저장 템플릿{% endblock title %}
 {% block body_class %}cb-library-body{% endblock body_class %}
 {% block css %}{{ block.super }}
-<link rel="stylesheet" href="{% static 'css/bookmarks/cb_library.css' %}?v=20261014-1" />
-<link rel="stylesheet" href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20261014-6" />
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_library.css' %}?v=20261015-2" />
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20261015-5" />
 {% endblock css %}
 {% block js %}{{ block.super }}
-<script src="{% static 'js/bookmarks/cb_aircraft_home.js' %}?v=20261014-1" defer></script>
+<script src="{% static 'js/bookmarks/cb_aircraft_home.js' %}?v=20261015-1" defer></script>
 {% endblock js %}
 {% block content %}
 <header class="assignment-topbar">
@@ -37,9 +37,13 @@
                 <p>저장된 템플릿을 불러와 수정하거나 바로 C/B 문서에 적용할 수 있습니다.</p>
             </div>
         </div>
-        <div class="cb-template-list-page-tools">
-            <span id="cbTemplateResultCount" class="cb-template-result-count" aria-live="polite">총 {{ templates|length }}개</span>
-            <a href="{% url 'bookmarks:cb_template_manage' %}?aircraft_model={{ aircraft_model|urlencode }}" class="cb-template-new-button"><i class="bi bi-plus-lg"></i> 새 템플릿</a>
+        <div class="cb-template-list-page-tools cb-saved-page-tools">
+            <span id="cbTemplateResultCount" class="cb-saved-count" aria-live="polite">
+                <i class="bi bi-files" aria-hidden="true"></i>
+                <span id="cbTemplateResultLabel">템플릿</span>
+                <strong id="cbTemplateResultValue">{{ templates|length }}</strong><span>개</span>
+            </span>
+            <a href="{% url 'bookmarks:cb_template_manage' %}?aircraft_model={{ aircraft_model|urlencode }}" class="cb-saved-create-button"><i class="bi bi-plus-lg"></i> 새 템플릿</a>
         </div>
     </section>
 

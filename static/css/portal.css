@@ -1729,8 +1729,8 @@ body.portal-body {
 }
 
 .portal-quick-menu .dropdown-item:hover {
-    background: #f1f5f9;
-    color: #0369a1;
+    background: #d4d8f3;
+    color: #023cfa;
 }
 
 .portal-quick-menu .dropdown-item > span:last-child {
