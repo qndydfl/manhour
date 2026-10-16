@@ -5,9 +5,9 @@
                 <i class="bi bi-airplane-engines"></i>
             </div>
             <div>
-                <div class="portal-brand-name">AIR OPS</div>
+                <div class="portal-brand-name">항공정비 운영 포털</div>
                 <div class="portal-brand-description">
-                    Aircraft Maintenance Operations
+                    인력 · 작업시간 · C/B 문서 통합 관리
                 </div>
             </div>
         </a>
@@ -137,7 +137,7 @@
                     <a class="dropdown-item" href="{% url 'manhour:settings' %}">
                         <i class="bi bi-sliders me-2"></i>Settings
                     </a>
-                    <a class="dropdown-item" href="/admin/">
+                    <a class="dropdown-item" href="{% url 'manhour:admin_entry' %}">
                         <i class="bi bi-shield-lock me-2"></i>Admin
                     </a>
                     {% endif %}

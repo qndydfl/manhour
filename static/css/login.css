@@ -86,13 +86,14 @@ body {
     color: #0f172a;
     font-size: 15px;
     font-weight: 850;
-    letter-spacing: 0.13em;
+    letter-spacing: -0.01em;
 }
 
 .login-v2-brand-copy small {
     margin-top: 2px;
     color: #64748b;
     font-size: var(--font-size-xs);
+    letter-spacing: -0.01em;
 }
 
 .login-v2-card-head {

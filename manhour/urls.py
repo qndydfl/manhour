@@ -8,6 +8,7 @@ urlpatterns = [
     # 로그인
     path("login/", views.SimpleLoginView.as_view(), name="login"),
     path("logout/", views.SimpleLogoutView.as_view(), name="logout"),
+    path("admin-entry/", views.AdminEntryView.as_view(), name="admin_entry"),
     path(
         "workplace/change/",
         views.ChangeWorkplaceView.as_view(),

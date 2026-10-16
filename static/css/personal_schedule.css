@@ -93,7 +93,7 @@
     .personal-v2-page .personal-v2-header-stat strong {
         margin-top: 0;
         overflow: hidden;
-        font-size: 10px;
+        font-size: var(--font-size-xs) !important;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -112,7 +112,7 @@
         display: inline-flex;
         gap: 4px;
         border-radius: 7px;
-        font-size: 10px;
+        font-size: var(--font-size-xs) !important;
         white-space: nowrap;
     }
 

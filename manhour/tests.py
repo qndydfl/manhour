@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 from manning.models import WorkSession as ManningWorkSession
 
@@ -23,6 +24,57 @@ from .workplaces import (
 )
 from .workplace_config import get_default_workplace_choices
 from .shift_rotation import get_operational_work_date, get_rotation_status
+
+
+class AdminEntryTests(TestCase):
+    def setUp(self):
+        self.workplace = Workplace.objects.create(
+            code="SITE-A",
+            label="Site A",
+        )
+
+    def set_simple_session(self, role):
+        browser_session = self.client.session
+        browser_session.update(
+            {
+                "is_authenticated": True,
+                "user_role": role,
+                "workplace": self.workplace.code,
+                "workplace_label": self.workplace.label,
+            }
+        )
+        browser_session.save()
+
+    def test_simple_admin_enters_django_admin_without_second_login(self):
+        admin_user = get_user_model().objects.create_superuser(
+            username="site-admin",
+            password="test-password",
+        )
+        self.set_simple_session("admin")
+
+        response = self.client.get(reverse("manhour:admin_entry"))
+
+        self.assertRedirects(
+            response,
+            reverse("admin:index"),
+            fetch_redirect_response=False,
+        )
+        self.assertEqual(
+            self.client.session.get("_auth_user_id"),
+            str(admin_user.pk),
+        )
+
+    def test_operator_cannot_use_admin_entry(self):
+        self.set_simple_session("user")
+
+        response = self.client.get(reverse("manhour:admin_entry"))
+
+        self.assertRedirects(
+            response,
+            reverse("manhour:index"),
+            fetch_redirect_response=False,
+        )
+        self.assertNotIn("_auth_user_id", self.client.session)
 
 
 class WorkplaceSyncTests(TestCase):

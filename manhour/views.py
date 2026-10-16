@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model, login as auth_login
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q, Count, Max, Case, When, Sum, FloatField
@@ -232,6 +233,34 @@ class SimpleAdminRequiredMixin(SimpleLoginRequiredMixin):
             messages.error(request, "관리자 권한이 필요합니다.")
             return redirect("manhour:index")
         return super().dispatch(request, *args, **kwargs)
+
+
+class AdminEntryView(SimpleAdminRequiredMixin, View):
+    """Bridge the simple admin session to Django's admin authentication."""
+
+    def get(self, request):
+        if request.user.is_authenticated and request.user.is_staff:
+            return redirect("admin:index")
+
+        user_model = get_user_model()
+        admin_user = (
+            user_model.objects.filter(is_active=True, is_staff=True)
+            .order_by("-is_superuser", "pk")
+            .first()
+        )
+        if admin_user is None:
+            messages.error(
+                request,
+                "활성화된 Django 관리자 계정이 없습니다.",
+            )
+            return redirect("manhour:index")
+
+        auth_login(
+            request,
+            admin_user,
+            backend="django.contrib.auth.backends.ModelBackend",
+        )
+        return redirect("admin:index")
 
 
 class SimpleLoginView(View):
