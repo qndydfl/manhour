@@ -178,7 +178,7 @@ iframe {
         min-height: 30px;
         padding: 0;
         gap: 4px;
-        font-size: 11px;
+        font-size: var(--font-size-mobile);
     }
 
     .result-view-topbar .assignment-topbar-btn {

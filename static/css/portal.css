@@ -1154,6 +1154,29 @@
 .bento-card-metar {
     background: var(--ios-secondary-background);
 }
+
+/* iOS grouped-card surface: keep the page background while separating sections. */
+.bento-card:not(.bento-card-clock) {
+    border: 1px solid rgba(111, 132, 156, 0.24);
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow:
+        0 1px 1px rgba(15, 23, 42, 0.04),
+        0 10px 30px rgba(48, 65, 86, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+
+@media (hover: hover) {
+    .bento-card:not(.bento-card-clock):hover {
+        border-color: rgba(74, 105, 140, 0.3);
+        box-shadow:
+            0 1px 2px rgba(15, 23, 42, 0.05),
+            0 14px 34px rgba(48, 65, 86, 0.13),
+            inset 0 1px 0 rgba(255, 255, 255, 0.96);
+    }
+}
+
 .metar-head-icon {
     border: 0;
     border-radius: 12px;

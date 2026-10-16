@@ -1327,7 +1327,7 @@
     }
 
     .mh-session-list-page .mh-session-date {
-        font-size: 11px;
+        font-size: var(--font-size-xs);
     }
 
     .mh-session-list-page .mh-shift {
@@ -1337,7 +1337,7 @@
     .mh-session-list-page .mh-session-actions .mh-btn {
         min-height: 36px;
         padding: 7px 6px;
-        font-size: 12px;
+        font-size: var(--font-size-xs);
     }
 
     .mh-session-list-page .mh-empty h3 {
@@ -1345,6 +1345,18 @@
     }
 
     .mh-session-list-page .mh-empty p {
-        font-size: 12px;
+        font-size: var(--font-size-xs);
+    }
+
+    .mh-session-list-page .mh-empty .mh-empty-create-btn {
+        min-height: 32px;
+        padding: 6px 11px;
+        gap: 5px;
+        border-radius: 8px;
+        font-size: var(--font-size-xs);
+    }
+
+    .mh-session-list-page .mh-empty .mh-empty-create-btn i {
+        font-size: var(--font-size-xs);
     }
 }

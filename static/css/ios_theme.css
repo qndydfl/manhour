@@ -166,27 +166,44 @@ small,
 .manage-limit-card,
 .manning-session-card,
 .manning-v2-area-card,
+    .manning-dashboard-section,
 .manning-form-panel,
+    .edit-main-panel,
+    .memo-card,
+    .worker-list-panel,
 .template-editor-panel,
 .template-card,
 .template-summary-card,
+    .settings-v2-section,
+    .manual-input-card,
+    .worker-status-panel,
+    .work-detail-panel,
 .edit-memo-panel,
+    .duplicate-confirm-card,
 .app-dialog-card,
 .modal-content,
 .dropdown-menu
 ) {
-    border-color: var(--ios-separator);
-    background: var(--ios-secondary-background);
-    box-shadow: var(--ios-shadow);
+    border-color: rgba(111, 132, 156, 0.24);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 1px 1px rgba(15, 23, 42, 0.04),
+        0 10px 28px rgba(48, 65, 86, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    backdrop-filter: blur(18px) saturate(135%);
 }
 
 .portal-card:not(.portal-card-dark),
 .portal-image-card,
 .portal-link-card,
 .portal-status-card {
-    border-color: var(--portal-border-soft);
-    background: var(--ios-secondary-background);
-    box-shadow: var(--portal-shadow);
+    border-color: rgba(111, 132, 156, 0.24);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 1px 1px rgba(15, 23, 42, 0.04),
+        0 10px 28px rgba(48, 65, 86, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
 .portal-card-dark {
