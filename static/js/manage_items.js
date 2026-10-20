@@ -913,12 +913,7 @@ function formatAssignedText(el) {
         .map((s) => s.trim())
         .filter(Boolean);
 
-    const lines = [];
-    for (let i = 0; i < names.length; i += 5) {
-        lines.push(names.slice(i, i + 5).join(", "));
-    }
-
-    const formatted = lines.join("\n");
+    const formatted = names.join(", ");
     if (el.value !== formatted) {
         el.value = formatted;
     }

@@ -906,12 +906,19 @@ body.assignment-console-body
 
     .worker-status-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-auto-rows: 56px;
         gap: 4px;
         max-width: none;
+        max-height: 236px;
+        padding-right: 2px;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        scrollbar-gutter: stable;
+        -webkit-overflow-scrolling: touch;
     }
 
     .worker-status-panel .worker-card {
-        min-height: 48px;
+        min-height: 56px;
         padding: 4px !important;
         border-radius: 6px !important;
     }

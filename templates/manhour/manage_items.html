@@ -14,7 +14,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manage_items.css' %}?v=20261011-3"
+    href="{% static 'css/manage_items.css' %}?v=20261020-4"
 />
 {% endblock css %} 
 
@@ -42,7 +42,7 @@
 </script>
 
 <script defer src="{% static 'js/paste_data.js' %}?v=20260831-1"></script>
-<script defer src="{% static 'js/manage_items.js' %}?v=20261011-2"></script>
+<script defer src="{% static 'js/manage_items.js' %}?v=20261020-1"></script>
 {% endblock js %} 
 
 
@@ -400,7 +400,7 @@
                                 </td>
 
                                 <td class="col-desc">
-                                    {% render_field form.description class="table-input text-start desc-one-line" placeholder="작업 내용" %}
+                                    {% render_field form.description class="table-input desc-one-line" placeholder="작업 내용" %}
                                 </td>
 
                                 <td class="col-mh">
