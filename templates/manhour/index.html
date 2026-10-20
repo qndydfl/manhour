@@ -2,10 +2,10 @@
 {% load static %} 
 {% load i18n %}
 {% load background_tags %} 
-{% block title %} 항공정비 운영 포털 {% endblock title %}
+{% block title %} 항공 정비 운영 포털 {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261016-3" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261020-2" />
 {% endblock css %} 
 
 {% block js %}
@@ -29,7 +29,7 @@
         }, 260);
     });
 </script>
-<script defer src="{% static 'js/index.js' %}?v=20261010-2"></script>
+<script defer src="{% static 'js/index.js' %}?v=20261020-1"></script>
 {% endblock js %} 
 
 {% block content %} 
@@ -44,7 +44,15 @@
             <div class="bento-card-head">
                 <div>
                     <span class="bento-badge">WORKSPACES</span>
-                    <h2 class="bento-title">운영 현황 & 작업 현황</h2>
+                    <div class="portal-overview-title-row">
+                        <h2 class="bento-title">운영 현황 & 작업 현황</h2>
+                        <span
+                            class="portal-operation-turbine"
+                            aria-hidden="true"
+                        >
+                            <i class="bi bi-gear-wide-connected"></i>
+                        </span>
+                    </div>
                 </div>
                 <div class="hero-weather-summary" aria-label="현재 공항 날씨">
                     <span class="hero-weather-icon"
@@ -69,93 +77,143 @@
                 </div>
             </div>
 
-            <!-- Workspace Action Grid -->
-            <div class="workspace-action-grid">
-                <a
-                    href="{% url 'manning:manning_list' %}"
-                    class="workspace-pill primary"
-                    target="_blank"
+            <div
+                class="portal-overview-tabs"
+                role="tablist"
+                aria-label="운영 및 작업 현황 보기"
+            >
+                <button
+                    type="button"
+                    id="portalWorkspaceTab"
+                    class="portal-overview-tab is-active"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="portalWorkspacePanel"
+                    tabindex="0"
+                    data-portal-overview-tab="workspace"
                 >
-                    <div class="pill-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                    <div class="pill-info">
-                        <span class="pill-tag">WORKFORCE</span>
-                        <strong>Manning</strong>
-                    </div>
-                    <i class="bi bi-arrow-up-right pill-arrow"></i>
-                </a>
-
-                <a
-                    href="{% url 'manhour:session_list' %}"
-                    class="workspace-pill workspace-pill-analysis"
+                    <i class="bi bi-grid-fill" aria-hidden="true"></i>
+                    <span>작업 메뉴</span>
+                </button>
+                <button
+                    type="button"
+                    id="portalStatusTab"
+                    class="portal-overview-tab"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="portalStatusPanel"
+                    tabindex="-1"
+                    data-portal-overview-tab="status"
                 >
-                    <div class="pill-icon">
-                        <i class="bi bi-stopwatch-fill"></i>
-                    </div>
-                    <div class="pill-info">
-                        <span class="pill-tag">ANALYSIS</span>
-                        <strong>Manhour</strong>
-                    </div>
-                    <i class="bi bi-arrow-up-right pill-arrow"></i>
-                </a>
-
-                <a
-                    href="{% url 'manhour:master_data_list' %}"
-                    class="workspace-pill workspace-pill-data"
-                >
-                    <div class="pill-icon">
-                        <i class="bi bi-database-fill"></i>
-                    </div>
-                    <div class="pill-info">
-                        <span class="pill-tag">DATA</span>
-                        <strong>데이터 입력</strong>
-                    </div>
-                    <i class="bi bi-arrow-up-right pill-arrow"></i>
-                </a>
+                    <i class="bi bi-bar-chart-fill" aria-hidden="true"></i>
+                    <span>운영 현황</span>
+                </button>
             </div>
 
-            <!-- Integrated Status Metrics -->
-            <div class="status-metrics-row">
-                <a
-                    href="{% url 'manhour:master_data_list' %}"
-                    class="metric-item metric-item-master"
-                >
-                    <span class="metric-label"
-                        ><i class="bi bi-database"></i> Master Data</span
+            <div
+                id="portalWorkspacePanel"
+                class="portal-overview-panel"
+                role="tabpanel"
+                aria-labelledby="portalWorkspaceTab"
+                data-portal-overview-panel="workspace"
+            >
+                <!-- Workspace Action Grid -->
+                <div class="workspace-action-grid">
+                    <a
+                        href="{% url 'manning:manning_list' %}"
+                        class="workspace-pill primary"
+                        target="_blank"
                     >
-                    <strong
-                        class="metric-value master-data-count-num"
-                        data-index-count="master"
-                        >{{ master_data_count }}</strong
+                        <div class="pill-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="pill-info">
+                            <span class="pill-tag">WORKFORCE</span>
+                            <strong>Manning</strong>
+                        </div>
+                        <i class="bi bi-arrow-up-right pill-arrow"></i>
+                    </a>
+
+                    <a
+                        href="{% url 'manhour:session_list' %}"
+                        class="workspace-pill workspace-pill-analysis"
                     >
-                </a>
-                <a
-                    href="{% url 'manhour:session_list' %}"
-                    class="metric-item metric-item-active"
-                >
-                    <span class="metric-label"
-                        ><i class="bi bi-activity"></i> Active Sessions</span
+                        <div class="pill-icon">
+                            <i class="bi bi-stopwatch-fill"></i>
+                        </div>
+                        <div class="pill-info">
+                            <span class="pill-tag">ANALYSIS</span>
+                            <strong>Manhour</strong>
+                        </div>
+                        <i class="bi bi-arrow-up-right pill-arrow"></i>
+                    </a>
+
+                    <a
+                        href="{% url 'manhour:master_data_list' %}"
+                        class="workspace-pill workspace-pill-data"
                     >
-                    <strong
-                        class="metric-value active-count-num"
-                        data-index-count="active"
-                        >{{ active_count }}</strong
+                        <div class="pill-icon">
+                            <i class="bi bi-database-fill"></i>
+                        </div>
+                        <div class="pill-info">
+                            <span class="pill-tag">DATA</span>
+                            <strong>데이터 입력</strong>
+                        </div>
+                        <i class="bi bi-arrow-up-right pill-arrow"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div
+                id="portalStatusPanel"
+                class="portal-overview-panel"
+                role="tabpanel"
+                aria-labelledby="portalStatusTab"
+                data-portal-overview-panel="status"
+                hidden
+            >
+                <!-- Integrated Status Metrics -->
+                <div class="status-metrics-row">
+                    <a
+                        href="{% url 'manhour:master_data_list' %}"
+                        class="metric-item metric-item-master"
                     >
-                </a>
-                <a
-                    href="{% url 'manhour:history' %}"
-                    class="metric-item metric-item-history"
-                >
-                    <span class="metric-label"
-                        ><i class="bi bi-archive"></i> History</span
+                        <span class="metric-label"
+                            ><i class="bi bi-database"></i> Master Data</span
+                        >
+                        <strong
+                            class="metric-value master-data-count-num"
+                            data-index-count="master"
+                            >{{ master_data_count }}</strong
+                        >
+                    </a>
+                    <a
+                        href="{% url 'manhour:session_list' %}"
+                        class="metric-item metric-item-active"
                     >
-                    <strong
-                        class="metric-value history-count-num"
-                        data-index-count="history"
-                        >{{ history_count }}</strong
+                        <span class="metric-label"
+                            ><i class="bi bi-activity"></i> Active Sessions</span
+                        >
+                        <strong
+                            class="metric-value active-count-num"
+                            data-index-count="active"
+                            >{{ active_count }}</strong
+                        >
+                    </a>
+                    <a
+                        href="{% url 'manhour:history' %}"
+                        class="metric-item metric-item-history"
                     >
-                </a>
+                        <span class="metric-label"
+                            ><i class="bi bi-archive"></i> History</span
+                        >
+                        <strong
+                            class="metric-value history-count-num"
+                            data-index-count="history"
+                            >{{ history_count }}</strong
+                        >
+                    </a>
+                </div>
             </div>
         </section>
 

@@ -144,11 +144,103 @@
     background: var(--ios-secondary-background);
 }
 
+.portal-overview-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.portal-operation-turbine {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid rgba(59, 130, 246, 0.24);
+    border-radius: 50%;
+    background: linear-gradient(145deg, #eff6ff, #dbeafe);
+    color: #2563eb;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 3px 9px rgba(37, 99, 235, 0.14);
+}
+
+.portal-operation-turbine i {
+    display: block;
+    font-size: 15px;
+    line-height: 1;
+    animation: portal-turbine-spin 7s linear infinite;
+    transform-origin: center;
+}
+
+.bento-card-hero:hover .portal-operation-turbine i {
+    animation-duration: 3.5s;
+}
+
+@keyframes portal-turbine-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.portal-overview-tabs {
+    margin-bottom: 1rem;
+    padding: 4px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 13px;
+    background: rgba(148, 163, 184, 0.14);
+}
+
+.portal-overview-tab {
+    min-height: 38px;
+    padding: 7px 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 750;
+    line-height: 1;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.portal-overview-tab.is-active {
+    background: rgba(255, 255, 255, 0.94);
+    color: #1d4ed8;
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.08),
+        0 5px 14px rgba(15, 23, 42, 0.07);
+}
+
+.portal-overview-tab:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.3);
+    outline-offset: 2px;
+}
+
+.portal-overview-panel {
+    min-height: 78px;
+}
+
+.portal-overview-panel[hidden] {
+    display: none;
+}
+
 .workspace-action-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0;
 }
 
 .workspace-pill {
@@ -411,6 +503,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .portal-operation-turbine i {
+        animation: none;
+    }
+
     .workspace-pill,
     .pill-icon,
     .pill-arrow,
@@ -1867,6 +1963,38 @@ body.portal-body {
         line-height: 1.25;
     }
 
+    .portal-overview-title-row {
+        gap: 6px;
+    }
+
+    .portal-operation-turbine {
+        width: 19px;
+        height: 19px;
+        flex-basis: 19px;
+    }
+
+    .portal-operation-turbine i {
+        font-size: 12px;
+    }
+
+    .portal-overview-tabs {
+        margin-bottom: 8px;
+        padding: 3px;
+        border-radius: 11px;
+    }
+
+    .portal-overview-tab {
+        min-height: 34px;
+        padding: 6px 8px;
+        gap: 5px;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+
+    .portal-overview-panel {
+        min-height: 58px;
+    }
+
     .workspace-action-grid,
     .status-metrics-row {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1874,7 +2002,7 @@ body.portal-body {
     }
 
     .workspace-action-grid {
-        margin-bottom: 8px;
+        margin-bottom: 0;
     }
 
     .workspace-pill {

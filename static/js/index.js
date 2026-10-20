@@ -13,6 +13,54 @@ document.addEventListener("DOMContentLoaded", () => {
         if (el) el.textContent = value;
     }
 
+    function initializeOverviewTabs() {
+        const tabs = [
+            ...document.querySelectorAll("[data-portal-overview-tab]"),
+        ];
+        const panels = [
+            ...document.querySelectorAll("[data-portal-overview-panel]"),
+        ];
+
+        if (tabs.length < 2 || panels.length < 2) return;
+
+        function activateTab(tab, moveFocus = false) {
+            const target = tab.dataset.portalOverviewTab;
+
+            tabs.forEach((item) => {
+                const isActive = item === tab;
+                item.classList.toggle("is-active", isActive);
+                item.setAttribute("aria-selected", String(isActive));
+                item.tabIndex = isActive ? 0 : -1;
+            });
+
+            panels.forEach((panel) => {
+                panel.hidden = panel.dataset.portalOverviewPanel !== target;
+            });
+
+            if (moveFocus) tab.focus();
+        }
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener("click", () => activateTab(tab));
+            tab.addEventListener("keydown", (event) => {
+                let nextIndex = null;
+
+                if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+                if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+                if (event.key === "Home") nextIndex = 0;
+                if (event.key === "End") nextIndex = tabs.length - 1;
+                if (nextIndex === null) return;
+
+                event.preventDefault();
+                activateTab(tabs[nextIndex], true);
+            });
+        });
+
+        activateTab(tabs.find((tab) => tab.classList.contains("is-active")) || tabs[0]);
+    }
+
+    initializeOverviewTabs();
+
     function renderDigitalTime(el, hours, minutes, seconds) {
         if (!el) return;
 
