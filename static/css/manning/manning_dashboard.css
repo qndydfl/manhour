@@ -610,6 +610,11 @@
 }
 
 @media (max-width: 700px) {
+    /* 모바일은 실제 메모 또는 작업자 데이터가 있는 영역만 표시한다. */
+    .manning-mobile-empty-content {
+        display: none;
+    }
+
     .manning-dashboard-content-stack {
         gap: 14px;
     }

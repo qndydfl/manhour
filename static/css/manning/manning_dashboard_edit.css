@@ -890,9 +890,9 @@ body.worker-panel-open .manning-main {
 
     .manning-dashboard-edit-body .manning-topbar-inner {
         min-height: 48px;
-        padding: 6px 8px;
+        padding: 0 8px;
         flex-wrap: nowrap;
-        gap: 5px;
+        gap: 4px;
     }
 
     .manning-dashboard-edit-body .manning-topbar-left {
@@ -912,18 +912,22 @@ body.worker-panel-open .manning-main {
         display: flex;
         flex-wrap: nowrap;
         justify-content: flex-end;
-        gap: 5px;
+        gap: 2px;
     }
 
     .manning-dashboard-edit-body .edit-topbar-cluster {
         width: auto;
         order: initial;
         flex: 0 0 auto;
+        flex-wrap: nowrap;
+        gap: 2px;
     }
 
     .manning-dashboard-edit-body .edit-header-actions {
-        grid-template-columns: repeat(5, 32px);
-        gap: 5px;
+        width: auto;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 2px;
     }
 
     .manning-dashboard-edit-body .edit-toolbar-label {
@@ -931,13 +935,22 @@ body.worker-panel-open .manning-main {
     }
 
     .manning-dashboard-edit-body .edit-header-actions > .edit-toolbar-btn {
-        width: 32px;
-        min-width: 0;
-        min-height: 32px;
-        padding: 4px;
-        font-size: 14px;
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        min-height: 24px;
+        flex: 0 0 24px;
+        padding: 0;
+        border-radius: 6px;
+        font-size: 12px;
         white-space: nowrap;
         grid-column: auto;
+    }
+
+    .manning-dashboard-edit-body .edit-header-actions > .edit-toolbar-btn i {
+        margin: 0;
+        font-size: 11px;
+        line-height: 1;
     }
 
     .manning-dashboard-edit-body .manning-content {
@@ -961,6 +974,21 @@ body.worker-panel-open .manning-main {
     .manning-dashboard-edit-body #loadWorkersPanel.worker-offcanvas {
         max-width: 100vw;
         height: 100dvh;
+    }
+
+    .manning-dashboard-edit-body
+        input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+    .manning-dashboard-edit-body select,
+    .manning-dashboard-edit-body textarea,
+    .manning-dashboard-edit-body .form-control,
+    .manning-dashboard-edit-body .form-select {
+        font-size: 12px !important;
+        line-height: 1.35;
+    }
+
+    .manning-dashboard-edit-body input::placeholder,
+    .manning-dashboard-edit-body textarea::placeholder {
+        font-size: 12px;
     }
 
     html:has(.manning-dashboard-edit-body.worker-panel-open),

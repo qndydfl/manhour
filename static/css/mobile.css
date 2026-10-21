@@ -351,10 +351,14 @@ iframe {
         gap: 6px;
     }
 
-    .manning-topbar-left,
+    .manning-topbar-left {
+        min-width: 0;
+        gap: 6px;
+    }
+
     .manning-topbar-right {
         min-width: 0;
-        gap: 9px;
+        gap: 2px;
     }
 
     .manning-sidebar-toggle {
@@ -377,7 +381,7 @@ iframe {
         width: auto;
         display: flex;
         flex-wrap: nowrap;
-        gap: 5px;
+        gap: 2px;
     }
 
     .manning-topbar-right .manning-primary-button,
@@ -1474,25 +1478,41 @@ iframe {
     }
 
     .manning-topbar .manning-sidebar-toggle,
-    .manning-topbar .manning-account-button,
     .manning-topbar-right .manning-primary-button,
     .manning-topbar-right .manning-dashboard-btn,
     .manning-topbar-right .manning-form-topbar-action,
     .manning-topbar-right .template-editor-header-btn,
     .manning-topbar-right .template-save-btn,
     .manning-topbar-right .edit-toolbar-btn {
-        width: 29px;
-        min-width: 29px;
-        height: 29px;
-        min-height: 29px;
-        flex: 0 0 29px;
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        min-height: 24px;
+        flex: 0 0 24px;
         padding: 0;
-        border-radius: 8px;
+        border-radius: 6px;
+    }
+
+    .manning-topbar .manning-account-button {
+        width: 26px;
+        min-width: 26px;
+        height: 26px;
+        min-height: 26px;
+        flex: 0 0 26px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 7px;
+    }
+
+    .manning-topbar .manning-account-button::after {
+        display: none;
     }
 
     .manning-topbar .manning-user-avatar {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+        border-radius: 6px;
         font-size: 10px;
     }
 }

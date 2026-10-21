@@ -67,7 +67,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard.css' %}?v=20261005-2"
+    href="{% static 'css/manning/manning_dashboard.css' %}?v=20261021-1"
 />
 {% endblock css %} 
 
@@ -108,7 +108,7 @@
     <!-- =====================================================
         MEMO
     ====================================================== -->
-    <section class="manning-dashboard-section manning-dashboard-memo-section">
+    <section class="manning-dashboard-section manning-dashboard-memo-section{% if not session.memo %} manning-mobile-empty-content{% endif %}">
         <div class="manning-dashboard-section-head">
             <div>
                 <h3 class="manning-dashboard-section-title">세션 메모</h3>
@@ -132,7 +132,7 @@
         </article>
     </section>
 
-    <section class="manning-dashboard-section manning-dashboard-area-section">
+    <section class="manning-dashboard-section manning-dashboard-area-section{% if left_unique_count == 0 and none_unique_count == 0 and right_unique_count == 0 %} manning-mobile-empty-content{% endif %}">
         <div class="manning-dashboard-section-head">
             <div>
                 <h3 class="manning-dashboard-section-title">
@@ -146,7 +146,7 @@
             LEFT
         ================================================== -->
 
-            <section class="manning-zone manning-zone-left">
+            <section class="manning-zone manning-zone-left{% if left_unique_count == 0 %} manning-mobile-empty-content{% endif %}">
                 <header class="manning-zone-header">
                     <div class="manning-zone-heading">
                         <span class="manning-zone-marker"></span>
@@ -171,7 +171,7 @@
             CENTER / NONE
         ================================================== -->
 
-            <section class="manning-zone manning-zone-center">
+            <section class="manning-zone manning-zone-center{% if none_unique_count == 0 %} manning-mobile-empty-content{% endif %}">
                 <header class="manning-zone-header">
                     <div class="manning-zone-heading">
                         <span class="manning-zone-marker"></span>
@@ -197,7 +197,7 @@
             RIGHT
         ================================================== -->
 
-            <section class="manning-zone manning-zone-right">
+            <section class="manning-zone manning-zone-right{% if right_unique_count == 0 %} manning-mobile-empty-content{% endif %}">
                 <header class="manning-zone-header">
                     <div class="manning-zone-heading">
                         <span class="manning-zone-marker"></span>
