@@ -654,6 +654,10 @@
         gap: 2px 4px;
     }
 
+    .manning-v2-worker-name {
+        font-size: var(--font-size-base) !important;
+    }
+
     .manning-dashboard-memo-label {
         margin-bottom: 4px;
     }
