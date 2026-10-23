@@ -67,7 +67,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard.css' %}?v=20261021-1"
+    href="{% static 'css/manning/manning_dashboard.css' %}?v=20261023-9"
 />
 {% endblock css %} 
 
@@ -123,10 +123,49 @@
             </div>
 
             <div class="manning-dashboard-memo-body">
-                {% if session.memo %} {{ session.memo|safe }} {% else %}
+                {% if session.important_process or session.morning_tool or session.morning_material or session.morning_bench or session.morning_towing or session.afternoon_cleanup or session.afternoon_card or session.afternoon_towing or session.special_note %}
+                <div class="manning-dashboard-memo-grid">
+                    {% if session.important_process %}
+                    <section class="manning-dashboard-memo-item">
+                        <strong class="manning-dashboard-memo-label">업무 전달</strong>
+                        <div class="manning-dashboard-memo-value">{{ session.important_process|safe|linebreaksbr }}</div>
+                    </section>
+                    {% endif %}
 
+                    {% if session.morning_tool or session.morning_material or session.morning_bench or session.morning_towing %}
+                    <section class="manning-dashboard-memo-item">
+                        <strong class="manning-dashboard-memo-label">오전 업무</strong>
+                        <div class="manning-dashboard-memo-lines">
+                            {% if session.morning_tool %}<p><span>Tool 준비 :</span>{{ session.morning_tool|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_material %}<p><span>자재 준비 :</span>{{ session.morning_material|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_bench %}<p><span>작업대 준비 :</span>{{ session.morning_bench|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_towing %}<p><span>Towing :</span>{{ session.morning_towing|safe|linebreaksbr }}</p>{% endif %}
+                        </div>
+                    </section>
+                    {% endif %}
+
+                    {% if session.afternoon_cleanup or session.afternoon_card or session.afternoon_towing %}
+                    <section class="manning-dashboard-memo-item">
+                        <strong class="manning-dashboard-memo-label">오후 업무</strong>
+                        <div class="manning-dashboard-memo-lines">
+                            {% if session.afternoon_cleanup %}<p><span>정리 정돈 :</span>{{ session.afternoon_cleanup|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.afternoon_card %}<p><span>Card 100% :</span>{{ session.afternoon_card|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.afternoon_towing %}<p><span>Towing :</span>{{ session.afternoon_towing|safe|linebreaksbr }}</p>{% endif %}
+                        </div>
+                    </section>
+                    {% endif %}
+
+                    {% if session.special_note %}
+                    <section class="manning-dashboard-memo-item manning-dashboard-memo-item-special">
+                        <strong class="manning-dashboard-memo-label">특이 사항</strong>
+                        <div class="manning-dashboard-memo-value">{{ session.special_note|safe|linebreaksbr }}</div>
+                    </section>
+                    {% endif %}
+                </div>
+                {% elif session.memo %}
+                <div class="manning-dashboard-memo-legacy">{{ session.memo|safe }}</div>
+                {% else %}
                 <span class="text-muted"> 등록된 메모가 없습니다. </span>
-
                 {% endif %}
             </div>
         </article>
@@ -154,37 +193,11 @@
                         <strong> LEFT SIDE </strong>
                     </div>
 
-                    <span> {{ left_unique_count }} personnel </span>
+                    <strong>{{ left_unique_count }} 명</strong>
                 </header>
 
                 <div class="manning-zone-list">
                     {% for area in session_areas %} {% if area.position == 'LEFT' %}
-                    {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
-
-                    <div class="manning-zone-empty">No areas configured.</div>
-
-                    {% endfor %}
-                </div>
-            </section>
-
-            <!-- =================================================
-            CENTER / NONE
-        ================================================== -->
-
-            <section class="manning-zone manning-zone-center{% if none_unique_count == 0 %} manning-mobile-empty-content{% endif %}">
-                <header class="manning-zone-header">
-                    <div class="manning-zone-heading">
-                        <span class="manning-zone-marker"></span>
-
-                        <strong> CENTER / NONE </strong>
-                    </div>
-
-                    <span> {{ none_unique_count }} personnel </span>
-                </header>
-
-                <div class="manning-zone-list">
-                    {% for area in session_areas %}
-                    {% if area.position == 'NONE' %}
                     {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
@@ -205,12 +218,38 @@
                         <strong> RIGHT SIDE </strong>
                     </div>
 
-                    <span> {{ right_unique_count }} personnel </span>
+                    <strong>{{ right_unique_count }} 명</strong>
                 </header>
 
                 <div class="manning-zone-list">
                     {% for area in session_areas %}
                     {% if area.position == 'RIGHT' %} {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
+
+                    <div class="manning-zone-empty">No areas configured.</div>
+
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- =================================================
+            CENTER / NONE
+        ================================================== -->
+
+            <section class="manning-zone manning-zone-center{% if none_unique_count == 0 %} manning-mobile-empty-content{% endif %}">
+                <header class="manning-zone-header">
+                    <div class="manning-zone-heading">
+                        <span class="manning-zone-marker"></span>
+
+                        <strong> CENTER / NONE </strong>
+                    </div>
+
+                    <strong>{{ none_unique_count }} 명</strong>
+                </header>
+
+                <div class="manning-zone-list">
+                    {% for area in session_areas %}
+                    {% if area.position == 'NONE' %}
+                    {% include "manning/partials/area_card.html" with area=area %} {% endif %} {% empty %}
 
                     <div class="manning-zone-empty">No areas configured.</div>
 

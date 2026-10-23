@@ -89,7 +89,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20261021-2"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20261023-1"
 />
 {% endblock css %} 
 
@@ -414,56 +414,52 @@
                                     class="input-group-text border-0 bg-transparent"
                                     >Tool 준비 :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="morning_tool"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.morning_tool }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.morning_tool }}</textarea>
                             </div>
                             <div class="input-group input-group-sm mb-2">
                                 <span
                                     class="input-group-text border-0 bg-transparent"
                                     >자재 준비 :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="morning_material"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.morning_material }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.morning_material }}</textarea>
                             </div>
                             <div class="input-group input-group-sm mb-2">
                                 <span
                                     class="input-group-text border-0 bg-transparent"
                                     >작업대 준비 :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="morning_bench"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.morning_bench }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.morning_bench }}</textarea>
                             </div>
                             <div class="input-group input-group-sm mb-2">
                                 <span
                                     class="input-group-text border-0 bg-transparent"
                                     >Towing :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="morning_towing"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.morning_towing }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.morning_towing }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -479,42 +475,39 @@
                                     class="input-group-text border-0 bg-transparent"
                                     >정리 정돈 :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="afternoon_cleanup"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.afternoon_cleanup }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.afternoon_cleanup }}</textarea>
                             </div>
                             <div class="input-group input-group-sm mb-2">
                                 <span
                                     class="input-group-text border-0 bg-transparent"
                                     >Card 100% :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="afternoon_card"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.afternoon_card }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.afternoon_card }}</textarea>
                             </div>
                             <div class="input-group input-group-sm mb-2">
                                 <span
                                     class="input-group-text border-0 bg-transparent"
                                     >Towing :</span
                                 >
-                                <input
-                                    type="text"
+                                <textarea
                                     name="afternoon_towing"
-                                    class="form-control border-0 border-bottom bg-transparent text-primary"
+                                    class="form-control border-0 border-bottom bg-transparent text-primary auto-resize"
                                     form="areaEditForm"
-                                    value="{{ memo_values.afternoon_towing }}"
+                                    rows="2"
                                     placeholder="내용 입력"
-                                />
+                                >{{ memo_values.afternoon_towing }}</textarea>
                             </div>
                         </div>
                     </div>

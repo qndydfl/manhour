@@ -227,7 +227,9 @@ body.worker-panel-open .manning-main {
 .edit-table-wrap {
     width: 100%;
     overflow-x: auto;
-    overscroll-behavior: contain;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
     scrollbar-gutter: stable;
     -webkit-overflow-scrolling: touch;
     background: var(--edit-card);
@@ -260,7 +262,7 @@ body.worker-panel-open .manning-main {
     border-bottom: 1px solid #afc0d1;
     background: #d7e3ef;
     color: #243b53 !important;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: 800;
     letter-spacing: 0.03em;
     white-space: nowrap;
@@ -271,8 +273,8 @@ body.worker-panel-open .manning-main {
     border-top: 1px solid #cad6e2;
     border-bottom: 1px solid #cad6e2;
     background: #eef3f8;
-    color: #36516d;
-    font-size: var(--font-size-xs);
+    color: #0676ee;
+    font-size: var(--font-size-base);
     font-weight: 850;
     letter-spacing: 0.12em;
 }
@@ -309,7 +311,7 @@ body.worker-panel-open .manning-main {
     border-radius: 8px;
     background: var(--manning-surface);
     color: var(--edit-text);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm) !important;
     font-weight: 650;
 }
 
@@ -318,6 +320,7 @@ body.worker-panel-open .manning-main {
     line-height: 1.45;
     resize: none;
     overflow-y: hidden;
+    font-size: var(--font-size-base) !important;
 }
 
 .area-row .form-control:focus,
@@ -399,7 +402,7 @@ body.worker-panel-open .manning-main {
 
 .memo-section label {
     color: #36516d !important;
-    font-size: var(--font-size-xs) !important;
+    font-size: var(--font-size-base) !important;
     font-weight: 800 !important;
 }
 
@@ -412,8 +415,8 @@ body.worker-panel-open .manning-main {
     min-width: 88px;
     padding: 0 6px 0 0;
     justify-content: flex-start;
-    color: #64748b;
-    font-size: var(--font-size-xs);
+    color: #111111;
+    font-size: var(--font-size-sm);
     white-space: nowrap;
 }
 
@@ -423,7 +426,7 @@ body.worker-panel-open .manning-main {
     border: 1px solid #d4dee9 !important;
     border-radius: 7px !important;
     background: #f7fafc !important;
-    color: #1e3a5f !important;
+    color: #0a0a0a !important;
     font-size: var(--font-size-sm);
 }
 
