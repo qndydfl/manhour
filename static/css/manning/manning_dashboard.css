@@ -503,6 +503,95 @@
 }
 
 /* =========================================================
+    LARGE DISPLAY / TV
+========================================================= */
+
+@media (min-width: 1930px) {
+    body.manning-dashboard-display .manning-content,
+    body.manning-dashboard-display .manning-topbar-inner {
+        max-width: none;
+    }
+
+    body.manning-dashboard-display .manning-content {
+        padding-right: clamp(38px, 3vw, 72px);
+        padding-left: clamp(38px, 3vw, 72px);
+    }
+
+    body.manning-dashboard-display .manning-topbar-title {
+        font-size: 20px;
+    }
+
+    body.manning-dashboard-display .manning-dashboard-section-title {
+        font-size: 28px;
+    }
+
+    body.manning-dashboard-display .manning-dashboard-memo-head strong {
+        font-size: 19px;
+    }
+
+    body.manning-dashboard-display .manning-dashboard-memo-body {
+        font-size: 18px;
+    }
+
+    body.manning-dashboard-display .manning-dashboard-memo-label {
+        font-size: 16px;
+    }
+
+    body.manning-dashboard-display .manning-dashboard-memo-lines p span {
+        font-size: 14px;
+    }
+
+    body.manning-dashboard-display .manning-zone-grid {
+        gap: 24px;
+    }
+
+    body.manning-dashboard-display .manning-zone-header {
+        min-height: 44px;
+    }
+
+    body.manning-dashboard-display .manning-zone-header strong {
+        font-size: 18px;
+    }
+
+    body.manning-dashboard-display .manning-zone-header > span {
+        font-size: 15px;
+    }
+
+    body.manning-dashboard-display .manning-zone-list {
+        gap: 14px 18px;
+    }
+
+    body.manning-dashboard-display .manning-v2-area-card {
+        padding: 0 14px 12px;
+    }
+
+    body.manning-dashboard-display .manning-v2-area-card-header {
+        min-height: 48px;
+        padding: 8px 0;
+    }
+
+    body.manning-dashboard-display .manning-v2-area-name {
+        font-size: 19px;
+    }
+
+    body.manning-dashboard-display .manning-v2-area-count {
+        font-size: 14px;
+    }
+
+    body.manning-dashboard-display .manning-v2-worker-grid {
+        padding-top: 10px;
+        gap: 6px 8px;
+    }
+
+    body.manning-dashboard-display .manning-v2-worker-name {
+        min-height: 38px;
+        padding: 5px 7px;
+        font-size: clamp(20px, 1.3vw, 30px);
+        line-height: 1.2;
+    }
+}
+
+/* =========================================================
     RESPONSIVE
 ========================================================= */
 
@@ -518,81 +607,35 @@
 }
 
 @media (max-width: 700px) {
-    /* 모바일은 실제 메모 또는 작업자 데이터가 있는 영역만 표시한다. */
+    
     .manning-mobile-empty-content {
         display: none !important;
     }
 
+    .manning-v2-worker-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2px 3px;
+    }
+
     .manning-dashboard-content-stack {
         gap: 14px;
-    }
-
-    .manning-dashboard-content-stack > .manning-dashboard-section {
-        margin: 0;
-    }
-
-    .manning-dashboard-memo-section {
-        order: 0;
-    }
-
-    .manning-dashboard-memo-head strong {
-        font-size: 12px;
-    }
-
-    .manning-dashboard-memo-body {
-        padding: 9px;
+        margin: 10px 0;
     }
 
     .manning-dashboard-memo-grid {
         grid-template-columns: 1fr;
         gap: 6px;
-    }
-
-    .manning-dashboard-memo-item {
-        padding: 9px 10px;
-    }
-
-    .manning-dashboard-area-section {
-        order: 1;
-    }
-
-    .manning-dashboard-section-head {
-        margin-bottom: 7px;
-    }
+    } 
 
     .manning-dashboard-section-head h3,
     .manning-dashboard-section-title {
-        font-size: 13px;
+        font-size: var(--font-size-lg);
     }
     
-    .manning-zone-grid {
-        gap: 10px;
-    }
-
-    .manning-zone-header {
-        min-height: 30px;
-        margin-bottom: 4px;
-        padding-bottom: 4px;
-    }
-
-    .manning-zone-header strong {
-        font-size: 11px;
-        letter-spacing: 0.05em;
-    }
-
-    .manning-zone-header > span {
-        font-size: 9px;
-    }
-
     .manning-zone-list {
         grid-template-columns: 1fr;
         gap: 6px;
-    }
-
-    .manning-v2-area-card {
-        display: block;
-        padding: 0 4px 6px;
-    }
+    } 
 
     .manning-v2-area-card-header {
         min-height: 30px;
@@ -601,56 +644,13 @@
         border-bottom: 1px solid rgba(148, 163, 184, 0.35);
     }
 
-    .manning-v2-area-name {
-        font-size: 11px;
-    }
-
-    .manning-v2-area-count {
-        font-size: 9px;
-    }
-
     .manning-v2-worker-grid {
         padding: 4px 0 0;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 2px 4px;
-    }
-
-    .manning-v2-worker-name {
-        min-height: 24px;
-        padding: 3px 4px;
-        font-size: 12px;
-        line-height: 18px;
     }
 
     .manning-dashboard-memo-label {
         margin-bottom: 4px;
-        font-size: 10px;
-    }
-
-    .manning-dashboard-memo-value,
-    .manning-dashboard-memo-lines p {
-        font-size: 12px;
-    }
-
-    .manning-dashboard-memo-lines p span {
-        font-size: 9px;
-    }
-
-    .manning-v2-worker-name + .manning-v2-worker-name {
-        border-top: 0;
-    }
-}
-
-@media (max-width: 420px) {
-    .manning-v2-worker-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2px 3px;
-    }
-
-    .manning-v2-worker-name {
-        min-height: 22px;
-        padding: 2px 3px;
-        font-size: 12px;
-        line-height: 18px;
     }
 }
