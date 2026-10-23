@@ -632,6 +632,10 @@
         font-size: var(--font-size-lg);
     }
     
+    .manning-dashboard-area-section {
+        margin-top: 0 !important;
+    }
+
     .manning-zone-list {
         grid-template-columns: 1fr;
         gap: 6px;
