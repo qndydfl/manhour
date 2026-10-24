@@ -388,12 +388,12 @@
 
 .personal-v2-empty h3 {
     margin: 14px 0 6px;
-    font-size: 15px;
+    font-size: var(--font-size-base);
 }
 
 .personal-v2-empty p {
     color: #64748b;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
 }
 
 /* =========================================================

@@ -303,13 +303,6 @@ textarea {
     background-color: var(--ios-blue-pressed);
 }
 
-.btn-danger,
-.mh-btn-danger,
-.master-btn-danger {
-    border-color: var(--ios-red);
-    background-color: var(--ios-red);
-}
-
 button:active,
 .btn:active,
 [role="button"]:active {

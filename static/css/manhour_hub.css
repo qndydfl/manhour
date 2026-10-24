@@ -683,6 +683,12 @@
     outline-offset: 2px;
 }
 
+.mh-session-delete:hover {
+    border-color: var(--assignment-red);
+    background: var(--assignment-red);
+    color: #ffffff;
+}
+
 .mh-session-identity > span {
     display: block;
     margin-bottom: 6px;
