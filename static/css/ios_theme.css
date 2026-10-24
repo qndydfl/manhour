@@ -11,9 +11,10 @@
     --ios-orange: #ff9500;
     --ios-red: #ff3b30;
     --ios-label: #1c1c1e;
-    --ios-secondary-label: #4b5563;
-    --ios-tertiary-label: #5f6f85;
-    --ios-grouped-background: #e8eef5;
+    --ios-secondary-label: #344054;
+    --ios-tertiary-label: #475569;
+    /* Slightly deeper backdrop for clearer separation from light cards. */
+    --ios-grouped-background: #d7e0ea;
     --ios-secondary-background: #f3f6fa;
     --ios-tertiary-background: #eaf0f6;
     --ios-fill: rgba(118, 118, 128, 0.12);
@@ -565,4 +566,62 @@ body:has(.app-dialog:not([hidden])) {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
     }
+}
+
+/* =========================================================
+   READABILITY / ICON CONTRAST
+   Stronger ink on light surfaces and brighter supporting
+   controls on the existing dark navigation surfaces.
+========================================================= */
+body :is(.text-muted, .text-secondary, .text-body-secondary, .form-text) {
+    color: var(--ios-secondary-label) !important;
+}
+
+form :is(input, textarea)::placeholder {
+    color: var(--ios-tertiary-label);
+    opacity: 1;
+}
+
+:is(
+    .portal-header,
+    .assignment-topbar,
+    .manage-items-topbar,
+    .manning-topbar,
+    .manning-dashboard-topbar,
+    .manning-form-topbar
+)
+    :is(.text-muted, .text-secondary, small) {
+    color: #cbd5e1 !important;
+}
+
+:is(
+    .portal-header,
+    .assignment-topbar,
+    .manage-items-topbar,
+    .manning-topbar,
+    .manning-dashboard-topbar,
+    .manning-form-topbar
+)
+    :is(a, button)
+    > i {
+    color: currentColor;
+    opacity: 1;
+}
+
+.manning-topbar-date,
+.manning-nav-link {
+    color: #cbd5e1;
+}
+
+.manning-nav-link > i,
+.portal-nav-link > i,
+.assignment-topbar-btn > i,
+.cb-open-top-btn > i {
+    opacity: 1;
+}
+
+#manageItemsTable .drag-handle,
+.cb-library-empty i {
+    color: #64748b !important;
+    opacity: 1;
 }

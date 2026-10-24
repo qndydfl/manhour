@@ -50,7 +50,7 @@
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: #64748b;
+    color: #475569;
     text-transform: uppercase;
 }
 
@@ -529,8 +529,9 @@
 }
 
 .bento-card-clock .bento-badge {
-    color: var(--ios-tertiary-label);
+    color: #cbd5e1;
 }
+
 .bento-card-clock i {
     color: #0a84ff;
 }
@@ -695,15 +696,16 @@
 
 .clock-console-item .clock-sub {
     margin-top: 0.18rem;
-    font-size: clamp(0.58rem, 0.7vw, 0.68rem);
+    font-size: clamp(0.58rem, 0.7vw, 0.8rem);
     text-align: center;
     white-space: nowrap;
+    color: #bbbbbe;
 }
 
 .clock-label {
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--ios-tertiary-label);
+    color: #bbbbbe;
     letter-spacing: 0.05em;
 }
 
@@ -716,6 +718,7 @@
     font-weight: 600;
     color: #ffffff;
 }
+
 .clock-main-utc {
     font-size: 1.6rem;
     font-family:
@@ -726,10 +729,6 @@
     color: #0a84ff;
 }
 
-.clock-sub {
-    font-size: 0.8rem;
-    color: var(--ios-tertiary-label);
-}
 .utc-tag {
     background: #0284c7;
     color: #ffffff;
@@ -1411,10 +1410,6 @@
 
     .clock-number-9 {
         left: 0.62rem;
-    }
-
-    .clock-console-item .clock-sub {
-        font-size: 0.56rem;
     }
 
     .hero-weather-summary {
@@ -2207,7 +2202,7 @@ body.portal-body {
         overflow: hidden;
         color: #94a3b8;
         font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 8px;
+        font-size: 0.78rem;
         font-variant-numeric: tabular-nums;
         letter-spacing: 0.01em;
         white-space: nowrap;

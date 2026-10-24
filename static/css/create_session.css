@@ -46,8 +46,9 @@
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background: #e3edf7;
-    color: #2563eb;
+    /* border: 1px solid #3208f0; */
+    background: #7b83f5;
+    color: #3a4ced;
     font-size: 18px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
@@ -63,8 +64,9 @@
 .mh-create-panel-heading span {
     display: block;
     margin-top: 3px;
-    color: #64748b;
+    color: #033375;
     font-size: var(--font-size-xs);
+    font-weight: 700;
 }
 
 .mh-create-panel-body {
@@ -139,7 +141,8 @@
 
 .mh-create-help {
     margin-top: 7px;
-    color: #64748b;
+    color: #033375;
+    font-weight: 700;
     font-size: var(--font-size-sm);
 }
 
@@ -213,6 +216,7 @@
 
 .mh-shift-card i {
     margin-bottom: 8px;
+    color: #2563eb;
     font-size: 20px;
 }
 
@@ -222,8 +226,8 @@
 
 .mh-shift-card span {
     margin-top: 4px;
-    color: #64748b;
-    font-size: var(--font-size-xs);
+    color: #033375;
+    font-size: var(--font-size-sm);
 }
 
 #shiftDay:checked + .mh-shift-card {
@@ -232,10 +236,18 @@
     box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.08);
 }
 
+#shiftDay:checked + .mh-shift-card i {
+    color: #d97706;
+}
+
 #shiftNight:checked + .mh-shift-card {
     border-color: #0f172a;
     background: #0f172a;
     color: #ffffff;
+}
+
+#shiftNight:checked + .mh-shift-card i {
+    color: #93c5fd;
 }
 
 #shiftNight:checked + .mh-shift-card span {
@@ -375,11 +387,13 @@
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    background: #f1f5f9;
-    color: #475569;
+    border: 1px solid #bbf7d0;
+    background: #ecfdf3;
+    color: #15803d;
 }
 
 .mh-create-guide-dark .mh-create-guide-icon {
+    border-color: rgba(96, 165, 250, 0.28);
     background: rgba(255, 255, 255, 0.08);
     color: #60a5fa;
 }
