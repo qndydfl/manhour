@@ -140,7 +140,6 @@ body.manning-v2-body {
 
 .manning-sidebar {
     position: fixed;
-
     z-index: 100;
 
     top: var(--manning-topbar-height);
@@ -150,37 +149,26 @@ body.manning-v2-body {
     width: var(--manning-sidebar-width);
 
     display: flex;
-
     flex-direction: column;
-
     background: linear-gradient(180deg, #0d1b2d 0%, #10243b 100%);
 
     color: #ffffff;
-
     border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .manning-brand {
     min-height: 60px;
-
     padding: 0 22px;
-
     display: flex;
-
     align-items: center;
-
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .manning-brand-link {
     display: flex;
-
     align-items: center;
-
     gap: 13px;
-
     color: #ffffff;
-
     text-decoration: none;
 }
 
@@ -243,15 +231,10 @@ body.manning-v2-body {
 
 .manning-nav-label {
     padding: 0 12px;
-
     margin-bottom: 10px;
-
-    color: #475569;
-
+    color: #0348a8;
     font-size: var(--font-size-xs);
-
     font-weight: 800;
-
     letter-spacing: 0.18em;
 }
 
@@ -261,47 +244,32 @@ body.manning-v2-body {
 
 .manning-nav-link {
     min-height: 45px;
-
     margin-bottom: 5px;
-
     padding: 0 13px;
-
     display: flex;
-
     align-items: center;
-
     gap: 12px;
-
     border-radius: 9px;
-
-    color: #94a3b8;
-
+    color: #8897aa;
     text-decoration: none;
-
     font-size: var(--font-size-base);
-
     font-weight: 600;
-
     transition: 0.18s ease;
 }
 
 .manning-nav-link i {
     width: 19px;
-
-    font-size: 16px;
-
     text-align: center;
 }
 
 .manning-nav-link:hover {
     background: rgba(255, 255, 255, 0.06);
-
     color: #ffffff;
+    font-weight: 700;
 }
 
 .manning-nav-link.active {
     background: rgba(37, 99, 235, 0.15);
-
     color: #ffffff;
 }
 
@@ -441,28 +409,12 @@ body.manning-v2-body {
     font-size: 20px;
 }
 
-.manning-topbar-eyebrow {
-    margin-bottom: 2px;
-
-    color: #60a5fa;
-
-    font-size: var(--font-size-micro);
-
-    font-weight: 800;
-
-    letter-spacing: 0.16em;
-}
-
 .manning-topbar-title {
     margin: 0;
-
-    font-size: var(--font-size-sm);
-
+    font-size: var(--font-size-base);
     font-weight: 700;
-
     color: #ffffff;
-
-    letter-spacing: -0.03em;
+    letter-spacing: 0.2em;
 }
 
 .manning-topbar .bi {
