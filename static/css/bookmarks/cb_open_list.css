@@ -451,12 +451,16 @@ body.cb-template-save-dialog-open {
     border-color: #93c5fd;
 }
 
+.cb-open-top-btn-secondary {
+    background: #022880;
+    border-color: #60a5fa;
+    color: #ffffff;
+}
+
 /* 인쇄 */
 .cb-open-top-btn-primary {
     background: #2563eb;
-
     border-color: #60a5fa;
-
     color: #ffffff;
 }
 
@@ -2127,6 +2131,138 @@ SETTINGS FOOTER
 SAVE MESSAGE
 ========================================================= */
 
+.cb-open-bulk-header-btn {
+    padding: 2px 4px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: inherit;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.cb-open-bulk-header-btn:hover,
+.cb-open-bulk-header-btn:focus-visible {
+    background: #dbeafe;
+    color: #1d4ed8;
+    outline: none;
+}
+
+.cb-open-bulk-header-btn i {
+    margin-left: 2px;
+    color: #2563eb;
+    font-size: 0.8em;
+}
+
+.cb-open-bulk-dialog {
+    width: min(500px, calc(100vw - 28px));
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+}
+
+.cb-open-bulk-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(3px);
+}
+
+.cb-open-bulk-dialog-card {
+    padding: 22px;
+    border: 1px solid #d7e0ea;
+    border-radius: 18px;
+    background: #ffffff;
+    color: #0f172a;
+}
+
+.cb-open-bulk-dialog-card > header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.cb-open-bulk-dialog-card h3,
+.cb-open-bulk-dialog-card p {
+    margin: 0;
+}
+
+.cb-open-bulk-dialog-card h3 {
+    font-size: 18px;
+}
+
+.cb-open-bulk-dialog-card p,
+.cb-open-bulk-panel > small {
+    margin-top: 3px;
+    color: #475569;
+    font-size: 12px;
+}
+
+.cb-open-bulk-dialog-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #eaf3ff;
+    color: #2563eb;
+    font-size: 18px;
+}
+
+.cb-open-bulk-panel {
+    display: grid;
+    gap: 10px;
+}
+
+.cb-open-bulk-panel[hidden] {
+    display: none;
+}
+
+.cb-open-bulk-choice {
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d7e0ea;
+    border-radius: 11px;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+.cb-open-bulk-choice span,
+.cb-open-bulk-choice small {
+    display: block;
+}
+
+.cb-open-bulk-choice small {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.cb-open-bulk-shop-add {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+}
+
+.cb-open-bulk-dialog-card > footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@media (max-width: 700px) {
+    .cb-open-bulk-dialog-card {
+        padding: 17px;
+    }
+}
+
 .cb-open-save-message {
     position: fixed;
     top: calc(var(--cb-topbar-height) + 14px);
@@ -2655,6 +2791,21 @@ PRINT
     .app-dialog,
     .cb-open-col-resizer,
     .cb-open-row-resizer {
+        display: none !important;
+    }
+
+    .cb-open-bulk-dialog {
+        display: none !important;
+    }
+
+    .cb-open-bulk-header-btn {
+        padding: 0;
+        background: transparent !important;
+        color: inherit !important;
+        pointer-events: none;
+    }
+
+    .cb-open-bulk-header-btn i {
         display: none !important;
     }
 

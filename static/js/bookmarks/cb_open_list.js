@@ -74,6 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const rowHeightValue = document.getElementById("cbOpenTableRowHeightValue");
 
+    const dateFormatSelect = document.getElementById("cbOpenDateFormat");
+
     /* =====================================================
     DOCUMENT FOOTER SETTINGS
     ===================================================== */
@@ -173,6 +175,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const rowFilterLogic = document.getElementById("cbOpenRowFilterLogic");
     const rowFilterApply = document.getElementById("cbOpenRowFilterApply");
 
+    const bulkDateButton = document.getElementById("cbOpenBulkDate");
+    const closeBulkDateButton = document.getElementById("cbCloseBulkDate");
+    const bulkShopButton = document.getElementById("cbOpenBulkShop");
+    const bulkDialog = document.getElementById("cbOpenBulkDialog");
+    const bulkDialogIcon = document.getElementById("cbOpenBulkDialogIcon");
+    const bulkDialogTitle = document.getElementById("cbOpenBulkDialogTitle");
+    const bulkDatePanel = document.getElementById("cbOpenBulkDatePanel");
+    const bulkShopPanel = document.getElementById("cbOpenBulkShopPanel");
+    const bulkDateToday = document.getElementById("cbOpenBulkDateToday");
+    const bulkDateCustomMode = document.getElementById(
+        "cbOpenBulkDateCustomMode",
+    );
+    const bulkDateValue = document.getElementById("cbOpenBulkDateValue");
+    const bulkTodayLabel = document.getElementById("cbOpenBulkTodayLabel");
+    const bulkShopInput = document.getElementById("cbOpenBulkShopInput");
+    const bulkShopAdd = document.getElementById("cbOpenBulkShopAdd");
+    const bulkShopSelect = document.getElementById("cbOpenBulkShopSelect");
+    const bulkShopRemove = document.getElementById("cbOpenBulkShopRemove");
+    const bulkCancel = document.getElementById("cbOpenBulkCancel");
+    const bulkApply = document.getElementById("cbOpenBulkApply");
+
     /* =====================================================
     CELL SETTINGS
     ===================================================== */
@@ -204,6 +227,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const STORAGE_KEY = "cb_open_list_workspace_v1";
 
     const SAVED_DOCUMENTS_KEY = "cb_open_list_saved_documents_v1";
+
+    const WORKSHOP_OPTIONS_KEY = "cb_open_list_workshop_options_v1";
 
     /*
      * 기본 Footer 값
@@ -490,6 +515,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ===================================================== */
 
         if (data.tableSettings) {
+            if (dateFormatSelect) {
+                dateFormatSelect.value =
+                    data.tableSettings.dateFormat || "ddMMMyy";
+            }
+
             if (headerFontInput) {
                 headerFontInput.value = data.tableSettings.headerFont || "13";
             }
@@ -2066,17 +2096,79 @@ document.addEventListener("DOMContentLoaded", () => {
                     ".cb-open-col-resizer, .cb-open-row-resizer",
                 ).forEach((child) => child.remove());
                 const numberCell = row.querySelector(".cb-open-number-cell");
-                const isMergedRow = Array.from(row.cells).some(
-                    (cell) => cell.colSpan > 1 || cell.rowSpan > 1,
-                );
-                if (numberCell) {
-                    numberCell.textContent = isMergedRow
+                const suppressNumber =
+                    row.dataset.printSuppressNumber === "true";
+                if (numberCell)
+                    numberCell.textContent = suppressNumber
                         ? ""
                         : String(nextPrintRowNumber);
-                }
-                row.dataset.printConsumesNumber = String(!isMergedRow);
-                if (!isMergedRow) nextPrintRowNumber += 1;
+                row.dataset.printConsumesNumber = String(!suppressNumber);
+                if (!suppressNumber) nextPrintRowNumber += 1;
                 printBody.appendChild(row);
+            };
+            const normalizePrintMerges = (rows, rangeStart, rangeEnd) => {
+                // Reset the cloned editor cells, then rebuild only the part of
+                // each merge that belongs to this print page. A tall vertical
+                // merge can therefore continue on the next page without
+                // forcing the complete document onto one scaled-down page.
+                rows.forEach((row) => {
+                    grid.fields.forEach((field) => {
+                        const cell = grid.cell(row, field);
+                        if (!cell) return;
+                        cell.rowSpan = 1;
+                        cell.colSpan = 1;
+                        cell.classList.remove("cb-grid-covered");
+                    });
+                });
+
+                mergeRanges.forEach((merge) => {
+                    const mergeEnd = merge.r + merge.rows;
+                    const segmentStart = Math.max(merge.r, rangeStart);
+                    const segmentEnd = Math.min(mergeEnd, rangeEnd);
+                    if (segmentStart >= segmentEnd) return;
+
+                    const anchorRow = rows[segmentStart - rangeStart];
+                    const anchorField = grid.fields[merge.c];
+                    const anchorCell = grid.cell(anchorRow, anchorField);
+                    if (!anchorCell) return;
+
+                    // Repeat the anchor text when a merged block continues on
+                    // a later page, so the continuation remains intelligible.
+                    if (segmentStart > merge.r) {
+                        const sourceAnchorRow = includedEntries[merge.r]?.row;
+                        const sourceAnchorCell = grid.cell(
+                            sourceAnchorRow,
+                            anchorField,
+                        );
+                        if (sourceAnchorCell)
+                            anchorCell.innerHTML = sourceAnchorCell.innerHTML;
+                    }
+
+                    anchorCell.rowSpan = segmentEnd - segmentStart;
+                    anchorCell.colSpan = merge.cols;
+
+                    for (
+                        let rowIndex = segmentStart;
+                        rowIndex < segmentEnd;
+                        rowIndex += 1
+                    ) {
+                        for (
+                            let columnIndex = merge.c;
+                            columnIndex < merge.c + merge.cols;
+                            columnIndex += 1
+                        ) {
+                            if (
+                                rowIndex === segmentStart &&
+                                columnIndex === merge.c
+                            )
+                                continue;
+                            grid.cell(
+                                rows[rowIndex - rangeStart],
+                                grid.fields[columnIndex],
+                            )?.classList.add("cb-grid-covered");
+                        }
+                    }
+                });
             };
             while (
                 sourceIndex < sourceRows.length &&
@@ -2087,20 +2179,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 let groupEnd = sourceIndex + 1;
                 for (let i = sourceIndex; i < groupEnd; i++) {
                     mergeRanges
-                        .filter((m) => m.r === i)
+                        .filter(
+                            (m) => m.r <= i && m.r + m.rows > i,
+                        )
                         .forEach((m) => {
                             groupEnd = Math.max(groupEnd, m.r + m.rows);
                         });
                 }
                 const previousCount = printBody.children.length;
-                if (
-                    previousCount &&
-                    previousCount + groupEnd - sourceIndex > rowsPerPage
-                )
-                    break;
+                const pageCapacityEnd =
+                    sourceIndex + (rowsPerPage - previousCount);
+                groupEnd = Math.min(
+                    groupEnd,
+                    pageCapacityEnd,
+                    sourceRows.length,
+                );
                 const group = sourceRows
                     .slice(sourceIndex, groupEnd)
                     .map((row) => row.cloneNode(true));
+                normalizePrintMerges(group, sourceIndex, groupEnd);
+                const panelColumn = grid.fields.indexOf("panel_loc");
+                const descriptionColumn = grid.fields.indexOf("description");
+                group.forEach((row, offset) => {
+                    const printRowIndex = sourceIndex + offset;
+                    const isPanelThroughDescriptionMerge = mergeRanges.some(
+                        (merge) =>
+                            merge.c === panelColumn &&
+                            merge.c + merge.cols - 1 === descriptionColumn &&
+                            printRowIndex >= merge.r &&
+                            printRowIndex < merge.r + merge.rows,
+                    );
+                    row.dataset.printSuppressNumber = String(
+                        isPanelThroughDescriptionMerge,
+                    );
+                });
                 group.forEach(appendRow);
                 if (!fits() && previousCount) {
                     const consumedNumbers = group.filter(
@@ -2290,6 +2402,8 @@ document.addEventListener("DOMContentLoaded", () => {
             },
 
             tableSettings: {
+                dateFormat: dateFormatSelect?.value || "ddMMMyy",
+
                 headerFont: headerFontInput?.value || "13",
 
                 bodyFont: bodyFontInput?.value || "12",
@@ -2344,6 +2458,8 @@ document.addEventListener("DOMContentLoaded", () => {
              */
 
             currentData.tableSettings = {
+                dateFormat: dateFormatSelect?.value || "ddMMMyy",
+
                 headerFont: headerFontInput?.value || "13",
 
                 bodyFont: bodyFontInput?.value || "12",
@@ -2819,6 +2935,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         restoreDocumentFonts(data.documentFonts);
         if (data.tableSettings) {
+            if (dateFormatSelect) {
+                dateFormatSelect.value =
+                    data.tableSettings.dateFormat || "ddMMMyy";
+            }
+
             if (headerFontInput) {
                 headerFontInput.value = data.tableSettings.headerFont || "13";
             }
@@ -3082,6 +3203,10 @@ document.addEventListener("DOMContentLoaded", () => {
          */
         if (headerFontInput) {
             headerFontInput.value = "13";
+        }
+
+        if (dateFormatSelect) {
+            dateFormatSelect.value = "ddMMMyy";
         }
 
         if (bodyFontInput) {
@@ -3598,6 +3723,310 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     });
 
+    /* =====================================================
+       OPEN DATE / W/SHOP BULK ENTRY
+       ===================================================== */
+
+    const localDateValue = (date = new Date()) => {
+        const year = String(date.getFullYear());
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
+    const DATE_MONTHS = [
+        "JAN",
+        "FEB",
+        "MAR",
+        "APR",
+        "MAY",
+        "JUN",
+        "JUL",
+        "AUG",
+        "SEP",
+        "OCT",
+        "NOV",
+        "DEC",
+    ];
+
+    const parseDocumentDate = (value) => {
+        const text = cleanText(value).toUpperCase();
+        let match = text.match(/^(\d{4})[-.](\d{2})[-.](\d{2})$/);
+        if (match)
+            return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
+
+        match = text.match(/^(\d{2})\.(\d{2})\.(\d{2}|\d{4})$/);
+        if (match)
+            return {
+                year: Number(match[3].length === 2 ? `20${match[3]}` : match[3]),
+                month: Number(match[2]),
+                day: Number(match[1]),
+            };
+
+        match = text.match(/^(\d{2})([A-Z]{3})(\d{2}|\d{4})$/);
+        if (match) {
+            const month = DATE_MONTHS.indexOf(match[2]) + 1;
+            if (!month) return null;
+            return {
+                year: Number(match[3].length === 2 ? `20${match[3]}` : match[3]),
+                month,
+                day: Number(match[1]),
+            };
+        }
+        return null;
+    };
+
+    const documentDateValue = (value) => {
+        const parts = parseDocumentDate(value);
+        if (
+            !parts ||
+            parts.month < 1 ||
+            parts.month > 12 ||
+            parts.day < 1 ||
+            parts.day > 31
+        )
+            return "";
+        const year = String(parts.year).padStart(4, "0");
+        const shortYear = year.slice(-2);
+        const month = String(parts.month).padStart(2, "0");
+        const day = String(parts.day).padStart(2, "0");
+        const format = dateFormatSelect?.value || "ddMMMyy";
+        if (format === "yyyyMMddDots") return `${year}.${month}.${day}`;
+        if (format === "ddMMyyDots") return `${day}.${month}.${shortYear}`;
+        return `${day}${DATE_MONTHS[parts.month - 1]}${shortYear}`;
+    };
+
+    const reformatDateCells = () => {
+        let changed = false;
+        ["open_date", "close_date"].forEach((field) => {
+            tableBody
+                .querySelectorAll(`[data-field="${field}"]`)
+                .forEach((editor) => {
+                    const current = cleanText(editor.innerText);
+                    if (!current) return;
+                    const formatted = documentDateValue(current);
+                    if (!formatted || formatted === current) return;
+                    editor.textContent = formatted;
+                    changed = true;
+                });
+        });
+        if (changed) {
+            updateTableSizing();
+            scheduleSheetScale();
+        }
+        return changed;
+    };
+
+    const loadWorkshopOptions = () => {
+        try {
+            const values = JSON.parse(
+                localStorage.getItem(WORKSHOP_OPTIONS_KEY) || "[]",
+            );
+            return Array.isArray(values)
+                ? values.map(cleanText).filter(Boolean)
+                : [];
+        } catch (_error) {
+            return [];
+        }
+    };
+
+    let workshopOptions = [...new Set(loadWorkshopOptions())];
+
+    const saveWorkshopOptions = () => {
+        localStorage.setItem(
+            WORKSHOP_OPTIONS_KEY,
+            JSON.stringify(workshopOptions),
+        );
+    };
+
+    const renderWorkshopOptions = (selectedValue = "") => {
+        if (!bulkShopSelect) return;
+        bulkShopSelect.replaceChildren();
+        if (!workshopOptions.length) {
+            const empty = new Option("등록된 W/SHOP이 없습니다.", "");
+            empty.disabled = true;
+            empty.selected = true;
+            bulkShopSelect.add(empty);
+            return;
+        }
+        workshopOptions.forEach((value) => {
+            const option = new Option(value, value);
+            option.selected = value === selectedValue;
+            bulkShopSelect.add(option);
+        });
+        if (!bulkShopSelect.value) bulkShopSelect.selectedIndex = 0;
+    };
+
+    const openBulkDialog = (mode) => {
+        if (!bulkDialog) return;
+        bulkDialog.dataset.mode = mode;
+        const isDate = mode === "date" || mode === "close-date";
+        bulkDatePanel.hidden = !isDate;
+        bulkShopPanel.hidden = isDate;
+        bulkDialogTitle.textContent =
+            mode === "close-date"
+                ? "C/B CLOSE DATE 일괄 입력"
+                : isDate
+                  ? "C/B OPEN DATE 일괄 입력"
+                  : "W/SHOP 일괄 입력";
+        bulkDialogIcon.className = isDate
+            ? "bi bi-calendar-check"
+            : "bi bi-tools";
+
+        if (isDate) {
+            const today = localDateValue();
+            bulkDateValue.value = today;
+            bulkDateToday.checked = true;
+            bulkDateCustomMode.checked = false;
+            bulkDateValue.disabled = true;
+            bulkTodayLabel.textContent = documentDateValue(today);
+        } else {
+            renderWorkshopOptions(bulkShopSelect?.value || "");
+            bulkShopInput.value = "";
+        }
+
+        if (typeof bulkDialog.showModal === "function")
+            bulkDialog.showModal();
+        else bulkDialog.setAttribute("open", "");
+    };
+
+    const closeBulkDialog = () => {
+        if (!bulkDialog) return;
+        if (typeof bulkDialog.close === "function") bulkDialog.close();
+        else bulkDialog.removeAttribute("open");
+    };
+
+    const addWorkshopOptions = () => {
+        const additions = String(bulkShopInput?.value || "")
+            .split(/[,\n]+/)
+            .map(cleanText)
+            .filter(Boolean);
+        if (!additions.length) return;
+        additions.forEach((value) => {
+            if (
+                !workshopOptions.some(
+                    (current) => current.toLowerCase() === value.toLowerCase(),
+                )
+            )
+                workshopOptions.push(value);
+        });
+        workshopOptions.sort((a, b) => a.localeCompare(b, "ko"));
+        saveWorkshopOptions();
+        renderWorkshopOptions(additions[additions.length - 1]);
+        bulkShopInput.value = "";
+        bulkShopInput.focus();
+    };
+
+    const bulkTargetRows = () => {
+        const sourceFields = [
+            "cockpit",
+            "ee",
+            "etc",
+            "panel_loc",
+            "cb_loc",
+            "fin",
+            "description",
+            "warning",
+        ];
+        return Array.from(tableBody.children).filter(
+            (row) =>
+                !isSectionHeading(row) &&
+                sourceFields.some((field) =>
+                    cleanText(
+                        row.querySelector(`[data-field="${field}"]`)
+                            ?.innerText,
+                    ),
+                ),
+        );
+    };
+
+    bulkDateButton?.addEventListener("click", () => openBulkDialog("date"));
+    closeBulkDateButton?.addEventListener("click", () =>
+        openBulkDialog("close-date"),
+    );
+    bulkShopButton?.addEventListener("click", () => openBulkDialog("shop"));
+    bulkCancel?.addEventListener("click", closeBulkDialog);
+    bulkDateToday?.addEventListener("change", () => {
+        if (bulkDateToday.checked) bulkDateValue.disabled = true;
+    });
+    bulkDateCustomMode?.addEventListener("change", () => {
+        if (!bulkDateCustomMode.checked) return;
+        bulkDateValue.disabled = false;
+        bulkDateValue.focus();
+    });
+    bulkDateValue?.addEventListener("change", () => {
+        bulkDateCustomMode.checked = true;
+        bulkDateValue.disabled = false;
+    });
+    dateFormatSelect?.addEventListener("change", () => {
+        const datesChanged = reformatDateCells();
+        saveSettingsOnly();
+        if (datesChanged) saveWorkspace(false);
+    });
+    bulkShopAdd?.addEventListener("click", addWorkshopOptions);
+    bulkShopInput?.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        addWorkshopOptions();
+    });
+    bulkShopRemove?.addEventListener("click", () => {
+        const selected = bulkShopSelect?.value;
+        if (!selected) return;
+        workshopOptions = workshopOptions.filter((value) => value !== selected);
+        saveWorkshopOptions();
+        renderWorkshopOptions();
+    });
+    bulkDialog?.addEventListener("click", (event) => {
+        if (event.target === bulkDialog) closeBulkDialog();
+    });
+    bulkApply?.addEventListener("click", async () => {
+        const mode = bulkDialog?.dataset.mode;
+        let field = "";
+        let value = "";
+
+        if (mode === "date" || mode === "close-date") {
+            field = mode === "close-date" ? "close_date" : "open_date";
+            const selectedDate = bulkDateToday.checked
+                ? localDateValue()
+                : bulkDateValue.value;
+            value = documentDateValue(selectedDate);
+            if (!value) {
+                await window.AppDialog.alert("적용할 날짜를 선택해 주세요.", {
+                    title: "DATE 확인",
+                    variant: "warning",
+                });
+                return;
+            }
+        } else {
+            field = "open_shop";
+            value = cleanText(bulkShopSelect?.value);
+            if (!value) {
+                await window.AppDialog.alert(
+                    "W/SHOP을 등록한 후 적용할 항목을 선택해 주세요.",
+                    { title: "W/SHOP 확인", variant: "warning" },
+                );
+                return;
+            }
+        }
+
+        const targets = bulkTargetRows();
+        if (!targets.length) {
+            await window.AppDialog.alert(
+                "적용할 작업 데이터가 없습니다. 표 데이터를 먼저 입력해 주세요.",
+                { title: "일괄 입력", variant: "warning" },
+            );
+            return;
+        }
+
+        targets.forEach((row) => setCellValue(row, field, value));
+        grid.changed();
+        closeBulkDialog();
+        await window.AppDialog.alert(
+            `${targets.length}개 작업 행에 ${mode === "shop" ? "W/SHOP" : mode === "close-date" ? "C/B CLOSE DATE" : "C/B OPEN DATE"}를 적용했습니다.`,
+            { title: "일괄 입력 완료", variant: "success" },
+        );
+    });
+
     function duplicateRowKey(row) {
         if (!rowHasData(row) || isSectionHeading(row)) return "";
         return TABLE_FIELDS
@@ -3829,6 +4258,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (managedTemplateData) {
         loadManagedTemplate();
     }
+
+    reformatDateCells();
 
     refreshAutomaticLocationMarks();
 

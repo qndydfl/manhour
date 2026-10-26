@@ -18,7 +18,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261015-2"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261026-1"
 />
 {% endblock css %} {% block js %}
 <script
@@ -31,7 +31,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20261015-1"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20261026-6"
 ></script>
 {% endblock js %} 
 
@@ -73,7 +73,7 @@
             <button
                 type="button"
                 id="cbOpenManagedTemplateUpdate"
-                class="cb-open-top-btn cb-open-top-btn-primary"
+                class="cb-open-top-btn  cb-open-top-btn-secondary"
                 data-api-url="{% url 'bookmarks:cb_templates' %}"
             >
                 <i class="bi bi-floppy"></i>
@@ -562,7 +562,14 @@
                                 data-col-key="open-date"
                                 class="cb-open-resizable"
                             >
-                                DATE
+                                <button
+                                    id="cbOpenBulkDate"
+                                    type="button"
+                                    class="cb-open-bulk-header-btn"
+                                    title="입력된 모든 행에 DATE 적용"
+                                >
+                                    DATE <i class="bi bi-calendar-check"></i>
+                                </button>
 
                                 <span class="cb-open-col-resizer"></span>
                             </th>
@@ -571,7 +578,14 @@
                                 data-col-key="open-shop"
                                 class="cb-open-resizable"
                             >
-                                W/SHOP
+                                <button
+                                    id="cbOpenBulkShop"
+                                    type="button"
+                                    class="cb-open-bulk-header-btn"
+                                    title="입력된 모든 행에 W/SHOP 적용"
+                                >
+                                    W/SHOP <i class="bi bi-chevron-down"></i>
+                                </button>
 
                                 <span class="cb-open-col-resizer"></span>
                             </th>
@@ -589,7 +603,14 @@
                                 data-col-key="close-date"
                                 class="cb-open-resizable"
                             >
-                                DATE
+                                <button
+                                    id="cbCloseBulkDate"
+                                    type="button"
+                                    class="cb-open-bulk-header-btn"
+                                    title="입력된 모든 행에 C/B CLOSE DATE 적용"
+                                >
+                                    DATE <i class="bi bi-calendar-check"></i>
+                                </button>
 
                                 <span class="cb-open-col-resizer"></span>
                             </th>
@@ -629,6 +650,75 @@
         </div>
     </section>
 </main>
+
+<dialog id="cbOpenBulkDialog" class="cb-open-bulk-dialog">
+    <form method="dialog" class="cb-open-bulk-dialog-card">
+        <header>
+            <span class="cb-open-bulk-dialog-icon" aria-hidden="true">
+                <i id="cbOpenBulkDialogIcon" class="bi bi-calendar-check"></i>
+            </span>
+            <div>
+                <h3 id="cbOpenBulkDialogTitle">DATE 일괄 입력</h3>
+                <p>작업 데이터가 입력된 모든 행에 적용됩니다.</p>
+            </div>
+        </header>
+
+        <section id="cbOpenBulkDatePanel" class="cb-open-bulk-panel">
+            <label class="cb-open-bulk-choice">
+                <input
+                    id="cbOpenBulkDateToday"
+                    type="radio"
+                    name="cb_open_bulk_date_mode"
+                    value="today"
+                    checked
+                />
+                <span><strong>현재 날짜</strong><small id="cbOpenBulkTodayLabel"></small></span>
+            </label>
+            <label class="cb-open-bulk-choice">
+                <input
+                    id="cbOpenBulkDateCustomMode"
+                    type="radio"
+                    name="cb_open_bulk_date_mode"
+                    value="custom"
+                />
+                <span><strong>날짜 선택</strong><small>원하는 날짜를 직접 선택합니다.</small></span>
+            </label>
+            <input
+                id="cbOpenBulkDateValue"
+                type="date"
+                class="form-control"
+                disabled
+            />
+        </section>
+
+        <section id="cbOpenBulkShopPanel" class="cb-open-bulk-panel" hidden>
+            <div class="cb-open-bulk-shop-add">
+                <input
+                    id="cbOpenBulkShopInput"
+                    type="text"
+                    class="form-control"
+                    maxlength="200"
+                    placeholder="예: AV, ELEC, ENGINE"
+                />
+                <button id="cbOpenBulkShopAdd" type="button" class="btn btn-outline-primary">
+                    추가
+                </button>
+            </div>
+            <small>쉼표로 여러 W/SHOP을 한 번에 등록할 수 있습니다.</small>
+            <select id="cbOpenBulkShopSelect" class="form-select" size="5" aria-label="W/SHOP 선택"></select>
+            <button id="cbOpenBulkShopRemove" type="button" class="btn btn-sm btn-outline-danger">
+                선택 항목 삭제
+            </button>
+        </section>
+
+        <footer>
+            <button id="cbOpenBulkCancel" type="button" class="btn btn-outline-secondary">취소</button>
+            <button id="cbOpenBulkApply" type="button" class="btn btn-primary">
+                <i class="bi bi-check2-circle"></i> 전체 적용
+            </button>
+        </footer>
+    </form>
+</dialog>
 
 {% if template_manage_mode %}{{ managed_template_script|safe }}
 <div
@@ -937,6 +1027,16 @@
                     <h6>표 기본 설정</h6>
                     <small> 전체 표에 공통으로 적용됩니다. </small>
                 </div>
+            </div>
+
+            <div class="cb-setting-field">
+                <label for="cbOpenDateFormat">DATE 표시 형식</label>
+                <select id="cbOpenDateFormat" class="form-select">
+                    <option value="ddMMMyy">26OCT26 · DDMMMYY</option>
+                    <option value="yyyyMMddDots">2026.10.26 · YYYY.MM.DD</option>
+                    <option value="ddMMyyDots">26.10.26 · DD.MM.YY</option>
+                </select>
+                <small>OPEN DATE와 CLOSE DATE에 함께 적용됩니다.</small>
             </div>
 
             <!-- 헤더 글자 크기 -->
