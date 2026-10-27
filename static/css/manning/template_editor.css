@@ -319,16 +319,11 @@
 
 .template-delete-wrap {
     min-height: 40px;
-
     padding: 0 11px;
-
     display: flex;
     align-items: center;
-
     border-radius: 8px;
-
     background: #fff7f7;
-
     border: 1px solid #fee2e2;
 }
 
@@ -341,6 +336,7 @@
 
 .template-delete-wrap .form-check {
     margin: 0;
+    padding: 10px 0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -348,9 +344,30 @@
 
 .template-delete-wrap .form-check-input {
     flex: 0 0 auto;
-    width: var(--font-size-xs);
-    height: var(--font-size-xs);
+    width: 15px;
+    height: 15px;
+    min-height: 15px;
     margin: 0;
+    border: 1.5px solid #94a3b8;
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.template-delete-wrap .form-check-input:checked {
+    border-color: #dc2626;
+    background-color: #dc2626;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.16);
+}
+
+.template-delete-wrap .form-check-input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.template-delete-wrap:has(.form-check-input:checked) {
+    border-color: #fca5a5;
+    background: #fee2e2;
 }
 
 /* =========================================================

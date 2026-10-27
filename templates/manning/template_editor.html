@@ -45,7 +45,7 @@
 {% block css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/template_editor.css' %}?v=20261014-2"
+    href="{% static 'css/manning/template_editor.css' %}?v=20261027-1"
 />
 {% endblock css %} 
 
@@ -74,7 +74,7 @@
             <div>
                 <span> CONFIGURATION </span>
 
-                <strong class="template-summary-copy"> LEFT / NONE / RIGHT </strong>
+                <strong class="template-summary-copy"> LEFT / RIGHT / NONE </strong>
             </div>
 
             <div class="template-summary-icon">
@@ -153,7 +153,7 @@
                                 </div>
 
                                 <div class="template-block-side">
-                                    LEFT / NONE / RIGHT
+                                    LEFT / RIGHT / NONE
                                 </div>
                             </div>
                         </button>
@@ -273,39 +273,7 @@
                                                 +
                                             </button>
                                         </div>
-                                    </div>
-
-                                    <!-- NONE -->
-
-                                    <div
-                                        class="dnd-column"
-                                        data-position="NONE"
-                                    >
-                                        <div class="dnd-header">
-                                            CENTER / NONE
-                                        </div>
-
-                                        <div
-                                            class="dnd-list"
-                                            data-position="NONE"
-                                        ></div>
-
-                                        <div class="dnd-add">
-                                            <input
-                                                type="text"
-                                                class="dnd-input"
-                                                placeholder="Add area"
-                                            />
-
-                                            <button
-                                                type="button"
-                                                class="dnd-btn"
-                                                aria-label="Add NONE area"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </div>                                    
 
                                     <!-- RIGHT -->
 
@@ -336,6 +304,39 @@
                                             </button>
                                         </div>
                                     </div>
+
+                                    <!-- NONE -->
+
+                                    <div
+                                        class="dnd-column"
+                                        data-position="NONE"
+                                    >
+                                        <div class="dnd-header">
+                                            NONE
+                                        </div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="NONE"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                                aria-label="Add NONE area"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </section>
 
@@ -360,22 +361,9 @@
                                             data-position="LEFT"
                                             rows="6"
                                         >
-{{ template.left_items_text|default_if_none:"" }}</textarea
-                                        >
-                                    </div>
-
-                                    <div class="template-text-field">
-                                        <label> CENTER / NONE </label>
-
-                                        <textarea
-                                            name="template_none_items_{{ template.id }}"
-                                            class="template-items"
-                                            data-position="NONE"
-                                            rows="6"
-                                        >
-{{ template.none_items_text|default_if_none:"" }}</textarea
-                                        >
-                                    </div>
+                                        {{ template.left_items_text|default_if_none:"" }}
+                                        </textarea>
+                                    </div>                                    
 
                                     <div class="template-text-field">
                                         <label> RIGHT </label>
@@ -385,10 +373,22 @@
                                             class="template-items"
                                             data-position="RIGHT"
                                             rows="6"
-                                        >
-{{ template.right_items_text|default_if_none:"" }}</textarea
-                                        >
+                                        >{{ template.right_items_text|default_if_none:"" }}
+                                        </textarea>
                                     </div>
+
+                                    <div class="template-text-field">
+                                        <label> NONE </label>
+
+                                        <textarea
+                                            name="template_none_items_{{ template.id }}"
+                                            class="template-items"
+                                            data-position="NONE"
+                                            rows="6"
+                                        >{{ template.none_items_text|default_if_none:"" }}
+                                        </textarea>
+                                    </div>
+
                                 </div>
                             </section>
                         </div>
@@ -536,38 +536,7 @@
                                                 +
                                             </button>
                                         </div>
-                                    </div>
-
-                                    <!-- NONE -->
-
-                                    <div
-                                        class="dnd-column"
-                                        data-position="NONE"
-                                    >
-                                        <div class="dnd-header">
-                                            CENTER / NONE
-                                        </div>
-
-                                        <div
-                                            class="dnd-list"
-                                            data-position="NONE"
-                                        ></div>
-
-                                        <div class="dnd-add">
-                                            <input
-                                                type="text"
-                                                class="dnd-input"
-                                                placeholder="Add area"
-                                            />
-
-                                            <button
-                                                type="button"
-                                                class="dnd-btn"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </div>                                    
 
                                     <!-- RIGHT -->
 
@@ -597,6 +566,38 @@
                                             </button>
                                         </div>
                                     </div>
+
+                                    <!-- NONE -->
+
+                                    <div
+                                        class="dnd-column"
+                                        data-position="NONE"
+                                    >
+                                        <div class="dnd-header">
+                                            NONE
+                                        </div>
+
+                                        <div
+                                            class="dnd-list"
+                                            data-position="NONE"
+                                        ></div>
+
+                                        <div class="dnd-add">
+                                            <input
+                                                type="text"
+                                                class="dnd-input"
+                                                placeholder="Add area"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="dnd-btn"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </section>
 
@@ -623,18 +624,6 @@
                                     </div>
 
                                     <div class="template-text-field">
-                                        <label> CENTER / NONE </label>
-
-                                        <textarea
-                                            name="new_template_none_items"
-                                            class="template-items"
-                                            data-position="NONE"
-                                            rows="6"
-                                            placeholder="COORDINATOR"
-                                        ></textarea>
-                                    </div>
-
-                                    <div class="template-text-field">
                                         <label> RIGHT </label>
 
                                         <textarea
@@ -645,6 +634,19 @@
                                             placeholder="ENG3"
                                         ></textarea>
                                     </div>
+
+                                    <div class="template-text-field">
+                                        <label> NONE </label>
+
+                                        <textarea
+                                            name="new_template_none_items"
+                                            class="template-items"
+                                            data-position="NONE"
+                                            rows="6"
+                                            placeholder="COORDINATOR"
+                                        ></textarea>
+                                    </div>
+
                                 </div>
                             </section>
                         </div>
