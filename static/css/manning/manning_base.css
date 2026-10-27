@@ -77,9 +77,12 @@ body.manning-v2-body {
     width: min(290px, calc(100vw - 24px));
     margin-top: 10px !important;
     padding: 10px;
-    border: 1px solid var(--manning-border);
+    border: 1px solid #263a52;
     border-radius: 14px;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    background: #101c2c;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 20px 50px rgba(2, 8, 18, 0.52);
 }
 
 .manning-account-current {
@@ -91,37 +94,48 @@ body.manning-v2-body {
 .manning-account-current small,
 .manning-account-switcher label {
     margin-bottom: 4px;
-    color: var(--manning-text-3);
+    color: #94a3b8;
     font-size: var(--font-size-xs);
     font-weight: 700;
 }
 
 .manning-account-current strong {
-    color: var(--manning-text);
+    color: #f8fafc;
     font-size: 15px;
 }
 
 .manning-account-switcher {
     padding: 8px;
     border-radius: 10px;
-    background: #edf3f8;
+    border: 1px solid #2b4059;
+    background: #17283c;
+}
+
+.manning-account-switcher .form-select {
+    border-color: #3b526c;
+    background-color: #0b1726;
+    color: #f8fafc;
+}
+
+.manning-account-menu .dropdown-divider {
+    border-color: #31445b;
 }
 
 .manning-account-menu .dropdown-item {
     padding: 9px 10px;
     border-radius: 8px;
-    color: var(--manning-text-2);
+    color: #e5edf7;
     font-size: var(--font-size-base);
     font-weight: 600;
 }
 
 .manning-account-menu .dropdown-item:hover {
-    background: #eff6ff;
-    color: var(--manning-blue-hover);
+    background: #1d3047;
+    color: #ffffff;
 }
 
 .manning-account-menu .manning-account-logout {
-    color: #dc2626;
+    color: #fca5a5;
 }
 
 /* =========================================================

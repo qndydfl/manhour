@@ -195,6 +195,18 @@ small,
     backdrop-filter: blur(18px) saturate(135%);
 }
 
+/* Favorites menu uses a solid dark surface instead of the shared glass card. */
+.dropdown-menu.portal-quick-menu,
+.dropdown-menu.portal-account-menu,
+.dropdown-menu.manning-account-menu {
+    border-color: #263a52 !important;
+    background-color: #101c2c !important;
+    background-image: none !important;
+    box-shadow: 0 20px 50px rgba(2, 8, 18, 0.52) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
 .portal-card:not(.portal-card-dark),
 .portal-image-card,
 .portal-link-card,

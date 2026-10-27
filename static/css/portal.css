@@ -1711,9 +1711,12 @@ body.portal-body {
     width: min(290px, calc(100vw - 24px));
     margin-top: 10px !important;
     padding: 10px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #263a52;
     border-radius: 14px;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+    background: #101c2c;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 20px 50px rgba(2, 8, 18, 0.52);
 }
 
 .portal-account-menu__heading {
@@ -1725,38 +1728,49 @@ body.portal-body {
 .portal-account-menu__heading span,
 .portal-account-menu__section label {
     margin-bottom: 4px;
-    color: #64748b;
+    color: #94a3b8;
     font-size: var(--font-size-xs);
     font-weight: 700;
     letter-spacing: 0.05em;
 }
 
 .portal-account-menu__heading strong {
-    color: #0f172a;
+    color: #f8fafc;
     font-size: 15px;
 }
 
 .portal-account-menu__section {
     padding: 8px;
     border-radius: 10px;
-    background: #f8fafc;
+    border: 1px solid #2b4059;
+    background: #17283c;
+}
+
+.portal-account-menu__section .form-select {
+    border-color: #3b526c;
+    background-color: #0b1726;
+    color: #f8fafc;
+}
+
+.portal-account-menu .dropdown-divider {
+    border-color: #31445b;
 }
 
 .portal-account-menu .dropdown-item {
     padding: 9px 10px;
     border-radius: 8px;
-    color: #334155;
+    color: #e5edf7;
     font-size: var(--font-size-base);
     font-weight: 600;
 }
 
 .portal-account-menu .dropdown-item:hover {
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: #1d3047;
+    color: #ffffff;
 }
 
 .portal-account-menu .portal-account-menu__logout {
-    color: #dc2626;
+    color: #fca5a5;
 }
 
 .portal-login-button {
@@ -1805,10 +1819,12 @@ body.portal-body {
     width: min(310px, calc(100vw - 24px));
     margin-top: 10px !important;
     padding: 10px;
-    border: 1px solid #dbe4ee;
+    border: 1px solid #263a52;
     border-radius: 14px;
-    background: var(--ios-secondary-background);
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
+    background: #101c2c;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 20px 50px rgba(2, 8, 18, 0.48);
 }
 
 .portal-quick-menu__heading {
@@ -1819,14 +1835,14 @@ body.portal-body {
 }
 
 .portal-quick-menu__heading span {
-    color: #0284c7;
-    font-size: 0.65rem;
+    color: #7dd3fc;
+    font-size: var(--font-size-sm);
     font-weight: 800;
     letter-spacing: 0.08em;
 }
 
 .portal-quick-menu__heading small {
-    color: #64748b;
+    color: #94a3b8;
     font-size: 0.72rem;
 }
 
@@ -1836,7 +1852,8 @@ body.portal-body {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #334155;
+    background: transparent;
+    color: #e5edf7;
 }
 
 .portal-quick-menu .dropdown-item + .dropdown-item {
@@ -1844,8 +1861,8 @@ body.portal-body {
 }
 
 .portal-quick-menu .dropdown-item:hover {
-    background: #d4d8f3;
-    color: #023cfa;
+    background: #1d3047;
+    color: #ffffff;
 }
 
 .portal-quick-menu .dropdown-item > span:last-child {
@@ -1860,7 +1877,7 @@ body.portal-body {
 }
 
 .portal-quick-menu .dropdown-item small {
-    color: #64748b;
+    color: #94a3b8;
     font-size: 0.66rem;
 }
 
@@ -1871,17 +1888,23 @@ body.portal-body {
     border-radius: 0.55rem;
     display: grid;
     place-items: center;
-    background: #f1f5f9;
-    color: #475569;
+    border: 1px solid #314760;
+    background: #18283c;
+    color: #bae6fd;
 }
 
 .portal-quick-menu__primary {
-    background: #eff6ff;
+    background: #172b43 !important;
 }
 
 .portal-quick-menu__primary .portal-quick-menu__icon {
+    border-color: #2563eb;
     background: #2563eb;
     color: #ffffff;
+}
+
+.portal-quick-menu .dropdown-item:hover small {
+    color: #cbd5e1;
 }
 
 @media (max-width: 900px) {
