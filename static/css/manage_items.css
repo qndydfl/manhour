@@ -427,6 +427,10 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 
 #manageItemsTable .drag-handle {
     cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    padding: 4px 8px;
 
     color: #94a3b8 !important;
 }
