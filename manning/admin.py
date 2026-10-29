@@ -3,10 +3,17 @@ from .models import (
     AreaTemplate,
     AreaTemplateItem,
     Manning,
+    MemoDefault,
     SessionArea,
     WorkPackage,
     WorkSession,
 )
+
+
+@admin.register(MemoDefault)
+class MemoDefaultAdmin(admin.ModelAdmin):
+    list_display = ("site", "updated_at")
+    search_fields = ("site",)
 
 
 class WorkSessionAdmin(admin.ModelAdmin):

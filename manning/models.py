@@ -141,6 +141,19 @@ class WorkerDirectory(models.Model):
         return f"{self.name} ({self.session_id})"
 
 
+class MemoDefault(models.Model):
+    site = models.CharField(max_length=50, unique=True, verbose_name="근무지")
+    settings = models.JSONField(blank=True, default=dict, verbose_name="기본 구성")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "전체 메모 기본 구성"
+        verbose_name_plural = "전체 메모 기본 구성"
+
+    def __str__(self):
+        return f"전체 메모 기본 구성 ({self.site})"
+
+
 class AreaTemplate(models.Model):
     key = models.CharField(max_length=50, unique=True)
     label = models.CharField(max_length=100)

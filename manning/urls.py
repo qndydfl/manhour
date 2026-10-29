@@ -43,6 +43,11 @@ urlpatterns = [
         name="area_bulk_edit",
     ),
     path(
+        "session/<int:session_id>/memo-defaults/save/",
+        views.MemoDefaultSaveView.as_view(),
+        name="memo_default_save",
+    ),
+    path(
         "session/<int:session_id>/edit/",
         views.AreaBulkEditView.as_view(),
         name="manning_dashboard_edit",

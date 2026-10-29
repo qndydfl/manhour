@@ -189,6 +189,44 @@ class WorkplaceIsolationTests(TestCase):
         edit = self.client.get(url)
         self.assertEqual(edit.status_code, 200)
 
+    def test_admin_memo_defaults_apply_to_sessions_and_can_be_overridden(self):
+        save_url = reverse("manning:memo_default_save", args=[self.site_a_session.id])
+        response = self.client.post(
+            save_url,
+            {
+                "memo_label_sec_important": "[전달]",
+                "memo_hidden": ["morning_tool"],
+                "memo_custom_section": ["sec_morning"],
+                "memo_custom_label": ["Extra"],
+                "memo_custom_text": ["ignored"],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+
+        fresh = WorkSession.objects.create(name="NEW", site="SITE-A")
+        edit = self.client.get(reverse("manning:area_bulk_edit", args=[fresh.id]))
+        self.assertEqual(edit.context["memo_labels"]["sec_important"], "[전달]")
+        self.assertEqual(
+            edit.context["memo_custom"], {"sec_morning": [{"label": "Extra", "text": ""}]}
+        )
+        self.assertIn("morning_tool", edit.context["memo_hidden"])
+
+        self.client.post(
+            reverse("manning:area_bulk_edit", args=[fresh.id]),
+            {"next": "edit", "memo_label_sec_important": ""},
+        )
+        edit = self.client.get(reverse("manning:area_bulk_edit", args=[fresh.id]))
+        self.assertNotIn("morning_tool", edit.context["memo_hidden"])
+
+    def test_non_admin_cannot_save_memo_defaults(self):
+        browser_session = self.client.session
+        browser_session["user_role"] = "user"
+        browser_session.save()
+        response = self.client.post(
+            reverse("manning:memo_default_save", args=[self.site_a_session.id]), {}
+        )
+        self.assertEqual(response.status_code, 403)
+
 
 class AreaTemplateSelectionTests(TestCase):
     def setUp(self):

@@ -645,6 +645,17 @@
                 {% endfor %}
             </div>
             <div class="modal-footer">
+                {% if is_memo_admin %}
+                <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm me-auto"
+                    id="memoDefaultSaveBtn"
+                    data-url="{% url 'manning:memo_default_save' session.id %}"
+                    title="현재 제목·항목 구성을 이 근무지의 기본값으로 저장 (입력 내용 제외)"
+                >
+                    기본값으로 저장
+                </button>
+                {% endif %}
                 <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm"
@@ -663,6 +674,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const defBtn = document.getElementById("memoDefaultSaveBtn");
+        if (!defBtn) return;
+        defBtn.addEventListener("click", function () {
+            if (!confirm("현재 구성을 기본값으로 저장할까요? 이후 새 세션에 적용됩니다."))
+                return;
+            const src = new FormData(document.getElementById("areaEditForm"));
+            const data = new FormData();
+            src.forEach(function (value, key) {
+                if (/^memo_(label_|hidden$|custom_)/.test(key)) data.append(key, value);
+            });
+            fetch(defBtn.dataset.url, {
+                method: "POST",
+                body: data,
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            })
+                .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+                .then((res) =>
+                    alert(res.ok ? "기본값으로 저장되었습니다." : "저장 권한이 없거나 실패했습니다."),
+                )
+                .catch(() => alert("저장에 실패했습니다."));
+        });
+    });
+</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

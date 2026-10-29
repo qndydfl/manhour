@@ -21,6 +21,7 @@ from manhour.workplaces import get_workplace_label, normalize_workplace
 
 from .models import (
     Manning,
+    MemoDefault,
     SessionArea,
     WorkSession,
     WorkerDirectory,
@@ -69,12 +70,39 @@ MEMO_LABEL_DEFAULTS = {
 }
 
 
-def _get_memo_labels(session):
+def _memo_site_key(session):
+    return _resolve_workplace_key(session.site) or session.site or ""
+
+
+def _site_memo_defaults(session):
+    obj = MemoDefault.objects.filter(site=_memo_site_key(session)).first()
+    return obj.settings if obj and isinstance(obj.settings, dict) else {}
+
+
+def _effective_memo_settings(session):
+    """Session overrides on top of the workplace default layout."""
+    site = _site_memo_defaults(session)
     saved = session.memo_labels if isinstance(session.memo_labels, dict) else {}
-    return {
-        key: (saved.get(key) or default)
+    site_labels = {
+        key: (site.get(key) or default)
         for key, default in MEMO_LABEL_DEFAULTS.items()
     }
+    return {
+        "site_labels": site_labels,
+        "labels": {
+            key: (saved.get(key) or site_labels[key]) for key in MEMO_LABEL_DEFAULTS
+        },
+        "hidden": _clean_memo_hidden(
+            saved["_hidden"] if "_hidden" in saved else site.get("_hidden")
+        ),
+        "custom": _clean_memo_custom(
+            saved["_custom"] if "_custom" in saved else site.get("_custom")
+        ),
+    }
+
+
+def _get_memo_labels(session):
+    return _effective_memo_settings(session)["labels"]
 
 
 MEMO_LABEL_CONTENT = {
@@ -153,16 +181,15 @@ def _expand_memo_hidden(hidden):
 
 
 def _memo_settings_sections(session):
-    saved = _saved_memo_settings(session.memo_labels)
-    labels = _get_memo_labels(session)
-    hidden = set(_clean_memo_hidden(saved.get("_hidden")))
-    custom = _clean_memo_custom(saved.get("_custom"))
+    effective = _effective_memo_settings(session)
+    labels = effective["labels"]
+    hidden = set(effective["hidden"])
 
     def field(key):
         return {
             "key": key,
             "label": labels[key],
-            "default": MEMO_LABEL_DEFAULTS[key],
+            "default": effective["site_labels"][key],
             "content": MEMO_LABEL_CONTENT.get(key, ""),
             "deleted": key in hidden,
         }
@@ -177,13 +204,46 @@ def _memo_settings_sections(session):
 
 
 def _memo_display_state(session):
-    saved = _saved_memo_settings(session.memo_labels)
+    effective = _effective_memo_settings(session)
     return {
-        "memo_hidden": sorted(
-            _expand_memo_hidden(_clean_memo_hidden(saved.get("_hidden")))
-        ),
-        "memo_custom": _clean_memo_custom(saved.get("_custom")),
+        "memo_hidden": sorted(_expand_memo_hidden(effective["hidden"])),
+        "memo_custom": effective["custom"],
     }
+
+
+def _is_memo_admin(request):
+    user = getattr(request, "user", None)
+    return request.session.get("user_role") == "admin" or bool(
+        user and user.is_superuser
+    )
+
+
+def _parse_memo_settings_post(post, keep_text=True):
+    settings = {}
+    for key in MEMO_LABEL_DEFAULTS:
+        posted = (post.get(f"memo_label_{key}") or "").strip()[:40]
+        if posted:
+            settings[key] = posted
+    hidden = _clean_memo_hidden(post.getlist("memo_hidden"))
+    expanded = _expand_memo_hidden(hidden)
+    custom = {}
+    sections = post.getlist("memo_custom_section")
+    labels = post.getlist("memo_custom_label")
+    texts = post.getlist("memo_custom_text")
+    for idx, section in enumerate(sections):
+        if section not in MEMO_SECTION_CHILDREN or section in expanded:
+            continue
+        label = (labels[idx] if idx < len(labels) else "").strip()[:40]
+        text = ""
+        if keep_text:
+            text = (texts[idx] if idx < len(texts) else "")
+            text = text.replace("\r\n", "\n").replace("\r", "\n").strip()
+        if not label and not text:
+            continue
+        custom.setdefault(section, []).append({"label": label, "text": text})
+    settings["_hidden"] = hidden
+    settings["_custom"] = custom
+    return settings
 
 
 def _get_editable_session_or_redirect(request, session_id):
@@ -928,9 +988,7 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
             "manning/manning_dashboard.html",
             {
                 "session": session,
-                "memo_custom": _clean_memo_custom(
-                    _saved_memo_settings(session.memo_labels).get("_custom")
-                ),
+                "memo_custom": _effective_memo_settings(session)["custom"],
                 "memo_labels": {
                     key: (
                         value[1:-1].strip()
@@ -1083,6 +1141,22 @@ class UpdateManningHoursView(ManningSessionRequiredMixin, View):
         return JsonResponse({"status": "success"})
 
 
+class MemoDefaultSaveView(ManningSessionRequiredMixin, View):
+    def post(self, request, session_id):
+        if not _is_memo_admin(request):
+            return JsonResponse({"status": "forbidden"}, status=403)
+        session, redirect_response = _get_editable_session_or_redirect(
+            request, session_id
+        )
+        if redirect_response:
+            return JsonResponse({"status": "error"}, status=404)
+        settings = _parse_memo_settings_post(request.POST, keep_text=False)
+        MemoDefault.objects.update_or_create(
+            site=_memo_site_key(session), defaults={"settings": settings}
+        )
+        return JsonResponse({"status": "success"})
+
+
 class AreaBulkEditView(ManningSessionRequiredMixin, View):
     def get(self, request, session_id):
         session, redirect_response = _get_editable_session_or_redirect(
@@ -1142,6 +1216,7 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
                 "memo_labels": _get_memo_labels(session),
                 "memo_sections": _memo_settings_sections(session),
                 **_memo_display_state(session),
+                "is_memo_admin": _is_memo_admin(request),
                 "errors": [],
             },
         )
@@ -1188,38 +1263,14 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
             f"memo_label_{key}" in request.POST for key in MEMO_LABEL_DEFAULTS
         )
         if settings_posted:
-            memo_labels = {}
-            for key in MEMO_LABEL_DEFAULTS:
-                posted = (request.POST.get(f"memo_label_{key}") or "").strip()
-                if posted:
-                    memo_labels[key] = posted
-            hidden_keys = _clean_memo_hidden(request.POST.getlist("memo_hidden"))
-            expanded_hidden = _expand_memo_hidden(hidden_keys)
-            custom_rows = {}
-            custom_sections = request.POST.getlist("memo_custom_section")
-            custom_labels = request.POST.getlist("memo_custom_label")
-            custom_texts = request.POST.getlist("memo_custom_text")
-            for idx, section in enumerate(custom_sections):
-                if section not in MEMO_SECTION_CHILDREN or section in expanded_hidden:
-                    continue
-                label = (custom_labels[idx] if idx < len(custom_labels) else "").strip()
-                text = (custom_texts[idx] if idx < len(custom_texts) else "")
-                text = text.replace("\r\n", "\n").replace("\r", "\n").strip()
-                if not label and not text:
-                    continue
-                custom_rows.setdefault(section, []).append(
-                    {"label": label[:40], "text": text}
-                )
-            if hidden_keys:
-                memo_labels["_hidden"] = hidden_keys
-            if custom_rows:
-                memo_labels["_custom"] = custom_rows
+            memo_labels = _parse_memo_settings_post(request.POST)
+            expanded_hidden = _expand_memo_hidden(memo_labels["_hidden"])
+            custom_rows = memo_labels["_custom"]
         else:
-            memo_labels = _saved_memo_settings(session.memo_labels)
-            expanded_hidden = _expand_memo_hidden(
-                _clean_memo_hidden(memo_labels.get("_hidden"))
-            )
-            custom_rows = _clean_memo_custom(memo_labels.get("_custom"))
+            effective = _effective_memo_settings(session)
+            memo_labels = dict(effective["labels"])
+            expanded_hidden = _expand_memo_hidden(effective["hidden"])
+            custom_rows = effective["custom"]
 
         if "sec_important" in expanded_hidden:
             important_process = ""
