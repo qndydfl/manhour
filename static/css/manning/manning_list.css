@@ -181,7 +181,7 @@
 
 .manning-session-action-danger:hover {
     background: var(--manning-red-2);
-    color: #ffffff;
+    color: #f10707;
 }
 
 .manning-delete-form {
