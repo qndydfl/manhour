@@ -443,6 +443,16 @@ body.manning-v2-body {
     gap: 8px;
 }
 
+/* Keep every Manning page action label aligned with the dashboard topbar. */
+.manning-topbar-right :is(
+        .manning-topbar-action-label,
+        .manning-form-topbar-label,
+        .edit-toolbar-label
+    ) {
+    font-size: var(--font-size-sm);
+    line-height: 1;
+}
+
 .manning-topbar-date {
     display: flex;
 

@@ -139,12 +139,19 @@ body.worker-panel-open .manning-main {
     border-color: #dc2626;
     background: #dc2626;
     color: #ffffff;
+    margin-right: 20px;
+}
+
+.edit-toolbar-divider {
+    width: 2px;
+    background: #45525e;
 }
 
 .edit-toolbar-btn-light {
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.09);
     color: #ffffff;
+    margin-left: 20px;
 }
 
 .edit-toolbar-btn:hover {
