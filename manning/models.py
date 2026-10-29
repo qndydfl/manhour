@@ -64,6 +64,7 @@ class WorkSession(models.Model):
     afternoon_card = models.TextField(blank=True, default="")
     afternoon_towing = models.TextField(blank=True, default="")
     special_note = models.TextField(blank=True, default="")
+    memo_labels = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
         label = self.work_package_name or self.name

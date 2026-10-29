@@ -81,10 +81,13 @@ body.worker-panel-open .manning-main {
 .edit-sidebar-meta span {
     min-height: 36px;
     padding: 0 12px;
+    gap: 8px;
     border-color: rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.04);
-    color: #cbd5e1;
+    color: #ffffff;
+    font-size: var(--font-size-base);
+    font-weight: 700;
 }
 
 .edit-sidebar-meta i {
@@ -386,6 +389,30 @@ body.worker-panel-open .manning-main {
     justify-content: center;
     border-radius: 999px;
     white-space: nowrap;
+}
+
+.memo-restore-btn {
+    display: none;
+}
+
+.memo-setting-row.is-deleted .memo-restore-btn {
+    display: inline-block;
+}
+
+.memo-setting-row.is-deleted .memo-delete-btn {
+    display: none;
+}
+
+.memo-setting-row.is-deleted input[type="text"],
+.memo-setting-row.is-deleted textarea,
+.memo-setting-row.is-parent-deleted {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+.memo-setting-row.is-deleted textarea,
+.memo-setting-row.is-parent-deleted textarea {
+    pointer-events: none;
 }
 
 .memo-body {

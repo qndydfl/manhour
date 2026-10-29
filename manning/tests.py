@@ -138,6 +138,57 @@ class WorkplaceIsolationTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(ManhourWorkSession.objects.filter(id=manhour_session.id).exists())
 
+    def test_memo_items_can_be_deleted_and_custom_lines_added(self):
+        url = reverse("manning:area_bulk_edit", args=[self.site_a_session.id])
+        response = self.client.post(
+            url,
+            {
+                "next": "edit",
+                "morning_tool": "should be cleared",
+                "morning_material": "keep me",
+                "memo_label_sec_morning": "AM",
+                "memo_hidden": ["morning_tool"],
+                "memo_custom_section": ["sec_morning", "sec_morning"],
+                "memo_custom_label": ["Extra", ""],
+                "memo_custom_text": ["<b>x</b>", ""],
+                **{
+                    f"memo_label_{key}": ""
+                    for key in (
+                        "sec_important",
+                        "morning_tool",
+                        "morning_material",
+                        "morning_bench",
+                        "morning_towing",
+                        "sec_afternoon",
+                        "afternoon_cleanup",
+                        "afternoon_card",
+                        "afternoon_towing",
+                        "sec_special",
+                    )
+                },
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        session = WorkSession.objects.get(id=self.site_a_session.id)
+        self.assertEqual(session.morning_tool, "")
+        self.assertEqual(session.morning_material, "keep me")
+        self.assertEqual(session.memo_labels["_hidden"], ["morning_tool"])
+        self.assertEqual(
+            session.memo_labels["_custom"],
+            {"sec_morning": [{"label": "Extra", "text": "<b>x</b>"}]},
+        )
+        self.assertIn("Extra", session.memo)
+        self.assertNotIn("<b>x</b>", session.memo)
+
+        dashboard = self.client.get(
+            reverse("manning:manning_dashboard", args=[session.id])
+        )
+        self.assertContains(dashboard, "Extra")
+        self.assertContains(dashboard, "&lt;b&gt;x&lt;/b&gt;")
+        edit = self.client.get(url)
+        self.assertEqual(edit.status_code, 200)
+
 
 class AreaTemplateSelectionTests(TestCase):
     def setUp(self):

@@ -125,42 +125,54 @@
             </div>
 
             <div class="manning-dashboard-memo-body">
-                {% if session.important_process or session.morning_tool or session.morning_material or session.morning_bench or session.morning_towing or session.afternoon_cleanup or session.afternoon_card or session.afternoon_towing or session.special_note %}
+                {% if session.important_process or session.morning_tool or session.morning_material or session.morning_bench or session.morning_towing or session.afternoon_cleanup or session.afternoon_card or session.afternoon_towing or session.special_note or memo_custom %}
                 <div class="manning-dashboard-memo-grid">
-                    {% if session.important_process %}
+                    {% if session.important_process or memo_custom.sec_important %}
                     <section class="manning-dashboard-memo-item">
-                        <strong class="manning-dashboard-memo-label">업무 전달</strong>
-                        <div class="manning-dashboard-memo-value">{{ session.important_process|safe|linebreaksbr }}</div>
+                        <strong class="manning-dashboard-memo-label">{{ memo_labels.sec_important }}</strong>
+                        {% if session.important_process %}<div class="manning-dashboard-memo-value">{{ session.important_process|safe|linebreaksbr }}</div>{% endif %}
+                        {% if memo_custom.sec_important %}
+                        <div class="manning-dashboard-memo-lines">
+                            {% for c in memo_custom.sec_important %}<p>{% if c.label %}<span>{{ c.label }} :</span>{% endif %}{{ c.text|linebreaksbr }}</p>{% endfor %}
+                        </div>
+                        {% endif %}
                     </section>
                     {% endif %}
 
-                    {% if session.morning_tool or session.morning_material or session.morning_bench or session.morning_towing %}
+                    {% if session.morning_tool or session.morning_material or session.morning_bench or session.morning_towing or memo_custom.sec_morning %}
                     <section class="manning-dashboard-memo-item">
-                        <strong class="manning-dashboard-memo-label">오전 업무</strong>
+                        <strong class="manning-dashboard-memo-label">{{ memo_labels.sec_morning }}</strong>
                         <div class="manning-dashboard-memo-lines">
-                            {% if session.morning_tool %}<p><span>Tool 준비 :</span>{{ session.morning_tool|safe|linebreaksbr }}</p>{% endif %}
-                            {% if session.morning_material %}<p><span>자재 준비 :</span>{{ session.morning_material|safe|linebreaksbr }}</p>{% endif %}
-                            {% if session.morning_bench %}<p><span>작업대 준비 :</span>{{ session.morning_bench|safe|linebreaksbr }}</p>{% endif %}
-                            {% if session.morning_towing %}<p><span>Towing :</span>{{ session.morning_towing|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_tool %}<p><span>{{ memo_labels.morning_tool }} :</span>{{ session.morning_tool|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_material %}<p><span>{{ memo_labels.morning_material }} :</span>{{ session.morning_material|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_bench %}<p><span>{{ memo_labels.morning_bench }} :</span>{{ session.morning_bench|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.morning_towing %}<p><span>{{ memo_labels.morning_towing }} :</span>{{ session.morning_towing|safe|linebreaksbr }}</p>{% endif %}
+                            {% for c in memo_custom.sec_morning %}<p>{% if c.label %}<span>{{ c.label }} :</span>{% endif %}{{ c.text|linebreaksbr }}</p>{% endfor %}
                         </div>
                     </section>
                     {% endif %}
 
-                    {% if session.afternoon_cleanup or session.afternoon_card or session.afternoon_towing %}
+                    {% if session.afternoon_cleanup or session.afternoon_card or session.afternoon_towing or memo_custom.sec_afternoon %}
                     <section class="manning-dashboard-memo-item">
-                        <strong class="manning-dashboard-memo-label">오후 업무</strong>
+                        <strong class="manning-dashboard-memo-label">{{ memo_labels.sec_afternoon }}</strong>
                         <div class="manning-dashboard-memo-lines">
-                            {% if session.afternoon_cleanup %}<p><span>정리 정돈 :</span>{{ session.afternoon_cleanup|safe|linebreaksbr }}</p>{% endif %}
-                            {% if session.afternoon_card %}<p><span>Card 100% :</span>{{ session.afternoon_card|safe|linebreaksbr }}</p>{% endif %}
-                            {% if session.afternoon_towing %}<p><span>Towing :</span>{{ session.afternoon_towing|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.afternoon_cleanup %}<p><span>{{ memo_labels.afternoon_cleanup }} :</span>{{ session.afternoon_cleanup|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.afternoon_card %}<p><span>{{ memo_labels.afternoon_card }} :</span>{{ session.afternoon_card|safe|linebreaksbr }}</p>{% endif %}
+                            {% if session.afternoon_towing %}<p><span>{{ memo_labels.afternoon_towing }} :</span>{{ session.afternoon_towing|safe|linebreaksbr }}</p>{% endif %}
+                            {% for c in memo_custom.sec_afternoon %}<p>{% if c.label %}<span>{{ c.label }} :</span>{% endif %}{{ c.text|linebreaksbr }}</p>{% endfor %}
                         </div>
                     </section>
                     {% endif %}
 
-                    {% if session.special_note %}
+                    {% if session.special_note or memo_custom.sec_special %}
                     <section class="manning-dashboard-memo-item manning-dashboard-memo-item-special">
-                        <strong class="manning-dashboard-memo-label">특이 사항</strong>
-                        <div class="manning-dashboard-memo-value">{{ session.special_note|safe|linebreaksbr }}</div>
+                        <strong class="manning-dashboard-memo-label">{{ memo_labels.sec_special }}</strong>
+                        {% if session.special_note %}<div class="manning-dashboard-memo-value">{{ session.special_note|safe|linebreaksbr }}</div>{% endif %}
+                        {% if memo_custom.sec_special %}
+                        <div class="manning-dashboard-memo-lines">
+                            {% for c in memo_custom.sec_special %}<p>{% if c.label %}<span>{{ c.label }} :</span>{% endif %}{{ c.text|linebreaksbr }}</p>{% endfor %}
+                        </div>
+                        {% endif %}
                     </section>
                     {% endif %}
                 </div>

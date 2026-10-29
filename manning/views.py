@@ -54,6 +54,138 @@ def _get_visible_session_or_404(session_id):
     return get_object_or_404(WorkSession, id=session_id)
 
 
+MEMO_LABEL_DEFAULTS = {
+    "sec_important": "[업무 전달]",
+    "sec_morning": "[오전 업무]",
+    "morning_tool": "Tool 준비",
+    "morning_material": "자재 준비",
+    "morning_bench": "작업대 준비",
+    "morning_towing": "Towing",
+    "sec_afternoon": "[오후 업무]",
+    "afternoon_cleanup": "정리 정돈",
+    "afternoon_card": "Card 100%",
+    "afternoon_towing": "Towing",
+    "sec_special": "[특이 사항]",
+}
+
+
+def _get_memo_labels(session):
+    saved = session.memo_labels if isinstance(session.memo_labels, dict) else {}
+    return {
+        key: (saved.get(key) or default)
+        for key, default in MEMO_LABEL_DEFAULTS.items()
+    }
+
+
+MEMO_LABEL_CONTENT = {
+    "sec_important": "important_process",
+    "morning_tool": "morning_tool",
+    "morning_material": "morning_material",
+    "morning_bench": "morning_bench",
+    "morning_towing": "morning_towing",
+    "afternoon_cleanup": "afternoon_cleanup",
+    "afternoon_card": "afternoon_card",
+    "afternoon_towing": "afternoon_towing",
+    "sec_special": "special_note",
+}
+
+
+def _memo_label_fields(session):
+    labels = _get_memo_labels(session)
+    return [
+        {
+            "key": key,
+            "default": default,
+            "value": labels[key],
+            "content": MEMO_LABEL_CONTENT.get(key, ""),
+        }
+        for key, default in MEMO_LABEL_DEFAULTS.items()
+    ]
+
+
+MEMO_SECTION_CHILDREN = {
+    "sec_important": [],
+    "sec_morning": [
+        "morning_tool",
+        "morning_material",
+        "morning_bench",
+        "morning_towing",
+    ],
+    "sec_afternoon": ["afternoon_cleanup", "afternoon_card", "afternoon_towing"],
+    "sec_special": [],
+}
+
+
+def _saved_memo_settings(memo_labels):
+    return memo_labels if isinstance(memo_labels, dict) else {}
+
+
+def _clean_memo_hidden(raw):
+    if not isinstance(raw, list):
+        return []
+    return [key for key in raw if key in MEMO_LABEL_DEFAULTS]
+
+
+def _clean_memo_custom(raw):
+    result = {}
+    if not isinstance(raw, dict):
+        return result
+    for section in MEMO_SECTION_CHILDREN:
+        rows = raw.get(section)
+        if not isinstance(rows, list):
+            continue
+        cleaned = [
+            {"label": str(row.get("label", "")), "text": str(row.get("text", ""))}
+            for row in rows
+            if isinstance(row, dict)
+        ]
+        if cleaned:
+            result[section] = cleaned
+    return result
+
+
+def _expand_memo_hidden(hidden):
+    expanded = set(hidden)
+    for section, children in MEMO_SECTION_CHILDREN.items():
+        if section in expanded:
+            expanded.update(children)
+    return expanded
+
+
+def _memo_settings_sections(session):
+    saved = _saved_memo_settings(session.memo_labels)
+    labels = _get_memo_labels(session)
+    hidden = set(_clean_memo_hidden(saved.get("_hidden")))
+    custom = _clean_memo_custom(saved.get("_custom"))
+
+    def field(key):
+        return {
+            "key": key,
+            "label": labels[key],
+            "default": MEMO_LABEL_DEFAULTS[key],
+            "content": MEMO_LABEL_CONTENT.get(key, ""),
+            "deleted": key in hidden,
+        }
+
+    return [
+        {
+            **field(section),
+            "items": [field(key) for key in children],
+        }
+        for section, children in MEMO_SECTION_CHILDREN.items()
+    ]
+
+
+def _memo_display_state(session):
+    saved = _saved_memo_settings(session.memo_labels)
+    return {
+        "memo_hidden": sorted(
+            _expand_memo_hidden(_clean_memo_hidden(saved.get("_hidden")))
+        ),
+        "memo_custom": _clean_memo_custom(saved.get("_custom")),
+    }
+
+
 def _get_editable_session_or_redirect(request, session_id):
     session = _get_visible_session_or_404(session_id)
     current_workplace = _get_current_workplace(request)
@@ -796,6 +928,17 @@ class ManningDashboardView(ManningSessionRequiredMixin, View):
             "manning/manning_dashboard.html",
             {
                 "session": session,
+                "memo_custom": _clean_memo_custom(
+                    _saved_memo_settings(session.memo_labels).get("_custom")
+                ),
+                "memo_labels": {
+                    key: (
+                        value[1:-1].strip()
+                        if value.startswith("[") and value.endswith("]")
+                        else value
+                    )
+                    for key, value in _get_memo_labels(session).items()
+                },
                 "session_areas": session_areas,
                 "all_workers": all_workers,
                 "is_same_site": is_same_site,
@@ -996,6 +1139,9 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
                 "worker_names": list(worker_names),
                 "default_worker_names": list(default_worker_names),
                 "memo_values": memo_values,
+                "memo_labels": _get_memo_labels(session),
+                "memo_sections": _memo_settings_sections(session),
+                **_memo_display_state(session),
                 "errors": [],
             },
         )
@@ -1038,66 +1184,157 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
         afternoon_towing = normalize_text(request.POST.get("afternoon_towing"))
         special_note = normalize_text(request.POST.get("special_note"))
 
+        settings_posted = any(
+            f"memo_label_{key}" in request.POST for key in MEMO_LABEL_DEFAULTS
+        )
+        if settings_posted:
+            memo_labels = {}
+            for key in MEMO_LABEL_DEFAULTS:
+                posted = (request.POST.get(f"memo_label_{key}") or "").strip()
+                if posted:
+                    memo_labels[key] = posted
+            hidden_keys = _clean_memo_hidden(request.POST.getlist("memo_hidden"))
+            expanded_hidden = _expand_memo_hidden(hidden_keys)
+            custom_rows = {}
+            custom_sections = request.POST.getlist("memo_custom_section")
+            custom_labels = request.POST.getlist("memo_custom_label")
+            custom_texts = request.POST.getlist("memo_custom_text")
+            for idx, section in enumerate(custom_sections):
+                if section not in MEMO_SECTION_CHILDREN or section in expanded_hidden:
+                    continue
+                label = (custom_labels[idx] if idx < len(custom_labels) else "").strip()
+                text = (custom_texts[idx] if idx < len(custom_texts) else "")
+                text = text.replace("\r\n", "\n").replace("\r", "\n").strip()
+                if not label and not text:
+                    continue
+                custom_rows.setdefault(section, []).append(
+                    {"label": label[:40], "text": text}
+                )
+            if hidden_keys:
+                memo_labels["_hidden"] = hidden_keys
+            if custom_rows:
+                memo_labels["_custom"] = custom_rows
+        else:
+            memo_labels = _saved_memo_settings(session.memo_labels)
+            expanded_hidden = _expand_memo_hidden(
+                _clean_memo_hidden(memo_labels.get("_hidden"))
+            )
+            custom_rows = _clean_memo_custom(memo_labels.get("_custom"))
+
+        if "sec_important" in expanded_hidden:
+            important_process = ""
+        if "sec_special" in expanded_hidden:
+            special_note = ""
+        if "morning_tool" in expanded_hidden:
+            morning_tool = ""
+        if "morning_material" in expanded_hidden:
+            morning_material = ""
+        if "morning_bench" in expanded_hidden:
+            morning_bench = ""
+        if "morning_towing" in expanded_hidden:
+            morning_towing = ""
+        if "afternoon_cleanup" in expanded_hidden:
+            afternoon_cleanup = ""
+        if "afternoon_card" in expanded_hidden:
+            afternoon_card = ""
+        if "afternoon_towing" in expanded_hidden:
+            afternoon_towing = ""
+
+        labels = {
+            **MEMO_LABEL_DEFAULTS,
+            **{k: v for k, v in memo_labels.items() if k in MEMO_LABEL_DEFAULTS},
+        }
+        esc_label = lambda key: escape(labels[key])
+
+        def custom_lines(section):
+            lines = []
+            for row in custom_rows.get(section, []):
+                body = to_html(escape(row["text"]))
+                if row["label"] and body:
+                    lines.append(
+                        f'{escape(row["label"])}: <span class="text-primary">{body}</span>'
+                    )
+                elif row["label"]:
+                    lines.append(escape(row["label"]))
+                else:
+                    lines.append(f'<span class="text-primary">{body}</span>')
+            return lines
+
         memo_sections = []
-        if important_process:
+        important_items = (
+            [f'<span class="text-primary">{to_html(important_process)}</span>']
+            if important_process
+            else []
+        ) + custom_lines("sec_important")
+        if important_items:
             memo_sections.append(
-                "<div><strong>[업무 전달]</strong><br>"
-                f'<span class="text-primary">{to_html(important_process)}</span></div>'
+                f"<div><strong>{esc_label('sec_important')}</strong><br>"
+                f"{'<br>'.join(important_items)}</div>"
             )
 
         morning_items = []
         if morning_tool:
             morning_items.append(
-                f'Tool 준비: <span class="text-primary">{to_html(morning_tool)}</span>'
+                f'{esc_label("morning_tool")}: <span class="text-primary">{to_html(morning_tool)}</span>'
             )
         if morning_material:
             morning_items.append(
-                f'자재 준비: <span class="text-primary">{to_html(morning_material)}</span>'
+                f'{esc_label("morning_material")}: <span class="text-primary">{to_html(morning_material)}</span>'
             )
         if morning_bench:
             morning_items.append(
-                f'작업대 준비: <span class="text-primary">{to_html(morning_bench)}</span>'
+                f'{esc_label("morning_bench")}: <span class="text-primary">{to_html(morning_bench)}</span>'
             )
         if morning_towing:
             morning_items.append(
-                f'Towing: <span class="text-primary">{to_html(morning_towing)}</span>'
+                f'{esc_label("morning_towing")}: <span class="text-primary">{to_html(morning_towing)}</span>'
             )
+        morning_items.extend(custom_lines("sec_morning"))
         if morning_items:
             memo_sections.append(
-                "<div><strong>[오전 업무]</strong><br>"
+                f"<div><strong>{esc_label('sec_morning')}</strong><br>"
                 f"{'<br>'.join(morning_items)}</div>"
             )
 
         afternoon_items = []
         if afternoon_cleanup:
             afternoon_items.append(
-                f'정리 정돈: <span class="text-primary">{to_html(afternoon_cleanup)}</span>'
+                f'{esc_label("afternoon_cleanup")}: <span class="text-primary">{to_html(afternoon_cleanup)}</span>'
             )
         if afternoon_card:
             afternoon_items.append(
-                f'Card 100%: <span class="text-primary">{to_html(afternoon_card)}</span>'
+                f'{esc_label("afternoon_card")}: <span class="text-primary">{to_html(afternoon_card)}</span>'
             )
         if afternoon_towing:
             afternoon_items.append(
-                f'Towing: <span class="text-primary">{to_html(afternoon_towing)}</span>'
+                f'{esc_label("afternoon_towing")}: <span class="text-primary">{to_html(afternoon_towing)}</span>'
             )
+        afternoon_items.extend(custom_lines("sec_afternoon"))
         if afternoon_items:
             memo_sections.append(
-                "<div><strong>[오후 업무]</strong><br>"
+                f"<div><strong>{esc_label('sec_afternoon')}</strong><br>"
                 f"{'<br>'.join(afternoon_items)}</div>"
             )
 
-        if special_note:
+        special_items = (
+            [f'<span class="text-primary">{to_html(special_note)}</span>']
+            if special_note
+            else []
+        ) + custom_lines("sec_special")
+        if special_items:
             memo_sections.append(
-                '<div><span class="fw-bold text-danger">[특이 사항]</span><br>'
-                f'<span class="text-primary">{to_html(special_note)}</span></div>'
+                f'<div><span class="fw-bold text-danger">{esc_label("sec_special")}</span><br>'
+                f"{'<br>'.join(special_items)}</div>"
             )
 
         if memo_sections:
             session_memo = "<br>".join(memo_sections)
+        elif settings_posted:
+            session_memo = ""
 
         with transaction.atomic():
             session.memo = session_memo
+            session.memo_labels = memo_labels
             session.important_process = important_process
             session.morning_tool = morning_tool
             session.morning_material = morning_material
@@ -1110,6 +1347,7 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
             session.save(
                 update_fields=[
                     "memo",
+                    "memo_labels",
                     "important_process",
                     "morning_tool",
                     "morning_material",
@@ -1193,6 +1431,8 @@ class AreaBulkEditView(ManningSessionRequiredMixin, View):
 
         if errors:
             messages.error(request, "수정 중 일부 문제가 발생했습니다.")
+        if request.POST.get("next") == "edit":
+            return redirect("manning:area_bulk_edit", session_id=session.id)
         return redirect("manning:manning_dashboard", session_id=session.id)
 
 
