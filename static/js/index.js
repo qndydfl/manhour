@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const utcEl = indexElement("clock", "utc-time", "#digital-time-utc");
     const utcDateEl = indexElement("clock", "utc-date", "#digital-date-utc");
     const utcWeekdayEl = indexElement("clock", "utc-weekday", "#digital-weekday-utc");
+    const localZoneEl = indexElement("clock", "local-zone", ".clock-zone-tag");
     const clockHands = {
         localHour: document.querySelector('[data-clock-hand="local-hour"]'),
         localMinute: document.querySelector('[data-clock-hand="local-minute"]'),
@@ -145,11 +146,39 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${year}-${month}-${day}`;
     }
 
+    function formatLocalUtcOffset(date) {
+        const offsetMinutes = -date.getTimezoneOffset();
+
+        if (offsetMinutes === 0) return "GMT";
+
+        const sign = offsetMinutes >= 0 ? "+" : "-";
+        const absoluteMinutes = Math.abs(offsetMinutes);
+        const hours = Math.floor(absoluteMinutes / 60);
+        const minutes = absoluteMinutes % 60;
+
+        return minutes
+            ? `GMT${sign}${hours}:${String(minutes).padStart(2, "0")}`
+            : `GMT${sign}${hours}`;
+    }
+
+    function updateLocalTimeZone(now) {
+        if (!localZoneEl) return;
+
+        safeText(localZoneEl, formatLocalUtcOffset(now));
+
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timeZone) {
+            localZoneEl.title = `Local time zone: ${timeZone}`;
+            localZoneEl.setAttribute("aria-label", `Local time zone ${timeZone}`);
+        }
+    }
+
     function updateClock() {
         const now = new Date();
         const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
         updateAnalogClock(now);
+        updateLocalTimeZone(now);
 
         const localHour = String(now.getHours()).padStart(2, "0");
         const localMin = String(now.getMinutes()).padStart(2, "0");

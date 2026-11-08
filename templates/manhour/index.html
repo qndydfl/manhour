@@ -29,7 +29,7 @@
         }, 260);
     });
 </script>
-<script defer src="{% static 'js/index.js' %}?v=20261020-1"></script>
+<script defer src="{% static 'js/index.js' %}?v=20261108-1"></script>
 {% endblock js %} 
 
 {% block content %} 
@@ -228,7 +228,11 @@
                 <section class="clock-console-item local-clock">
                     <div class="clock-console-label-row">
                         <span class="clock-label">LOCAL</span>
-                        <span class="clock-zone-tag">KST</span>
+                        <span
+                            class="clock-zone-tag"
+                            data-index-clock="local-zone"
+                            title="브라우저 현지 시간대"
+                        >GMT+9</span>
                     </div>
 
                     <div class="analog-clock" aria-label="현재 현지 시간">
