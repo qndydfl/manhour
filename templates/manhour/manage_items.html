@@ -14,7 +14,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manage_items.css' %}?v=20261020-5"
+    href="{% static 'css/manage_items.css' %}?v=20261118-2"
 />
 {% endblock css %} 
 
@@ -43,7 +43,7 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script defer src="{% static 'js/paste_data.js' %}?v=20260831-1"></script>
-<script defer src="{% static 'js/manage_items.js' %}?v=20261020-2"></script>
+<script defer src="{% static 'js/manage_items.js' %}?v=20261118-2"></script>
 {% endblock js %} 
 
 
@@ -72,6 +72,16 @@
             >
                 <i class="bi bi-trash3"></i>
                 <span>선택 삭제</span>
+            </button>
+            <button
+                type="button"
+                class="assignment-topbar-btn assignment-topbar-btn-primary d-none"
+                id="btn-clear-delete-selection"
+                title="삭제 선택 해제"
+                aria-label="삭제 선택 해제"
+            >
+                <i class="bi bi-x-circle"></i>
+                <span>선택 해제</span>
             </button>
             <button
                 type="button"
@@ -221,7 +231,7 @@
                             <col style="width: 78px" />
                             <col style="width: 380px" />
                             <col style="width: 92px" />
-                            <col style="width: 124px" />
+                            <col style="width: 92px" />
                             <col />
                         </colgroup>
 
@@ -293,7 +303,7 @@
                                             class="form-check form-switch mb-0"
                                         >
                                             <input
-                                                class="form-check-input"
+                                                class="form-check-input group-delete-trigger"
                                                 type="checkbox"
                                                 id="chk_group_{{ forloop.counter }}"
                                                 data-gibun="{{ form.instance.gibun_input|escape }}"
@@ -352,8 +362,9 @@
                                             type="button"
                                             class="row-delete-btn"
                                             data-row-delete
-                                            title="이 항목 삭제"
-                                            aria-label="이 항목 삭제"
+                                            aria-pressed="false"
+                                            title="삭제할 항목 선택"
+                                            aria-label="삭제할 항목 선택"
                                         >
                                             <i class="bi bi-trash3"></i>
                                         </button>

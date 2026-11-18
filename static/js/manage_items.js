@@ -68,32 +68,58 @@ function initClearAssignedButton() {
 function initBulkDeleteButton() {
     const form = document.getElementById("manage-form");
     const deleteBtn = document.getElementById("btn-delete-selected");
+    const clearSelectionBtn = document.getElementById(
+        "btn-clear-delete-selection",
+    );
     if (!form || !deleteBtn) return;
+
+    clearSelectionBtn?.addEventListener("click", () => {
+        form.querySelectorAll(".delete-trigger:checked").forEach((checkbox) => {
+            checkbox.checked = false;
+            syncDeleteState(checkbox);
+        });
+
+        form.querySelectorAll(".group-delete-trigger:checked").forEach(
+            (checkbox) => {
+                checkbox.checked = false;
+            },
+        );
+
+        updateBulkDeleteButton();
+    });
 
     deleteBtn.addEventListener("click", async () => {
         const checkedRows = Array.from(
             form.querySelectorAll(".delete-trigger:checked"),
         );
 
-        if (checkedRows.length < 2) {
+        if (checkedRows.length < 1) {
             updateBulkDeleteButton();
             return;
         }
 
         const confirmed = window.AppDialog?.confirm
             ? await window.AppDialog.confirm(
-                  `선택한 ${checkedRows.length}개 항목을 삭제하시겠습니까?`,
-                  {
-                      title: "선택 항목 삭제",
-                      variant: "danger",
-                      confirmText: "삭제",
-                  },
-              )
+                `선택한 ${checkedRows.length}개 항목을 삭제하시겠습니까?`,
+                {
+                    title: "선택 항목 삭제",
+                    variant: "danger",
+                    confirmText: "삭제",
+                },
+            )
             : window.confirm(
-                  `선택한 ${checkedRows.length}개 항목을 삭제하시겠습니까?`,
-              );
+                `선택한 ${checkedRows.length}개 항목을 삭제하시겠습니까?`,
+            );
 
         if (!confirmed) return;
+
+        checkedRows.forEach((checkbox) => {
+            const row = checkbox.closest("tr");
+            const realDelete = row?.querySelector(
+                'input[type="checkbox"][name$="-DELETE"]',
+            );
+            if (realDelete) realDelete.checked = true;
+        });
 
         setSubmitIntent("delete_selected");
         form.dataset.loadingTitle = "선택 항목 삭제 중";
@@ -107,7 +133,7 @@ function initRowDeleteButtons() {
     if (!form) return;
 
     form.querySelectorAll("[data-row-delete]").forEach((button) => {
-        button.addEventListener("click", async () => {
+        button.addEventListener("click", () => {
             const row = button.closest("tr");
             const checkbox = row?.querySelector(".delete-trigger");
 
@@ -116,59 +142,32 @@ function initRowDeleteButtons() {
                 return;
             }
 
-            checkbox.checked = true;
+            checkbox.checked = !checkbox.checked;
             syncDeleteState(checkbox);
-
-            const gibun =
-                row.querySelector(".col-gibun input")?.value?.trim() ||
-                "이 항목";
-            const workOrder =
-                row.querySelector(".col-wo input")?.value?.trim() || "-";
-            const op = row.querySelector(".col-op input")?.value?.trim() || "-";
-            const description =
-                row.querySelector(".col-desc textarea")?.value?.trim() ||
-                row.querySelector(".col-desc input")?.value?.trim() ||
-                "-";
-            const confirmMessage = [
-                "아래 항목을 삭제하시겠습니까?",
-                "",
-                `기번: ${gibun}`,
-                `W/O: ${workOrder}`,
-                `OP: ${op}`,
-                `작업내용: ${description}`,
-            ].join("\n");
-
-            const confirmed = window.AppDialog?.confirm
-                ? await window.AppDialog.confirm(confirmMessage, {
-                      title: "항목 삭제",
-                      variant: "danger",
-                      confirmText: "삭제",
-                  })
-                : window.confirm(confirmMessage);
-
-            if (!confirmed) {
-                checkbox.checked = false;
-                syncDeleteState(checkbox);
-                return;
-            }
-
-            setSubmitIntent("delete_selected");
-            form.dataset.loadingTitle = "항목 삭제 중";
-            form.dataset.loadingText = "선택한 항목을 삭제하고 있습니다.";
-            form.requestSubmit();
         });
     });
 }
 
 function updateBulkDeleteButton() {
     const deleteBtn = document.getElementById("btn-delete-selected");
+    const clearSelectionBtn = document.getElementById(
+        "btn-clear-delete-selection",
+    );
     if (!deleteBtn) return;
 
     const checkedCount = document.querySelectorAll(
         "#manage-form .delete-trigger:checked",
     ).length;
 
-    deleteBtn.classList.toggle("d-none", checkedCount < 2);
+    deleteBtn.classList.toggle("d-none", checkedCount < 1);
+    clearSelectionBtn?.classList.toggle("d-none", checkedCount < 1);
+
+    const label = deleteBtn.querySelector("span");
+    if (label) {
+        label.textContent = checkedCount
+            ? `선택 삭제 (${checkedCount})`
+            : "선택 삭제";
+    }
 }
 
 function setSubmitIntent(value) {
@@ -887,11 +886,28 @@ function syncDeleteState(chk) {
         'input[type="checkbox"][name$="-DELETE"]',
     );
     if (realDelete) {
-        realDelete.checked = chk.checked;
+        realDelete.checked = false;
     }
 
     row.classList.toggle("deleted-row", chk.checked);
     row.classList.toggle("table-danger", chk.checked);
+
+    const selectButton = row.querySelector("[data-row-delete]");
+    if (selectButton) {
+        selectButton.classList.toggle("is-selected", chk.checked);
+        selectButton.setAttribute("aria-pressed", String(chk.checked));
+        selectButton.title = chk.checked ? "삭제 선택 해제" : "삭제할 항목 선택";
+        selectButton.setAttribute(
+            "aria-label",
+            chk.checked ? "삭제 선택 해제" : "삭제할 항목 선택",
+        );
+
+        const icon = selectButton.querySelector("i");
+        if (icon) {
+            icon.className = chk.checked ? "bi bi-check-lg" : "bi bi-trash3";
+        }
+    }
+
     updateBulkDeleteButton();
 }
 

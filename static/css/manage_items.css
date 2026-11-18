@@ -3,6 +3,8 @@
 ========================================================= */
 
 body.assignment-console-body {
+    --manage-row-hover-bg: #d8e6fa;
+    --manage-row-hover-input-bg: #f4f8ff;
     padding-bottom: 0;
 }
 
@@ -289,7 +291,14 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 }
 
 #manageItemsTable .sortable-row:hover td {
-    background: #f8fbff;
+    --bs-table-bg-state: var(--manage-row-hover-bg);
+    background-color: var(--manage-row-hover-bg) !important;
+}
+
+#manageItemsTable .sortable-row:hover .table-input,
+#manageItemsTable .sortable-row:hover .form-control,
+#manageItemsTable .sortable-row:hover .form-select {
+    background-color: var(--manage-row-hover-input-bg) !important;
 }
 
 /* =========================================================
@@ -452,8 +461,8 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 }
 
 #manageItemsTable .row-delete-btn {
-    width: 28px;
-    height: 28px;
+    width: 25px;
+    height: 25px;
     padding: 0;
     border: 0;
     border-radius: 999px;
@@ -467,6 +476,23 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 #manageItemsTable .row-delete-btn:hover {
     background: rgba(220, 38, 38, 0.1);
     color: #b91c1c;
+}
+
+#manageItemsTable .row-delete-btn.is-selected {
+    background: #dc2626;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+#manageItemsTable .sortable-row.deleted-row > td {
+    --bs-table-bg-state: #fff1f2;
+    background-color: #fff1f2 !important;
+}
+
+#manageItemsTable .sortable-row.deleted-row .table-input,
+#manageItemsTable .sortable-row.deleted-row .form-control,
+#manageItemsTable .sortable-row.deleted-row .form-select {
+    background-color: #fff7f7 !important;
 }
 
 /* =========================================================
@@ -746,48 +772,6 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
     }
 }
 
-@media (max-width: 700px) {
-    .mh-adjust-toolbar {
-        padding: 8px;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .manage-reorder-guide {
-        display: none;
-    }
-
-    .mh-adjust-toolbar-copy {
-        min-width: 0;
-        text-align: left;
-    }
-
-    .mh-adjust-toolbar-copy small {
-        display: none;
-    }
-
-    .mh-adjust-control-label {
-        justify-content: flex-start;
-        font-size: 10px;
-        white-space: nowrap;
-    }
-
-    .mh-adjust-control {
-        width: min(54vw, 190px);
-        min-width: 0;
-        flex: 0 0 auto;
-    }
-
-    .mh-adjust-select {
-        min-width: 0;
-        min-height: 34px;
-        padding-block: 4px;
-        font-size: 12px !important;
-    }
-
-}
-
 #manageItemsTable .col-mh-adjust .adjusted-mh-input {
     transition:
         border-color 0.18s ease,
@@ -901,6 +885,50 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
             var(--manage-mobile-edge-gap) + env(safe-area-inset-bottom, 0px)
         ) !important;
     }
+
+
+
+    .mh-adjust-toolbar {
+        padding: 8px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .manage-reorder-guide {
+        display: none;
+    }
+
+    .mh-adjust-toolbar-copy {
+        min-width: 0;
+        text-align: left;
+    }
+
+    .mh-adjust-toolbar-copy small {
+        display: none;
+    }
+
+    .mh-adjust-control-label {
+        justify-content: flex-start;
+        white-space: nowrap;
+    }
+
+    .mh-adjust-control {
+        width: min(54vw, 190px);
+        min-width: 0;
+        flex: 0 0 auto;
+    }
+
+    .mh-adjust-select {
+        min-width: 0;
+        min-height: 34px;
+        padding-block: 4px;
+        font-size: 12px !important;
+    }
+
+
+
+
 
     .manage-items-topbar .assignment-brand > div:last-child {
         display: none;
@@ -1088,12 +1116,7 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 27px;
-    }
-
-    #manageItemsTable .row-delete-btn {
-        width: 27px;
-        height: 27px;
+        min-height: 20px;
     }
 
     #manageItemsTable .col-gibun {
