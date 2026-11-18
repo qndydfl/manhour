@@ -91,7 +91,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20261029-7"
+    href="{% static 'css/manning/manning_dashboard_edit.css' %}?v=20261118-5"
 />
 {% endblock css %} 
 
@@ -110,6 +110,175 @@
 {{default_worker_names|json_script:"defaultWorkerNames" }} 
 {% endblock js %} 
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const defBtn = document.getElementById("memoDefaultSaveBtn");
+        if (!defBtn) return;
+        defBtn.addEventListener("click", function () {
+            if (!confirm("현재 구성을 기본값으로 저장할까요? 이후 새 세션에 적용됩니다."))
+                return;
+            const src = new FormData(document.getElementById("areaEditForm"));
+            const data = new FormData();
+            src.forEach(function (value, key) {
+                if (/^memo_(label_|hidden$|custom_)/.test(key)) data.append(key, value);
+            });
+            fetch(defBtn.dataset.url, {
+                method: "POST",
+                body: data,
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            })
+                .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+                .then((res) =>
+                    alert(res.ok ? "기본값으로 저장되었습니다." : "저장 권한이 없거나 실패했습니다."),
+                )
+                .catch(() => alert("저장에 실패했습니다."));
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modalEl = document.getElementById("memoSettingsModal");
+        const inputs = modalEl.querySelectorAll("input[data-key]");
+        const pageText = (key) => {
+            const el = document.querySelector(
+                '[data-memo-label="' + key + '"]',
+            );
+            return el ? el.textContent.trim() : "";
+        };
+
+        const mainField = (name) =>
+            document.querySelector(
+                'textarea[name="' + name + '"][form="areaEditForm"]',
+            );
+        const syncInputs = modalEl.querySelectorAll("textarea[data-sync]");
+        const nextField = document.getElementById("memoNextField");
+        const clean = (v) => (v || "").replace(/^\s+|\s+$/g, "");
+
+        // 닫아도 수정 내용은 폼에 남아 상단 저장 시 함께 저장됨
+        const setPageLabel = (input) => {
+            const el = document.querySelector(
+                '[data-memo-label="' + input.dataset.key + '"]',
+            );
+            if (el) el.textContent = input.value.trim() || input.dataset.default;
+        };
+        inputs.forEach(function (input) {
+            input.addEventListener("input", function () {
+                setPageLabel(input);
+            });
+        });
+
+        const isFlagged = (key) => {
+            const flag = modalEl.querySelector(
+                '.memo-hidden-flag[value="' + key + '"]',
+            );
+            return !!(flag && flag.checked);
+        };
+        const applyState = () => {
+            modalEl.querySelectorAll("[data-setting-key]").forEach(function (row) {
+                const parent = row.dataset.parent;
+                row.classList.toggle("is-deleted", isFlagged(row.dataset.settingKey));
+                row.classList.toggle(
+                    "is-parent-deleted",
+                    !!parent && isFlagged(parent),
+                );
+            });
+            document.querySelectorAll("[data-memo-row]").forEach(function (el) {
+                const parent = el.dataset.memoParent;
+                el.classList.toggle(
+                    "d-none",
+                    isFlagged(el.dataset.memoRow) || (!!parent && isFlagged(parent)),
+                );
+            });
+        };
+
+        const addCustomRow = (section, label, text) => {
+            const list = modalEl.querySelector(
+                '.memo-custom-list[data-section="' + section + '"]',
+            );
+            if (!list) return;
+            const row = document.createElement("div");
+            row.className = "memo-custom-row ms-3 mt-2";
+            row.innerHTML =
+                '<input type="hidden" name="memo_custom_section" form="areaEditForm">' +
+                '<div class="d-flex gap-2 align-items-center">' +
+                '<input type="text" class="form-control form-control-sm" name="memo_custom_label" form="areaEditForm" maxlength="40" placeholder="항목 이름 (선택)">' +
+                '<button type="button" class="btn btn-outline-danger btn-sm memo-custom-remove">삭제</button>' +
+                "</div>" +
+                '<textarea class="form-control form-control-sm mt-1" name="memo_custom_text" form="areaEditForm" rows="2" placeholder="내용 입력"></textarea>';
+            row.querySelector('input[name="memo_custom_section"]').value = section;
+            row.querySelector('input[name="memo_custom_label"]').value = label;
+            row.querySelector("textarea").value = text;
+            list.appendChild(row);
+            return row;
+        };
+
+        const customDataEl = document.getElementById("memoCustomData");
+        const customData = customDataEl ? JSON.parse(customDataEl.textContent) : {};
+        Object.keys(customData).forEach(function (section) {
+            customData[section].forEach(function (row) {
+                addCustomRow(section, row.label || "", row.text || "");
+            });
+        });
+
+        modalEl.addEventListener("click", function (event) {
+            const toggleBtn = event.target.closest(
+                ".memo-delete-btn, .memo-restore-btn",
+            );
+            if (toggleBtn) {
+                const row = toggleBtn.closest("[data-setting-key]");
+                const flag = row.querySelector(".memo-hidden-flag");
+                flag.checked = toggleBtn.classList.contains("memo-delete-btn");
+                applyState();
+                return;
+            }
+            const addBtn = event.target.closest(".memo-add-line");
+            if (addBtn) {
+                const row = addCustomRow(addBtn.dataset.section, "", "");
+                if (row) row.querySelector('input[type="text"]').focus();
+                return;
+            }
+            const removeBtn = event.target.closest(".memo-custom-remove");
+            if (removeBtn) removeBtn.closest(".memo-custom-row").remove();
+        });
+
+        modalEl.addEventListener("show.bs.modal", function () {
+            inputs.forEach(function (input) {
+                input.value = pageText(input.dataset.key) || input.dataset.default;
+            });
+            syncInputs.forEach(function (ta) {
+                const src = mainField(ta.dataset.sync);
+                ta.value = src ? clean(src.value) : "";
+            });
+            applyState();
+        });
+
+        // 모달에서 입력한 내용은 즉시 메인 메모 칸에 반영
+        syncInputs.forEach(function (ta) {
+            ta.addEventListener("input", function () {
+                const dest = mainField(ta.dataset.sync);
+                if (dest) dest.value = ta.value;
+            });
+        });
+
+        document
+            .getElementById("memoSettingsSaveBtn")
+            .addEventListener("click", function () {
+                inputs.forEach(function (input) {
+                    input.value = input.value.trim() || input.dataset.default;
+                    setPageLabel(input);
+                });
+                syncInputs.forEach(function (ta) {
+                    const dest = mainField(ta.dataset.sync);
+                    if (dest) dest.value = ta.value;
+                });
+                if (nextField) nextField.value = "edit";
+                const saveBtn = document.querySelector(".memo-save-btn");
+                if (saveBtn) saveBtn.click();
+            });
+    });
+</script>
+{{ memo_custom|json_script:"memoCustomData" }}
 
 {% block content %}
 <div class="edit-shell">
@@ -400,7 +569,7 @@
                             data-memo-label="sec_important"
                             >{{ memo_labels.sec_important }}</label
                         >
-                        <div class="ms-2">
+                        <div>
                             <div class="d-flex align-items-start">
                                 <textarea
                                     name="important_process"
@@ -411,7 +580,14 @@
                                 >{{ memo_values.important_process }}</textarea>
                             </div>
                             {% for c in memo_custom.sec_important %}
-                            <div class="small text-primary mt-1">{% if c.label %}{{ c.label }}: {% endif %}{{ c.text|linebreaksbr }}</div>
+                            <div class="input-group input-group-sm mb-2 memo-custom-display-row">
+                                {% if c.label %}
+                                <span class="input-group-text border-0 bg-transparent">
+                                    <span>{{ c.label }}</span> :
+                                </span>
+                                {% endif %}
+                                <div class="form-control memo-custom-display-value">{{ c.text|linebreaksbr }}</div>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -476,7 +652,14 @@
                                 >{{ memo_values.morning_towing }}</textarea>
                             </div>
                             {% for c in memo_custom.sec_morning %}
-                            <div class="small text-primary mb-1">{% if c.label %}{{ c.label }}: {% endif %}{{ c.text|linebreaksbr }}</div>
+                            <div class="input-group input-group-sm mb-2 memo-custom-display-row">
+                                {% if c.label %}
+                                <span class="input-group-text border-0 bg-transparent">
+                                    <span>{{ c.label }}</span> :
+                                </span>
+                                {% endif %}
+                                <div class="form-control memo-custom-display-value">{{ c.text|linebreaksbr }}</div>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -528,7 +711,14 @@
                                 >{{ memo_values.afternoon_towing }}</textarea>
                             </div>
                             {% for c in memo_custom.sec_afternoon %}
-                            <div class="small text-primary mb-1">{% if c.label %}{{ c.label }}: {% endif %}{{ c.text|linebreaksbr }}</div>
+                            <div class="input-group input-group-sm mb-2 memo-custom-display-row">
+                                {% if c.label %}
+                                <span class="input-group-text border-0 bg-transparent">
+                                    <span>{{ c.label }}</span> :
+                                </span>
+                                {% endif %}
+                                <div class="form-control memo-custom-display-value">{{ c.text|linebreaksbr }}</div>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -539,7 +729,7 @@
                             data-memo-label="sec_special"
                             >{{ memo_labels.sec_special }}</label
                         >
-                        <div class="ms-2">
+                        <div>
                             <textarea
                                 name="special_note"
                                 class="form-control form-control-sm border-0 bg-light rounded-3 auto-resize text-primary"
@@ -548,7 +738,14 @@
                                 form="areaEditForm"
                             >{{ memo_values.special_note }}</textarea>
                             {% for c in memo_custom.sec_special %}
-                            <div class="small text-primary mt-1">{% if c.label %}{{ c.label }}: {% endif %}{{ c.text|linebreaksbr }}</div>
+                            <div class="input-group input-group-sm mb-2 memo-custom-display-row">
+                                {% if c.label %}
+                                <span class="input-group-text border-0 bg-transparent">
+                                    <span>{{ c.label }}</span> :
+                                </span>
+                                {% endif %}
+                                <div class="form-control memo-custom-display-value">{{ c.text|linebreaksbr }}</div>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -676,176 +873,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const defBtn = document.getElementById("memoDefaultSaveBtn");
-        if (!defBtn) return;
-        defBtn.addEventListener("click", function () {
-            if (!confirm("현재 구성을 기본값으로 저장할까요? 이후 새 세션에 적용됩니다."))
-                return;
-            const src = new FormData(document.getElementById("areaEditForm"));
-            const data = new FormData();
-            src.forEach(function (value, key) {
-                if (/^memo_(label_|hidden$|custom_)/.test(key)) data.append(key, value);
-            });
-            fetch(defBtn.dataset.url, {
-                method: "POST",
-                body: data,
-                headers: { "X-CSRFToken": "{{ csrf_token }}" },
-            })
-                .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-                .then((res) =>
-                    alert(res.ok ? "기본값으로 저장되었습니다." : "저장 권한이 없거나 실패했습니다."),
-                )
-                .catch(() => alert("저장에 실패했습니다."));
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const modalEl = document.getElementById("memoSettingsModal");
-        const inputs = modalEl.querySelectorAll("input[data-key]");
-        const pageText = (key) => {
-            const el = document.querySelector(
-                '[data-memo-label="' + key + '"]',
-            );
-            return el ? el.textContent.trim() : "";
-        };
-
-        const mainField = (name) =>
-            document.querySelector(
-                'textarea[name="' + name + '"][form="areaEditForm"]',
-            );
-        const syncInputs = modalEl.querySelectorAll("textarea[data-sync]");
-        const nextField = document.getElementById("memoNextField");
-        const clean = (v) => (v || "").replace(/^\s+|\s+$/g, "");
-
-        // 닫아도 수정 내용은 폼에 남아 상단 저장 시 함께 저장됨
-        const setPageLabel = (input) => {
-            const el = document.querySelector(
-                '[data-memo-label="' + input.dataset.key + '"]',
-            );
-            if (el) el.textContent = input.value.trim() || input.dataset.default;
-        };
-        inputs.forEach(function (input) {
-            input.addEventListener("input", function () {
-                setPageLabel(input);
-            });
-        });
-
-        const isFlagged = (key) => {
-            const flag = modalEl.querySelector(
-                '.memo-hidden-flag[value="' + key + '"]',
-            );
-            return !!(flag && flag.checked);
-        };
-        const applyState = () => {
-            modalEl.querySelectorAll("[data-setting-key]").forEach(function (row) {
-                const parent = row.dataset.parent;
-                row.classList.toggle("is-deleted", isFlagged(row.dataset.settingKey));
-                row.classList.toggle(
-                    "is-parent-deleted",
-                    !!parent && isFlagged(parent),
-                );
-            });
-            document.querySelectorAll("[data-memo-row]").forEach(function (el) {
-                const parent = el.dataset.memoParent;
-                el.classList.toggle(
-                    "d-none",
-                    isFlagged(el.dataset.memoRow) || (!!parent && isFlagged(parent)),
-                );
-            });
-        };
-
-        const addCustomRow = (section, label, text) => {
-            const list = modalEl.querySelector(
-                '.memo-custom-list[data-section="' + section + '"]',
-            );
-            if (!list) return;
-            const row = document.createElement("div");
-            row.className = "memo-custom-row ms-3 mt-2";
-            row.innerHTML =
-                '<input type="hidden" name="memo_custom_section" form="areaEditForm">' +
-                '<div class="d-flex gap-2 align-items-center">' +
-                '<input type="text" class="form-control form-control-sm" name="memo_custom_label" form="areaEditForm" maxlength="40" placeholder="항목 이름 (선택)">' +
-                '<button type="button" class="btn btn-outline-danger btn-sm memo-custom-remove">삭제</button>' +
-                "</div>" +
-                '<textarea class="form-control form-control-sm mt-1" name="memo_custom_text" form="areaEditForm" rows="2" placeholder="내용 입력"></textarea>';
-            row.querySelector('input[name="memo_custom_section"]').value = section;
-            row.querySelector('input[name="memo_custom_label"]').value = label;
-            row.querySelector("textarea").value = text;
-            list.appendChild(row);
-            return row;
-        };
-
-        const customDataEl = document.getElementById("memoCustomData");
-        const customData = customDataEl ? JSON.parse(customDataEl.textContent) : {};
-        Object.keys(customData).forEach(function (section) {
-            customData[section].forEach(function (row) {
-                addCustomRow(section, row.label || "", row.text || "");
-            });
-        });
-
-        modalEl.addEventListener("click", function (event) {
-            const toggleBtn = event.target.closest(
-                ".memo-delete-btn, .memo-restore-btn",
-            );
-            if (toggleBtn) {
-                const row = toggleBtn.closest("[data-setting-key]");
-                const flag = row.querySelector(".memo-hidden-flag");
-                flag.checked = toggleBtn.classList.contains("memo-delete-btn");
-                applyState();
-                return;
-            }
-            const addBtn = event.target.closest(".memo-add-line");
-            if (addBtn) {
-                const row = addCustomRow(addBtn.dataset.section, "", "");
-                if (row) row.querySelector('input[type="text"]').focus();
-                return;
-            }
-            const removeBtn = event.target.closest(".memo-custom-remove");
-            if (removeBtn) removeBtn.closest(".memo-custom-row").remove();
-        });
-
-        modalEl.addEventListener("show.bs.modal", function () {
-            inputs.forEach(function (input) {
-                input.value = pageText(input.dataset.key) || input.dataset.default;
-            });
-            syncInputs.forEach(function (ta) {
-                const src = mainField(ta.dataset.sync);
-                ta.value = src ? clean(src.value) : "";
-            });
-            applyState();
-        });
-
-        // 모달에서 입력한 내용은 즉시 메인 메모 칸에 반영
-        syncInputs.forEach(function (ta) {
-            ta.addEventListener("input", function () {
-                const dest = mainField(ta.dataset.sync);
-                if (dest) dest.value = ta.value;
-            });
-        });
-
-        document
-            .getElementById("memoSettingsSaveBtn")
-            .addEventListener("click", function () {
-                inputs.forEach(function (input) {
-                    input.value = input.value.trim() || input.dataset.default;
-                    setPageLabel(input);
-                });
-                syncInputs.forEach(function (ta) {
-                    const dest = mainField(ta.dataset.sync);
-                    if (dest) dest.value = ta.value;
-                });
-                if (nextField) nextField.value = "edit";
-                const saveBtn = document.querySelector(".memo-save-btn");
-                if (saveBtn) saveBtn.click();
-            });
-    });
-</script>
-{{ memo_custom|json_script:"memoCustomData" }}
 
 <template id="newAreaTemplate">
     <tr class="new-area-row area-row" data-position="LEFT">

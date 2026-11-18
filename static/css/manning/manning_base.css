@@ -26,6 +26,9 @@
 
     --manning-sidebar-width: 252px;
     --manning-topbar-height: 60px;
+    --manning-content-gap: 24px;
+    --manning-content-gap-tablet: 16px;
+    --manning-content-gap-mobile: 10px;
 
     --manning-radius-sm: 10px;
     --manning-radius: 16px;
@@ -525,8 +528,8 @@ body.manning-v2-body {
 
     margin: 0 auto;
 
-    padding: calc(var(--manning-topbar-height) + var(--nav-content-gap)) 36px
-        var(--nav-content-gap);
+    padding: calc(var(--manning-topbar-height) + var(--manning-content-gap)) 36px
+        var(--manning-content-gap);
 }
 
 .manning-sidebar-overlay {
@@ -611,8 +614,8 @@ body.manning-v2-body {
     }
 
     .manning-content {
-        padding: calc(var(--manning-topbar-height) + var(--nav-content-gap-mobile)) 20px
-            var(--nav-content-gap-mobile);
+        padding: calc(var(--manning-topbar-height) + var(--manning-content-gap-tablet)) 20px
+            var(--manning-content-gap-tablet);
     }
 
     .manning-topbar-date {
