@@ -1657,7 +1657,7 @@ body.portal-body {
 .portal-release-meta span,
 .portal-release-meta small {
     color: #94a3b8;
-    font-size: var(--font-size-micro);
+    font-size: var(--font-size-xs);
 }
 
 .portal-account-button {
