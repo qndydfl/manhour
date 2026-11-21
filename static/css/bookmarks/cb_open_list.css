@@ -312,6 +312,10 @@ TOP ACTIONS
         transform 0.15s ease;
 }
 
+.cb-open-top-btn[hidden] {
+    display: none !important;
+}
+
 .cb-open-top-btn:hover {
     background: #243b58;
 

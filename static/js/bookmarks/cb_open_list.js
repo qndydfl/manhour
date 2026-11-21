@@ -147,6 +147,42 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (_error) {
         managedTemplateData = null;
     }
+    let managedTemplateDirtyTrackingReady = false;
+    let managedTemplateBaseline = "";
+
+    function managedTemplateSignature() {
+        return JSON.stringify({
+            aircraft_model: cleanText(aircraftModelSelect?.value),
+            name: cleanText(managedTemplateName?.value),
+            rows: collectTemplateRows(),
+        });
+    }
+
+    function captureManagedTemplateBaseline() {
+        managedTemplateBaseline = managedTemplateSignature();
+        setManagedTemplateDirty(false);
+    }
+
+    function setManagedTemplateDirty(isDirty) {
+        if (!managedTemplateUpdate) return;
+
+        // 새 템플릿은 최초 저장이 필요하므로 버튼을 항상 표시합니다.
+        if (!managedTemplateData?.id) {
+            managedTemplateUpdate.hidden = false;
+            return;
+        }
+
+        managedTemplateUpdate.hidden = !isDirty;
+    }
+
+    function markManagedTemplateDirty() {
+        if (!managedTemplateDirtyTrackingReady || !managedTemplateData?.id) {
+            return;
+        }
+        setManagedTemplateDirty(
+            managedTemplateSignature() !== managedTemplateBaseline,
+        );
+    }
 
     const clearButton = document.getElementById("cbOpenListClear");
 
@@ -2851,6 +2887,7 @@ document.addEventListener("DOMContentLoaded", () => {
             url.searchParams.set("template_id", data.id);
             window.history.replaceState({}, "", url);
             showSaveMessage(`${name} 템플릿을 저장했습니다.`);
+            captureManagedTemplateBaseline();
         } catch (error) {
             showSaveMessage(error.message);
         } finally {
@@ -3252,8 +3289,11 @@ document.addEventListener("DOMContentLoaded", () => {
         aircraftModelSelect.addEventListener("change", () => {
             updateHeader();
             refreshAutomaticLocationMarks();
+            markManagedTemplateDirty();
         });
     }
+
+    managedTemplateName?.addEventListener("input", markManagedTemplateDirty);
 
     function initSettingsAccordions() {
         const accordionTitles = new Set([
@@ -3368,6 +3408,8 @@ document.addEventListener("DOMContentLoaded", () => {
             scheduleSheetScale();
 
             saveWorkspace();
+
+            markManagedTemplateDirty();
 
             const row = tableBody.lastElementChild;
 
@@ -3720,6 +3762,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateTableSizing();
             scheduleSheetScale();
             saveWorkspace();
+            markManagedTemplateDirty();
         },
     });
 
@@ -4266,6 +4309,20 @@ document.addEventListener("DOMContentLoaded", () => {
     rebuildRowFilter();
 
     scheduleSheetScale();
+
+    managedTemplateDirtyTrackingReady = true;
+    captureManagedTemplateBaseline();
+
+    if (managedTemplateUpdate && managedTemplateData?.id) {
+        const managedTemplateTableObserver = new MutationObserver(() => {
+            markManagedTemplateDirty();
+        });
+        managedTemplateTableObserver.observe(tableBody, {
+            subtree: true,
+            childList: true,
+            characterData: true,
+        });
+    }
 
     /* =====================================================
     TEMPLATE IMPORT

@@ -18,7 +18,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261026-1"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261121-1"
 />
 {% endblock css %} {% block js %}
 <script
@@ -31,7 +31,7 @@
 ></script>
 <script
     defer
-    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20261026-6"
+    src="{% static 'js/bookmarks/cb_open_list.js' %}?v=20261121-3"
 ></script>
 {% endblock js %} 
 
@@ -75,6 +75,7 @@
                 id="cbOpenManagedTemplateUpdate"
                 class="cb-open-top-btn  cb-open-top-btn-secondary"
                 data-api-url="{% url 'bookmarks:cb_templates' %}"
+                {% if selected_template_id %}hidden{% endif %}
             >
                 <i class="bi bi-floppy"></i>
                 <span
