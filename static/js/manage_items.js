@@ -9,9 +9,118 @@ document.addEventListener("DOMContentLoaded", () => {
     initAssignedNamesGuard();
     initDescriptionText();
     initClearAssignedButton();
-    initOriginalGibunBadges();
     initSortableRows();
+    initGibunGroupReorder();
 });
+
+function getGibunSegments(tbody) {
+    const segments = [];
+    let currentSegment = null;
+
+    Array.from(tbody.children).forEach((element) => {
+        if (element.classList.contains("group-header")) {
+            currentSegment = [element];
+            segments.push(currentSegment);
+        } else if (currentSegment) {
+            currentSegment.push(element);
+        }
+    });
+
+    return segments;
+}
+
+function moveGibunSegment(tbody, segments, segmentIndex, targetIndex) {
+    const reordered = segments.slice();
+    [reordered[segmentIndex], reordered[targetIndex]] = [
+        reordered[targetIndex],
+        reordered[segmentIndex],
+    ];
+
+    segments.flat().forEach((element) => element.remove());
+    reordered.flat().forEach((element) => tbody.appendChild(element));
+}
+
+function renumberVisibleRowOrdering(tbody) {
+    let position = 0;
+    tbody.querySelectorAll("tr.sortable-row").forEach((row) => {
+        position += 1;
+        const orderingInput = row.querySelector(".ordering-input");
+        if (orderingInput) orderingInput.value = String(position * 10);
+    });
+}
+
+function initGibunGroupReorder() {
+    const tbody = document.querySelector("#manageItemsTable tbody");
+    if (!tbody) return;
+
+    const updateBoundaryButtons = () => {
+        const headers = Array.from(tbody.querySelectorAll("tr.group-header"));
+        headers.forEach((header, index) => {
+            header
+                .querySelector('[data-direction="up"]')
+                ?.toggleAttribute("disabled", index === 0);
+            header
+                .querySelector('[data-direction="down"]')
+                ?.toggleAttribute("disabled", index === headers.length - 1);
+        });
+    };
+
+    updateBoundaryButtons();
+
+    tbody.addEventListener("click", async (event) => {
+        const button = event.target.closest(".gibun-reorder-btn");
+        if (!button || button.disabled) return;
+
+        const reorderUrl = button.dataset.reorderUrl;
+        if (!reorderUrl) return;
+
+        const csrfInput = document.querySelector(
+            "#manage-form input[name='csrfmiddlewaretoken']",
+        );
+        const formData = new FormData();
+        if (csrfInput) formData.append("csrfmiddlewaretoken", csrfInput.value);
+
+        button.disabled = true;
+        try {
+            const response = await fetch(reorderUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": csrfInput?.value || "",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            });
+            const result = await response.json();
+            if (!response.ok || result.status !== "success") {
+                throw new Error(result.message || "기번 그룹 이동에 실패했습니다.");
+            }
+
+            const header = button.closest("tr.group-header");
+            if (!header) return;
+
+            const direction = button.dataset.direction;
+            const segments = getGibunSegments(tbody);
+            const segmentIndex = segments.findIndex((segment) =>
+                segment.includes(header),
+            );
+            if (segmentIndex < 0) return;
+
+            const targetIndex =
+                direction === "up" ? segmentIndex - 1 : segmentIndex + 1;
+            if (targetIndex < 0 || targetIndex >= segments.length) return;
+
+            moveGibunSegment(tbody, segments, segmentIndex, targetIndex);
+
+            rebuildGibunGroupHeaders(tbody);
+            renumberVisibleRowOrdering(tbody);
+            updateBoundaryButtons();
+        } catch (error) {
+            window.alert(error.message || "기번 그룹 이동에 실패했습니다.");
+        } finally {
+            updateBoundaryButtons();
+        }
+    });
+}
 
 window.addEventListener("load", refreshAssignedTextLayout);
 window.addEventListener("pageshow", refreshAssignedTextLayout);
@@ -246,6 +355,7 @@ function initAssignedNamesGuard() {
     const saveButton = document.querySelector(
         'button[type="submit"][form="manage-form"]',
     );
+    setSaveButtonDisabled(saveButton, false);
 
     const warningEl = document.createElement("div");
     warningEl.className = "alert alert-warning small mt-1 mb-0 py-1";
@@ -328,7 +438,7 @@ function updateAssignedWarning(form, warningEl, lastAssignedInput, saveButton) {
 
     warningEl.style.display = "block";
     setAssignedInputsDisabled(form, true, targetInput);
-    setSaveButtonDisabled(saveButton, true);
+    setSaveButtonDisabled(saveButton, false);
 }
 
 function isAllNamesAssignedInInput(form, inputEl) {
@@ -993,6 +1103,7 @@ function getCsrfToken() {
 function initSortableRows() {
     const tbody = document.querySelector("#manageItemsTable tbody");
     if (!tbody) return;
+    captureOriginalRowPositions(tbody);
 
     if (typeof Sortable === "undefined") {
         console.warn("SortableJS not loaded. Falling back to native drag.");
@@ -1015,22 +1126,15 @@ function initSortableRows() {
         },
 
         onEnd: function (evt) {
-            const draggedRow = evt.item;
-            const prevGibun = (draggedRow.dataset.gibun || "").trim();
-            const nextGibun =
-                applyGibunFromPosition(draggedRow, tbody) || prevGibun;
-            persistReorder(nextGibun, tbody);
-            if (prevGibun && nextGibun && prevGibun !== nextGibun) {
-                persistReorder(prevGibun, tbody);
-            }
+            rebuildGibunGroupHeaders(tbody);
             syncOrderingInputs(tbody);
+            updateRowMovedState(evt.item);
         },
     });
 }
 
 function initNativeDragRows(tbody) {
     let draggedRow = null;
-    let draggedGibun = "";
     let armedRow = null;
 
     const setRowDraggable = (row, value) => {
@@ -1071,7 +1175,6 @@ function initNativeDragRows(tbody) {
         }
 
         draggedRow = row;
-        draggedGibun = (row.dataset.gibun || "").trim();
         row.classList.add("sortable-drag");
 
         if (e.dataTransfer) {
@@ -1100,14 +1203,9 @@ function initNativeDragRows(tbody) {
     tbody.addEventListener("drop", (e) => {
         if (!draggedRow) return;
         e.preventDefault();
-        const prevGibun = draggedGibun;
-        const nextGibun =
-            applyGibunFromPosition(draggedRow, tbody) || prevGibun;
-        persistReorder(nextGibun, tbody);
-        if (prevGibun && nextGibun && prevGibun !== nextGibun) {
-            persistReorder(prevGibun, tbody);
-        }
+        rebuildGibunGroupHeaders(tbody);
         syncOrderingInputs(tbody);
+        updateRowMovedState(draggedRow);
     });
 
     tbody.addEventListener("dragend", () => {
@@ -1116,148 +1214,85 @@ function initNativeDragRows(tbody) {
             setRowDraggable(draggedRow, false);
         }
         draggedRow = null;
-        draggedGibun = "";
         armedRow = null;
     });
 }
 
 function syncOrderingInputs(tbody) {
     const rows = Array.from(tbody.querySelectorAll("tr.sortable-row"));
-    rows.forEach((row, idx) => {
+    rows.forEach((row, index) => {
         const input = row.querySelector(".ordering-input");
         if (input) {
-            input.value = idx + 1;
+            input.value = (index + 1) * 10;
         }
     });
 }
 
-function initOriginalGibunBadges() {
-    const rows = document.querySelectorAll(
-        "#manageItemsTable tbody tr.sortable-row",
+function captureOriginalRowPositions(tbody) {
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr.sortable-row"));
+    rows.forEach((row, index) => {
+        row.dataset.originalPosition = String(index);
+    });
+}
+
+function updateRowMovedState(row) {
+    if (!row) return;
+    const currentOrder = Number(
+        row.querySelector(".ordering-input")?.value ||
+        row.dataset.ordering ||
+        0,
     );
+    const originalOrder = Number(row.dataset.originalOrdering || 0);
+    const moved = originalOrder > 0 && currentOrder !== originalOrder;
+
+    row.dataset.orderMoved = moved ? "1" : "0";
+    row.classList.toggle("order-moved-row", moved);
+    const input = row.querySelector(".order-moved-input");
+    if (input) input.value = moved ? "1" : "0";
+    row.querySelector(".order-moved-indicator")?.classList.toggle(
+        "d-none",
+        !moved,
+    );
+}
+
+function rebuildGibunGroupHeaders(tbody) {
+    if (!tbody) return;
+
+    const headerTemplates = new Map();
+    tbody.querySelectorAll("tr.group-header").forEach((header) => {
+        const gibun = (header.dataset.gibun || "").trim();
+        if (gibun && !headerTemplates.has(gibun)) {
+            headerTemplates.set(gibun, header.cloneNode(true));
+        }
+    });
+
+    const rows = Array.from(tbody.querySelectorAll("tr.sortable-row"));
+    tbody.querySelectorAll("tr.group-header").forEach((header) =>
+        header.remove(),
+    );
+
+    let previousGibun = null;
+    let segmentIndex = 0;
     rows.forEach((row) => {
-        if (!row.dataset.originalGibun) return;
-
-        const input = row.querySelector(".col-gibun input");
-        if (input) {
-            row.dataset.gibun = input.value.trim();
-            input.addEventListener("input", () => {
-                row.dataset.gibun = input.value.trim();
-                updateOriginalGibunBadge(row);
-            });
+        const gibun = (row.dataset.gibun || "").trim();
+        if (gibun !== previousGibun) {
+            const template = headerTemplates.get(gibun);
+            if (template) {
+                const header = template.cloneNode(true);
+                segmentIndex += 1;
+                const checkbox = header.querySelector(".group-delete-trigger");
+                const label = header.querySelector(".form-check-label");
+                if (checkbox) {
+                    checkbox.id = `chk_group_segment_${segmentIndex}`;
+                    checkbox.checked = false;
+                }
+                if (label && checkbox) {
+                    label.htmlFor = checkbox.id;
+                }
+                tbody.insertBefore(header, row);
+            }
+            previousGibun = gibun;
         }
-
-        updateOriginalGibunBadge(row);
     });
-}
-
-function updateOriginalGibunBadge(row) {
-    const original = (row.dataset.originalGibun || "").trim();
-    const input = row.querySelector(".col-gibun input");
-    const current = (input ? input.value : row.dataset.gibun || "").trim();
-    const badge = row.querySelector("[data-original-gibun-badge]");
-
-    if (original && current && original !== current) {
-        row.classList.add("gibun-changed");
-        if (badge) {
-            badge.textContent = `원래: ${original}`;
-            badge.classList.remove("d-none");
-        }
-    } else {
-        row.classList.remove("gibun-changed");
-        if (badge) {
-            badge.textContent = "";
-            badge.classList.add("d-none");
-        }
-    }
-
-    updateOriginalGibunBadgesInHeaders();
-}
-
-function updateOriginalGibunBadgesInHeaders() {
-    const headerBadges = document.querySelectorAll(
-        "[data-original-gibun-group]",
-    );
-    headerBadges.forEach((el) => {
-        el.innerHTML = "";
-    });
-
-    const movedByOriginal = {};
-    document
-        .querySelectorAll("#manageItemsTable tbody tr.sortable-row")
-        .forEach((row) => {
-            const original = (row.dataset.originalGibun || "").trim();
-            const input = row.querySelector(".col-gibun input");
-            const current = (
-                input ? input.value : row.dataset.gibun || ""
-            ).trim();
-            if (!original || !current || original === current) return;
-
-            movedByOriginal[original] = (movedByOriginal[original] || 0) + 1;
-        });
-
-    document
-        .querySelectorAll("#manageItemsTable tbody tr.group-header")
-        .forEach((row) => {
-            const gibun = (row.dataset.gibun || "").trim();
-            if (!gibun || !movedByOriginal[gibun]) return;
-
-            const container = row.querySelector("[data-original-gibun-group]");
-            if (!container) return;
-
-            const badge = document.createElement("span");
-            badge.className =
-                "badge bg-warning text-dark original-gibun-group-badge";
-            badge.textContent = `이동됨 ${movedByOriginal[gibun]}건`;
-            container.appendChild(badge);
-        });
-}
-
-function applyGibunFromPosition(row, tbody) {
-    if (!row || !tbody) return "";
-
-    let cursor = row.previousElementSibling;
-    while (cursor) {
-        if (cursor.classList.contains("group-header")) {
-            break;
-        }
-        cursor = cursor.previousElementSibling;
-    }
-
-    const targetGibun = cursor ? (cursor.dataset.gibun || "").trim() : "";
-    if (!targetGibun) return "";
-
-    const input = row.querySelector(".col-gibun input");
-    if (input) {
-        input.value = targetGibun;
-    }
-
-    row.dataset.gibun = targetGibun;
-
-    row.querySelectorAll("[data-gibun]").forEach((el) => {
-        el.dataset.gibun = targetGibun;
-    });
-
-    updateOriginalGibunBadge(row);
-    return targetGibun;
-}
-
-function persistReorder(gibun, tbody) {
-    if (!gibun || !tbody) return;
-    const rows = Array.from(tbody.querySelectorAll("tr.sortable-row")).filter(
-        (row) => (row.dataset.gibun || "").trim() === gibun,
-    );
-    const orderedIds = rows.map((row) => row.dataset.itemId).filter(Boolean);
-    if (orderedIds.length === 0) return;
-    if (typeof REORDER_ITEMS_URL === "undefined") return;
-
-    const csrf = getCsrfToken();
-    fetch(REORDER_ITEMS_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrf,
-        },
-        body: JSON.stringify({ gibun, ordered_ids: orderedIds }),
-    }).catch((err) => console.warn("reorder failed", err));
 }

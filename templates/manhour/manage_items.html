@@ -14,7 +14,7 @@
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/manage_items.css' %}?v=20261118-2"
+    href="{% static 'css/manage_items.css' %}?v=20261123-6"
 />
 {% endblock css %} 
 
@@ -23,7 +23,6 @@
     const PASTE_DATA_POST_URL = "{% url 'manhour:paste_items' session.id %}";
     window.PASTE_DATA_ALLOW_DUPLICATES = true;
     const MASTER_DATA_LIST_URL = "{% url 'manhour:manage_items' session.id %}";
-    const REORDER_ITEMS_URL = "{% url 'manhour:reorder_items' session.id %}";
     const MASTER_ITEMS_URL = "{% url 'manhour:master_items' session.id %}";
     const DUPLICATE_MASTER_ITEMS_URL =
         "{% url 'manhour:duplicate_master_items' session.id %}";
@@ -43,7 +42,7 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script defer src="{% static 'js/paste_data.js' %}?v=20260831-1"></script>
-<script defer src="{% static 'js/manage_items.js' %}?v=20261118-2"></script>
+<script defer src="{% static 'js/manage_items.js' %}?v=20261123-9"></script>
 {% endblock js %} 
 
 
@@ -276,48 +275,53 @@
                                             ></i>
                                             {{ form.instance.gibun_input|default:"(기번 없음)" }}
                                         </div>
-
-                                        <div>
-                                            <a
-                                                href="{% url 'manhour:reorder_gibun' session.id form.instance.gibun_input 'up' %}"
-                                                class="btn btn-sm btn-outline-secondary border-0 p-0 me-1"
-                                                title="기번 위로 이동"
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div
+                                                class="gibun-reorder-controls"
+                                                role="group"
+                                                aria-label="{{ form.instance.gibun_input|default:'기번 없음' }} 기번 그룹 순서"
                                             >
-                                                <i
-                                                    class="bi bi-arrow-up-circle-fill fs-5"
-                                                ></i>
-                                            </a>
-
-                                            <a
-                                                href="{% url 'manhour:reorder_gibun' session.id form.instance.gibun_input 'down' %}"
-                                                class="btn btn-sm btn-outline-secondary border-0 p-0"
-                                                title="기번 아래로 이동"
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary border-0 p-0 me-1 gibun-reorder-btn"
+                                                    data-reorder-url="{% url 'manhour:reorder_gibun' session.id form.instance.gibun_input|default:'기번 없음' 'up' %}"
+                                                    data-direction="up"
+                                                    title="기번 위로 이동"
+                                                    aria-label="기번 그룹 위로 이동"
+                                                >
+                                                    <i class="bi bi-arrow-up-circle-fill fs-5"></i>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary border-0 p-0 gibun-reorder-btn"
+                                                    data-reorder-url="{% url 'manhour:reorder_gibun' session.id form.instance.gibun_input|default:'기번 없음' 'down' %}"
+                                                    data-direction="down"
+                                                    title="기번 아래로 이동"
+                                                    aria-label="기번 그룹 아래로 이동"
+                                                >
+                                                    <i class="bi bi-arrow-down-circle-fill fs-5"></i>
+                                                </button>
+                                            </div>
+                                            <div
+                                                class="form-check form-switch mb-0"
                                             >
-                                                <i
-                                                    class="bi bi-arrow-down-circle-fill"
-                                                ></i>
-                                            </a>
-                                        </div>
-
-                                        <div
-                                            class="form-check form-switch mb-0"
-                                        >
-                                            <input
-                                                class="form-check-input group-delete-trigger"
-                                                type="checkbox"
-                                                id="chk_group_{{ forloop.counter }}"
-                                                data-gibun="{{ form.instance.gibun_input|escape }}"
-                                                onclick="
-                                                    toggleGroupDelete(this)
-                                                "
-                                                aria-label="그룹 전체 삭제 토글"
-                                            />
-                                            <label
-                                                class="form-check-label small fw-bold text-danger"
-                                                for="chk_group_{{ forloop.counter }}"
-                                            >
-                                                그룹 전체 삭제
-                                            </label>
+                                                <input
+                                                    class="form-check-input group-delete-trigger"
+                                                    type="checkbox"
+                                                    id="chk_group_{{ forloop.counter }}"
+                                                    data-gibun="{{ form.instance.gibun_input|escape }}"
+                                                    onclick="
+                                                        toggleGroupDelete(this)
+                                                    "
+                                                    aria-label="그룹 전체 삭제 토글"
+                                                />
+                                                <label
+                                                    class="form-check-label small fw-bold text-danger"
+                                                    for="chk_group_{{ forloop.counter }}"
+                                                >
+                                                    그룹 전체 삭제
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -325,10 +329,12 @@
                             {% endifchanged %}
 
                             <tr
-                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row{% if form.instance.original_gibun and form.instance.original_gibun != form.instance.gibun_input %} gibun-changed{% endif %}"
+                                class="{% if form.instance.work_order == '간비' %}d-none{% endif %} sortable-row{% if form.instance.is_order_moved %} order-moved-row{% endif %}"
                                 data-item-id="{{ form.instance.pk }}"
                                 data-gibun="{{ form.instance.gibun_input|escape }}"
                                 data-original-gibun="{{ form.instance.original_gibun|default:form.instance.gibun_input|escape }}"
+                                data-order-moved="{% if form.instance.is_order_moved %}1{% else %}0{% endif %}"
+                                data-original-ordering="{{ form.instance.original_ordering|default:form.instance.ordering|default:0 }}"
                             >
                                 <td class="text-danger col-delete">
                                     <div class="d-none">
@@ -338,6 +344,12 @@
                                             name="{{ form.prefix }}-ordering"
                                             value="{{ form.instance.ordering|default:0 }}"
                                             class="ordering-input"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="{{ form.prefix }}-order_moved"
+                                            value="{% if form.instance.is_order_moved %}1{% else %}0{% endif %}"
+                                            class="order-moved-input"
                                         />
                                         <input
                                             type="hidden"
@@ -393,14 +405,10 @@
 
                                 <td class="col-gibun">
                                     {% render_field form.gibun_input class="table-input fw-bold gibun-current-input" placeholder="기번" readonly="readonly" tabindex="-1" aria-readonly="true" %}
-                                    <div class="mt-1">
-                                        <span
-                                            class="badge bg-warning text-dark original-gibun-badge {% if not form.instance.original_gibun or form.instance.original_gibun == form.instance.gibun_input %}d-none{% endif %}"
-                                            data-original-gibun-badge
-                                        >
-                                            원래: {{ form.instance.original_gibun }}
-                                        </span>
-                                    </div>
+                                    <span class="order-moved-indicator{% if not form.instance.is_order_moved %} d-none{% endif %}">
+                                        <i class="bi bi-arrows-move" aria-hidden="true"></i>
+                                        순서 이동
+                                    </span>
                                 </td>
 
                                 <td class="col-wo">

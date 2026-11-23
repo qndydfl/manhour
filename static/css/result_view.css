@@ -306,39 +306,26 @@ body.assignment-console-body
 
 .assignment-section-head {
     margin: 28px 0 13px;
-
     display: flex;
-
     align-items: flex-end;
-
     justify-content: space-between;
-
     gap: 20px;
 }
 
 .assignment-section-label {
     display: block;
-
     margin-bottom: 5px;
-
     color: var(--assignment-blue);
-
     font-size: var(--font-size-xs);
-
     font-weight: 800;
-
     letter-spacing: 0.15em;
 }
 
 .assignment-section-title {
     margin: 0;
-
     color: var(--assignment-text);
-
     font-size: 20px;
-
     font-weight: 700;
-
     letter-spacing: -0.03em;
 }
 
@@ -347,48 +334,35 @@ body.assignment-console-body
 ========================================================= */
 
 .assignment-table-tools {
+    width: min(320px, 100%);
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 }
 
 .assignment-search {
     position: relative;
-
     width: min(320px, 100%);
 }
 
 .assignment-search i {
     position: absolute;
-
     top: 50%;
     left: 12px;
-
     transform: translateY(-50%);
-
     color: #94a3b8;
-
     font-size: var(--font-size-sm);
 }
 
 #tableSearch {
     width: 100%;
-
     min-height: 38px;
-
     padding: 0 12px 0 34px;
-
     border: 1px solid var(--assignment-border);
-
     border-radius: 8px !important;
-
     outline: none;
-
     background: #ffffff;
-
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
 }
 
 #tableSearch:focus {

@@ -98,6 +98,10 @@ class WorkSession(models.Model):
         default="",
         verbose_name="교대 패턴 상태",
     )
+    items_use_global_order = models.BooleanField(
+        default=False,
+        verbose_name="작업 항목 전체 순서 사용",
+    )
 
     @property
     def is_night_shift(self):
@@ -158,6 +162,15 @@ class WorkItem(models.Model):
 
     # [신규 추가] 작업 순서 (사용자가 변경 가능)
     ordering = models.PositiveIntegerField(default=0)
+    original_ordering = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="원래 작업 순서",
+    )
+    is_order_moved = models.BooleanField(
+        default=False,
+        verbose_name="순서 이동 여부",
+    )
 
     # TaskMaster와 연결 (선택 사항)
     task_master = models.ForeignKey(
@@ -171,6 +184,8 @@ class WorkItem(models.Model):
     def save(self, *args, **kwargs):
         if not self.original_gibun and self.gibun_input:
             self.original_gibun = self.gibun_input
+        if self.original_ordering is None:
+            self.original_ordering = self.ordering
         super().save(*args, **kwargs)
 
     def __str__(self):

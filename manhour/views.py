@@ -753,6 +753,7 @@ class CreateSessionView(SimpleLoginRequiredMixin, View):
                 schedule_status=schedule_status,
                 is_active=True,
                 site=workplace,
+                items_use_global_order=False,
             )
 
             # -------------------------------------------------------------
@@ -926,13 +927,19 @@ class ResultView(WorkplaceScopedQuerysetMixin, SimpleLoginRequiredMixin, DetailV
 
         # [핵심 수정] 템플릿에서 쉽게 쓰도록 Python 단에서 이름 합치기 처리
         items = list(items_qs)
-        items.sort(
-            key=lambda x: (
-                prio_map.get((x.gibun_input or "").strip().upper(), 999),
-                int(x.ordering or 0),
-                x.id,
+        if session.items_use_global_order:
+            items.sort(key=lambda item: (int(item.ordering or 0), item.id))
+        else:
+            items.sort(
+                key=lambda item: (
+                    prio_map.get(
+                        (item.gibun_input or "").strip().upper(),
+                        999,
+                    ),
+                    int(item.ordering or 0),
+                    item.id,
+                )
             )
-        )
         # 조정값 복원
         adjusted_mh_map = self.request.session.get(f"adjusted_mh_map_{session.id}", {})
         adjusted_mh_list = self.request.session.get(f"adjusted_mh_{session.id}")
@@ -1009,21 +1016,31 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # ---------------------------------------------------------
         # 1. [정렬 로직] 기번 우선순위 -> 작업순서 -> 등록순서
         # ---------------------------------------------------------
-        gibun_priority_map = {
-            (gp.gibun or "").strip().upper(): gp.order
-            for gp in GibunPriority.objects.filter(session=session)
-        }
-
-        all_items = WorkItem.objects.filter(session=session)
-
-        sorted_item_list = sorted(
-            all_items,
-            key=lambda x: (
-                gibun_priority_map.get((x.gibun_input or "").strip().upper(), 999),
-                int(x.ordering or 0),
-                x.id,
-            ),
+        gibun_priorities = list(
+            GibunPriority.objects.filter(session=session).order_by("order", "id")
         )
+        all_items = list(WorkItem.objects.filter(session=session))
+        if session.items_use_global_order:
+            sorted_item_list = sorted(
+                all_items,
+                key=lambda item: (int(item.ordering or 0), item.id),
+            )
+        else:
+            gibun_priority_map = {
+                (gp.gibun or "").strip().upper(): gp.order
+                for gp in gibun_priorities
+            }
+            sorted_item_list = sorted(
+                all_items,
+                key=lambda item: (
+                    gibun_priority_map.get(
+                        (item.gibun_input or "").strip().upper(),
+                        999,
+                    ),
+                    int(item.ordering or 0),
+                    item.id,
+                ),
+            )
 
         sorted_ids = [item.id for item in sorted_item_list]
 
@@ -1063,10 +1080,6 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # ---------------------------------------------------------
         # 3. 화면 표시용 데이터 준비
         # ---------------------------------------------------------
-        gibun_priorities = GibunPriority.objects.filter(session=session).order_by(
-            "order"
-        )
-
         workers = session.worker_set.all().order_by("name")
         total_worker_count = workers.count()
         default_limit_mh = get_default_worker_limit_mh(session.site)
@@ -1195,7 +1208,9 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
         # ---------------------------------------------------------
         # 1. 저장 트랜잭션
         # ---------------------------------------------------------
+        has_moved_row = False
         with transaction.atomic():
+
             # -----------------------------------------------------
             # (0) 근무 한도/명단 업데이트를 먼저 반영
             # -----------------------------------------------------
@@ -1283,6 +1298,27 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                         instance.original_gibun = db_row["gibun_input"]
                 if not instance.original_gibun and instance.gibun_input:
                     instance.original_gibun = instance.gibun_input
+
+                # ordering은 화면의 드래그 순서를 위해 별도 hidden input으로
+                # 전달되며 WorkItemForm 필드에는 포함되지 않습니다. 다른
+                # 기번으로 이동한 행도 저장 후 같은 위치를 유지하도록 직접
+                # 반영합니다.
+                raw_ordering = (
+                    form.data.get(form.add_prefix("ordering")) or ""
+                ).strip()
+                try:
+                    instance.ordering = max(0, int(raw_ordering))
+                except (TypeError, ValueError):
+                    pass
+
+                instance.is_order_moved = (
+                    form.data.get(form.add_prefix("order_moved")) == "1"
+                )
+                if instance.is_order_moved:
+                    has_moved_row = True
+
+                # 행 이동은 기번 소속을 변경하지 않고 전체 표시 순서만 변경합니다.
+
                 if idx < len(mh_adjusted_list):
                     raw_adjusted = (mh_adjusted_list[idx] or "").strip()
                     if raw_adjusted == "":
@@ -1451,19 +1487,15 @@ class ManageItemsView(SimpleLoginRequiredMixin, View):
                     if current_names_set:
                         instance.assignments.all().delete()
 
-            # -----------------------------------------------------
-            # (3) 남은 기번이 없으면 우선순위도 정리
-            # -----------------------------------------------------
-            remaining_gibuns = set(
-                WorkItem.objects.filter(session=session)
-                .exclude(gibun_input__isnull=True)
-                .exclude(gibun_input__exact="")
-                .values_list("gibun_input", flat=True)
-                .distinct()
-            )
-            GibunPriority.objects.filter(session=session).exclude(
-                gibun__in=remaining_gibuns
-            ).delete()
+            # 작업 행이 모두 다른 기번으로 이동해도 기존 기번 구역과
+            # 우선순위는 유지합니다. 빈 기번 구역은 관리 화면에 계속
+            # 표시되어 이후 작업을 다시 옮길 위치로 사용할 수 있습니다.
+
+        if has_moved_row:
+            session.items_use_global_order = True
+        else:
+            session.items_use_global_order = False
+        session.save(update_fields=["items_use_global_order"])
 
         # ---------------------------------------------------------
         # 2. 자동 배정/스케줄 동기화 재실행
@@ -2658,7 +2690,11 @@ class PersonalScheduleView(
                 "desc": desc_disp,
                 "mh": float(a.allocated_mh or 0.0),
                 "gibun": gibun_val,
-                "sort_key": (prio_rank, gibun_val, ordering_val, item_id),
+                "sort_key": (
+                    (ordering_val, item_id)
+                    if session.items_use_global_order
+                    else (prio_rank, gibun_val, ordering_val, item_id)
+                ),
             }
 
             is_fixed_anchor = False
@@ -3199,10 +3235,9 @@ class ReorderItemsView(SimpleLoginRequiredMixin, View):
 
         try:
             data = json.loads(request.body or "{}")
-            gibun = (data.get("gibun") or "").strip()
             ordered_ids = data.get("ordered_ids") or []
 
-            if not gibun or not isinstance(ordered_ids, list):
+            if not isinstance(ordered_ids, list):
                 return JsonResponse(
                     {"status": "error", "message": "잘못된 요청입니다."},
                     status=400,
@@ -3217,9 +3252,7 @@ class ReorderItemsView(SimpleLoginRequiredMixin, View):
                 )
 
             items = list(
-                WorkItem.objects.filter(
-                    session=session, gibun_input=gibun, id__in=ordered_ids_int
-                )
+                WorkItem.objects.filter(session=session, id__in=ordered_ids_int)
             )
             if len(items) != len(ordered_ids_int):
                 return JsonResponse(
@@ -3229,40 +3262,17 @@ class ReorderItemsView(SimpleLoginRequiredMixin, View):
 
             item_map = {item.id: item for item in items}
 
-            # 기번 우선순위는 화면에서 첫 등장 순서대로 재계산
-            gibun_order = []
-            seen_gibun = set()
-            for item_id in ordered_ids_int:
-                item = item_map.get(item_id)
-                if not item:
-                    continue
-                gibun = (item.gibun_input or "").strip()
-                if gibun and gibun not in seen_gibun:
-                    gibun_order.append(gibun)
-                    seen_gibun.add(gibun)
-
             with transaction.atomic():
-                for idx, gibun in enumerate(gibun_order, start=1):
-                    GibunPriority.objects.update_or_create(
-                        session=session,
-                        gibun=gibun,
-                        defaults={"order": idx},
-                    )
-
-                # 기번 내부 순서 저장
-                per_gibun_index = {}
-                for item_id in ordered_ids_int:
+                for idx, item_id in enumerate(ordered_ids_int, start=1):
                     item = item_map.get(item_id)
                     if not item:
                         continue
-                    gibun = (item.gibun_input or "").strip()
-                    if gibun not in per_gibun_index:
-                        per_gibun_index[gibun] = 0
-                    per_gibun_index[gibun] += 1
-                    new_ordering = per_gibun_index[gibun] * 10
+                    new_ordering = idx * 10
                     if item.ordering != new_ordering:
                         item.ordering = new_ordering
                         item.save(update_fields=["ordering"])
+                session.items_use_global_order = True
+                session.save(update_fields=["items_use_global_order"])
 
             return JsonResponse({"status": "success"})
 
@@ -3277,6 +3287,12 @@ class ReorderItemsView(SimpleLoginRequiredMixin, View):
 
 class ReorderGibunView(SimpleLoginRequiredMixin, View):
     def get(self, request, session_id, gibun_name, direction):
+        return self._reorder(request, session_id, gibun_name, direction)
+
+    def post(self, request, session_id, gibun_name, direction):
+        return self._reorder(request, session_id, gibun_name, direction, ajax=True)
+
+    def _reorder(self, request, session_id, gibun_name, direction, ajax=False):
         session = get_session_or_404(request, session_id)
 
         # 1. 현재 세션의 모든 기번 우선순위 객체를 순서대로 가져옴
@@ -3289,12 +3305,22 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
         target_gp = next((gp for gp in priorities if gp.gibun == gibun_name), None)
 
         if not target_gp:
+            if ajax:
+                return JsonResponse(
+                    {"status": "error", "message": "기번을 찾을 수 없습니다."},
+                    status=404,
+                )
             return redirect("manhour:manage_items", session_id=session.id)
 
         # 3. 리스트 내 인덱스 찾기
         try:
             current_idx = priorities.index(target_gp)
         except ValueError:
+            if ajax:
+                return JsonResponse(
+                    {"status": "error", "message": "기번을 찾을 수 없습니다."},
+                    status=404,
+                )
             return redirect("manhour:manage_items", session_id=session.id)
 
         # 4. 순서 바꾸기 (Swap)
@@ -3309,6 +3335,15 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
                 priorities[current_idx + 1],
                 priorities[current_idx],
             )
+        else:
+            if ajax:
+                return JsonResponse(
+                    {
+                        "status": "success",
+                        "moved": False,
+                        "message": "더 이상 이동할 수 없습니다.",
+                    }
+                )
 
         # 5. 재번호 매기기 (1, 2, 3... 순서로 DB 업데이트)
         with transaction.atomic():
@@ -3318,5 +3353,63 @@ class ReorderGibunView(SimpleLoginRequiredMixin, View):
                     gp.order = new_order
                     gp.save(update_fields=["order"])
 
+            ordered_items = []
+            seen_gibuns = set()
+            items = list(
+                WorkItem.objects.filter(session=session).order_by("ordering", "id")
+            )
+
+            for gp in priorities:
+                gibun_key = (gp.gibun or "").strip().upper()
+                if not gibun_key or gibun_key in seen_gibuns:
+                    continue
+                seen_gibuns.add(gibun_key)
+                ordered_items.extend(
+                    item
+                    for item in items
+                    if (
+                        item.gibun_input or ""
+                    ).strip().upper()
+                    == gibun_key
+                )
+
+            ordered_items.extend(
+                item
+                for item in items
+                if (
+                    item.gibun_input or ""
+                ).strip().upper()
+                not in seen_gibuns
+            )
+
+            for position, item in enumerate(ordered_items, start=1):
+                item.ordering = position * 10
+            WorkItem.objects.bulk_update(ordered_items, ["ordering"])
+
+            session.items_use_global_order = False
+            session.save(update_fields=["items_use_global_order"])
+
+            adjusted_mh_map = request.session.get(
+                f"adjusted_mh_map_{session.id}",
+                {},
+            )
+            request.session[f"strict_limit_{session.id}"] = True
+            run_auto_assign(
+                session.id,
+                adjusted_mh_map,
+                allow_over_limit=False,
+            )
+            run_sync_schedule(session.id)
+            refresh_worker_totals(session)
+
         # 6. 관리 페이지로 복귀
+        if ajax:
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "moved": True,
+                    "gibun": gibun_name,
+                    "direction": direction,
+                }
+            )
         return redirect("manhour:manage_items", session_id=session.id)
