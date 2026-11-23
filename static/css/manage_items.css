@@ -220,7 +220,8 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 .worker-limit-help-text {
     padding: 0 12px 12px;
     color: #64748b;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
 }
 
 .worker-limit-duplicate-notice {
@@ -230,7 +231,8 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
     border-radius: 8px;
     background: #fff7f7;
     color: #b91c1c;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
     line-height: 1.5;
     white-space: pre-line;
 }
@@ -699,7 +701,7 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
     border-radius: 9px;
     background: #ffffff;
     color: #475569;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: 750;
     line-height: 1.35;
 }
@@ -728,7 +730,7 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
 
 .mh-adjust-toolbar-copy small {
     color: #64748b;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: 750;
 }
 
