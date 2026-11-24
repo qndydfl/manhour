@@ -34,7 +34,7 @@ class WorkSessionAdmin(admin.ModelAdmin):
 
 # 장고 관리소에 등록!
 class BackgroundImageAdmin(admin.ModelAdmin):
-    list_display = ("key", "image_url", "image_file")
+    list_display = ("key", "image_url", "image_file", "video_file")
     search_fields = ("key",)
     exclude = ("youtube_url",)
 

@@ -1,11 +1,11 @@
 {% extends 'manhour/base/portal_base.html' %} 
 {% load static %} 
 {% load i18n %}
-{% load background_tags %} 
+{% load background_tags %}
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261124-1" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261124-6" />
 {% endblock css %} 
 
 {% block js %}
@@ -29,14 +29,46 @@
         }, 260);
     });
 </script>
-<script defer src="{% static 'js/index.js' %}?v=20261108-1"></script>
+<script defer src="{% static 'js/index.js' %}?v=20261124-1"></script>
 {% endblock js %} 
 
 {% block content %} 
-{% background_gallery "index_operations_image" as index_operations_images %}
+{% background_config "index_ocean_background" as index_ocean_background %}
 {% include "manhour/partials/portal_header.html" %}
 
+<div class="portal-ocean-background" aria-hidden="true">
+        {% if index_ocean_background.video_url %}
+        <video
+            class="portal-ocean-video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            onerror="this.hidden = true"
+        >
+            <source src="{{ index_ocean_background.video_url }}" />
+        </video>
+        {% elif index_ocean_background.image_url %}
+        <img
+            class="portal-ocean-image"
+            src="{{ index_ocean_background.image_url }}"
+            alt=""
+        />
+        {% endif %}
+        <div class="portal-ocean-fallback">
+            <span class="ocean-fish ocean-fish-1"></span>
+            <span class="ocean-fish ocean-fish-2"></span>
+            <span class="ocean-fish ocean-fish-3"></span>
+            <span class="ocean-fish ocean-fish-4"></span>
+            <span class="ocean-bubbles ocean-bubbles-1"></span>
+            <span class="ocean-bubbles ocean-bubbles-2"></span>
+        </div>
+        <div class="portal-ocean-overlay"></div>
+    </div>
+
 <main class="portal-main-container" data-index-page>
+
     <!-- Bento Grid 시작 -->
     <div class="bento-grid">
         <!-- CARD 1: Workspaces & Operational Stats (Hero Card) -->
@@ -294,20 +326,25 @@
         </article>
 
         <!-- CARD 3: METAR Weather Monitor -->
-        <article
+        <details
             class="bento-card bento-card-metar"
             id="metarPanel"
             data-index-metar="panel"
         >
-            <div class="bento-card-head">
+            <summary class="bento-card-head metar-collapse-summary">
                 <div>
                     <span class="bento-badge">LIVE WEATHER</span>
                     <h2 class="metar-card-title">Airport METAR</h2>
                 </div>
-                <span class="metar-head-icon" aria-hidden="true">
-                    <i class="bi bi-cloud-sun-fill"></i>
+                <span class="metar-summary-actions" aria-hidden="true">
+                    <span class="metar-head-icon">
+                        <i class="bi bi-cloud-sun-fill"></i>
+                    </span>
+                    <i class="bi bi-chevron-down metar-collapse-chevron"></i>
                 </span>
-            </div>
+            </summary>
+
+            <div class="metar-collapsible-content">
 
             <div
                 id="metarTabs"
@@ -407,74 +444,9 @@
                     >Loading METAR...</code
                 >
             </div>
-        </article>
-
-        <!-- CARD 4: Admin Operations Media -->
-        <article class="bento-card bento-card-media">
-            <div class="bento-card-head">
-                <span class="bento-badge">OPERATIONS IMAGE</span>
-                <i class="bi bi-image"></i>
             </div>
+        </details>
 
-            <div
-                class="media-container media-slideshow"
-                data-media-slideshow
-                aria-roledescription="carousel"
-                aria-label="항공 정비 운영 이미지"
-            >
-                {% if index_operations_images %}
-                <div class="media-slides" aria-live="polite">
-                    {% for operation_image in index_operations_images %}
-                    <figure
-                        class="media-slide{% if forloop.first %} is-active{% endif %}"
-                        data-media-slide
-                        aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
-                    >
-                        <img
-                            src="{{ operation_image.image_url }}"
-                            class="media-img"
-                            alt="항공 정비 운영 이미지 {{ forloop.counter }}"
-                            {% if not forloop.first %}loading="lazy"{% endif %}
-                        />
-                    </figure>
-                    {% endfor %}
-                </div>
-
-                {% if index_operations_images|length > 1 %}
-                <button type="button" class="media-slide-control media-slide-prev" data-media-prev aria-label="이전 이미지">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button type="button" class="media-slide-control media-slide-next" data-media-next aria-label="다음 이미지">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-
-                <div class="media-slide-dots" aria-label="이미지 선택">
-                    {% for operation_image in index_operations_images %}
-                    <button
-                        type="button"
-                        class="media-slide-dot{% if forloop.first %} is-active{% endif %}"
-                        data-media-dot="{{ forloop.counter0 }}"
-                        aria-label="{{ forloop.counter }}번 이미지 보기"
-                        aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
-                    ></button>
-                    {% endfor %}
-                </div>
-                <span class="media-slide-counter" data-media-counter>1 / {{ index_operations_images|length }}</span>
-                {% endif %}
-                {% else %}
-                <div class="media-placeholder">
-                    <i class="bi bi-airplane-engines"></i>
-                    <strong>Operations Image</strong>
-                    {% if request.session.user_role == "admin" %}
-                    <small>
-                        관리자 페이지의 Background images에서<br />
-                        key를 <b>index_operations_image_01</b> 형식으로 등록하세요.
-                    </small>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </article>
     </div>
 </main>
 {% endblock content %}

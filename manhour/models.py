@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import FileExtensionValidator
 from django.db.models import Q
 from .workplace_config import get_default_workplace_choices
 
@@ -236,6 +237,13 @@ class BackgroundImage(models.Model):
         upload_to="backgrounds/",
         blank=True,
         null=True,
+    )
+    video_file = models.FileField(
+        upload_to="backgrounds/videos/",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(["mp4", "webm"])],
+        help_text="홈 배경 동영상은 MP4 또는 WebM 파일을 사용하세요.",
     )
     youtube_url = models.URLField(blank=True, help_text="Full YouTube URL")
 

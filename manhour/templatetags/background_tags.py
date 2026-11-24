@@ -53,11 +53,13 @@ def background_config(key, default_url=""):
     except (OperationalError, ProgrammingError):
         return {
             "image_url": default_url,
+            "video_url": "",
             "youtube_embed_url": "",
         }
 
     image_url = default_url
     youtube_embed_url = ""
+    video_url = ""
 
     if record:
         if record.image_file:
@@ -67,9 +69,12 @@ def background_config(key, default_url=""):
 
         if record.youtube_url:
             youtube_embed_url = _build_youtube_embed_url(record.youtube_url)
+        if record.video_file:
+            video_url = record.video_file.url
 
     return {
         "image_url": image_url,
+        "video_url": video_url,
         "youtube_embed_url": youtube_embed_url,
     }
 
