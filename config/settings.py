@@ -33,8 +33,8 @@ ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # 홈페이지 navbar에 표시되는 배포 정보
-SITE_REVISION = "05_06"
-SITE_LAST_UPDATED = "18-NOV-2026"
+SITE_REVISION = "2025_05_07"
+SITE_LAST_UPDATED = "24-NOV-2026"
 
 
 INSTALLED_APPS = [
