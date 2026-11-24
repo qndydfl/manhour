@@ -150,23 +150,14 @@ body.assignment-console-body
 
 .assignment-brand strong {
     display: block;
-    font-size: var(--font-size-sm);
+    font-size: var(--portal-header-font-size);
     font-weight: 800;
     letter-spacing: 0.12em;
 }
 
-.assignment-brand span {
-    display: block;
-    margin-top: 2px;
-    color: #3487fa;
-    font-size: var(--font-size-xs);
-}
-
 .assignment-topbar-actions {
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 }
 
@@ -232,12 +223,9 @@ body.assignment-console-body
 
 .result-view-container {
     width: min(var(--assignment-width), calc(100% - 56px));
-
     max-width: none !important;
-
     margin: 0 auto !important;
-
-    padding: 38px 0 60px !important;
+    padding: var(--nav-content-gap) 0 60px !important;
 }
 
 /* =========================================================

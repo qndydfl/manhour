@@ -76,6 +76,20 @@ iframe {
 
 /* SHARED - standard phone layout */
 @media (max-width: 700px) {
+    .mh-session-list-page .mh-session-card {
+        padding: 14px;
+    }
+
+    .mh-session-list-page .mh-session-grid {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .mh-session-list-page .mh-session-top {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
     :root {
         --nav-content-gap-mobile: 12px;
     }
@@ -199,7 +213,6 @@ iframe {
     }
 
     .assignment-topbar-btn span,
-    .portal-brand-description,
     .portal-release-meta,
     .portal-account-copy {
         display: none;
@@ -252,7 +265,8 @@ iframe {
     .mh-create-page,
     .master-v2-page,
     .personal-v2-page,
-    .workforce-editor-page {
+    .workforce-editor-page,
+    .portal-main-container {
         width: calc(100% - 16px);
         padding-top: var(--nav-content-gap-mobile);
         padding-bottom: var(--nav-content-gap-mobile);
@@ -1078,7 +1092,7 @@ iframe {
     .personal-v2-page,
     .workforce-editor-page,
     .result-view-container {
-        width: calc(100% - 20px);
+        width: calc(100% - 16px);
     }
 
     .manning-content {
@@ -1252,7 +1266,7 @@ iframe {
     }
 
     .settings-v2-page {
-        width: calc(100% - 20px);
+        width: calc(100% - 16px);
         padding-right: 0;
         padding-left: 0;
     }
@@ -1432,6 +1446,20 @@ iframe {
 
 /* SHARED MOBILE HEADER - compact navigation controls */
 @media (max-width: 700px) {
+    .mh-session-list-page .mh-session-card {
+        padding: 14px;
+    }
+
+    .mh-session-list-page .mh-session-grid {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .mh-session-list-page .mh-session-top {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
     .assignment-topbar .assignment-topbar-btn {
         width: 28px;
         min-width: 28px;

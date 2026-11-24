@@ -3,7 +3,7 @@
 ========================================================= */
 
 .settings-v2-page {
-    width: min(1180px, calc(100% - 40px));
+    width: min(var(--assignment-width), calc(100% - 56px));
     min-height: calc(100vh - var(--assignment-topbar-height, 72px));
     margin: 0 auto;
     padding: var(--nav-content-gap) 0;

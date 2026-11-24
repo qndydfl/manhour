@@ -3,10 +3,10 @@
 ========================================================= */
 
 .master-v2-page {
-    width: min(1480px, calc(100% - 56px));
+    width: min(var(--assignment-width), calc(100% - 56px));
     min-width: 0;
     margin: 0 auto;
-    padding: 38px 0 70px;
+    padding: var(--nav-content-gap) 0;
 }
 
 /* =========================================================

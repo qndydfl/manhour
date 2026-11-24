@@ -3,9 +3,9 @@
 ========================================================= */
 
 .mh-create-page {
-    width: min(1150px, calc(100% - 56px));
+    width: min(var(--assignment-width), calc(100% - 56px));
     margin: 0 auto;
-    padding: 42px 0 70px;
+    padding: var(--nav-content-gap) 0 !important;
 }
 
 .mh-create-layout {

@@ -1,7 +1,6 @@
 /* =========================================================
     INTEGRATED DATA OPERATIONS V2
 ========================================================= */
-
 body.assignment-console-body {
     --manage-row-hover-bg: #d8e6fa;
     --manage-row-hover-input-bg: #f4f8ff;
@@ -73,32 +72,21 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 /* =========================================================
    CARDS
 ========================================================= */
-
 #manage-form .card {
     border: 1px solid #dbe4ed !important;
-
     border-radius: 14px !important;
-
     overflow: hidden;
-
     background: var(--assignment-white);
-
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
 }
 
 #manage-form .card-header {
     min-height: 48px;
-
     padding: 0 15px !important;
-
     display: flex;
-
     align-items: center;
-
     background: #eef4fa !important;
-
     border-bottom: 1px solid #dbe4ed !important;
-
     font-size: var(--font-size-base);
 }
 

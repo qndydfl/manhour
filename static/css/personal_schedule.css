@@ -3,11 +3,12 @@
 ========================================================= */
 
 .personal-v2-page {
-    width: min(1250px, calc(100% - 56px));
-    max-width: none !important;
+    width: min(var(--assignment-width), calc(100% - 56px))!important;
+    max-width: none;
     margin: 0 auto;
-    padding: 38px 0 70px;
+    padding: var(--nav-content-gap) 0;
 }
+
 
 /* --------------------------------------------------------------------------
    MOBILE - PERSONAL SCHEDULE HEADER

@@ -6,7 +6,7 @@
     width: min(var(--portal-width, 1480px), calc(100% - 64px));
     max-width: none;
     margin: 0 auto;
-    padding: 1.5rem 0;
+    padding: var(--nav-content-gap) 0;
 }
 
 /* 12-Column Responsive Bento Grid */
@@ -1370,7 +1370,7 @@
 @media (max-width: 700px) {
     .portal-main-container {
         width: calc(100% - 16px);
-        padding: 0.75rem 0;
+        padding: var(--nav-content-gap-mobile) 0;
     }
     .bento-card-metar {
         display: none;
@@ -1468,6 +1468,8 @@
     --portal-shadow: 0 12px 40px rgba(15, 23, 42, 0.06);
 
     --portal-width: 1480px;
+
+    --portal-header-font-size: 1.12rem;
 }
 
 html {
@@ -1571,15 +1573,8 @@ body.portal-body {
 }
 
 .portal-brand-name {
-    font-size: 14px;
+    font-size: var(--portal-header-font-size);
     font-weight: 800;
-    letter-spacing: -0.01em;
-}
-
-.portal-brand-description {
-    margin-top: 2px;
-    color: #3487fa;
-    font-size: var(--font-size-xs);
     letter-spacing: -0.01em;
 }
 
@@ -1926,10 +1921,6 @@ body.portal-body {
     .portal-header-inner {
         width: calc(100% - 28px);
         min-height: 48px;
-    }
-
-    .portal-brand-description {
-        display: none;
     }
 
     .portal-account-copy {
