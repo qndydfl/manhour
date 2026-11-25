@@ -1,0 +1,10 @@
+/* Desktop content only; keep existing mobile layouts and print sizing. */
+@media screen and (min-width: 901px) {
+    body.assignment-console-body > main,
+    body.assignment-console-body > .result-view-container {
+        box-sizing: border-box;
+        width: calc(100% - 32px) !important;
+        max-width: 1480px !important;
+        margin-inline: auto;
+    }
+}

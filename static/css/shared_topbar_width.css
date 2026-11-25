@@ -1,0 +1,15 @@
+/* Homepage, Manhour and C/B: align the inner content, not the full-width bar. */
+body .portal-header .portal-header-inner,
+body .assignment-topbar .assignment-topbar-inner,
+body .cb-open-topbar .cb-open-topbar-inner {
+    width: min(1480px, calc(100% - 56px));
+    padding-inline: 0;
+}
+
+@media (max-width: 900px) {
+    body .portal-header .portal-header-inner,
+    body .assignment-topbar .assignment-topbar-inner,
+    body .cb-open-topbar .cb-open-topbar-inner {
+        width: calc(100% - 16px);
+    }
+}

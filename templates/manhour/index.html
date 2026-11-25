@@ -5,7 +5,7 @@
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261124-6" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261125-5" />
 {% endblock css %} 
 
 {% block js %}
@@ -68,6 +68,11 @@
     </div>
 
 <main class="portal-main-container" data-index-page>
+    <div class="portal-clock-strip" aria-label="현재 시간">
+        <span>LOCAL <strong data-index-clock="local-time">--:--:--</strong>
+            <small data-index-clock="local-zone" title="브라우저 현지 시간대"></small></span>
+        <span>UTC <strong data-index-clock="utc-time">--:--</strong></span>
+    </div>
 
     <!-- Bento Grid 시작 -->
     <div class="bento-grid">
@@ -85,27 +90,6 @@
                             <i class="bi bi-gear-wide-connected"></i>
                         </span>
                     </div>
-                </div>
-                <div class="hero-weather-summary" aria-label="현재 공항 날씨">
-                    <span class="hero-weather-icon"
-                        ><i class="bi bi-cloud-sun-fill"></i
-                    ></span>
-                    <span class="hero-weather-copy">
-                        <small data-index-metar="summary-station"
-                            >AIRPORT</small
-                        >
-                        <strong data-index-metar="summary-temp">--</strong>
-                    </span>
-                    <span
-                        class="hero-weather-detail"
-                        data-index-metar="summary-wind"
-                        >Loading...</span
-                    >
-                    <span
-                        class="hero-weather-category"
-                        data-index-metar="summary-category"
-                        >--</span
-                    >
                 </div>
             </div>
 
@@ -211,8 +195,9 @@
                         class="metric-item metric-item-master"
                     >
                         <span class="metric-label"
-                            ><i class="bi bi-database"></i> Master Data</span
-                        >
+                            ><i class="bi bi-database"></i> Master 
+                            <small class="mobile-size">Data</small>
+                        </span>
                         <strong
                             class="metric-value master-data-count-num"
                             data-index-count="master"
@@ -224,8 +209,9 @@
                         class="metric-item metric-item-active"
                     >
                         <span class="metric-label"
-                            ><i class="bi bi-activity"></i> Active Sessions</span
-                        >
+                            ><i class="bi bi-activity"></i> Active
+                            <small class="mobile-size"> Sessions</small>
+                        </span>
                         <strong
                             class="metric-value active-count-num"
                             data-index-count="active"
@@ -249,81 +235,30 @@
             </div>
         </section>
 
-        <!-- CARD 2: Dual Clock (Local & UTC) -->
-        <article class="bento-card bento-card-clock">
-            <div class="bento-card-head">
-                <span class="bento-badge">TIME CONSOLE</span>
-                <i class="bi bi-clock"></i>
-            </div>
-
-            <div class="clock-console-grid">
-                <section class="clock-console-item local-clock">
-                    <div class="clock-console-label-row">
-                        <span class="clock-label">LOCAL</span>
-                        <span
-                            class="clock-zone-tag"
-                            data-index-clock="local-zone"
-                            title="브라우저 현지 시간대"
-                        >GMT+9</span>
-                    </div>
-
-                    <div class="analog-clock" aria-label="현재 현지 시간">
-                        <span class="clock-number clock-number-12">12</span>
-                        <span class="clock-number clock-number-3">3</span>
-                        <span class="clock-number clock-number-6">6</span>
-                        <span class="clock-number clock-number-9">9</span>
-                        <span class="clock-hand clock-hand-hour" data-clock-hand="local-hour"></span>
-                        <span class="clock-hand clock-hand-minute" data-clock-hand="local-minute"></span>
-                        <span class="clock-hand clock-hand-second" data-clock-hand="local-second"></span>
-                        <span class="clock-center-dot"></span>
-                    </div>
-
-                    <div
-                        id="digital-time"
-                        class="clock-main clock-digital"
-                        data-index-clock="local-time"
+        <section class="bento-card portal-current-weather" aria-labelledby="portalCurrentWeatherTitle">
+            <h2 class="bento-title" id="portalCurrentWeatherTitle">현재 공항 날씨</h2>
+            <div class="hero-weather-summary">
+                <span class="hero-weather-icon"
+                    ><i class="bi bi-cloud-sun-fill"></i
+                ></span>
+                <span class="hero-weather-copy">
+                    <small data-index-metar="summary-station"
+                        >AIRPORT</small
                     >
-                        --:--:--
-                    </div>
-                    <div class="clock-sub">
-                        <span id="digital-date" data-index-clock="local-date">---- -- --</span>
-                        ·
-                        <span id="digital-weekday" data-index-clock="local-weekday">---</span>
-                    </div>
-                </section>
-
-                <section class="clock-console-item utc-clock">
-                    <div class="clock-console-label-row">
-                        <span class="clock-label">UTC</span>
-                        <span class="utc-tag">ZULU</span>
-                    </div>
-
-                    <div class="analog-clock analog-clock-utc" aria-label="현재 UTC 시간">
-                        <span class="clock-number clock-number-12">12</span>
-                        <span class="clock-number clock-number-3">3</span>
-                        <span class="clock-number clock-number-6">6</span>
-                        <span class="clock-number clock-number-9">9</span>
-                        <span class="clock-hand clock-hand-hour" data-clock-hand="utc-hour"></span>
-                        <span class="clock-hand clock-hand-minute" data-clock-hand="utc-minute"></span>
-                        <span class="clock-hand clock-hand-second" data-clock-hand="utc-second"></span>
-                        <span class="clock-center-dot"></span>
-                    </div>
-
-                    <div
-                        id="digital-time-utc"
-                        class="clock-main-utc clock-digital"
-                        data-index-clock="utc-time"
-                    >
-                        --:--
-                    </div>
-                    <div class="clock-sub">
-                        <span id="digital-date-utc" data-index-clock="utc-date">---- -- --</span>
-                        ·
-                        <span id="digital-weekday-utc" data-index-clock="utc-weekday">---</span>
-                    </div>
-                </section>
+                    <strong data-index-metar="summary-temp">--</strong>
+                </span>
+                <span
+                    class="hero-weather-detail"
+                    data-index-metar="summary-wind"
+                    >Loading...</span
+                >
+                <span
+                    class="hero-weather-category"
+                    data-index-metar="summary-category"
+                    >--</span
+                >
             </div>
-        </article>
+        </section>
 
         <!-- CARD 3: METAR Weather Monitor -->
         <details
@@ -422,15 +357,16 @@
 
             <div class="metar-details" aria-label="추가 기상 정보">
                 <div class="metar-detail-item">
-                    <small>DEW POINT(이슬점)</small>
+                    <small><span class="mobile-size">DEW POINT</span>(이슬점)
+                    </small>
                     <strong data-index-metar="dewpoint">--</strong>
                 </div>
                 <div class="metar-detail-item">
-                    <small>HUMIDITY(습도)</small>
+                    <small><span class="mobile-size">HUMIDITY</span>(습도)</small>
                     <strong data-index-metar="humidity">--</strong>
                 </div>
                 <div class="metar-detail-item metar-detail-condition">
-                    <small>CONDITION(기상 상태)</small>
+                    <small><span class="mobile-size">CONDITION</span>(기상 상태)</small>
                     <strong data-index-metar="condition">--</strong>
                     <span class="metar-condition-note" data-index-metar="condition-note">기상 정보 확인 중</span>
                 </div>
