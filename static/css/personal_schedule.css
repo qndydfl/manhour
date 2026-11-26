@@ -3,8 +3,7 @@
 ========================================================= */
 
 .personal-v2-page {
-    width: min(var(--assignment-width), calc(100% - 56px))!important;
-    max-width: none;
+    width: min(1200px, calc(100% - 56px));
     margin: 0 auto;
     padding: var(--nav-content-gap) 0;
 }
@@ -15,6 +14,11 @@
    Page-only responsive rules live here; shared mobile rules stay in mobile.css.
    -------------------------------------------------------------------------- */
 @media (max-width: 700px) {
+    .personal-v2-page {
+        width: calc(100% - 16px);
+        padding-block: 10px;
+    }
+
     .personal-v2-page .personal-v2-header {
         padding: 9px 10px;
         border-radius: 10px;
@@ -199,7 +203,7 @@
     padding-left: 10px;
     border-left: 1px solid var(--personal-header-control-border);
     color: #94a3b8;
-    font-size: var(--personal-header-small-font);
+    font-size: var(--font-size-sm);
 }
 
 .personal-v2-actions {
@@ -207,6 +211,7 @@
     flex-wrap: nowrap;
     justify-content: flex-end;
     gap: 6px;
+    font-size: var(--font-size-sm) !important;
 }
 
 .personal-v2-header-tools {
@@ -233,11 +238,13 @@
     border: 1px solid var(--personal-header-control-border);
     border-radius: var(--personal-header-control-radius);
     background: rgba(255, 255, 255, 0.07);
+    font-size: var(--font-size-base);
+    font-weight: 700;
 }
 
 .personal-v2-header-stat > i {
     color: #60a5fa;
-    font-size: 15px;
+    font-size: var(--font-size-sm);
 }
 
 .personal-v2-header-stat span,
@@ -246,17 +253,10 @@
     white-space: nowrap;
 }
 
-.personal-v2-header-stat span {
-    color: #94a3b8;
-    font-size: var(--personal-header-small-font);
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
 .personal-v2-header-stat strong {
     margin-top: 1px;
     color: #ffffff;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     letter-spacing: normal;
 }
 
@@ -272,7 +272,7 @@
     background: rgba(255, 255, 255, 0.07);
     color: #ffffff;
     text-decoration: none;
-    font-size: var(--personal-header-small-font);
+    font-size: var(--fonst-size-sm);
     font-weight: 700;
 }
 
@@ -456,11 +456,13 @@
     }
 }
 
-@media (max-width: 720px) {
+@media (700px < width <= 720px) {
     .personal-v2-page {
         width: calc(100% - 28px);
     }
+}
 
+@media (max-width: 720px) {
     .personal-v2-header-inner {
         align-items: flex-start;
         flex-direction: column;

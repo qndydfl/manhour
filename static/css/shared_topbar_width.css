@@ -1,8 +1,12 @@
 /* Homepage, Manhour and C/B: align the inner content, not the full-width bar. */
+:root {
+    --shared-topbar-width: min(1480px, calc(100% - 56px));
+}
+
 body .portal-header .portal-header-inner,
 body .assignment-topbar .assignment-topbar-inner,
 body .cb-open-topbar .cb-open-topbar-inner {
-    width: min(1480px, calc(100% - 56px));
+    width: var(--shared-topbar-width);
     padding-inline: 0;
 }
 

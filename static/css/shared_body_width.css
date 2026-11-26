@@ -1,10 +1,15 @@
 /* Desktop content only; keep existing mobile layouts and print sizing. */
 @media screen and (min-width: 901px) {
-    body.assignment-console-body > main,
+    body.assignment-console-body > main:not(.mh-create-page, .workforce-editor-page, .personal-v2-page),
     body.assignment-console-body > .result-view-container {
         box-sizing: border-box;
         width: calc(100% - 32px) !important;
         max-width: 1480px !important;
         margin-inline: auto;
+    }
+
+    body.assignment-console-body.manage-items-body > .master-v2-page,
+    body.assignment-console-body > .result-view-container {
+        width: var(--shared-topbar-width) !important;
     }
 }

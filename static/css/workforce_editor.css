@@ -2,8 +2,8 @@
    WORKFORCE EDITOR
 ========================================================= */
 
-.workforce-editor-page {
-    width: min(var(--assignment-width), calc(100% - 56px));
+body.assignment-console-body > .workforce-editor-page {
+    width: min(1200px, calc(100% - 64px));
     margin: 0 auto;
     padding: var(--nav-content-gap) 0 !important;
 }
@@ -11,6 +11,12 @@
 /* =========================================================
    LAYOUT
 ========================================================= */
+
+@media (max-width: 700px) {
+    body.assignment-console-body > .workforce-editor-page {
+        width: calc(100% - 16px);
+    }
+}
 
 .workforce-editor-layout {
     display: grid;
@@ -322,10 +328,6 @@
 }
 
 @media (max-width: 650px) {
-    .workforce-editor-page {
-        width: calc(100% - 28px);
-    }
-
     .workforce-editor-side {
         display: none;
     }

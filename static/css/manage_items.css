@@ -134,7 +134,7 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
     align-items: center;
     gap: 7px;
     color: #2563eb;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: 800;
 }
 
@@ -189,7 +189,7 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
     background: transparent;
     color: #172033;
     font-family: inherit;
-    font-size: 15px;
+    font-size: var(--font-size-base) !important;
     font-weight: 500;
     line-height: 1.65;
     resize: vertical;
@@ -297,11 +297,8 @@ body.assignment-console-body > .container > .d-flex:first-child .btn {
 
 #manageItemsTable .group-header td {
     padding: 9px 12px;
-
     background: #f1f5f9 !important;
-
     border-top: 1px solid #e2e8f0;
-
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -932,12 +929,8 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         min-width: 0;
         min-height: 34px;
         padding-block: 4px;
-        font-size: 12px !important;
+        font-size: var(--font-size-sm) !important;
     }
-
-
-
-
 
     .manage-items-topbar .assignment-brand > div:last-child {
         display: none;
@@ -1024,8 +1017,8 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         gap: 4px;
     }
 
-    #manageItemsTable tbody tr {
-        font-size: 14px !important;
+    .worker-limit-help-text {
+        display: none !important;
     }
 
     #manage-form .card.shadow-sm.border-0.mb-4 {
@@ -1095,8 +1088,8 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         width: 100%;
         box-sizing: border-box;
         grid-template-columns:
-            32px minmax(46px, 0.8fr) minmax(70px, 1.35fr)
-            36px 43px;
+            32px minmax(46px, 0.65fr) minmax(88px, 1.4fr)
+            46px 43px;
         grid-template-areas:
             "delete gibun wo op mhadj"
             "assign assign assign assign assign";
@@ -1136,6 +1129,11 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         grid-area: wo;
     }
 
+    #manageItemsTable .col-wo .table-input {
+        padding-inline: 2px;
+        white-space: nowrap;
+    }
+
     #manageItemsTable .col-op {
         grid-area: op;
     }
@@ -1156,7 +1154,6 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
         min-height: 27px;
         padding: 2px 3px;
         border-radius: 4px;
-        font-size: 11px !important;
         line-height: 1.15;
     }
 
@@ -1230,17 +1227,17 @@ body:has(#duplicateDataConfirmDialog:not(.d-none)) {
     }
 
     #manageItemsTable .group-header .fw-bold {
-        font-size: 13px !important;
+        font-size: var(--font-size-sm) !important;
     }
 
     #manageItemsTable .group-header .btn,
     #manageItemsTable .group-header .form-check-label {
-        font-size: 13px !important;
+        font-size: var(--font-size-sm) !important;
     }
 
     #manageItemsTable .group-header .btn {
         min-height: 24px;
-        font-size: 13px !important;
+        font-size: var(--font-size-sm) !important;
     }
 
     #manageItemsTable tbody tr:not(.sortable-row):not(.group-header) {

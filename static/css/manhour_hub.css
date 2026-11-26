@@ -227,12 +227,6 @@
     background: #fff1f2;
 }
 
-.mh-worker-name {
-    color: var(--assignment-text);
-    font-size: 16px;
-    font-weight: 750;
-}
-
 .mh-worker-shift {
     min-width: 0;
     display: flex;
@@ -243,6 +237,9 @@
 }
 
 .mh-worker-shift .mh-worker-name {
+    color: var(--assignment-text);
+    font-weight: 750;
+    font-size: var(--font-size-base);
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1269,7 +1266,7 @@
     }
 
     .mh-assigned-summary-page .mh-worker-name {
-        font-size: 12px;
+        font-size: var(--font-size-base);
     }
 
     .mh-assigned-summary-page .mh-worker-shift {

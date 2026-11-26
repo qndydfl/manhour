@@ -264,7 +264,6 @@ iframe {
     .mh-page,
     .mh-create-page,
     .master-v2-page,
-    .personal-v2-page,
     .workforce-editor-page,
     .portal-main-container {
         width: calc(100% - 16px);
@@ -1089,7 +1088,6 @@ iframe {
     .mh-page,
     .mh-create-page,
     .master-v2-page,
-    .personal-v2-page,
     .workforce-editor-page,
     .result-view-container {
         width: calc(100% - 16px);
@@ -1156,7 +1154,6 @@ iframe {
     .mh-page,
     .mh-create-page,
     .master-v2-page,
-    .personal-v2-page,
     .workforce-editor-page {
         padding-top: 10px;
         padding-bottom: 10px;
@@ -1262,7 +1259,7 @@ iframe {
     body.assignment-console-body.manage-items-body
         #manageItemsTable
         .js-assigned-text {
-        font-size: 12px !important;
+        font-size: var(--font-size-sm) !important;
     }
 
     .settings-v2-page {
