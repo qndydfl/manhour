@@ -107,7 +107,36 @@
 
     <!-- Bento Grid 시작 -->
     <div class="bento-grid">
-        <!-- CARD 1: Workspaces & Operational Stats (Hero Card) -->
+        <!-- CARD 1: Current Airport Weather Monitor -->
+        <section
+            class="bento-card portal-current-weather"
+            aria-labelledby="portalCurrentWeatherTitle"
+        >
+            <h2 class="bento-title" id="portalCurrentWeatherTitle">
+                현재 공항 날씨
+            </h2>
+            <div class="hero-weather-summary">
+                <span class="hero-weather-icon"
+                    ><i class="bi bi-cloud-sun-fill"></i
+                ></span>
+                <span class="hero-weather-copy">
+                    <small data-index-metar="summary-station">AIRPORT</small>
+                    <strong data-index-metar="summary-temp">--</strong>
+                </span>
+                <span
+                    class="hero-weather-detail"
+                    data-index-metar="summary-wind"
+                    >Loading...</span
+                >
+                <span
+                    class="hero-weather-category"
+                    data-index-metar="summary-category"
+                    >--</span
+                >
+            </div>
+        </section>
+
+        <!-- CARD 2: Workspaces & Operational Stats (Hero Card) -->
         <section class="bento-card bento-card-hero">
             <div class="bento-card-head">
                 <div>
@@ -266,35 +295,7 @@
                     </div>
                 </div>
             </div>
-        </section>
-
-        <section
-            class="bento-card portal-current-weather"
-            aria-labelledby="portalCurrentWeatherTitle"
-        >
-            <h2 class="bento-title" id="portalCurrentWeatherTitle">
-                현재 공항 날씨
-            </h2>
-            <div class="hero-weather-summary">
-                <span class="hero-weather-icon"
-                    ><i class="bi bi-cloud-sun-fill"></i
-                ></span>
-                <span class="hero-weather-copy">
-                    <small data-index-metar="summary-station">AIRPORT</small>
-                    <strong data-index-metar="summary-temp">--</strong>
-                </span>
-                <span
-                    class="hero-weather-detail"
-                    data-index-metar="summary-wind"
-                    >Loading...</span
-                >
-                <span
-                    class="hero-weather-category"
-                    data-index-metar="summary-category"
-                    >--</span
-                >
-            </div>
-        </section>
+        </section>        
 
         <!-- CARD 3: METAR Weather Monitor -->
         <details
