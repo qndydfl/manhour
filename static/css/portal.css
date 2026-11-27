@@ -1745,7 +1745,7 @@ TOAST
 }
 
 /* =========================================================
-   INDEX OCEAN BACKGROUND
+   INDEX PAGE LAYOUT
 ========================================================= */
 .portal-main-container[data-index-page] {
     max-width: 1200px;
@@ -1847,145 +1847,6 @@ TOAST
     }
 }
 
-.portal-ocean-background,
-.portal-ocean-video,
-.portal-ocean-image,
-.portal-ocean-fallback,
-.portal-ocean-overlay {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.portal-ocean-background {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.portal-ocean-video {
-    z-index: 1;
-    object-fit: cover;
-    opacity: 0.82;
-}
-
-.portal-ocean-image {
-    z-index: 1;
-    object-fit: cover;
-}
-
-.portal-ocean-fallback {
-    z-index: 0;
-    overflow: hidden;
-    background:
-        radial-gradient(circle at 18% 12%, rgba(186, 230, 253, 0.5), transparent 24%),
-        radial-gradient(circle at 82% 32%, rgba(34, 211, 238, 0.25), transparent 30%),
-        linear-gradient(165deg, #77d2e7 0%, #168cb6 42%, #075985 72%, #083d63 100%);
-}
-
-.portal-ocean-fallback::before {
-    position: absolute;
-    inset: -25% -10% auto;
-    height: 58%;
-    content: "";
-    background: repeating-radial-gradient(
-        ellipse at 50% 100%,
-        rgba(255, 255, 255, 0.14) 0 2px,
-        transparent 3px 30px
-    );
-    opacity: 0.8;
-    animation: ocean-light-drift 14s ease-in-out infinite alternate;
-}
-
-.portal-ocean-overlay {
-    z-index: 3;
-    background:
-        linear-gradient(180deg, rgba(3, 33, 55, 0.08), rgba(3, 30, 52, 0.25)),
-        radial-gradient(circle at 50% 15%, transparent 0 38%, rgba(2, 29, 49, 0.2) 100%);
-}
-
-.ocean-fish {
-    position: absolute;
-    left: -90px;
-    width: 46px;
-    height: 20px;
-    border-radius: 58% 48% 48% 58%;
-    background: rgba(224, 242, 254, 0.72);
-    filter: drop-shadow(0 3px 5px rgba(2, 36, 58, 0.2));
-}
-
-.ocean-fish::before {
-    position: absolute;
-    top: 5px;
-    right: 8px;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: rgba(3, 37, 65, 0.72);
-    content: "";
-}
-
-.ocean-fish::after {
-    position: absolute;
-    top: 2px;
-    left: -13px;
-    border-top: 8px solid transparent;
-    border-right: 15px solid rgba(224, 242, 254, 0.64);
-    border-bottom: 8px solid transparent;
-    content: "";
-}
-
-.ocean-fish-1 {
-    top: 18%;
-    --fish-scale: 1;
-    animation: ocean-fish-swim 22s linear -4s infinite;
-}
-
-.ocean-fish-2 {
-    top: 43%;
-    --fish-scale: 0.72;
-    opacity: 0.72;
-    animation: ocean-fish-swim 28s linear -17s infinite;
-}
-
-.ocean-fish-3 {
-    top: 68%;
-    --fish-scale: 1.15;
-    opacity: 0.58;
-    animation: ocean-fish-swim 31s linear -9s infinite;
-}
-
-.ocean-fish-4 {
-    top: 83%;
-    --fish-scale: 0.58;
-    opacity: 0.5;
-    animation: ocean-fish-swim 19s linear -12s infinite;
-}
-
-.ocean-bubbles {
-    position: absolute;
-    bottom: -80px;
-    width: 90px;
-    height: 260px;
-    background-image: radial-gradient(circle, rgba(224, 242, 254, 0.48) 0 2px, transparent 3px);
-    background-size: 28px 34px;
-    animation: ocean-bubbles-rise 13s linear infinite;
-}
-
-.ocean-bubbles-1 {
-    left: 9%;
-}
-
-.ocean-bubbles-2 {
-    right: 12%;
-    animation-delay: -7s;
-    animation-duration: 17s;
-}
 
 .portal-main-container[data-index-page] .bento-card {
     background: rgba(255, 255, 255, 0.68) !important;
@@ -2035,35 +1896,6 @@ TOAST
     border-top: 1px solid rgba(148, 163, 184, 0.26);
 }
 
-@keyframes ocean-fish-swim {
-    0% {
-        left: -90px;
-    }
-    48% {
-        transform: translateY(-10px) scale(var(--fish-scale, 1));
-    }
-    100% {
-        left: calc(100% + 90px);
-    }
-}
-
-@keyframes ocean-bubbles-rise {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(-760px);
-    }
-}
-
-@keyframes ocean-light-drift {
-    from {
-        transform: translate3d(-2%, -2%, 0) rotate(-2deg);
-    }
-    to {
-        transform: translate3d(3%, 4%, 0) rotate(2deg);
-    }
-}
 
 @media (max-width: 700px) {
     .portal-main-container[data-index-page] {
@@ -2071,25 +1903,4 @@ TOAST
         padding: var(--nav-content-gap-mobile) 0;
     }
 
-    .portal-ocean-video {
-        display: none;
-    }
-
-    .ocean-fish-3,
-    .ocean-fish-4,
-    .ocean-bubbles-2 {
-        display: none;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .portal-ocean-fallback::before,
-    .ocean-fish,
-    .ocean-bubbles {
-        animation: none !important;
-    }
-
-    .portal-ocean-video {
-        display: none;
-    }
 }

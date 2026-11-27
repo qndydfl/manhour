@@ -5,7 +5,8 @@
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261126-5" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-2" />
+<link rel="stylesheet" href="{% static 'css/portal_ocean.css' %}?v=20261127-2" />
 {% endblock css %} 
 
 {% block js %}
@@ -30,14 +31,16 @@
     });
 </script>
 <script defer src="{% static 'js/index.js' %}?v=20261124-1"></script>
+<script defer src="{% static 'js/portal_ocean.js' %}?v=1"></script>
 {% endblock js %} 
 
 {% block content %} 
 {% background_config "index_ocean_background" as index_ocean_background %}
+{% background_gallery "index_ocean_slide_" as ocean_slides %}
 {% include "manhour/partials/portal_header.html" %}
 
 <div class="portal-ocean-background" aria-hidden="true">
-        {% if index_ocean_background.video_url %}
+    {% if index_ocean_background.video_url %}
         <video
             class="portal-ocean-video"
             autoplay
@@ -49,13 +52,23 @@
         >
             <source src="{{ index_ocean_background.video_url }}" />
         </video>
-        {% elif index_ocean_background.image_url %}
+    {% endif %}
+    {% if ocean_slides %}
+        {% for slide in ocean_slides %}
+        <img
+            class="portal-ocean-image{% if forloop.first %} is-active{% endif %}"
+            data-ocean-slide
+            {% if forloop.first %}src="{{ slide.image_url }}"{% else %}data-src="{{ slide.image_url }}"{% endif %}
+            alt=""
+        />
+        {% endfor %}
+    {% elif index_ocean_background.image_url %}
         <img
             class="portal-ocean-image"
             src="{{ index_ocean_background.image_url }}"
             alt=""
         />
-        {% endif %}
+    {% endif %}
         <div class="portal-ocean-fallback">
             <span class="ocean-fish ocean-fish-1"></span>
             <span class="ocean-fish ocean-fish-2"></span>
@@ -63,9 +76,12 @@
             <span class="ocean-fish ocean-fish-4"></span>
             <span class="ocean-bubbles ocean-bubbles-1"></span>
             <span class="ocean-bubbles ocean-bubbles-2"></span>
+            <span class="ocean-shark ocean-shark-1"></span>
+            <span class="ocean-shark ocean-shark-2"></span>
+            <span class="ocean-shark ocean-shark-3"></span>
         </div>
         <div class="portal-ocean-overlay"></div>
-    </div>
+</div>
 
 <main class="portal-main-container" data-index-page>
     <div class="portal-clock-strip" aria-label="현재 시간">
