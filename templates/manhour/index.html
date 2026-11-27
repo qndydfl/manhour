@@ -4,7 +4,7 @@
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-5" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-7" />
 <link
     rel="stylesheet"
     href="{% static 'css/index_background.css' %}?v=20261127-5"
@@ -34,7 +34,7 @@
         }, 260);
     });
 </script>
-<script defer src="{% static 'js/index.js' %}?v=20261124-1"></script>
+<script defer src="{% static 'js/index.js' %}?v=20261127-3"></script>
 <script defer src="{% static 'js/portal_ocean.js' %}?v=2"></script>
 {% endblock js %}
 
@@ -84,12 +84,9 @@
                     data-index-metar="summary-wind"
                     >Loading...</span
                 >
-                <span
-                    class="hero-weather-category"
-                    data-index-metar="summary-category"
-                    >--</span
-                >
+                <span class="hero-weather-category" data-index-metar="summary-category">--</span>
             </div>
+            <p class="hero-weather-category-note" data-index-metar="summary-category-note" hidden></p>
         </section>
 
         <!-- CARD 2: Workspaces & Operational Stats (Hero Card) -->

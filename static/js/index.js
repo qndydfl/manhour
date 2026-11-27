@@ -326,6 +326,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const summaryTempEl = metarElement("summary-temp");
     const summaryWindEl = metarElement("summary-wind");
     const summaryCategoryEl = metarElement("summary-category");
+    const summaryCategoryNote = metarElement("summary-category-note");
+    const flightCategoryNotes = {
+        VFR: "시계비행 기상: 운고와 시정이 비교적 양호한 상태입니다. 시계비행은 조종사가 지형이나 수평선 등 외부의 시각적 단서를 참고하는 비행 방식입니다.",
+        MVFR: "한계 시계비행 기상: 구름층이 낮거나 시야가 제한되어 시계비행에 필요한 외부 단서를 확보하기가 더 어려운 상태입니다.",
+        IFR: "계기비행 기상: 운고가 낮거나 시정이 제한된 상태입니다. 계기비행 규칙은 외부 시야가 제한될 때도 계기와 정해진 절차를 기준으로 비행하는 규칙입니다. 실제 운항에는 조종사 자격, 항공기 장비, 해당 공역의 관제 요건을 따로 확인해야 합니다.",
+        LIFR: "저시정·저운고 계기비행 기상: IFR보다 시정이 더 낮거나 구름층이 더 낮은 상태입니다. 이 분류만으로 이착륙이나 운항 가능 여부를 판단할 수는 없습니다.",
+    };
+
+    const flightCategoryNames = {
+        VFR: "Visual Flight Rules",
+        MVFR: "Marginal Visual Flight Rules",
+        IFR: "Instrument Flight Rules",
+        LIFR: "Low Instrument Flight Rules",
+    };
+
+    function updateSummaryCategory(category = "--") {
+        if (!summaryCategoryEl) return;
+        summaryCategoryEl.textContent = category;
+        if (category === "--") delete summaryCategoryEl.dataset.category;
+        else summaryCategoryEl.dataset.category = category;
+        if (summaryCategoryNote) {
+            summaryCategoryNote.replaceChildren();
+            const note = flightCategoryNotes[category];
+            summaryCategoryNote.hidden = !note;
+            if (note) {
+                const separator = note.indexOf(": ");
+                const englishName = document.createElement("strong");
+                englishName.textContent = flightCategoryNames[category];
+                summaryCategoryNote.append(
+                    `${category} (`, englishName,
+                    ` : ${note.slice(0, separator)}) : ${note.slice(separator + 2)}`,
+                );
+            }
+        }
+    }
 
     let metarStations = [];
     let activeIndex = 0;
@@ -395,10 +430,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (summaryStationEl) summaryStationEl.textContent = "AIRPORT";
             if (summaryTempEl) summaryTempEl.textContent = "--";
             if (summaryWindEl) summaryWindEl.textContent = "Unavailable";
-            if (summaryCategoryEl) {
-                summaryCategoryEl.textContent = "--";
-                delete summaryCategoryEl.dataset.category;
-            }
+            updateSummaryCategory();
             return;
         }
 
@@ -519,11 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (summaryStationEl) summaryStationEl.textContent = station.icao || "AIRPORT";
         if (summaryTempEl) summaryTempEl.textContent = temp;
         if (summaryWindEl) summaryWindEl.textContent = wind;
-        if (summaryCategoryEl) {
-            summaryCategoryEl.textContent = category;
-            if (category === "--") delete summaryCategoryEl.dataset.category;
-            else summaryCategoryEl.dataset.category = category;
-        }
+        updateSummaryCategory(category);
 
     }
 
@@ -577,10 +605,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (summaryStationEl) summaryStationEl.textContent = "AIRPORT";
             if (summaryTempEl) summaryTempEl.textContent = "--";
             if (summaryWindEl) summaryWindEl.textContent = "Unavailable";
-            if (summaryCategoryEl) {
-                summaryCategoryEl.textContent = "--";
-                delete summaryCategoryEl.dataset.category;
-            }
+            updateSummaryCategory();
         }
     }
 

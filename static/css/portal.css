@@ -1852,6 +1852,15 @@ TOAST
     padding: 4px 9px;
 }
 
+.hero-weather-category-note {
+    margin: 0;
+    padding: 0 2px;
+    overflow-wrap: anywhere;
+    color: var(--portal-text);
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+}
+
 @media (max-width: 900px) {
     .portal-current-weather {
         grid-column: span 12;
