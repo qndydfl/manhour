@@ -96,33 +96,6 @@ body {
     letter-spacing: -0.01em;
 }
 
-.login-v2-card-head {
-    margin: 27px 0 25px;
-    text-align: center;
-}
-
-.login-v2-card-head > span {
-    color: #2563eb;
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-    letter-spacing: 0.16em;
-}
-
-.login-v2-card-head h1 {
-    margin: 7px 0 0;
-    color: #0f172a;
-    font-size: 30px;
-    font-weight: 750;
-    letter-spacing: -0.04em;
-}
-
-.login-v2-card-head p {
-    margin: 9px 0 0;
-    color: #64748b;
-    font-size: var(--font-size-sm);
-    line-height: 1.55;
-}
-
 .login-v2-alert {
     margin-bottom: 18px;
     padding: 12px 13px;
@@ -147,6 +120,7 @@ body {
     color: #033375;
     font-size: var(--font-size-sm);
     font-weight: 750;
+    margin-top: 18px;
 }
 
 .login-v2-control {

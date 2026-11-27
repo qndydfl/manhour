@@ -33,6 +33,7 @@ from .models import (
     Assignment,
     DefaultWorkerDirectory,
     GibunPriority,
+    MaintenanceTeam,
     TaskMaster,
     WorkItem,
     WorkSession,
@@ -263,6 +264,19 @@ class AdminEntryView(SimpleAdminRequiredMixin, View):
 
 
 class SimpleLoginView(View):
+    @staticmethod
+    def workplace_context(current_workplace=""):
+        ensure_default_workplaces()
+        options = list(Workplace.objects.filter(is_active=True).select_related("team"))
+        teams = {item.team_id: item.team.name for item in options if item.team_id}
+        if any(not item.team_id for item in options):
+            teams[0] = "팀 미지정"
+        return {
+            "workplace_options": options,
+            "team_options": sorted(teams.items(), key=lambda item: (not item[0], item[1])),
+            "current_workplace": current_workplace,
+        }
+
     def get(self, request):
         if request.session.get("is_authenticated"):
             return redirect("manhour:index")
@@ -272,25 +286,21 @@ class SimpleLoginView(View):
         return render(
             request,
             "manhour/login.html",
-            {
-                "workplace_options": get_workplace_choices(),
-                "current_workplace": current_workplace,
-            },
+            self.workplace_context(current_workplace),
         )
 
     def post(self, request):
         password = request.POST.get("password")
         workplace = request.POST.get("workplace") or ""
 
-        if not workplace:
-            messages.error(request, "근무지를 선택해주세요.")
+        team = request.POST.get("team")
+        group = Workplace.objects.filter(code=workplace, is_active=True).first()
+        if not group or (team is not None and team != str(group.team_id or 0)):
+            messages.error(request, "팀과 근무지 그룹을 다시 선택해주세요.")
             return render(
                 request,
                 "manhour/login.html",
-                {
-                    "workplace_options": get_workplace_choices(),
-                    "current_workplace": "",
-                },
+                self.workplace_context(),
             )
 
         if password == settings.SIMPLE_PASSWORD_ADMIN:
@@ -310,10 +320,7 @@ class SimpleLoginView(View):
             return render(
                 request,
                 "manhour/login.html",
-                {
-                    "workplace_options": get_workplace_choices(),
-                    "current_workplace": workplace,
-                },
+                self.workplace_context(workplace),
             )
 
 
@@ -355,7 +362,18 @@ class IndexView(SimpleLoginRequiredMixin, MasterDataBaseMixin, TemplateView):
 
         workplace = get_current_workplace(self.request)
         today = get_operational_work_date()
-        workplace_record = Workplace.objects.filter(code=workplace).first()
+        workplace_record = Workplace.objects.select_related("team").filter(code=workplace).first()
+        context["current_team_name"] = (
+            workplace_record.team.name if workplace_record and workplace_record.team_id else ""
+        )
+        if self.request.session.get("user_role") == "admin":
+            groups_by_team = {}
+            for group in Workplace.objects.filter(is_active=True).select_related("team"):
+                team_name = group.team.name if group.team_id else "팀 미지정"
+                groups_by_team.setdefault(team_name, []).append(group)
+            context["portal_workplace_groups"] = sorted(
+                groups_by_team.items(), key=lambda item: (item[0] == "팀 미지정", item[0])
+            )
         today_schedule_status = get_rotation_status(workplace_record, today)
 
         # 활성 세션 통계
@@ -441,6 +459,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 "default_worker_names": ", ".join(default_worker_names),
                 "default_worker_count": default_worker_count,
                 "workplaces": workplaces,
+                "maintenance_teams": MaintenanceTeam.objects.all(),
                 "rotation_pattern_choices": Workplace.ROTATION_PATTERN_CHOICES,
                 "today": today,
                 "rotation_status_conflict": rotation_status_conflict,
@@ -450,7 +469,33 @@ class SettingsView(SimpleLoginRequiredMixin, View):
     def post(self, request):
         ensure_default_workplaces()
         action = (request.POST.get("action") or "").strip()
+        if action in {"team_add", "team_update"}:
+            name = request.POST.get("team_name", "").strip()
+            team_id = request.POST.get("team_id", "")
+            team = (MaintenanceTeam.objects.filter(pk=team_id).first()
+                    if team_id.isascii() and team_id.isdecimal() and len(team_id) <= 18 else None)
+            if not name or len(name) > 100 or (action == "team_update" and not team):
+                messages.error(request, "올바른 팀 이름을 입력해주세요.")
+            elif action == "team_add":
+                _, created = MaintenanceTeam.objects.get_or_create(name=name)
+                if not created:
+                    messages.error(request, "이미 등록된 팀 이름입니다.")
+            elif MaintenanceTeam.objects.exclude(pk=team.pk).filter(name=name).exists():
+                messages.error(request, "이미 등록된 팀 이름입니다.")
+            else:
+                team.name = name
+                team.save(update_fields=["name"])
+            return redirect("manhour:settings")
+
         if action.startswith("workplace_"):
+            team_id = request.POST.get("team_id")
+            selected_team = None
+            if team_id and action in {"workplace_add", "workplace_update"}:
+                if team_id.isascii() and team_id.isdecimal() and len(team_id) <= 18:
+                    selected_team = MaintenanceTeam.objects.filter(pk=team_id).first()
+                if not selected_team:
+                    messages.error(request, "등록된 팀을 선택해주세요.")
+                    return redirect("manhour:settings")
             code = (request.POST.get("code") or "").strip()
             label = (request.POST.get("label") or "").strip()
             raw_sort_order = (request.POST.get("sort_order") or "").strip()
@@ -498,6 +543,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 Workplace.objects.create(
                     code=code,
                     label=label,
+                    team=selected_team,
                     sort_order=sort_order,
                     is_active=is_active,
                     rotation_anchor_date=rotation_anchor_date,
@@ -539,6 +585,8 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                 workplace.is_active = is_active
                 workplace.rotation_anchor_date = rotation_anchor_date
                 workplace.rotation_pattern = rotation_pattern
+                if team_id is not None:
+                    workplace.team = selected_team
                 workplace.save(
                     update_fields=[
                         "code",
@@ -547,6 +595,7 @@ class SettingsView(SimpleLoginRequiredMixin, View):
                         "is_active",
                         "rotation_anchor_date",
                         "rotation_pattern",
+                        "team",
                     ]
                 )
                 if old_code != code:

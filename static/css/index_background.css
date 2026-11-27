@@ -206,18 +206,18 @@
 }
 
 .ocean-shark-1 {
-    top: 30%;
+    top: 26%;
     --shark-speed: 48s;
     --shark-delay: -14s;
 }
 
 .ocean-shark-2 {
-    top: 58%;
+    top: 60%;
     animation: shark-swim-right-to-left 57s linear infinite;
 }
 
 .ocean-shark-3 {
-    top: 82%;
+    top: 95%;
     --shark-speed: 64s;
     --shark-delay: -32s;
     --shark-rise: -18vh;

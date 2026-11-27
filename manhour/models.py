@@ -7,6 +7,16 @@ from .workplace_config import get_default_workplace_choices
 DEFAULT_WORKPLACE_CHOICES = get_default_workplace_choices()
 
 
+class MaintenanceTeam(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+
+    def __str__(self):
+        return self.name
+
+
 class Workplace(models.Model):
     ROTATION_DAY_FIRST = "DAY_FIRST"
     ROTATION_NIGHT_FIRST = "NIGHT_FIRST"
@@ -20,6 +30,10 @@ class Workplace(models.Model):
     config_key = models.CharField(max_length=50, unique=True, null=True, blank=True)
     code = models.CharField(max_length=50, unique=True)
     label = models.CharField(max_length=100)
+    team = models.ForeignKey(
+        MaintenanceTeam, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="workplaces",
+    )
     is_active = models.BooleanField(default=True)
     sort_order = models.PositiveIntegerField(default=0)
     rotation_anchor_date = models.DateField(null=True, blank=True)

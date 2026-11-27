@@ -90,6 +90,25 @@
                     data-bs-parent="#settings-accordion"
                 >
                     <div class="accordion-body">
+                        <section class="border rounded p-3 mb-3" aria-labelledby="maintenance-team-heading">
+                            <h3 id="maintenance-team-heading" class="h6">정비팀 관리</h3>
+                            <p class="small text-muted">팀을 추가한 뒤 아래 근무지 그룹의 소속 팀을 지정하세요.</p>
+                            <form method="post" class="d-flex flex-wrap gap-2 mb-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="team_add" />
+                                <input name="team_name" class="form-control form-control-sm w-auto" maxlength="100" placeholder="예: 점검정비1팀" aria-label="새 팀 이름" required />
+                                <button class="btn btn-sm btn-primary" type="submit">팀 추가</button>
+                            </form>
+                            {% for team in maintenance_teams %}
+                            <form method="post" class="d-flex flex-wrap gap-2 mb-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="team_update" />
+                                <input type="hidden" name="team_id" value="{{ team.pk }}" />
+                                <input name="team_name" class="form-control form-control-sm w-auto" maxlength="100" value="{{ team.name }}" aria-label="팀 이름 수정" required />
+                                <button class="btn btn-sm btn-outline-primary" type="submit">이름 저장</button>
+                            </form>
+                            {% endfor %}
+                        </section>
                         <p class="text-muted small mb-3">
                             이 화면에서 근무지 코드와 표시 이름을 직접 관리할 수
                             있습니다. 코드가 바뀌면 관련 데이터의 근무지 값도
@@ -126,6 +145,8 @@
                                 name="action"
                                 value="workplace_add"
                             />
+
+                            {% include "manhour/partials/workplace_team_select.html" with selected_team_id=None %}
 
                             <div class="col-12 col-sm-3">
                                 <label class="form-label" for="workplace-code"
@@ -277,6 +298,8 @@
                                         name="workplace_id"
                                         value="{{ workplace.id }}"
                                     />
+
+                                    {% include "manhour/partials/workplace_team_select.html" with selected_team_id=workplace.team_id %}
 
                                     <div class="col-12 col-sm-3">
                                         <label class="form-label small"

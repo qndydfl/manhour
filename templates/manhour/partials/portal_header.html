@@ -100,7 +100,7 @@
 
                 <div class="dropdown-menu dropdown-menu-end portal-account-menu">
                     <div class="portal-account-menu__heading">
-                        <span>현재 로그인 그룹</span>
+                        <span>현재 팀 · {{ current_team_name|default:"팀 미지정" }}</span>
                         <strong>
                             {{ request.session.workplace_label|default:request.session.workplace }}
                         </strong>
@@ -118,13 +118,17 @@
                                 class="form-select form-select-sm"
                                 onchange="this.form.submit()"
                             >
-                                {% for workplace_code, workplace_label in navbar_workplace_options %}
+                                {% for team_name, groups in portal_workplace_groups %}
+                                <optgroup label="{{ team_name }}">
+                                {% for group in groups %}
                                 <option
-                                    value="{{ workplace_code }}"
-                                    {% if request.session.workplace == workplace_code %}selected{% endif %}
+                                    value="{{ group.code }}"
+                                    {% if request.session.workplace == group.code %}selected{% endif %}
                                 >
-                                    {{ workplace_label }}
+                                    {{ group.label }}
                                 </option>
+                                {% endfor %}
+                                </optgroup>
                                 {% endfor %}
                             </select>
                         </form>
