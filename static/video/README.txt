@@ -1,7 +1,9 @@
 홈 화면 바다 배경 영상 사용 방법
 
 권장 방법
-- 관리자 페이지의 Background images에서 key를 index_ocean_background로 등록합니다.
+- 관리자 페이지의 Background images에서 영상은 index_background_video, 사진은 index_background_image 키를 사용합니다.
+- 여러 사진은 index_background_image_01, index_background_image_02 순서로 등록합니다.
+- 공통 예비 배경에는 index_background 키를 사용합니다.
 - Image file 또는 Video file 중 하나를 업로드합니다.
 - 업로드 파일이 없으면 CSS 바다 배경이 기본으로 표시됩니다.
 

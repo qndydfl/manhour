@@ -5,7 +5,6 @@ from .models import (
     Worker,
     WorkItem,
     BackgroundImage,
-    FeaturedVideo,
 )
 
 
@@ -38,11 +37,16 @@ class BackgroundImageAdmin(admin.ModelAdmin):
     search_fields = ("key",)
     exclude = ("youtube_url",)
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if "key" in form.base_fields:
+            form.base_fields["key"].help_text = (
+                "홈 배경: 영상 index_background_video, 사진 index_background_image, "
+                "슬라이드 index_background_image_01, _02, …, 공통 예비 배경 index_background."
+            )
+        return form
 
-class FeaturedVideoAdmin(admin.ModelAdmin):
-    list_display = ("title", "kind", "site", "sort_order", "is_active")
-    list_filter = ("kind", "site", "is_active")
-    search_fields = ("title",)
+
 
 
 admin.site.register(TaskMaster, TaskMasterAdmin)
@@ -50,4 +54,3 @@ admin.site.register(WorkSession, WorkSessionAdmin)
 admin.site.register(Worker)
 admin.site.register(WorkItem)
 admin.site.register(BackgroundImage, BackgroundImageAdmin)
-admin.site.register(FeaturedVideo, FeaturedVideoAdmin)

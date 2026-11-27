@@ -1,13 +1,16 @@
-{% extends 'manhour/base/portal_base.html' %} 
-{% load static %} 
+{% extends 'manhour/base/portal_base.html' %}
+{% load static %}
 {% load i18n %}
 {% load background_tags %}
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-2" />
-<link rel="stylesheet" href="{% static 'css/portal_ocean.css' %}?v=20261127-2" />
-{% endblock css %} 
+<link
+    rel="stylesheet"
+    href="{% static 'css/index_background.css' %}?v=20261127-5"
+/>
+{% endblock css %}
 
 {% block js %}
 <script>
@@ -19,8 +22,10 @@
 <script>
     document.addEventListener("click", function (e) {
         var link = e.target.closest("a.metric-item-active");
-        if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0)
+            return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
         e.preventDefault();
         link.classList.remove("is-bouncing");
         void link.offsetWidth;
@@ -31,62 +36,72 @@
     });
 </script>
 <script defer src="{% static 'js/index.js' %}?v=20261124-1"></script>
-<script defer src="{% static 'js/portal_ocean.js' %}?v=1"></script>
-{% endblock js %} 
+<script defer src="{% static 'js/portal_ocean.js' %}?v=2"></script>
+{% endblock js %}
 
-{% block content %} 
-{% background_config "index_ocean_background" as index_ocean_background %}
-{% background_gallery "index_ocean_slide_" as ocean_slides %}
+{% block content %}
+{% background_config "index_background_video" as video_background %}
+{% background_config "index_background_image" as image_background %}
+{% background_config "index_background" as default_background %}
+{% background_config "index_ocean_background" as legacy_background %}
+{% firstof video_background.video_url default_background.video_url legacy_background.video_url as ocean_video_url %}
+{% firstof image_background.image_url default_background.image_url legacy_background.image_url as ocean_image_url %}
+{% background_gallery "index_background_image_" as ocean_slides %}
+{% if not ocean_slides and not image_background.image_url %}
+    {% background_gallery "index_ocean_slide_" as ocean_slides %}
+{% endif %}
 {% include "manhour/partials/portal_header.html" %}
 
-<div class="portal-ocean-background" aria-hidden="true">
-    {% if index_ocean_background.video_url %}
-        <video
-            class="portal-ocean-video"
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            onerror="this.hidden = true"
-        >
-            <source src="{{ index_ocean_background.video_url }}" />
-        </video>
+<div class="index-background" aria-hidden="true">
+    {% if ocean_video_url %}
+    <video
+        class="portal-ocean-video"
+        src="{{ ocean_video_url }}"
+        muted
+        loop
+        playsinline
+        preload="metadata"
+    ></video>
     {% endif %}
     {% if ocean_slides %}
-        {% for slide in ocean_slides %}
+    {% for slide in ocean_slides %}
         <img
             class="portal-ocean-image{% if forloop.first %} is-active{% endif %}"
             data-ocean-slide
-            {% if forloop.first %}src="{{ slide.image_url }}"{% else %}data-src="{{ slide.image_url }}"{% endif %}
+            {% if forloop.first %}src="{{ slide.image_url }}"
+            {% else %}data-src="{{ slide.image_url }}"
+            {% endif %}
             alt=""
         />
-        {% endfor %}
-    {% elif index_ocean_background.image_url %}
-        <img
-            class="portal-ocean-image"
-            src="{{ index_ocean_background.image_url }}"
-            alt=""
-        />
+    {% endfor %}
+    {% elif ocean_image_url %}
+    <img class="portal-ocean-image" src="{{ ocean_image_url }}" alt="" />
+
+    {% else %}
+    <div class="portal-ocean-fallback">
+        <span class="ocean-fish ocean-fish-1"></span>
+        <span class="ocean-fish ocean-fish-2"></span>
+        <span class="ocean-fish ocean-fish-3"></span>
+        <span class="ocean-fish ocean-fish-4"></span>
+        <span class="ocean-bubbles ocean-bubbles-1"></span>
+        <span class="ocean-bubbles ocean-bubbles-2"></span>
+        <span class="ocean-shark ocean-shark-1"></span>
+        <span class="ocean-shark ocean-shark-2"></span>
+        <span class="ocean-shark ocean-shark-3"></span>
+    </div>
+    <div class="portal-ocean-overlay"></div>
     {% endif %}
-        <div class="portal-ocean-fallback">
-            <span class="ocean-fish ocean-fish-1"></span>
-            <span class="ocean-fish ocean-fish-2"></span>
-            <span class="ocean-fish ocean-fish-3"></span>
-            <span class="ocean-fish ocean-fish-4"></span>
-            <span class="ocean-bubbles ocean-bubbles-1"></span>
-            <span class="ocean-bubbles ocean-bubbles-2"></span>
-            <span class="ocean-shark ocean-shark-1"></span>
-            <span class="ocean-shark ocean-shark-2"></span>
-            <span class="ocean-shark ocean-shark-3"></span>
-        </div>
-        <div class="portal-ocean-overlay"></div>
 </div>
 
 <main class="portal-main-container" data-index-page>
     <div class="portal-clock-strip" aria-label="현재 시간">
-        <span>LOCAL <strong data-index-clock="local-time">--:--:--</strong>
-            <small data-index-clock="local-zone" title="브라우저 현지 시간대"></small></span>
+        <span
+            >LOCAL <strong data-index-clock="local-time">--:--:--</strong>
+            <small
+                data-index-clock="local-zone"
+                title="브라우저 현지 시간대"
+            ></small
+        ></span>
         <span>UTC <strong data-index-clock="utc-time">--:--</strong></span>
     </div>
 
@@ -143,126 +158,129 @@
             </div>
 
             <div class="portal-overview-panels">
-            <div
-                id="portalWorkspacePanel"
-                class="portal-overview-panel"
-                role="tabpanel"
-                aria-labelledby="portalWorkspaceTab"
-                data-portal-overview-panel="workspace"
-            >
-                <!-- Workspace Action Grid -->
-                <div class="workspace-action-grid">
-                    <a
-                        href="{% url 'manning:manning_list' %}"
-                        class="workspace-pill primary"
-                        target="_blank"
-                    >
-                        <div class="pill-icon">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <div class="pill-info">
-                            <span class="pill-tag">WORKFORCE</span>
-                            <strong>Manning</strong>
-                        </div>
-                        <i class="bi bi-arrow-up-right pill-arrow"></i>
-                    </a>
+                <div
+                    id="portalWorkspacePanel"
+                    class="portal-overview-panel"
+                    role="tabpanel"
+                    aria-labelledby="portalWorkspaceTab"
+                    data-portal-overview-panel="workspace"
+                >
+                    <!-- Workspace Action Grid -->
+                    <div class="workspace-action-grid">
+                        <a
+                            href="{% url 'manning:manning_list' %}"
+                            class="workspace-pill primary"
+                            target="_blank"
+                        >
+                            <div class="pill-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="pill-info">
+                                <span class="pill-tag">WORKFORCE</span>
+                                <strong>Manning</strong>
+                            </div>
+                            <i class="bi bi-arrow-up-right pill-arrow"></i>
+                        </a>
 
-                    <a
-                        href="{% url 'manhour:session_list' %}"
-                        class="workspace-pill workspace-pill-analysis"
-                    >
-                        <div class="pill-icon">
-                            <i class="bi bi-stopwatch-fill"></i>
-                        </div>
-                        <div class="pill-info">
-                            <span class="pill-tag">ANALYSIS</span>
-                            <strong>Manhour</strong>
-                        </div>
-                        <i class="bi bi-arrow-up-right pill-arrow"></i>
-                    </a>
+                        <a
+                            href="{% url 'manhour:session_list' %}"
+                            class="workspace-pill workspace-pill-analysis"
+                        >
+                            <div class="pill-icon">
+                                <i class="bi bi-stopwatch-fill"></i>
+                            </div>
+                            <div class="pill-info">
+                                <span class="pill-tag">ANALYSIS</span>
+                                <strong>Manhour</strong>
+                            </div>
+                            <i class="bi bi-arrow-up-right pill-arrow"></i>
+                        </a>
 
-                    <a
-                        href="{% url 'manhour:master_data_list' %}"
-                        class="workspace-pill workspace-pill-data"
-                    >
-                        <div class="pill-icon">
-                            <i class="bi bi-database-fill"></i>
-                        </div>
-                        <div class="pill-info">
-                            <span class="pill-tag">DATA</span>
-                            <strong>데이터 입력</strong>
-                        </div>
-                        <i class="bi bi-arrow-up-right pill-arrow"></i>
-                    </a>
+                        <a
+                            href="{% url 'manhour:master_data_list' %}"
+                            class="workspace-pill workspace-pill-data"
+                        >
+                            <div class="pill-icon">
+                                <i class="bi bi-database-fill"></i>
+                            </div>
+                            <div class="pill-info">
+                                <span class="pill-tag">DATA</span>
+                                <strong>데이터 입력</strong>
+                            </div>
+                            <i class="bi bi-arrow-up-right pill-arrow"></i>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div
-                id="portalStatusPanel"
-                class="portal-overview-panel"
-                role="tabpanel"
-                aria-labelledby="portalStatusTab"
-                data-portal-overview-panel="status"
-                hidden
-            >
-                <!-- Integrated Status Metrics -->
-                <div class="status-metrics-row">
-                    <a
-                        href="{% url 'manhour:master_data_list' %}"
-                        class="metric-item metric-item-master"
-                    >
-                        <span class="metric-label"
-                            ><i class="bi bi-database"></i> Master 
-                            <span class="mobile-size">Data</span>
-                        </span>
-                        <strong
-                            class="metric-value master-data-count-num"
-                            data-index-count="master"
-                            >{{ master_data_count }}</strong
+                <div
+                    id="portalStatusPanel"
+                    class="portal-overview-panel"
+                    role="tabpanel"
+                    aria-labelledby="portalStatusTab"
+                    data-portal-overview-panel="status"
+                    hidden
+                >
+                    <!-- Integrated Status Metrics -->
+                    <div class="status-metrics-row">
+                        <a
+                            href="{% url 'manhour:master_data_list' %}"
+                            class="metric-item metric-item-master"
                         >
-                    </a>
-                    <a
-                        href="{% url 'manhour:session_list' %}"
-                        class="metric-item metric-item-active"
-                    >
-                        <span class="metric-label"
-                            ><i class="bi bi-activity"></i> Active
-                            <span class="mobile-size"> Sessions</span>
-                        </span>
-                        <strong
-                            class="metric-value active-count-num"
-                            data-index-count="active"
-                            >{{ active_count }}</strong
+                            <span class="metric-label"
+                                ><i class="bi bi-database"></i> Master
+                                <span class="mobile-size">Data</span>
+                            </span>
+                            <strong
+                                class="metric-value master-data-count-num"
+                                data-index-count="master"
+                                >{{ master_data_count }}</strong
+                            >
+                        </a>
+                        <a
+                            href="{% url 'manhour:session_list' %}"
+                            class="metric-item metric-item-active"
                         >
-                    </a>
-                    <a
-                        href="{% url 'manhour:history' %}"
-                        class="metric-item metric-item-history"
-                    >
-                        <span class="metric-label"
-                            ><i class="bi bi-archive"></i> History</span
+                            <span class="metric-label"
+                                ><i class="bi bi-activity"></i> Active
+                                <span class="mobile-size"> Sessions</span>
+                            </span>
+                            <strong
+                                class="metric-value active-count-num"
+                                data-index-count="active"
+                                >{{ active_count }}</strong
+                            >
+                        </a>
+                        <a
+                            href="{% url 'manhour:history' %}"
+                            class="metric-item metric-item-history"
                         >
-                        <strong
-                            class="metric-value history-count-num"
-                            data-index-count="history"
-                            >{{ history_count }}</strong
-                        >
-                    </a>
+                            <span class="metric-label"
+                                ><i class="bi bi-archive"></i> History</span
+                            >
+                            <strong
+                                class="metric-value history-count-num"
+                                data-index-count="history"
+                                >{{ history_count }}</strong
+                            >
+                        </a>
+                    </div>
                 </div>
-            </div>
             </div>
         </section>
 
-        <section class="bento-card portal-current-weather" aria-labelledby="portalCurrentWeatherTitle">
-            <h2 class="bento-title" id="portalCurrentWeatherTitle">현재 공항 날씨</h2>
+        <section
+            class="bento-card portal-current-weather"
+            aria-labelledby="portalCurrentWeatherTitle"
+        >
+            <h2 class="bento-title" id="portalCurrentWeatherTitle">
+                현재 공항 날씨
+            </h2>
             <div class="hero-weather-summary">
                 <span class="hero-weather-icon"
                     ><i class="bi bi-cloud-sun-fill"></i
                 ></span>
                 <span class="hero-weather-copy">
-                    <small data-index-metar="summary-station"
-                        >AIRPORT</small
-                    >
+                    <small data-index-metar="summary-station">AIRPORT</small>
                     <strong data-index-metar="summary-temp">--</strong>
                 </span>
                 <span
@@ -298,109 +316,122 @@
             </summary>
 
             <div class="metar-collapsible-content">
+                <div
+                    id="metarTabs"
+                    class="metar-tabs"
+                    data-index-metar="tabs"
+                ></div>
 
-            <div
-                id="metarTabs"
-                class="metar-tabs"
-                data-index-metar="tabs"
-            ></div>
-
-            <div class="metar-station-info">
-                <div class="metar-station-copy">
-                    <span class="metar-station-label">CURRENT STATION</span>
-                    <h3 id="metarStation" data-index-metar="station">---</h3>
+                <div class="metar-station-info">
+                    <div class="metar-station-copy">
+                        <span class="metar-station-label">CURRENT STATION</span>
+                        <h3 id="metarStation" data-index-metar="station">
+                            ---
+                        </h3>
+                        <span
+                            id="metarUpdated"
+                            class="metar-updated"
+                            data-index-metar="updated"
+                            >Updating weather data...</span
+                        >
+                    </div>
                     <span
-                        id="metarUpdated"
-                        class="metar-updated"
-                        data-index-metar="updated"
-                        >Updating weather data...</span
+                        id="metarCategory"
+                        class="metar-category"
+                        data-index-metar="category"
+                        >--</span
                     >
                 </div>
-                <span
-                    id="metarCategory"
-                    class="metar-category"
-                    data-index-metar="category"
-                    >--</span
-                >
-            </div>
 
-            <div class="metar-grid">
-                <div class="metar-item">
-                    <span class="metar-item-icon"
-                        ><i class="bi bi-thermometer-half"></i
-                    ></span>
-                    <span class="metar-item-copy"
-                        ><small>TEMPERATURE</small
-                        ><strong id="metarTemp" data-index-metar="temp"
-                            >--</strong
-                        ></span
-                    >
+                <div class="metar-grid">
+                    <div class="metar-item">
+                        <span class="metar-item-icon"
+                            ><i class="bi bi-thermometer-half"></i
+                        ></span>
+                        <span class="metar-item-copy"
+                            ><small>TEMPERATURE</small
+                            ><strong id="metarTemp" data-index-metar="temp"
+                                >--</strong
+                            ></span
+                        >
+                    </div>
+                    <div class="metar-item">
+                        <span class="metar-item-icon"
+                            ><i class="bi bi-wind"></i
+                        ></span>
+                        <span class="metar-item-copy"
+                            ><small>WIND</small
+                            ><strong id="metarWind" data-index-metar="wind"
+                                >--</strong
+                            ></span
+                        >
+                    </div>
+                    <div class="metar-item">
+                        <span class="metar-item-icon"
+                            ><i class="bi bi-eye"></i
+                        ></span>
+                        <span class="metar-item-copy"
+                            ><small>VISIBILITY</small
+                            ><strong
+                                id="metarVisibility"
+                                data-index-metar="visibility"
+                                >--</strong
+                            ></span
+                        >
+                    </div>
+                    <div class="metar-item">
+                        <span class="metar-item-icon"
+                            ><i class="bi bi-speedometer2"></i
+                        ></span>
+                        <span class="metar-item-copy"
+                            ><small>PRESSURE</small
+                            ><strong
+                                id="metarPressure"
+                                data-index-metar="pressure"
+                                >--</strong
+                            ></span
+                        >
+                    </div>
                 </div>
-                <div class="metar-item">
-                    <span class="metar-item-icon"
-                        ><i class="bi bi-wind"></i
-                    ></span>
-                    <span class="metar-item-copy"
-                        ><small>WIND</small
-                        ><strong id="metarWind" data-index-metar="wind"
-                            >--</strong
-                        ></span
-                    >
-                </div>
-                <div class="metar-item">
-                    <span class="metar-item-icon"
-                        ><i class="bi bi-eye"></i
-                    ></span>
-                    <span class="metar-item-copy"
-                        ><small>VISIBILITY</small
-                        ><strong
-                            id="metarVisibility"
-                            data-index-metar="visibility"
-                            >--</strong
-                        ></span
-                    >
-                </div>
-                <div class="metar-item">
-                    <span class="metar-item-icon"
-                        ><i class="bi bi-speedometer2"></i
-                    ></span>
-                    <span class="metar-item-copy"
-                        ><small>PRESSURE</small
-                        ><strong id="metarPressure" data-index-metar="pressure"
-                            >--</strong
-                        ></span
-                    >
-                </div>
-            </div>
 
-            <div class="metar-details" aria-label="추가 기상 정보">
-                <div class="metar-detail-item">
-                    <small><span class="mobile-size">DEW POINT</span>(이슬점)
-                    </small>
-                    <strong data-index-metar="dewpoint">--</strong>
+                <div class="metar-details" aria-label="추가 기상 정보">
+                    <div class="metar-detail-item">
+                        <small
+                            ><span class="mobile-size">DEW POINT</span>(이슬점)
+                        </small>
+                        <strong data-index-metar="dewpoint">--</strong>
+                    </div>
+                    <div class="metar-detail-item">
+                        <small
+                            ><span class="mobile-size">HUMIDITY</span
+                            >(습도)</small
+                        >
+                        <strong data-index-metar="humidity">--</strong>
+                    </div>
+                    <div class="metar-detail-item metar-detail-condition">
+                        <small
+                            ><span class="mobile-size">CONDITION</span>(기상
+                            상태)</small
+                        >
+                        <strong data-index-metar="condition">--</strong>
+                        <span
+                            class="metar-condition-note"
+                            data-index-metar="condition-note"
+                            >기상 정보 확인 중</span
+                        >
+                    </div>
                 </div>
-                <div class="metar-detail-item">
-                    <small><span class="mobile-size">HUMIDITY</span>(습도)</small>
-                    <strong data-index-metar="humidity">--</strong>
-                </div>
-                <div class="metar-detail-item metar-detail-condition">
-                    <small><span class="mobile-size">CONDITION</span>(기상 상태)</small>
-                    <strong data-index-metar="condition">--</strong>
-                    <span class="metar-condition-note" data-index-metar="condition-note">기상 정보 확인 중</span>
-                </div>
-            </div>
 
-            <div class="metar-raw-box">
-                <span class="metar-raw-label"
-                    ><i class="bi bi-broadcast-pin"></i> RAW METAR</span
-                >
-                <code id="metarRaw" data-index-metar="raw"
-                    >Loading METAR...</code
-                >
-            </div>
+                <div class="metar-raw-box">
+                    <span class="metar-raw-label"
+                        ><i class="bi bi-broadcast-pin"></i> RAW METAR</span
+                    >
+                    <code id="metarRaw" data-index-metar="raw"
+                        >Loading METAR...</code
+                    >
+                </div>
             </div>
         </details>
-
     </div>
 </main>
 {% endblock content %}

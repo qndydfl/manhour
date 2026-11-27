@@ -255,34 +255,6 @@ class BackgroundImage(models.Model):
         return f"{self.key}"
 
 
-class FeaturedVideo(models.Model):
-    class VideoKind(models.TextChoices):
-        VIDEO = "VIDEO", "Video"
-        SHORTS = "SHORTS", "Shorts"
-
-    title = models.CharField(max_length=100)
-    youtube_url = models.URLField(help_text="Full YouTube URL")
-    kind = models.CharField(
-        max_length=10,
-        choices=VideoKind.choices,
-        default=VideoKind.VIDEO,
-    )
-    site = models.CharField(
-        max_length=50,
-        blank=True,
-        default="",
-        help_text="Blank = all sites",
-    )
-    sort_order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["sort_order", "id"]
-
-    def __str__(self):
-        return f"{self.title}"
-
-
 class AppSetting(models.Model):
     key = models.CharField(max_length=50)
     site = models.CharField(

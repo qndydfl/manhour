@@ -522,14 +522,16 @@ body.manning-v2-body {
 ========================================================= */
 
 .manning-content {
+    --manning-page-gap: var(--manning-content-gap);
     width: 100%;
 
     max-width: 1560px;
 
     margin: 0 auto;
 
-    padding: calc(var(--manning-topbar-height) + var(--manning-content-gap)) 36px
-        var(--manning-content-gap);
+    padding-inline: 36px;
+    padding-block: calc(var(--manning-topbar-height) + var(--manning-page-gap))
+        var(--manning-page-gap);
 }
 
 .manning-sidebar-overlay {
@@ -542,6 +544,17 @@ body.manning-v2-body {
 
 .manning-content > :last-child {
     margin-bottom: 0 !important;
+}
+
+@media (max-width: 700px) {
+    body.manning-v2-body {
+        --manning-topbar-height: 48px;
+    }
+
+    .manning-main > .manning-content {
+        --manning-page-gap: var(--manning-content-gap-mobile);
+        padding-inline: 10px;
+    }
 }
 
 .manning-message-area {
@@ -614,8 +627,8 @@ body.manning-v2-body {
     }
 
     .manning-content {
-        padding: calc(var(--manning-topbar-height) + var(--manning-content-gap-tablet)) 20px
-            var(--manning-content-gap-tablet);
+        --manning-page-gap: var(--manning-content-gap-tablet);
+        padding-inline: 20px;
     }
 
     .manning-topbar-date {

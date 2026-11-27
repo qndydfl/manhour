@@ -6,7 +6,6 @@ from django.db.utils import OperationalError, ProgrammingError
 from .models import (
     AppSetting,
     DefaultWorkerDirectory,
-    FeaturedVideo,
     TaskMaster,
     WorkSession,
     Workplace,
@@ -47,7 +46,6 @@ def _update_scoped_models_for_code_change(old_codes: set[str], new_code: str) ->
 
     TaskMaster.objects.filter(site__in=source_codes).update(site=new_code)
     WorkSession.objects.filter(site__in=source_codes).update(site=new_code)
-    FeaturedVideo.objects.filter(site__in=source_codes).update(site=new_code)
     ManningWorkSession.objects.filter(site__in=source_codes).update(site=new_code)
 
 

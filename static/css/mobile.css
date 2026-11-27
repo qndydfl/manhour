@@ -436,10 +436,6 @@ iframe {
         font-size: 14px;
     }
 
-    .manning-content {
-        padding: calc(var(--manning-topbar-height, 48px) + 10px) 7px 10px;
-    }
-
     .manning-form-page {
         width: 100%;
         max-width: none;
@@ -1086,10 +1082,6 @@ iframe {
     .workforce-editor-page,
     .result-view-container {
         width: calc(100% - 16px);
-    }
-
-    .manning-content {
-        padding: 58px 10px 10px;
     }
 
     .manning-form-header {

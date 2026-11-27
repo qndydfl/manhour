@@ -32,7 +32,6 @@ from .models import (
     AppSetting,
     Assignment,
     DefaultWorkerDirectory,
-    FeaturedVideo,
     GibunPriority,
     TaskMaster,
     WorkItem,
@@ -377,13 +376,6 @@ class IndexView(SimpleLoginRequiredMixin, MasterDataBaseMixin, TemplateView):
 
         master_data_count = self.get_master_data_count()
 
-        video_qs = FeaturedVideo.objects.filter(is_active=True)
-        if workplace:
-            video_qs = video_qs.filter(Q(site=workplace) | Q(site=""))
-
-        index_videos = list(video_qs.filter(kind=FeaturedVideo.VideoKind.VIDEO))
-        index_shorts = list(video_qs.filter(kind=FeaturedVideo.VideoKind.SHORTS))
-
         context.update(
             {
                 "today": today,
@@ -396,8 +388,6 @@ class IndexView(SimpleLoginRequiredMixin, MasterDataBaseMixin, TemplateView):
                 "night_count": active_qs.filter(shift_type="NIGHT").count(),
                 "history_count": history_count,
                 "master_data_count": master_data_count,
-                "index_videos": index_videos,
-                "index_shorts": index_shorts,
             }
         )
         return context
