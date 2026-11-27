@@ -17,3 +17,19 @@ body .cb-open-topbar .cb-open-topbar-inner {
         width: calc(100% - 16px);
     }
 }
+
+@media screen and (max-width: 900px) {
+    body.assignment-console-body > header > .cb-shared-topbar-inner,
+    body.cb-library-body > main.cb-library-page,
+    body.cb-open-body > main.cb-open-page {
+        box-sizing: border-box;
+        width: calc(100% - 16px);
+        max-width: none;
+        margin-inline: auto;
+        padding-inline: 0;
+    }
+
+    body.assignment-console-body > header > .cb-shared-topbar-inner {
+        width: calc(100% - 16px) !important;
+    }
+}

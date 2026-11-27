@@ -3,7 +3,7 @@
 ========================================================= */
 
 .mh-page {
-    width: min(var(--assignment-width), calc(100% - 56px));
+    width: min(var(--assignment-width), calc(100% - 56px));    
     margin: 0 auto;
     padding: var(--nav-content-gap) 0;
 }

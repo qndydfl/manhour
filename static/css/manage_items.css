@@ -12,12 +12,9 @@ body.assignment-console-body {
 ========================================================= */
 
 body.assignment-console-body > .container {
-    width: min(1540px, calc(100% - 48px));
-
+    width: min(var(--assignment-width), calc(100% - 56px));
     max-width: none;
-
     margin: 0 auto;
-
     padding: 34px 0;
 }
 

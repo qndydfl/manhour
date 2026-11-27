@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .portal-main-container {
-    width: min(var(--portal-width, 1480px), calc(100% - 64px));
+    width: min(var(--assignment-width), calc(100% - 56px));
     max-width: none;
     margin: 0 auto;
     padding: var(--nav-content-gap) 0;
@@ -1486,7 +1486,7 @@ body.portal-body {
 
 .portal-quick-menu__heading small {
     color: #94a3b8;
-    font-size: 0.72rem;
+    font-size: var(--font-size-micro);
 }
 
 .portal-quick-menu .dropdown-item {
@@ -1515,13 +1515,13 @@ body.portal-body {
 }
 
 .portal-quick-menu .dropdown-item strong {
-    font-size: 0.78rem;
+    font-size: var(--font-size-sm);
     font-weight: 750;
 }
 
 .portal-quick-menu .dropdown-item small {
     color: #94a3b8;
-    font-size: 0.66rem;
+    font-size: var(--font-size-micro);
 }
 
 .portal-quick-menu__icon {

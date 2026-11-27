@@ -2,20 +2,22 @@
 {% load static %}
 {% block title %}{{ aircraft_model }} 저장 템플릿{% endblock title %}
 {% block body_class %}cb-library-body{% endblock body_class %}
+
 {% block css %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_header_brand.css' %}?v=9" />
 <link rel="stylesheet" href="{% static 'css/bookmarks/cb_library.css' %}?v=20261015-2" />
 <link rel="stylesheet" href="{% static 'css/bookmarks/cb_template_library.css' %}?v=20261015-5" />
 {% endblock css %}
+
 {% block js %}{{ block.super }}
 <script src="{% static 'js/bookmarks/cb_aircraft_home.js' %}?v=20261015-1" defer></script>
 {% endblock js %}
+
 {% block content %}
 <header class="assignment-topbar">
-    <div class="assignment-topbar-inner">
-        <a href="{% url 'bookmarks:cb_aircraft_home' aircraft_model %}" class="assignment-brand">
-            <div class="assignment-brand-icon"><i class="bi bi-collection"></i></div>
-            <div><strong>{{ aircraft_model }} 기종별 템플릿</strong><span>Template Library</span></div>
-        </a>
+    <div class="assignment-topbar-inner cb-shared-topbar-inner">
+        {% url 'bookmarks:cb_aircraft_home' aircraft_model as cb_brand_url %}
+        {% include "bookmarks/partials/cb_header_brand.html" with brand_url=cb_brand_url brand_icon="bi-collection" brand_title=aircraft_model|add:" 기종별 템플릿" brand_subtitle="Template Library" only %}
         <div class="assignment-topbar-actions">
             <a href="{% url 'bookmarks:cb_aircraft_home' aircraft_model %}" class="assignment-topbar-btn">
                 <i class="bi bi-arrow-left"></i><span>기종 메뉴</span>

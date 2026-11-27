@@ -12,13 +12,14 @@
 {% block body_class %}cb-open-body{% endblock body_class %}
 
 {% block css %}
+<link rel="stylesheet" href="{% static 'css/bookmarks/cb_header_brand.css' %}?v=9" />
 <link
     rel="stylesheet"
     href="{% static 'css/bookmarks/cb_grid_editor.css' %}?v=20260919-1"
 />
 <link
     rel="stylesheet"
-    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261121-1"
+    href="{% static 'css/bookmarks/cb_open_list.css' %}?v=20261127-1"
 />
 {% endblock css %} {% block js %}
 <script
@@ -37,25 +38,14 @@
 
 {% block content %}
 <header class="cb-open-topbar">
-    <div class="cb-open-topbar-inner">
+    <div class="cb-open-topbar-inner cb-shared-topbar-inner">
         <!-- 브랜드 -->
-        <a
-            href="{% url 'bookmarks:cb_template_library' %}"
-            class="cb-open-brand"
-        >
-            <span class="cb-open-brand-icon">
-                <i class="bi bi-clipboard2-check"></i>
-            </span>
-
-            <span class="cb-open-brand-text">
-                <strong
-                    >{% if template_manage_mode %}기종별 C/B 템플릿{% else %}C/B OPEN LIST{% endif %}
-                </strong>
-                <small
-                    >{% if template_manage_mode %}수정 · 삭제 · 출력{% else %}Maintenance Operations{% endif %}
-                </small>
-            </span>
-        </a>
+        {% url 'bookmarks:cb_template_library' as cb_brand_url %}
+        {% if template_manage_mode %}
+        {% include "bookmarks/partials/cb_header_brand.html" with brand_url=cb_brand_url brand_icon="bi-clipboard2-check" brand_title="기종별 C/B 템플릿" brand_subtitle="수정 · 삭제 · 출력" only %}
+        {% else %}
+        {% include "bookmarks/partials/cb_header_brand.html" with brand_url=cb_brand_url brand_icon="bi-clipboard2-check" brand_title="C/B OPEN LIST" brand_subtitle="Maintenance Operations" only %}
+        {% endif %}
 
         <!-- 상단 버튼 -->
         <div class="cb-open-top-actions">
@@ -252,14 +242,14 @@
             <textarea
                 id="cbOpenListPasteSource"
                 class="form-control cb-open-paste-area"
-                rows="2"
+                rows="3"
                 placeholder="여기에 붙여넣기 또는 직접 입력"
             ></textarea>
 
             <div
-                class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2"
+                class="cb-open-text d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2"
             >
-                <small class="text-secondary">
+                <small>
                     직접 입력시: 예: P110, P 23, , L ENG T/R CTRL&#10;여러 건은 한 줄에 하나씩 입력하세요.<br/>
                     FIN이 없으면 쉼표 사이를 비워 주세요.
                 </small>
