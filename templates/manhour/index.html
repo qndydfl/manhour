@@ -46,7 +46,7 @@
     {% if request.session.is_authenticated and request.session.workplace %}
     <div class="portal-team-banner">
         <i class="bi bi-people-fill" aria-hidden="true"></i>
-        <span>현재 팀</span>
+        <span>현재 그룹</span>
         <strong>{{ request.session.workplace_label|default:request.session.workplace }}</strong>
     </div>
     {% endif %}
