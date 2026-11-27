@@ -1766,6 +1766,28 @@ TOAST
     background: transparent !important;
 }
 
+.portal-team-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-bottom: 0.85rem;
+    padding: 7px 12px;
+    /* border-radius: 12px; */
+    /* background: rgba(7, 17, 31, 0.88); */
+    color: var(--ios-secondary-background);
+    font-size: var(--font-size-xl);
+}
+
+.portal-team-banner strong {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    color: #fff;
+    font-size: var(--font-size-2xl);
+}
+
 .portal-clock-strip {
     display: flex;
     flex-wrap: wrap;

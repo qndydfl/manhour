@@ -1,11 +1,10 @@
 {% extends 'manhour/base/portal_base.html' %}
 {% load static %}
 {% load i18n %}
-{% load background_tags %}
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-2" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-3" />
 <link
     rel="stylesheet"
     href="{% static 'css/index_background.css' %}?v=20261127-5"
@@ -40,60 +39,17 @@
 {% endblock js %}
 
 {% block content %}
-{% background_config "index_background_video" as video_background %}
-{% background_config "index_background_image" as image_background %}
-{% background_config "index_background" as default_background %}
-{% background_config "index_ocean_background" as legacy_background %}
-{% firstof video_background.video_url default_background.video_url legacy_background.video_url as ocean_video_url %}
-{% firstof image_background.image_url default_background.image_url legacy_background.image_url as ocean_image_url %}
-{% background_gallery "index_background_image_" as ocean_slides %}
-{% if not ocean_slides and not image_background.image_url %}
-    {% background_gallery "index_ocean_slide_" as ocean_slides %}
-{% endif %}
 {% include "manhour/partials/portal_header.html" %}
-
-<div class="index-background" aria-hidden="true">
-    {% if ocean_video_url %}
-    <video
-        class="portal-ocean-video"
-        src="{{ ocean_video_url }}"
-        muted
-        loop
-        playsinline
-        preload="metadata"
-    ></video>
-    {% endif %}
-    {% if ocean_slides %}
-    {% for slide in ocean_slides %}
-        <img
-            class="portal-ocean-image{% if forloop.first %} is-active{% endif %}"
-            data-ocean-slide
-            {% if forloop.first %}src="{{ slide.image_url }}"
-            {% else %}data-src="{{ slide.image_url }}"
-            {% endif %}
-            alt=""
-        />
-    {% endfor %}
-    {% elif ocean_image_url %}
-    <img class="portal-ocean-image" src="{{ ocean_image_url }}" alt="" />
-
-    {% else %}
-    <div class="portal-ocean-fallback">
-        <span class="ocean-fish ocean-fish-1"></span>
-        <span class="ocean-fish ocean-fish-2"></span>
-        <span class="ocean-fish ocean-fish-3"></span>
-        <span class="ocean-fish ocean-fish-4"></span>
-        <span class="ocean-bubbles ocean-bubbles-1"></span>
-        <span class="ocean-bubbles ocean-bubbles-2"></span>
-        <span class="ocean-shark ocean-shark-1"></span>
-        <span class="ocean-shark ocean-shark-2"></span>
-        <span class="ocean-shark ocean-shark-3"></span>
-    </div>
-    <div class="portal-ocean-overlay"></div>
-    {% endif %}
-</div>
+{% include "manhour/partials/index_backgroun.html" %}
 
 <main class="portal-main-container" data-index-page>
+    {% if request.session.is_authenticated and request.session.workplace %}
+    <div class="portal-team-banner">
+        <i class="bi bi-people-fill" aria-hidden="true"></i>
+        <span>현재 팀</span>
+        <strong>{{ request.session.workplace_label|default:request.session.workplace }}</strong>
+    </div>
+    {% endif %}
     <div class="portal-clock-strip" aria-label="현재 시간">
         <span
             >LOCAL <strong data-index-clock="local-time">--:--:--</strong>
