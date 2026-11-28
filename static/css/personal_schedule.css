@@ -56,7 +56,7 @@
         flex: 0 0 auto;
         padding: 0;
         border: 0;
-        font-size: 10px;
+        font-size: var(--font-size-xs);
         white-space: nowrap;
     }
 
