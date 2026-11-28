@@ -92,7 +92,6 @@ body.assignment-console-body
 }
 
 .assignment-topbar-inner {
-    width: min(var(--assignment-width), calc(100% - 56px)) !important;
     min-height: var(--assignment-topbar-height);
     margin: 0 auto;
     display: flex;

@@ -359,7 +359,7 @@ body.assignment-console-body > .mh-create-page {
 
 .mh-create-side-inner {
     position: sticky;
-    top: 88px;
+    top: 5.3rem !important;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -367,7 +367,7 @@ body.assignment-console-body > .mh-create-page {
 
 .mh-create-side-inner.is-pinned {
     position: fixed;
-    top: 88px;
+    top: 5.3rem;
     z-index: 40;
 }
 

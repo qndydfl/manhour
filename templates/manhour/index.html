@@ -4,7 +4,8 @@
 {% block title %} MANNING & MANHOUR {% endblock title %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261127-7" />
+<link rel="stylesheet" href="{% static 'css/portal.css' %}?v=20261128-6" />
+<link rel="stylesheet" href="{% static 'css/portal_header.css' %}?v=1" />
 <link
     rel="stylesheet"
     href="{% static 'css/index_background.css' %}?v=20261127-5"
@@ -69,12 +70,12 @@
             aria-labelledby="portalCurrentWeatherTitle"
         >
             <h2 class="bento-title" id="portalCurrentWeatherTitle">
+                <span class="hero-weather-icon" aria-hidden="true">
+                    <i class="bi bi-cloud-sun-fill"></i>
+                </span>
                 현재 공항 날씨
             </h2>
             <div class="hero-weather-summary">
-                <span class="hero-weather-icon"
-                    ><i class="bi bi-cloud-sun-fill"></i
-                ></span>
                 <span class="hero-weather-copy">
                     <small data-index-metar="summary-station">AIRPORT</small>
                     <strong data-index-metar="summary-temp">--</strong>
@@ -92,16 +93,16 @@
         <!-- CARD 2: Workspaces & Operational Stats (Hero Card) -->
         <section class="bento-card bento-card-hero">
             <div class="bento-card-head">
-                <div>
+                <div class="portal-overview-heading">
                     <span class="bento-badge">WORKSPACES</span>
                     <div class="portal-overview-title-row">
-                        <h2 class="bento-title">운영 현황 & 작업 현황</h2>
                         <span
                             class="portal-operation-turbine"
                             aria-hidden="true"
                         >
                             <i class="bi bi-gear-wide-connected"></i>
                         </span>
+                        <h2 class="bento-title">운영 현황 & 작업 현황</h2>
                     </div>
                 </div>
             </div>
@@ -248,144 +249,143 @@
                     </div>
                 </div>
             </div>
-        </section>        
+        </section>
+    </div>
 
-        <!-- CARD 3: METAR Weather Monitor -->
-        <details
-            class="bento-card bento-card-metar"
-            id="metarPanel"
-            data-index-metar="panel"
-        >
-            <summary class="bento-card-head metar-collapse-summary">
-                <div>
-                    <span class="bento-badge">LIVE WEATHER</span>
-                    <h2 class="metar-card-title">Airport METAR</h2>
-                </div>
-                <span class="metar-summary-actions" aria-hidden="true">
-                    <span class="metar-head-icon">
-                        <i class="bi bi-cloud-sun-fill"></i>
-                    </span>
-                    <i class="bi bi-chevron-down metar-collapse-chevron"></i>
+    <details
+        class="bento-card bento-card-metar"
+        id="metarPanel"
+        data-index-metar="panel"
+    >
+        <summary class="bento-card-head metar-collapse-summary">
+            <div>
+                <span class="bento-badge">LIVE WEATHER</span>
+                <h2 class="metar-card-title">Airport METAR</h2>
+            </div>
+            <span class="metar-summary-actions" aria-hidden="true">
+                <span class="metar-head-icon">
+                    <i class="bi bi-cloud-sun-fill"></i>
                 </span>
-            </summary>
+                <i class="bi bi-chevron-down metar-collapse-chevron"></i>
+            </span>
+        </summary>
 
-            <div class="metar-collapsible-content">
-                <div
-                    id="metarTabs"
-                    class="metar-tabs"
-                    data-index-metar="tabs"
-                ></div>
+        <div class="metar-collapsible-content">
+            <div
+                id="metarTabs"
+                class="metar-tabs"
+                data-index-metar="tabs"
+            ></div>
 
-                <div class="metar-station-info">
-                    <div class="metar-station-copy">
-                        <span class="metar-station-label">CURRENT STATION</span>
-                        <h3 id="metarStation" data-index-metar="station">
-                            ---
-                        </h3>
-                        <span
-                            id="metarUpdated"
-                            class="metar-updated"
-                            data-index-metar="updated"
-                            >Updating weather data...</span
-                        >
-                    </div>
+            <div class="metar-station-info">
+                <div class="metar-station-copy">
+                    <span class="metar-station-label">CURRENT STATION</span>
+                    <h3 id="metarStation" data-index-metar="station">
+                        ---
+                    </h3>
                     <span
-                        id="metarCategory"
-                        class="metar-category"
-                        data-index-metar="category"
-                        >--</span
+                        id="metarUpdated"
+                        class="metar-updated"
+                        data-index-metar="updated"
+                        >Updating weather data...</span
                     >
                 </div>
+                <span
+                    id="metarCategory"
+                    class="metar-category"
+                    data-index-metar="category"
+                    >--</span
+                >
+            </div>
 
-                <div class="metar-grid">
-                    <div class="metar-item">
-                        <span class="metar-item-icon"
-                            ><i class="bi bi-thermometer-half"></i
-                        ></span>
-                        <span class="metar-item-copy"
-                            ><small>TEMPERATURE</small
-                            ><strong id="metarTemp" data-index-metar="temp"
-                                >--</strong
-                            ></span
-                        >
-                    </div>
-                    <div class="metar-item">
-                        <span class="metar-item-icon"
-                            ><i class="bi bi-wind"></i
-                        ></span>
-                        <span class="metar-item-copy"
-                            ><small>WIND</small
-                            ><strong id="metarWind" data-index-metar="wind"
-                                >--</strong
-                            ></span
-                        >
-                    </div>
-                    <div class="metar-item">
-                        <span class="metar-item-icon"
-                            ><i class="bi bi-eye"></i
-                        ></span>
-                        <span class="metar-item-copy"
-                            ><small>VISIBILITY</small
-                            ><strong
-                                id="metarVisibility"
-                                data-index-metar="visibility"
-                                >--</strong
-                            ></span
-                        >
-                    </div>
-                    <div class="metar-item">
-                        <span class="metar-item-icon"
-                            ><i class="bi bi-speedometer2"></i
-                        ></span>
-                        <span class="metar-item-copy"
-                            ><small>PRESSURE</small
-                            ><strong
-                                id="metarPressure"
-                                data-index-metar="pressure"
-                                >--</strong
-                            ></span
-                        >
-                    </div>
-                </div>
-
-                <div class="metar-details" aria-label="추가 기상 정보">
-                    <div class="metar-detail-item">
-                        <small
-                            ><span class="mobile-size">DEW POINT</span>(이슬점)
-                        </small>
-                        <strong data-index-metar="dewpoint">--</strong>
-                    </div>
-                    <div class="metar-detail-item">
-                        <small
-                            ><span class="mobile-size">HUMIDITY</span
-                            >(습도)</small
-                        >
-                        <strong data-index-metar="humidity">--</strong>
-                    </div>
-                    <div class="metar-detail-item metar-detail-condition">
-                        <small
-                            ><span class="mobile-size">CONDITION</span>(기상
-                            상태)</small
-                        >
-                        <strong data-index-metar="condition">--</strong>
-                        <span
-                            class="metar-condition-note"
-                            data-index-metar="condition-note"
-                            >기상 정보 확인 중</span
-                        >
-                    </div>
-                </div>
-
-                <div class="metar-raw-box">
-                    <span class="metar-raw-label"
-                        ><i class="bi bi-broadcast-pin"></i> RAW METAR</span
+            <div class="metar-grid">
+                <div class="metar-item">
+                    <span class="metar-item-icon"
+                        ><i class="bi bi-thermometer-half"></i
+                    ></span>
+                    <span class="metar-item-copy"
+                        ><small>TEMPERATURE</small
+                        ><strong id="metarTemp" data-index-metar="temp"
+                            >--</strong
+                        ></span
                     >
-                    <code id="metarRaw" data-index-metar="raw"
-                        >Loading METAR...</code
+                </div>
+                <div class="metar-item">
+                    <span class="metar-item-icon"
+                        ><i class="bi bi-wind"></i
+                    ></span>
+                    <span class="metar-item-copy"
+                        ><small>WIND</small
+                        ><strong id="metarWind" data-index-metar="wind"
+                            >--</strong
+                        ></span
+                    >
+                </div>
+                <div class="metar-item">
+                    <span class="metar-item-icon"
+                        ><i class="bi bi-eye"></i
+                    ></span>
+                    <span class="metar-item-copy"
+                        ><small>VISIBILITY</small
+                        ><strong
+                            id="metarVisibility"
+                            data-index-metar="visibility"
+                            >--</strong
+                        ></span
+                    >
+                </div>
+                <div class="metar-item">
+                    <span class="metar-item-icon"
+                        ><i class="bi bi-speedometer2"></i
+                    ></span>
+                    <span class="metar-item-copy"
+                        ><small>PRESSURE</small
+                        ><strong
+                            id="metarPressure"
+                            data-index-metar="pressure"
+                            >--</strong
+                        ></span
                     >
                 </div>
             </div>
-        </details>
-    </div>
+
+            <div class="metar-details" aria-label="추가 기상 정보">
+                <div class="metar-detail-item">
+                    <small
+                        ><span class="mobile-size">DEW POINT</span>(이슬점)
+                    </small>
+                    <strong data-index-metar="dewpoint">--</strong>
+                </div>
+                <div class="metar-detail-item">
+                    <small
+                        ><span class="mobile-size">HUMIDITY</span
+                        >(습도)</small
+                    >
+                    <strong data-index-metar="humidity">--</strong>
+                </div>
+                <div class="metar-detail-item metar-detail-condition">
+                    <small
+                        ><span class="mobile-size">CONDITION</span>(기상
+                        상태)</small
+                    >
+                    <strong data-index-metar="condition">--</strong>
+                    <span
+                        class="metar-condition-note"
+                        data-index-metar="condition-note"
+                        >기상 정보 확인 중</span
+                    >
+                </div>
+            </div>
+
+            <div class="metar-raw-box">
+                <span class="metar-raw-label"
+                    ><i class="bi bi-broadcast-pin"></i> RAW METAR</span
+                >
+                <code id="metarRaw" data-index-metar="raw"
+                    >Loading METAR...</code
+                >
+            </div>
+        </div>
+    </details>
 </main>
 {% endblock content %}

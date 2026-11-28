@@ -1,25 +1,29 @@
-/* Homepage, Manhour and C/B: align the inner content, not the full-width bar. */
+/* Keep the existing width used by Manhour body layouts. */
 :root {
     --shared-topbar-width: min(1480px, calc(100% - 56px));
+    --shared-topbar-edge-gap: clamp(8px, 1.6vw, 24px);
 }
 
 body .portal-header .portal-header-inner,
 body .assignment-topbar .assignment-topbar-inner,
-body .cb-open-topbar .cb-open-topbar-inner {
-    width: var(--shared-topbar-width);
+body .cb-open-topbar .cb-open-topbar-inner,
+body.manning-v2-body .manning-topbar .manning-topbar-inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    padding-inline: max(var(--shared-topbar-edge-gap), env(safe-area-inset-left, 0px))
+        max(var(--shared-topbar-edge-gap), env(safe-area-inset-right, 0px));
+}
+
+body.manning-v2-body .manning-topbar {
     padding-inline: 0;
 }
 
-@media (max-width: 900px) {
-    body .portal-header .portal-header-inner,
-    body .assignment-topbar .assignment-topbar-inner,
-    body .cb-open-topbar .cb-open-topbar-inner {
-        width: calc(100% - 16px);
-    }
+body .cb-open-topbar .cb-open-topbar-inner > .cb-open-top-actions {
+    justify-content: safe flex-end;
 }
 
 @media screen and (max-width: 900px) {
-    body.assignment-console-body > header > .cb-shared-topbar-inner,
     body.cb-library-body > main.cb-library-page,
     body.cb-open-body > main.cb-open-page {
         box-sizing: border-box;
@@ -29,7 +33,4 @@ body .cb-open-topbar .cb-open-topbar-inner {
         padding-inline: 0;
     }
 
-    body.assignment-console-body > header > .cb-shared-topbar-inner {
-        width: calc(100% - 16px) !important;
-    }
 }
