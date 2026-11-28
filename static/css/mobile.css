@@ -283,7 +283,7 @@ iframe {
 
     .mh-assigned-summary-page .mh-summary-view-label span,
     .mh-assigned-summary-page .mh-summary-count-badge {
-        font-size: 11px;
+        font-size: var(--font-size-sm);
     }
 
     .manning-form-description,

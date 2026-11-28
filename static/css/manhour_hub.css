@@ -66,10 +66,6 @@
     box-shadow: 0 6px 16px rgba(30, 64, 104, 0.1);
 }
 
-.mh-summary-view-label i {
-    color: #2563eb;
-}
-
 .mh-summary-view-label span {
     color: #17324d;
     font-weight: 800;
@@ -78,7 +74,8 @@
 }
 
 .mh-summary-view-label i {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
+    color: #2563eb;
 }
 
 .mh-btn {
@@ -1189,7 +1186,7 @@
         padding: 0 9px;
         flex: 0 1 auto;
         gap: 5px;
-        font-size: 11px;
+        font-size: var(--font-size-sm);
         white-space: nowrap;
     }
 
@@ -1204,10 +1201,6 @@
         padding: 0 9px;
         font-size: 11px;
         white-space: nowrap;
-    }
-
-    .mh-assigned-summary-page .mh-summary-view-label span {
-        font-size: 11px;
     }
 
     .mh-assigned-summary-page .mh-summary-notice {
