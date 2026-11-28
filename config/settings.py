@@ -34,7 +34,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 # 홈페이지 navbar에 표시되는 배포 정보
 SITE_REVISION = "2025_05_08"
-SITE_LAST_UPDATED = "27-NOV-2026"
+SITE_LAST_UPDATED = "28-NOV-2026"
 
 
 INSTALLED_APPS = [
