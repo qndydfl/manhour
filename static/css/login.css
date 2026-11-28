@@ -158,13 +158,13 @@ body {
 .login-v2-control select:hover,
 .login-v2-control input:hover {
     border-color: #aebdce;
-    background: #ffffff;
+    background-color: #ffffff;
 }
 
 .login-v2-control select:focus,
 .login-v2-control input:focus {
     border-color: #3b82f6;
-    background: #ffffff;
+    background-color: #ffffff;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
@@ -204,4 +204,69 @@ body {
     text-align: center;
     font-size: var(--font-size-xs);
     line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+    .login-v2-control {
+        border: 1px solid #cfd8e3;
+        border-radius: 11px;
+        background: #f9fbfd;
+    }
+
+    .login-v2-control:focus-within {
+        border-color: #3b82f6;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .login-v2-control > i {
+        left: 14px;
+        width: 18px;
+        text-align: center;
+    }
+
+    .login-v2-control > :is(#login-team, #login-workplace, #login-password) {
+        -webkit-appearance: none;
+        appearance: none;
+        min-width: 0;
+        display: block;
+        min-height: 50px;
+        padding: 0 15px 0 42px;
+        border: 0;
+        background-color: transparent;
+        box-shadow: none;
+        text-align: start;
+        text-indent: 0;
+        font-size: 16px;
+    }
+
+    .login-v2-control select:is(:hover, :focus),
+    .login-v2-control input[type="password"]:is(:hover, :focus) {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    .login-v2-control > :is(select, input[type="password"]):focus-visible {
+        outline: none; /* The entire control has a focus ring via :focus-within. */
+    }
+
+    .login-v2-control > :is(#login-team, #login-workplace) {
+        padding-inline-end: 34px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%2364758b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+    }
+
+    .login-v2 {
+        padding: 18px 14px;
+    }
+
+    .login-v2-card {
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+
+    .login-v2-card-brand {
+        padding-bottom: 21px;
+    }
 }
